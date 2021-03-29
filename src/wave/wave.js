@@ -6,6 +6,8 @@ import TextLayer from '../layer/text'
 import AxisLayer from '../layer/axis'
 import RectLayer from '../layer/rect'
 import LegendLayer from '../layer/legend'
+// eslint-disable-next-line no-unused-vars
+import LayerBase from '../layer/base'
 
 // 图表状态
 const stateMapping = {
@@ -161,6 +163,7 @@ export default class Wave {
    * 创建一个图层
    * @param {String} type 图层类型
    * @param {Object} options 图层配置参数
+   * @returns {LayerBase}
    */
   createLayer(type, options = {}) {
     // 暴露给图层的上下文环境

@@ -185,7 +185,7 @@ export default class RectLayer extends LayerBase {
           result.push({value: min, x: getLabelX(x, width, min), y: getLabelY(y, height, false)})
           result.push({value: max, x: getLabelX(x, width, max), y: getLabelY(y, height, true)})
         } else {
-          result.push({value, x: getLabelX(x, width, value), y: getLabelY(y, height, value > 0)})
+          result.push({value, x: getLabelX(x, width, value), y: getLabelY(y, height, value >= 0)})
         }
       })
       return result

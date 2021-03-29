@@ -22,7 +22,7 @@ export default class TableList {
   /**
    * 简单的数据结构校验
    * @param {Array<Array<Number|String>>} tableList 
-   * @returns 是否为合法的二维表数据结构
+   * @returns {Boolean} 是否为合法的二维表数据结构
    */
   isTableList(tableList) {
     if (!Array.isArray(tableList) || tableList.length === 0) {
@@ -37,7 +37,7 @@ export default class TableList {
   /**
    * 矩阵转置操作，二维表行列互换
    * @param {Array<Array<Number|String>>} tableList 
-   * @returns 转置后的二维表
+   * @returns {Array<Array<Number|String>>} 转置后的二维表
    */
   transpose(tableList) {
     if (!this.isTableList(tableList)) {
@@ -70,6 +70,7 @@ export default class TableList {
    * 获取二维表的一个子集，并定义组合方式
    * @param {String | Array<String>} headers 数据列索引
    * @param {TableList} options 数据列组合配置
+   * @returns {TableList}
    */
   select(headers, options = {}) {
     const {mode, target = targetType.ROW} = options
@@ -121,7 +122,6 @@ export default class TableList {
    * 更新二维表数据
    * @param {Array<Array<Number|String>>} tableList 
    * @param {Object} options 数据列配置
-   * @returns 
    */
   update(tableList, options = {}) {
     if (!this.isTableList(tableList)) {
@@ -148,7 +148,7 @@ export default class TableList {
   /**
    * 追加二维表的一行
    * @param {Array<Number|String>} rows 一些数据行
-   * @returns 添加后的二维表
+   * @returns {TableList} 添加后的二维表
    */
   push(...rows) {
     rows.forEach(row => {
@@ -181,7 +181,7 @@ export default class TableList {
   /**
    * 连接多个 TableList
    * @param {TableList} tableList
-   * @returns 连接后的二维表 
+   * @returns {TableList} 连接后的二维表 
    */
   concat(...tableLists) {
     tableLists.forEach(tableList => {
@@ -199,7 +199,7 @@ export default class TableList {
 
   /**
    * 获取二维表数值范围
-   * @returns 返回二维表的最小值和最大值
+   * @returns {Array} 返回二维表的最小值和最大值
    */
   range() {
     const min = d3.min(this.data.map(({list}) => d3.min(list)))
