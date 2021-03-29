@@ -10,7 +10,7 @@ const directionMapping = {
 export default function drawText({
   fontFamily = 'SimHei',
   fontSize = 12,
-  fontWeight = 'lighter',
+  fontWeight = 'normal',
   fill = 'rgba(255,255,255,1)', // 可以是数组定义渐变色
   textShadow = '2px 2px 2px rgba(0,0,0,0)',
   opacity = 1,
