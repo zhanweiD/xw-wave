@@ -50,5 +50,5 @@ const createWave = container => {
 export default function Text() {
   const ref = useRef(null)
   useEffect(() => createWave(ref.current), [])
-  return <div style={{flex: 1}} ref={ref} />
+  return <div style={{width: '100vw', height: '100vh'}} ref={ref} />
 }

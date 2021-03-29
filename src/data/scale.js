@@ -8,8 +8,12 @@ export default function Scale({type, domain, range, nice = {count: 5, zero: fals
     scale = d3.scaleOrdinal().domain(domain).range(range)
   }
   // 离散到连续
-  if (type === 'bind') {
+  if (type === 'band') {
     scale = d3.scaleBand().domain(domain).range(range).paddingInner(1 - 0.618)
+  }
+  // 离散到连续，bind 的变体，bandwidth 为 0
+  if (type === 'point') {
+    scale = d3.scalePoint().domain(domain).range(range)
   }
   // 连续到离散
   if (type === 'quantize') {

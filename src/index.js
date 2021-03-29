@@ -9,9 +9,9 @@ import './index.css'
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-      <Route path="/" component={Text1} />
-      <Route path="/qiongfang" component={Text2} />
-      <Route path="/nanfeng" component={Text3} />
+      <Route extra path="/" render={() => <Text1 />} />
+      <Route path="/qiongfang" render={() => <Text2 />} />
+      <Route path="/nanfeng" render={() => <Text3 />} />
     </Router>
   </React.StrictMode>,
   document.getElementById('root')

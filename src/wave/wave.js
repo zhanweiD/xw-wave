@@ -86,8 +86,9 @@ export default class Wave {
 
     // 确定图表宽高
     if (adjust === 'auto') {
-      this.#containerWidth = +this.#container.style('width').match(/^\d*/)[0]
-      this.#containerHeight = +this.#container.style('height').match(/^\d*/)[0]
+      const rect = this.#container._groups[0][0].getBoundingClientRect()
+      this.#containerWidth = rect.width
+      this.#containerHeight = rect.height
     } else {
       this.#containerWidth = width
       this.#containerWidth = height
