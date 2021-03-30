@@ -76,9 +76,9 @@ export default class RectLayer extends LayerBase {
     return this.#style
   }
 
+  // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
-    // 初始化默认值
     this.className = `wave-rect-${uuid()}`
     this.#container = this.options.root.append('g').attr('class', this.className)
     this.setStyle(defaultStyle)
@@ -102,6 +102,10 @@ export default class RectLayer extends LayerBase {
     const {type = waveType.COLUMN, mode = modeType.GROUP} = this.options
     const tableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const barWidth = scaleX.bandwidth()
+    // 由于 svg 坐标系和常规坐标系不同，在引入 bar 比例尺的时候需要进行值域的倒置
+    if (scales.scaleY && type === waveType.BAR) {
+      this.#scale.scaleY.range(this.#scale.scaleY.range().reverse())
+    }
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
     this.#rectData = tableList.map(([dimension, ...values]) => {
       return values.map(value => ({
@@ -160,13 +164,14 @@ export default class RectLayer extends LayerBase {
     }
     // 矩形到条形的数据转换
     if (type === waveType.BAR) {
+      const zeroY = this.#rectData[0][0].y + this.#rectData[0][0].height
       this.#rectData = this.#rectData.map(groupData => {
-        return groupData.map(({value, x, width, height}) => ({
-          value,
-          x: left,
-          y: x - left + top,
+        return groupData.map(({x, y, height, width, value}) => ({
+          value, 
           width: height, 
           height: width,
+          y: x - left + top, 
+          x: zeroY - height - y + left, 
         }))
       })
     }
@@ -180,7 +185,8 @@ export default class RectLayer extends LayerBase {
     const {fontSize = 12} = this.#style.text
     // 颜色跟随主题
     if (this.#rectData[0]?.length > 1) {
-      this.#style.rect.fill = getColor(this.#rectData[0]?.length)
+      const colors = getColor(this.#rectData[0].length)
+      this.#rectData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
     } else if (this.#rectData[0]?.length === 1) {
       const colors = getColor(this.#rectData.length)
       this.#rectData.forEach((groupData, i) => (groupData[0].color = colors[i]))
@@ -253,7 +259,7 @@ export default class RectLayer extends LayerBase {
       const groupClassName = `${this.className}-${i}`
       const rectPosition = this.#rectData[i].map(({x, y}) => [x, y])
       const rectSize = this.#rectData[i].map(({width, height}) => [width, height])
-      const rectColor = this.#rectData[i].map(({color}) => color)[0]
+      const rectColor = this.#rectData[i].map(({color}) => color)
       const container = this.#container.append('g').attr('class', groupClassName)
       const rectBackup = {
         container,
