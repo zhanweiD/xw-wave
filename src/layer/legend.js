@@ -110,10 +110,10 @@ export default class LegendLayer extends LayerBase {
           this.#position[index][0] = (gap[1] + size * 2) * index + getTextWidthByIndex(index)
           break
         case 'center':
-          this.#position[index][0] = (this.layout.width - ((gap[1] + size * 2) * index + getTextWidthByIndex(index))) / 2
+          this.#position[index][0] = (this.#layout.width - ((gap[1] + size * 2) * index + getTextWidthByIndex(index))) / 2
           break
         case 'end':
-          this.#position[index][0] = this.layout.width - ((gap[1] + size * 2) * index + getTextWidthByIndex(index))
+          this.#position[index][0] = this.#layout.width - ((gap[1] + size * 2) * index + getTextWidthByIndex(index))
           break
         default:
           break
@@ -121,13 +121,13 @@ export default class LegendLayer extends LayerBase {
       // 垂直位置
       switch (verticalAlign) {
         case 'start':
-          this.#position[index][1] = getTextHeight(fontSize) / 2
+          this.#position[index][1] = getTextHeight(fontSize)
           break
         case 'center':
-          this.#position[index][1] = (this.layout.height + getTextHeight(fontSize)) / 2
+          this.#position[index][1] = this.#layout.height / 2 - (Math.min(getTextHeight(fontSize), size)) / 2
           break
         case 'end':
-          this.#position[index][1] = this.layout.height - getTextHeight(fontSize) / 2
+          this.#position[index][1] = this.#layout.height - (Math.min(getTextHeight(fontSize), size)) / 2
           break
         default:
           break
@@ -141,7 +141,7 @@ export default class LegendLayer extends LayerBase {
       text: [],
       circle: [],
     }
-    const {size, gap, text: {fontSize}} = this.#style
+    const {size, gap} = this.#style
     const {top, left, width, height} = this.#layout
     const container = this.#container
       .append('g')
@@ -157,8 +157,8 @@ export default class LegendLayer extends LayerBase {
         fill: this.#colors,
         data: this.#data.map(() => [size, size]),
         position: this.#position.map(position => ([
-          position[0] - gap[0],
-          position[1],
+          position[0] - size - gap[0],
+          position[1] - size / 2,
         ])),
       })
       drawText({

@@ -18,8 +18,8 @@ export default function drawCircle({
     const [cx, cy] = position[index]
     return {
       class: className,
-      cx: cx - rx,
-      cy: cy - ry,
+      cx,
+      cy,
       rx,
       ry,
       fill: Array.isArray(fill) ? fill[index] : fill,

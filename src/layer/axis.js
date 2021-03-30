@@ -3,6 +3,7 @@ import uuid from '../util/uuid'
 import drawLine from '../basic/line'
 import drawText from '../basic/text'
 import getTextHeight from '../util/text-height'
+import drawCircle from '../basic/circle'
 
 const defaultStyle = {
   type: 'axisX', // asisX asisY radius angular 4种坐标
@@ -52,6 +53,7 @@ export default class AxisLayer extends LayerBase {
   }
 
   draw() {
+    // todo：感觉此处做了过多的业务侧的事，不够纯粹
     if (this.#style.type === 'axisX' || this.#style.type === 'axisY') {
       let domain = this.#scale.domain()
       if (this.#scale.type === 'linear') {
@@ -62,6 +64,16 @@ export default class AxisLayer extends LayerBase {
       }
       if (this.#style.isShowLabel) {
         this._drawTickLabel({domain})
+      }
+    }
+
+    if (this.#style.type === 'radius') {
+      let domain = this.#scale.domain()
+      if (this.#scale.type === 'linear') {
+        domain = tickValues(this.#scale, this.#scale.nice.count, 0)
+      }
+      if (this.#style.isShowTickLine) {
+        this._drawRadiusLine({domain})
       }
     }
   }
@@ -121,6 +133,14 @@ export default class AxisLayer extends LayerBase {
     })
     const textBox = this.#container.append('g').attr('class', 'wave-axis-text')
     drawText({data: domain, position: labelPosition, container: textBox, ...this.#style.label})
+  }
+
+  // 画极坐标圆
+  _drawRadiusLine({domain}) {
+    const data = domain.map(label => ([this.#scale(label), this.#scale(label)]))
+    const position = domain.map(() => ([this.#layout.width / 2 + this.#layout.left, this.#layout.height / 2 + this.#layout.top]))
+    const lineBox = this.#container.append('g').attr('class', 'wave-axis-line')
+    drawCircle({data, position, container: lineBox, ...this.#style.tickLine})
   }
 }
 
