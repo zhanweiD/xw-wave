@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 import chroma from 'chroma-js'
 import getLayout from './layout'
-import ThemeConfig from './theme'
+import ThemeConfig from '../util/theme'
 import TextLayer from '../layer/text'
 import AxisLayer from '../layer/axis'
 import RectLayer from '../layer/rect'
@@ -131,7 +131,7 @@ export default class Wave {
    * @param {String} theme 主题
    */
   setTheme(theme) {
-    this.#theme = ThemeConfig[theme] || ThemeConfig.glaze
+    this.#theme = ThemeConfig[theme]?.colors || ThemeConfig.glaze.colors
   }
 
   /**

@@ -36,7 +36,7 @@ const createWave = container => {
     range: [wave.layout.main.height, 0],
   })
 
-  console.log(scaleGroupY,scaleGroupY.domain(), scaleGroupY.range(), scaleGroupY(800))
+  console.log(scaleGroupY, scaleGroupY.domain(), scaleGroupY.range(), scaleGroupY(800))
 
   // 标题图层
   const titleLayer = wave.createLayer('text')
@@ -51,12 +51,12 @@ const createWave = container => {
   // 矩形图层
   const rectLayer = wave.createLayer('rect', {mode: 'group'})
   rectLayer.setLayout(wave.layout.main)
-  rectLayer.setData(data.select(['年份', '中等专业学校', '成人中专', '职业高中', '技工学校']))
+  rectLayer.setData(data.select(['年份', '中等专业学校']))
   rectLayer.setScale({
     scaleX,
     scaleY: scaleGroupY,
   })
-  rectLayer.setStyle({})
+  rectLayer.setStyle({labelPosition: 'top-outer'})
   rectLayer.draw()
 }
 

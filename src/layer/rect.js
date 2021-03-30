@@ -5,6 +5,12 @@ import getTextWidth from '../util/text-wdith'
 import drawText from '../basic/text'
 import drawRect from '../basic/rect'
 
+// 映射的图表类型
+const waveType = {
+  COLUMN: 'column', // 柱状图
+  BAR: 'bar', // 条形图
+}
+
 // 元素组合方式
 const modeType = {
   // 不组合
@@ -19,9 +25,15 @@ const modeType = {
 
 // 标签是显示在矩形外部还是矩形内部
 const labelPositionType = {
-  INNER: 'inner',
-  OUTER: 'outer',
   CENTER: 'center',
+  TOPINNER: 'top-inner',
+  TOPOUTER: 'top-outer',
+  RIGHTINNER: 'right-inner',
+  RIGHTOUTER: 'right-outer',
+  BOTTOMINNER: 'bottom-inner',
+  BOTTOMOUTER: 'bottom-outer',
+  LEFTINNER: 'left-inner',
+  LEFTOUTER: 'left-outer',
 }
 
 const defaultStyle = {
@@ -87,7 +99,7 @@ export default class RectLayer extends LayerBase {
     this.#scale = {...this.scale, ...scales}
     const {scaleX, scaleY} = this.#scale
     const {left, top} = this.#layout
-    const {mode = modeType.GROUP} = this.options
+    const {type = waveType.COLUMN, mode = modeType.GROUP} = this.options
     const tableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const barWidth = scaleX.bandwidth()
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
@@ -146,15 +158,26 @@ export default class RectLayer extends LayerBase {
       const {y, height} = this.#rectData[this.#rectData.length - 1][0]
       this.#rectData[this.#rectData.length - 1][0].y = y + height
     }
+    // 矩形到条形的数据转换
+    if (type === waveType.BAR) {
+      this.#rectData = this.#rectData.map(groupData => {
+        return groupData.map(({value, x, width, height}) => ({
+          value,
+          x: left,
+          y: x - left + top,
+          width: height, 
+          height: width,
+        }))
+      })
+    }
   }
 
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = {...this.#style, ...style}
     const {getColor} = this.options
-    const {labelPosition} = this.#style
+    const {labelPosition, labelOffset = 5} = this.#style
     const {fontSize = 12} = this.#style.text
-    const offset = 5
     // 颜色跟随主题
     if (this.#rectData[0]?.length > 1) {
       this.#style.rect.fill = getColor(this.#rectData[0]?.length)
@@ -162,16 +185,35 @@ export default class RectLayer extends LayerBase {
       const colors = getColor(this.#rectData.length)
       this.#rectData.forEach((groupData, i) => (groupData[0].color = colors[i]))
     }
-    // 计算标签的相对位置
-    const getLabelX = ((x, width, text) => (x + (width - getTextWidth(text, fontSize)) / 2))
-    const getLabelY = ((y, height, isTop) => {
+    // 计算标签的水平位置
+    const getLabelX = ((x, width, text, position) => {
       let result
-      if (labelPosition === labelPositionType.CENTER) {
-        result = y + (height / 2)
-      } else if (labelPosition === labelPositionType.OUTER) {
-        result = isTop ? y - offset : y + height + fontSize + offset
-      } else if (labelPosition === labelPositionType.INNER) {
-        result = isTop ? y + fontSize + offset : y - offset
+      if (position === labelPositionType.LEFTOUTER) {
+        result = x - getTextWidth(text, fontSize) - labelOffset
+      } else if (position === labelPositionType.LEFTINNER) {
+        result = x + labelOffset
+      } else if (position === labelPositionType.RIGHTINNER) {
+        result = x + width - getTextWidth(text, fontSize) - labelOffset
+      } else if (position === labelPositionType.RIGHTOUTER) {
+        result = x + width + labelOffset
+      } else {
+        result = x + (width - getTextWidth(text, fontSize)) / 2
+      }
+      return result
+    })
+    // 计算标签的垂直位置
+    const getLabelY = ((y, height, position) => {
+      let result
+      if (position === labelPositionType.TOPOUTER) {
+        result = y - labelOffset
+      } else if (position === labelPositionType.TOPINNER) {
+        result = y + fontSize
+      } else if (position === labelPositionType.BOTTOMINNER) {
+        result = y + height - labelOffset
+      } else if (position === labelPositionType.BOTTOMOUTER) {
+        result = y + height + fontSize + labelOffset
+      } else {
+        result = y + (height / 2) + fontSize / 2
       }
       return result
     })
@@ -182,10 +224,22 @@ export default class RectLayer extends LayerBase {
         // value 为区间，对应区间柱状图
         if (Array.isArray(value)) {
           const [min, max] = value
-          result.push({value: min, x: getLabelX(x, width, min), y: getLabelY(y, height, false)})
-          result.push({value: max, x: getLabelX(x, width, max), y: getLabelY(y, height, true)})
+          result.push({
+            value: min, 
+            x: getLabelX(x, width, min, labelPosition), 
+            y: getLabelY(y, height, labelPosition),
+          })
+          result.push({
+            value: max, 
+            x: getLabelX(x, width, max, labelPosition), 
+            y: getLabelY(y, height, labelPosition),
+          })
         } else {
-          result.push({value, x: getLabelX(x, width, value), y: getLabelY(y, height, value >= 0)})
+          result.push({
+            value, 
+            x: getLabelX(x, width, value, labelPosition), 
+            y: getLabelY(y, height, labelPosition),
+          })
         }
       })
       return result
