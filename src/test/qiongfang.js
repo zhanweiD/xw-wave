@@ -84,7 +84,6 @@ const createWave = container => {
     type: 'band',
     domain: ['标签1', '标签2', '标签3', '标签4', '标签5'],
     range: [0, 360],
-    nice: {count: 6},
   })
 
   const axis = wave.createLayer('axis')
@@ -146,12 +145,26 @@ const createWave = container => {
     tickLine: {
       opacity: 1,
       strokeWidth: 1,
-      stroke: 'black',
+      stroke: 'white',
       fill: 'none',
     },
   })
   asixRadius.scale(axisScaleRadius)
   asixRadius.draw()
+
+  const asixAngle = wave.createLayer('axis')
+  asixAngle.layout(wave.layout.main)
+  asixAngle.style({
+    type: 'angle',
+    tickLine: {
+      opacity: 1,
+      strokeWidth: 1,
+      stroke: 'white',
+      fill: 'none',
+    },
+  })
+  asixAngle.scale(axisScaleRadius)
+  asixAngle.draw()
 
 //   const x = d3.range(-90, 270, 45)
 }
