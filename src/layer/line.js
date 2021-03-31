@@ -6,5 +6,5 @@ import LayerBase from './base'
 // import getTextHeight from '../util/text-height'
 // import drawCircle from '../basic/circle'
 export default class lineLayer extends LayerBase {
-
+    
 }

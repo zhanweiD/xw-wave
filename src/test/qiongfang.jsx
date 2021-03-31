@@ -72,11 +72,11 @@ const createWave = container => {
   })
 
   const axisScaleValueY = new Scale({
-    type: 'linear',
-    domain: [0, 100],
-    // domain: ['标签1', '标签2', '标签3', '1', '2', '3'],
-    range: [0, wave.layout.axisY.height],
-    nice: {count: 6},
+    type: 'band',
+    // domain: [0, 100],
+    domain: ['标签1', '标签2', '标签3', '1', '2', '3'],
+    range: [wave.layout.axisY.height, 0],
+    // nice: {count: 6},
   })
 
   const axisScaleRadius = new Scale({
@@ -97,12 +97,12 @@ const createWave = container => {
   axis.setStyle({
     type: 'axisX',
     tickLine: {
-      className: 'wave-axis-tick-line-x',
+      className: '',
       enableUpdateAnimation: true,
     },
     label: {
       textAnchor: 'middle',
-      className: 'wave-axis-tick-label-x',
+      className: '',
       enableUpdateAnimation: true,
       fontSize: 12,
     },
@@ -110,27 +110,40 @@ const createWave = container => {
   axis.setScale(axisScale)
   axis.draw()
   setTimeout(() => {
+    axis.setStyle({
+      type: 'axisX',
+      tickLine: {
+        className: '',
+        enableUpdateAnimation: true,
+      },
+      label: {
+        textAnchor: 'middle',
+        className: '',
+        enableUpdateAnimation: true,
+        fontSize: 20,
+      },
+    })
     axis.setScale(axisScale2)
     axis.draw()
   }, 3000)
 
-  // const axisY = wave.createLayer('axis')
-  // axisY.setLayout(wave.layout.axisY)
-  // axisY.setStyle({
-  //   type: 'axisY',
-  //   orient: 'left',
-  //   tickLine: {
-  //     className: 'wave-axis-tick-line-y',
-  //     opacity: 0.2,
-  //   },
-  //   label: {
-  //     textAnchor: 'start',
-  //     className: 'wave-axis-tick-label-y',
-  //     fontSize: 12,
-  //   },
-  // })
-  // axisY.setScale(axisScaleValueY)
-  // axisY.draw()
+  const axisY = wave.createLayer('axis')
+  axisY.setLayout(wave.layout.axisY)
+  axisY.setStyle({
+    type: 'axisY',
+    orient: 'left',
+    tickLine: {
+      className: 'wave-axis-tick-line-y',
+      opacity: 0.2,
+    },
+    label: {
+      textAnchor: 'start',
+      className: 'wave-axis-tick-label-y',
+      fontSize: 12,
+    },
+  })
+  axisY.setScale(axisScaleValueY)
+  axisY.draw()
 
   // const axisY1 = wave.createLayer('axis')
   // axisY1.setLayout(wave.layout.axisY)
