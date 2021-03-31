@@ -61,7 +61,7 @@ const createWave = container => {
   //   rectLayer.draw()
 
   const axisScale = new Scale({
-    type: 'band',
+    type: 'point',
     domain: ['标签1', '标签2', '标签3'],
     range: [0, wave.layout.axisX.width],
   })
@@ -69,6 +69,7 @@ const createWave = container => {
   const axisScaleValueY = new Scale({
     type: 'linear',
     domain: [0, 100],
+    // domain: ['标签1', '标签2', '标签3', '1', '2', '3'],
     range: [0, wave.layout.axisY.height],
     nice: {count: 6},
   })
@@ -85,7 +86,7 @@ const createWave = container => {
     domain: ['标签1', '标签2', '标签3', '标签4', '标签5'],
     range: [0, 360],
   })
-
+  
   const axis = wave.createLayer('axis')
   axis.layout(wave.layout.axisX)
   axis.style({
@@ -165,8 +166,6 @@ const createWave = container => {
   })
   asixAngle.scale(axisScaleRadius)
   asixAngle.draw()
-
-//   const x = d3.range(-90, 270, 45)
 }
 
 export default function Text() {
