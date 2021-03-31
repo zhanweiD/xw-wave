@@ -158,7 +158,7 @@ export default class TableList {
         row.forEach((value, i) => this.data[i].list.push(value))
       }
     })
-    return this
+    return this.data.length
   }
 
   /**

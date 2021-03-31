@@ -51,7 +51,7 @@ const updateColumn = ({wave, data, type, mode}) => {
   let tableList = new TableList(data)
   if (mode === 'waterfall') {
     tableList = new TableList(data).select(data[0].slice(0, 2))
-    tableList = tableList.push(['总和', tableList.select(data[0][1], {mode: 'sum', target: 'column'}).range()[1]])
+    tableList.push(['总和', tableList.select(data[0][1], {mode: 'sum', target: 'column'}).range()[1]])
   }
 
   const scaleX = new Scale({
