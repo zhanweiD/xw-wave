@@ -98,7 +98,7 @@ export default class LegendLayer extends LayerBase {
     this.#style = {...this.#style, ...style}
     const {align, verticalAlign, text: {fontSize}} = style
     this.#position = this.#data.map(() => [0, 0])
-    const getTextWidthByIndex = index => getTextWidth(this.#data.slice(0, index + 1).join(''), fontSize)
+    const getTextWidthByIndex = index => getTextWidth(this.#data.slice(0, index).join(''), fontSize)
 
     let {size, gap} = style
     gap && gap[0] ? (size += gap[0]) : (gap = [0, 0]) && (this.#style.gap = [0, 0])
@@ -110,10 +110,11 @@ export default class LegendLayer extends LayerBase {
           this.#position[index][0] = (gap[1] + size * 2) * index + getTextWidthByIndex(index)
           break
         case 'center':
-          this.#position[index][0] = (this.#layout.width - ((gap[1] + size * 2) * index + getTextWidthByIndex(index))) / 2
+          const fullWidth = getTextWidth(this.#data.length) + (gap[1] + size * 2) * this.#data.length
+          this.#position[index][0] = ((gap[1] + size * 2) * index + getTextWidthByIndex(index) + this.#layout.width / 2 - fullWidth / 2)
           break
         case 'end':
-          this.#position[index][0] = this.#layout.width - ((gap[1] + size * 2) * index + getTextWidthByIndex(index))
+          this.#position[index][0] = this.#layout.width - ((gap[1] + size * 2) * index + getTextWidthByIndex(index + 1))
           break
         default:
           break
