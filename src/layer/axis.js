@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import LayerBase from './base'
-import uuid from '../util/uuid'
+// import uuid from '../util/uuid'
 import drawLine from '../basic/line'
 import drawText from '../basic/text'
 import getTextHeight from '../util/text-height'
@@ -56,7 +56,7 @@ export default class AxisLayer extends LayerBase {
   draw() {
     // todo：感觉此处做了过多的业务侧的事，不够纯粹
     let domain = this.#scale.domain()
-    if (this.#scale.type === 'linear') {
+    if (this.#scale.type === 'linear' || this.#scale.type === 'quantize') {
       domain = tickValues(this.#scale, this.#scale.nice.count, 0)
     }
     if (this.#style.isShowTickLine) {
@@ -65,7 +65,7 @@ export default class AxisLayer extends LayerBase {
       } else if (this.#style.type === 'angle') {
         this._drawAngleLine({domain})
       } else {
-        this._drawTickLine({domain})
+        this.#drawTickLine({domain})
       }
     }
     if (this.#style.isShowLabel) {
@@ -76,24 +76,24 @@ export default class AxisLayer extends LayerBase {
   }
 
   // 画坐标线
-  _drawTickLine({domain}) {
+  #drawTickLine = ({domain}) => {
     const tickLinePosition = domain.map(label => {
-      if (this.#style.type === 'axisY' && this.#scale.type === 'linear') {
-        const x1 = this.#layout.left
-        const y = this.#layout.top + this.#layout.height - this.#scale(label)
-        const x2 = x1 + this.#layout.width
-        return [x1, y, x2, y]
-      }
-      if (this.#style.type === 'axisY' && this.#scale.type === 'bind') {
+      if (this.#style.type === 'axisY' && this.#scale.type === 'band') {
         const x1 = this.#layout.left
         const y = this.#scale(label) + this.#layout.top + (this.#scale.bandwidth() / 2)
         const x2 = x1 + this.#layout.width
         return [x1, y, x2, y]
       }
-      if (this.#style.type === 'axisX' && this.#scale.type === 'bind') {
+      if (this.#style.type === 'axisX' && this.#scale.type === 'band') {
         const x = this.#scale(label) + this.#layout.left + (this.#scale.bandwidth() / 2)
         const y = this.#layout.height + this.#layout.top
         return [x, y, x, y + 5]
+      }
+      if (this.#style.type === 'axisY') {
+        const x1 = this.#layout.left
+        const y = this.#layout.top + this.#layout.height - this.#scale(label)
+        const x2 = x1 + this.#layout.width
+        return [x1, y, x2, y]
       }
       const positionX = this.#scale(label) + this.#layout.left
       const posirionY = this.#layout.height + this.#layout.top
@@ -114,15 +114,23 @@ export default class AxisLayer extends LayerBase {
         const y = this.#layout.top + this.#layout.height + getTextHeight(this.#style.label.fontSize) - this.#scale(label) 
         return [x, y]
       }
-      if (this.#style.type === 'axisY' && this.#scale.type === 'bind') {
+      if (this.#style.type === 'axisY' && this.#scale.type === 'band') {
         const x = this.#layout.left
         const y = this.#scale(label) + this.#layout.top + getTextHeight(this.#style.label.fontSize) + (this.#scale.bandwidth() / 2)      
         return [x, y]
       }
-      if (this.#style.type === 'axisX' && this.#scale.type === 'bind') {
+      if (this.#style.type === 'axisX' && this.#scale.type === 'band') {
         const x = this.#scale(label) + this.#layout.left + (this.#scale.bandwidth() / 2)
         const y = this.#layout.height + this.#layout.top
         return [x, y + getTextHeight(this.#style.label.fontSize)]
+      }
+      if (this.#style.type === 'axisY') {
+        let x = this.#layout.left
+        if (this.#style.orient === 'right') {
+          x = this.#layout.right
+        }
+        const y = this.#layout.top + this.#layout.height + getTextHeight(this.#style.label.fontSize) - this.#scale(label) 
+        return [x, y]
       }
       const positionX = this.#scale(label) + this.#layout.left
       const positionY = this.#layout.height + this.#layout.top
