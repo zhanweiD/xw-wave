@@ -288,12 +288,10 @@ export default class RectLayer extends LayerBase {
         position: textPosition,
         ...this.#style.text,
       }
-      // 判断是否进行重新绘制
-      if (this.#backup.length <= i || needRedraw(this.#backup[i].text, textBackup)) {
-        this.#backup[i] = {}
-        this.#backup[i].text = textBackup
-        drawText(textBackup)
-      }
+      // 文字需要在矩形上层显示，一般来说需要重绘
+      this.#backup[i] = {}
+      this.#backup[i].text = textBackup
+      drawText(textBackup)
     }
   }
 }

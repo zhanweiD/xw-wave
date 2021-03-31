@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import * as d3 from 'd3'
 import chroma from 'chroma-js'
 import getLayout from './layout'
@@ -6,7 +7,6 @@ import TextLayer from '../layer/text'
 import AxisLayer from '../layer/axis'
 import RectLayer from '../layer/rect'
 import LegendLayer from '../layer/legend'
-// eslint-disable-next-line no-unused-vars
 import LayerBase from '../layer/base'
 
 // 图表状态
@@ -45,24 +45,12 @@ export default class Wave {
 
   #root = null
 
-  #data = null
-
-  #scale = {}
-
   #layer = []
 
   #theme = []
 
   get layout() {
     return this.#layout
-  }
-
-  get data() {
-    return this.#data
-  }
-
-  get scale() {
-    return this.#scale
   }
 
   get layer() {
