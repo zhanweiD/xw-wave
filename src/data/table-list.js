@@ -70,7 +70,7 @@ export default class TableList {
    * 获取二维表的一个子集，并定义组合方式
    * @param {String | Array<String>} headers 数据列索引
    * @param {TableList} options 数据列组合配置
-   * @returns {TableList}
+   * @returns {TableList} 返回一个新的二维表实例
    */
   select(headers, options = {}) {
     const {mode, target = targetType.ROW} = options
@@ -119,6 +119,14 @@ export default class TableList {
   }
 
   /**
+   * 克隆一个二维表
+   * @returns 克隆后的二维表实例
+   */
+  clone() {
+    return this.select(this.data.map(({header}) => header))
+  }
+
+  /**
    * 更新二维表数据
    * @param {Array<Array<Number|String>>} tableList 
    * @param {Object} options 数据列配置
@@ -148,7 +156,7 @@ export default class TableList {
   /**
    * 追加二维表的一行
    * @param {Array<Number|String>} rows 一些数据行
-   * @returns {TableList} 添加后的二维表
+   * @returns {TableList} 添加后的二维表数据长度
    */
   push(...rows) {
     rows.forEach(row => {
@@ -181,20 +189,21 @@ export default class TableList {
   /**
    * 连接多个 TableList
    * @param {TableList} tableList
-   * @returns {TableList} 连接后的二维表 
+   * @returns {TableList} 连接后新的二维表示实例
    */
   concat(...tableLists) {
+    const newTableList = this.clone()
     tableLists.forEach(tableList => {
-      tableList.data.forEach(item => {
-        const columnIndex = this.hasColumn(item.header)
+      tableList.clone().data.forEach(item => {
+        const columnIndex = newTableList.hasColumn(item.header)
         if (columnIndex !== false) {
-          this.data[columnIndex] = item
+          newTableList.data[columnIndex] = item
         } else {
-          this.data.push(item)
+          newTableList.data.push(item)
         }
       })
     })
-    return this
+    return newTableList
   }
 
   /**
