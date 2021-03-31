@@ -65,6 +65,11 @@ const createWave = container => {
     domain: ['标签1', '标签2', '标签3'],
     range: [0, wave.layout.axisX.width],
   })
+  const axisScale2 = new Scale({
+    type: 'point',
+    domain: ['标签1', '标签2', '标签3', '标签4'],
+    range: [0, wave.layout.axisX.width],
+  })
 
   const axisScaleValueY = new Scale({
     type: 'linear',
@@ -88,84 +93,90 @@ const createWave = container => {
   })
   
   const axis = wave.createLayer('axis')
-  axis.layout(wave.layout.axisX)
-  axis.style({
+  axis.setLayout(wave.layout.axisX)
+  axis.setStyle({
     type: 'axisX',
     tickLine: {
       className: 'wave-axis-tick-line-x',
+      enableUpdateAnimation: true,
     },
     label: {
       textAnchor: 'middle',
       className: 'wave-axis-tick-label-x',
+      enableUpdateAnimation: true,
       fontSize: 12,
     },
   })
-  axis.scale(axisScale)
+  axis.setScale(axisScale)
   axis.draw()
+  setTimeout(() => {
+    axis.setScale(axisScale2)
+    axis.draw()
+  }, 3000)
 
-  const axisY = wave.createLayer('axis')
-  axisY.layout(wave.layout.axisY)
-  axisY.style({
-    type: 'axisY',
-    orient: 'left',
-    tickLine: {
-      className: 'wave-axis-tick-line-y',
-      opacity: 0.2,
-    },
-    label: {
-      textAnchor: 'start',
-      className: 'wave-axis-tick-label-y',
-      fontSize: 12,
-    },
-  })
-  axisY.scale(axisScaleValueY)
-  axisY.draw()
+  // const axisY = wave.createLayer('axis')
+  // axisY.setLayout(wave.layout.axisY)
+  // axisY.setStyle({
+  //   type: 'axisY',
+  //   orient: 'left',
+  //   tickLine: {
+  //     className: 'wave-axis-tick-line-y',
+  //     opacity: 0.2,
+  //   },
+  //   label: {
+  //     textAnchor: 'start',
+  //     className: 'wave-axis-tick-label-y',
+  //     fontSize: 12,
+  //   },
+  // })
+  // axisY.setScale(axisScaleValueY)
+  // axisY.draw()
 
-  const axisY1 = wave.createLayer('axis')
-  axisY1.layout(wave.layout.axisY)
-  axisY1.style({
-    type: 'axisY',
-    orient: 'right',
-    tickLine: {
-      className: 'wave-axis-tick-line-y',
-      opacity: 0,
-    },
-    label: {
-      textAnchor: 'end',
-      className: 'wave-axis-tick-label-y',
-      fontSize: 12,
-    },
-  })
-  axisY1.scale(axisScaleValueY)
-  axisY1.draw()
+  // const axisY1 = wave.createLayer('axis')
+  // axisY1.setLayout(wave.layout.axisY)
+  // axisY1.setStyle({
+  //   type: 'axisY',
+  //   orient: 'right',
+  //   tickLine: {
+  //     className: 'wave-axis-tick-line-y',
+  //     opacity: 0,
+  //   },
+  //   label: {
+  //     textAnchor: 'end',
+  //     className: 'wave-axis-tick-label-y',
+  //     fontSize: 12,
+  //   },
+  // })
+  // axisY1.setScale(axisScaleValueY)
+  // axisY1.draw()
 
-  const asixRadius = wave.createLayer('axis')
-  asixRadius.layout(wave.layout.main)
-  asixRadius.style({
-    type: 'radius',
-    tickLine: {
-      opacity: 1,
-      strokeWidth: 1,
-      stroke: 'white',
-      fill: 'none',
-    },
-  })
-  asixRadius.scale(axisScaleRadius)
-  asixRadius.draw()
+  // const asixRadius = wave.createLayer('axis')
+  // asixRadius.setLayout(wave.layout.main)
+  // asixRadius.setStyle({
+  //   type: 'radius',
+  //   tickLine: {
+  //     opacity: 1,
+  //     strokeWidth: 1,
+  //     stroke: 'white',
+  //     fill: 'none',
+  //   },
+  // })
+  // asixRadius.setScale(axisScaleRadius)
+  // asixRadius.draw()
 
-  const asixAngle = wave.createLayer('axis')
-  asixAngle.layout(wave.layout.main)
-  asixAngle.style({
-    type: 'angle',
-    tickLine: {
-      opacity: 1,
-      strokeWidth: 1,
-      stroke: 'white',
-      fill: 'none',
-    },
-  })
-  asixAngle.scale(axisScaleRadius)
-  asixAngle.draw()
+  // const asixAngle = wave.createLayer('axis')
+  // asixAngle.setLayout(wave.layout.main)
+  // asixAngle.setStyle({
+  //   type: 'angle',
+  //   tickLine: {
+  //     opacity: 1,
+  //     strokeWidth: 1,
+  //     stroke: 'white',
+  //     fill: 'none',
+  //   },
+  // })
+  // asixAngle.setScale(axisScaleRadius)
+  // asixAngle.draw()
 }
 
 export default function Text() {

@@ -36,24 +36,31 @@ export default class AxisLayer extends LayerBase {
     super(layerOptions, waveOptions)
     // 初始化默认值
     this.#container = this.options.root.append('g').attr('class', 'wave-axis')
-    this.style(defaultStyle)
+    // 两个容器初始化时完成
+    this.#container.append('g').attr('class', 'wave-axis-line')
+    this.#container.append('g').attr('class', 'wave-axis-text')
+
+    this.setStyle(defaultStyle)
   }
 
   // 读取布局信息
-  layout(layout) {
+  setLayout(layout) {
     this.#layout = layout
   }
 
   // 自定义坐标轴的时候？
-  scale(scale) {
+  setScale(scale) {
     this.#scale = scale
   }
 
-  style(style) {
+  setStyle(style) {
     this.#style = this.#style ? Object.assign(this.#style, style) : style
   }
 
   draw() {
+    // 每次draw前先清除，最暴力的做法
+    // this.#container.selectAll('*').remove()
+    // 真正去画
     // todo：感觉此处做了过多的业务侧的事，不够纯粹
     let domain = this.#scale.domain()
     if (this.#scale.type === 'linear' || this.#scale.type === 'quantize') {
@@ -99,7 +106,7 @@ export default class AxisLayer extends LayerBase {
       const posirionY = this.#layout.height + this.#layout.top
       return [positionX, posirionY, positionX, posirionY + 5]
     })
-    const lineBox = this.#container.append('g').attr('class', 'wave-axis-line')
+    const lineBox = this.#container.selectAll('.wave-axis-line')
     drawLine({position: tickLinePosition, container: lineBox, ...this.#style.tickLine})
   }
 
@@ -136,7 +143,7 @@ export default class AxisLayer extends LayerBase {
       const positionY = this.#layout.height + this.#layout.top
       return [positionX, positionY + getTextHeight(this.#style.label.fontSize)]
     })
-    const textBox = this.#container.append('g').attr('class', 'wave-axis-text')
+    const textBox = this.#container.selectAll('.wave-axis-text')
     drawText({data: domain, position: labelPosition, container: textBox, ...this.#style.label})
   }
 
@@ -144,7 +151,7 @@ export default class AxisLayer extends LayerBase {
   _drawRadiusLine({domain}) {
     const data = domain.map(label => ([this.#scale(label), this.#scale(label)]))
     const position = domain.map(() => ([this.#layout.width / 2 + this.#layout.left, this.#layout.height / 2 + this.#layout.top]))
-    const lineBox = this.#container.append('g').attr('class', 'wave-axis-line')
+    const lineBox = this.#container.selectAll('.wave-axis-line')
     drawCircle({data, position, container: lineBox, ...this.#style.tickLine})
   }
 
@@ -152,7 +159,7 @@ export default class AxisLayer extends LayerBase {
     const angle = 360 / domain.length
     const x = this.#layout.width / 2 + this.#layout.left
     const y = this.#layout.top + this.#layout.height / 2
-    const lineBox = this.#container.append('g').attr('class', 'wave-axis-line')
+    const lineBox = this.#container.selectAll('.wave-axis-line')
     const g = lineBox.attr('class', 'wave-axis-angle-line')
       .selectAll('g')
       .data(d3.range(-90, 270, angle))
