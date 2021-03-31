@@ -1,3 +1,4 @@
+import * as d3 from 'd3'
 import LayerBase from './base'
 import uuid from '../util/uuid'
 import drawLine from '../basic/line'
@@ -54,26 +55,22 @@ export default class AxisLayer extends LayerBase {
 
   draw() {
     // todo：感觉此处做了过多的业务侧的事，不够纯粹
-    if (this.#style.type === 'axisX' || this.#style.type === 'axisY') {
-      let domain = this.#scale.domain()
-      if (this.#scale.type === 'linear') {
-        domain = tickValues(this.#scale, this.#scale.nice.count, 0)
-      }
-      if (this.#style.isShowTickLine) {
+    let domain = this.#scale.domain()
+    if (this.#scale.type === 'linear') {
+      domain = tickValues(this.#scale, this.#scale.nice.count, 0)
+    }
+    if (this.#style.isShowTickLine) {
+      if (this.#style.type === 'radius') {
+        this._drawRadiusLine({domain})
+      } else if (this.#style.type === 'angle') {
+        this._drawAngleLine({domain})
+      } else {
         this._drawTickLine({domain})
       }
-      if (this.#style.isShowLabel) {
-        this._drawTickLabel({domain})
-      }
     }
-
-    if (this.#style.type === 'radius') {
-      let domain = this.#scale.domain()
-      if (this.#scale.type === 'linear') {
-        domain = tickValues(this.#scale, this.#scale.nice.count, 0)
-      }
-      if (this.#style.isShowTickLine) {
-        this._drawRadiusLine({domain})
+    if (this.#style.isShowLabel) {
+      if (this.#style.type === 'axisX' || this.#style.type === 'axisY') {
+        this._drawTickLabel({domain})
       }
     }
   }
@@ -141,6 +138,25 @@ export default class AxisLayer extends LayerBase {
     const position = domain.map(() => ([this.#layout.width / 2 + this.#layout.left, this.#layout.height / 2 + this.#layout.top]))
     const lineBox = this.#container.append('g').attr('class', 'wave-axis-line')
     drawCircle({data, position, container: lineBox, ...this.#style.tickLine})
+  }
+
+  _drawAngleLine({domain}) {
+    const angle = 360 / domain.length
+    const x = this.#layout.width / 2 + this.#layout.left
+    const y = this.#layout.top + this.#layout.height / 2
+    const lineBox = this.#container.append('g').attr('class', 'wave-axis-line')
+    const g = lineBox.attr('class', 'wave-axis-angle-line')
+      .selectAll('g')
+      .data(d3.range(-90, 270, angle))
+      .enter()
+      .append('g')
+      .attr('transform', d => {
+        return `translate(${x}, ${y}) rotate(${d})`
+      })
+    const tickLinePosition = [0, 0, Math.min(this.#layout.width / 2, this.#layout.height / 2), 0]
+    g.each((x, i, elm) => {
+      drawLine({position: [tickLinePosition], container: d3.select(elm[i]), ...this.#style.tickLine})
+    })
   }
 }
 
