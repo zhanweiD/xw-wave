@@ -11,17 +11,29 @@ const titleMapping = {
   waterfall: '瀑布柱状图',
 }
 
+let groupedColumnWave
+let stackedColumnWave
+let intervalColumnWave
+let waterfallWave
+
 export default function Column({data = [[]], type = 'column', theme}) {
   const groupedColumnRef = useRef(null)
   const stackedColumnRef = useRef(null)
   const intervalColumnRef = useRef(null)
   const waterfallRef = useRef(null)
-  
+ 
   useEffect(() => {
-    createColumn({container: groupedColumnRef.current, mode: 'group', data, type, theme})
-    createColumn({container: stackedColumnRef.current, mode: 'stack', data, type, theme})
-    createColumn({container: intervalColumnRef.current, mode: 'interval', data, type, theme})
-    createColumn({container: waterfallRef.current, mode: 'waterfall', data, type, theme})
+    groupedColumnWave = new Wave({container: groupedColumnRef.current, theme, padding: [50]})
+    stackedColumnWave = new Wave({container: stackedColumnRef.current, theme, padding: [50]})
+    intervalColumnWave = new Wave({container: intervalColumnRef.current, theme, padding: [50]})
+    waterfallWave = new Wave({container: waterfallRef.current, theme, padding: [50]})
+  }, [theme])
+
+  useEffect(() => {
+    updateColumn({wave: groupedColumnWave, mode: 'group', data, type})
+    updateColumn({wave: stackedColumnWave, mode: 'stack', data, type})
+    updateColumn({wave: intervalColumnWave, mode: 'interval', data, type})
+    updateColumn({wave: waterfallWave, mode: 'waterfall', data, type})
   }, [data, type, theme])
   
   return (
@@ -35,8 +47,7 @@ export default function Column({data = [[]], type = 'column', theme}) {
 }
 
 // 分组柱状图
-const createColumn = ({container, data, type, mode, theme}) => {
-  const wave = new Wave({container, theme, padding: [50]})
+const updateColumn = ({wave, data, type, mode}) => {
   let tableList = new TableList(data)
   if (mode === 'waterfall') {
     tableList = new TableList(data).select(data[0].slice(0, 2))
@@ -56,7 +67,7 @@ const createColumn = ({container, data, type, mode, theme}) => {
   })
 
   // 标题图层
-  const titleLayer = wave.createLayer('text')
+  const titleLayer = wave.layer[0]?.instance || wave.createLayer('text')
   titleLayer.setData(titleMapping[mode])
   titleLayer.setStyle({
     text: {
@@ -65,12 +76,12 @@ const createColumn = ({container, data, type, mode, theme}) => {
   })
   titleLayer.draw()
   // 矩形图层
-  const rectLayer = wave.createLayer('rect', {mode, type})
+  const rectLayer = wave.layer[1]?.instance || wave.createLayer('rect', {mode, type})
   rectLayer.setLayout(wave.layout.main)
   rectLayer.setData(tableList.select(data[0].slice(0)))
   rectLayer.setScale({scaleX, scaleY})
   rectLayer.setStyle({
-    labelPosition: 'right-outer',
+    labelPosition: type === 'bar' ? ['left-outer', 'right-outer'] : ['bottom-outer', 'top-outer'],
     rect: {
       enableUpdateAnimation: true,
     },

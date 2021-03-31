@@ -97,8 +97,8 @@ export default class RectLayer extends LayerBase {
   // 传入比例尺，矩形图层要求包含 scaleX 和 scaleY
   setScale(scales) {
     this.#scale = {...this.scale, ...scales}
-    const {scaleX, scaleY} = this.#scale
     const {left, top} = this.#layout
+    const {scaleX, scaleY} = this.#scale
     const {type = waveType.COLUMN, mode = modeType.GROUP} = this.options
     const tableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const barWidth = scaleX.bandwidth()
@@ -177,6 +177,37 @@ export default class RectLayer extends LayerBase {
     }
   }
 
+  // 获取标签坐标
+  #getLabelData = ({x, y, width, height, value, fontSize, labelPosition, labelOffset}) => {
+    // 计算标签的水平位置
+    let positionX
+    if (labelPosition === labelPositionType.LEFTOUTER) {
+      positionX = x - getTextWidth(value, fontSize) - labelOffset
+    } else if (labelPosition === labelPositionType.LEFTINNER) {
+      positionX = x + labelOffset
+    } else if (labelPosition === labelPositionType.RIGHTINNER) {
+      positionX = x + width - getTextWidth(value, fontSize) - labelOffset
+    } else if (labelPosition === labelPositionType.RIGHTOUTER) {
+      positionX = x + width + labelOffset
+    } else {
+      positionX = x + (width - getTextWidth(value, fontSize)) / 2
+    }
+    // 计算标签的垂直位置
+    let positionY
+    if (labelPosition === labelPositionType.TOPOUTER) {
+      positionY = y - labelOffset
+    } else if (labelPosition === labelPositionType.TOPINNER) {
+      positionY = y + fontSize
+    } else if (labelPosition === labelPositionType.BOTTOMINNER) {
+      positionY = y + height - labelOffset
+    } else if (labelPosition === labelPositionType.BOTTOMOUTER) {
+      positionY = y + height + fontSize + labelOffset
+    } else {
+      positionY = y + (height / 2) + fontSize / 2
+    }
+    return {x: positionX, y: positionY, value}
+  }
+
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = {...this.#style, ...style}
@@ -191,61 +222,21 @@ export default class RectLayer extends LayerBase {
       const colors = getColor(this.#rectData.length)
       this.#rectData.forEach((groupData, i) => (groupData[0].color = colors[i]))
     }
-    // 计算标签的水平位置
-    const getLabelX = ((x, width, text, position) => {
-      let result
-      if (position === labelPositionType.LEFTOUTER) {
-        result = x - getTextWidth(text, fontSize) - labelOffset
-      } else if (position === labelPositionType.LEFTINNER) {
-        result = x + labelOffset
-      } else if (position === labelPositionType.RIGHTINNER) {
-        result = x + width - getTextWidth(text, fontSize) - labelOffset
-      } else if (position === labelPositionType.RIGHTOUTER) {
-        result = x + width + labelOffset
-      } else {
-        result = x + (width - getTextWidth(text, fontSize)) / 2
-      }
-      return result
-    })
-    // 计算标签的垂直位置
-    const getLabelY = ((y, height, position) => {
-      let result
-      if (position === labelPositionType.TOPOUTER) {
-        result = y - labelOffset
-      } else if (position === labelPositionType.TOPINNER) {
-        result = y + fontSize
-      } else if (position === labelPositionType.BOTTOMINNER) {
-        result = y + height - labelOffset
-      } else if (position === labelPositionType.BOTTOMOUTER) {
-        result = y + height + fontSize + labelOffset
-      } else {
-        result = y + (height / 2) + fontSize / 2
-      }
-      return result
-    })
     // 标签文字数据
     this.#textData = this.#rectData.map(groupData => {
       const result = []
-      groupData.forEach(({x, y, width, height, value}) => {
-        // value 为区间，对应区间柱状图
+      const labelPositionMin = Array.isArray(labelPosition) ? labelPosition[0] : labelPosition
+      const labelPositionMax = Array.isArray(labelPosition) ? labelPosition[1] : labelPosition
+      groupData.forEach(({value, ...data}) => {
+        // value 为区间，对应两个标签
         if (Array.isArray(value)) {
           const [min, max] = value
-          result.push({
-            value: min, 
-            x: getLabelX(x, width, min, labelPosition), 
-            y: getLabelY(y, height, labelPosition),
-          })
-          result.push({
-            value: max, 
-            x: getLabelX(x, width, max, labelPosition), 
-            y: getLabelY(y, height, labelPosition),
-          })
+          result.push(
+            this.#getLabelData({...data, value: min, fontSize, labelPosition: labelPositionMin, labelOffset}),
+            this.#getLabelData({...data, value: max, fontSize, labelPosition: labelPositionMax, labelOffset}),
+          )
         } else {
-          result.push({
-            value, 
-            x: getLabelX(x, width, value, labelPosition), 
-            y: getLabelY(y, height, labelPosition),
-          })
+          result.push(this.#getLabelData({...data, value, fontSize, labelPosition: labelPositionMax, labelOffset}))
         }
       })
       return result
@@ -254,30 +245,30 @@ export default class RectLayer extends LayerBase {
 
   // 绘制
   draw() {
-    for (let i = 0; i < this.#rectData.length; i++) {
-      // 矩形
+    // 容器准备，删除上一次渲染多余的组
+    for (let i = 0; i < Infinity; i++) {
       const groupClassName = `${this.className}-${i}`
+      const els = this.#container.selectAll(`.${groupClassName}`)
+      if (i < this.#rectData.length && els._groups[0].length === 0) {
+        this.#container.append('g').attr('class', groupClassName)
+      } else if (i >= this.#rectData.length && els._groups[0].length !== 0) {
+        els.remove()
+      } else if (i >= this.#rectData.length) {
+        break
+      } 
+    }
+    // 矩形
+    for (let i = 0; i < this.#rectData.length; i++) {
       const rectPosition = this.#rectData[i].map(({x, y}) => [x, y])
       const rectSize = this.#rectData[i].map(({width, height}) => [width, height])
       const rectColor = this.#rectData[i].map(({color}) => color)
-      const container = this.#container.append('g').attr('class', groupClassName)
       const rectBackup = {
-        container,
+        container: this.#container.selectAll(`.${this.className}-${i}`),
+        className: `${this.className}-${i}-rect`,
         data: rectSize,
         position: rectPosition,
-        className: `${groupClassName}-rect`,
         fill: rectColor,
         ...this.#style.rect,
-      }
-      // 文本
-      const label = this.#textData[i].map(({value}) => value)
-      const textPosition = this.#textData[i].map(({x, y}) => [x, y])
-      const textBackup = {
-        container,
-        data: label,
-        position: textPosition,
-        className: `${groupClassName}-text`,
-        ...this.#style.text,
       }
       // 判断是否进行重新绘制
       if (this.#backup.length <= i || needRedraw(this.#backup[i].rect, rectBackup)) {
@@ -285,6 +276,19 @@ export default class RectLayer extends LayerBase {
         this.#backup[i].rect = rectBackup
         drawRect(rectBackup)
       }
+    }
+    // 文本
+    for (let i = 0; i < this.#rectData.length; i++) {
+      const label = this.#textData[i].map(({value}) => value)
+      const textPosition = this.#textData[i].map(({x, y}) => [x, y])
+      const textBackup = {
+        container: this.#container.selectAll(`.${this.className}-${i}`),
+        className: `${this.className}-${i}-text`,
+        data: label,
+        position: textPosition,
+        ...this.#style.text,
+      }
+      // 判断是否进行重新绘制
       if (this.#backup.length <= i || needRedraw(this.#backup[i].text, textBackup)) {
         this.#backup[i] = {}
         this.#backup[i].text = textBackup
