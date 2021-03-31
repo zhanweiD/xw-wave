@@ -54,16 +54,15 @@ const createWave = container => {
   legend.setData([
     '图例A',
     '图例B',
-    '图例C',
     '图例D',
-    '图例E',
   ])
   legend.setStyle({
     align: 'end',
-    verticalAlign: 'start',
-    size: 10,
+    verticalAlign: 'end',
+    size: 20,
+    gap: [10, 0],
     text: {
-      fontSize: 18,
+      fontSize: 24,
       textShadow: '',
     },
     point: {

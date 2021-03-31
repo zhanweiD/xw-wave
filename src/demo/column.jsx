@@ -65,6 +65,17 @@ const updateColumn = ({wave, data, type, mode}) => {
     range: type === 'column' ? [wave.layout.main.height, 0] : [0, wave.layout.main.width],
     nice: {count: 5, zero: true},
   })
+  const axisScaleX = new Scale({
+    type: 'band',
+    domain: scaleX.domain(),
+    range: type === 'column' ? [0, wave.layout.axisX.width] : [0, wave.layout.axisX.height],
+  })
+  const axisScaleY = new Scale({
+    type: 'linear',
+    domain: scaleY.domain(),
+    range: type === 'column' ? [0, wave.layout.axisY.height] : [0, wave.layout.axisY.width],
+    nice: {count: 6},
+  })
 
   // 标题图层
   const titleLayer = wave.layer[0]?.instance || wave.createLayer('text')
@@ -75,6 +86,7 @@ const updateColumn = ({wave, data, type, mode}) => {
     },
   })
   titleLayer.draw()
+
   // 矩形图层
   const rectLayer = wave.layer[1]?.instance || wave.createLayer('rect', {mode, type})
   rectLayer.setLayout(wave.layout.main)
@@ -86,9 +98,64 @@ const updateColumn = ({wave, data, type, mode}) => {
       enableUpdateAnimation: true,
     },
     text: {
-      fontSize: 8,
+      fontSize: 10,
       enableUpdateAnimation: true,
     },
   })
   rectLayer.draw()
+
+  // x 坐标轴图层
+  const axisX = wave.layer[2]?.instance || wave.createLayer('axis')
+  axisX.setLayout(wave.layout.axisX)
+  axisX.setStyle({
+    orient: type === 'column' ? 'bottom' : 'left',
+    type: 'axisX',
+    tickLine: {
+      className: 'wave-axis-tick-line-x',
+    },
+    label: {
+      textAnchor: 'middle',
+      className: 'wave-axis-tick-label-x',
+      fontSize: 10,
+      enableUpdateAnimation: true,
+    },
+  })
+  axisX.setScale(axisScaleX)
+  axisX.draw()
+
+  // y 坐标轴图层
+  const axisY = wave.layer[3]?.instance || wave.createLayer('axis')
+  axisY.setLayout(wave.layout.axisY)
+  axisY.setStyle({
+    type: 'axisY',
+    orient: type === 'column' ? 'left' : 'bottom',
+    tickLine: {
+      className: 'wave-axis-tick-line-y',
+      opacity: 0.2,
+    },
+    label: {
+      textAnchor: 'start',
+      className: 'wave-axis-tick-label-y',
+      fontSize: 10,
+      enableUpdateAnimation: true,
+    },
+  })
+  axisY.setScale(axisScaleY)
+  axisY.draw()
+
+  // 图例图层
+  const legend = wave.layer[4]?.instance || wave.createLayer('legend')
+  legend.setLayout(wave.layout.legend)
+  legend.setData(tableList.data.map(({header}) => header).slice(1))
+  legend.setStyle({
+    align: 'end',
+    verticalAlign: 'start',
+    size: 5,
+    gap: [5, 20],
+    text: {
+      fontSize: 14,
+      textShadow: '',
+    },
+  })
+  legend.draw()
 }
