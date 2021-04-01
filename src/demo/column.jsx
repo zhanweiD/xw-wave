@@ -5,10 +5,10 @@ import Scale from '../data/scale'
 import s from './demo.module.css'
 
 const titleMapping = {
-  group: '分组柱状图',
-  stack: '堆叠柱状图',
-  interval: '区间柱状图',
-  waterfall: '瀑布柱状图',
+  group: '分组图',
+  stack: '堆叠图',
+  interval: '区间图',
+  waterfall: '瀑布图',
 }
 
 let groupedColumnWave
@@ -72,9 +72,9 @@ const updateColumn = ({wave, data, type, mode}) => {
   })
   const axisScaleY = new Scale({
     type: 'linear',
-    domain: scaleY.domain(),
-    range: type === 'column' ? [0, wave.layout.axisY.height] : [0, wave.layout.axisX.width],
-    nice: {count: 6},
+    domain: tableList.select(data[0].slice(1), {mode: mode === 'stack' && 'sum'}).range(),
+    range: type === 'column' ? [wave.layout.axisY.height, 0] : [0, wave.layout.axisX.width],
+    nice: {count: 5, zero: true},
   })
 
   // 标签轴图层
@@ -125,8 +125,8 @@ const updateColumn = ({wave, data, type, mode}) => {
   rectLayer.setScale({scaleX, scaleY})
   rectLayer.setStyle({
     labelPosition: type === 'bar' 
-      ? ['left-outer', mode === 'stack' ? 'center' : 'right-outer'] 
-      : ['bottom-outer', mode === 'stack' ? 'center' : 'top-outer'],
+      ? ['left-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'right-outer'] 
+      : ['bottom-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'top-outer'],
     rect: {
       enableUpdateAnimation: true,
     },
@@ -144,10 +144,11 @@ const updateColumn = ({wave, data, type, mode}) => {
   legend.setStyle({
     align: 'end',
     verticalAlign: 'start',
-    size: 5,
-    gap: [5, 20],
+    direction: 'horizontal', 
+    pointSize: 8,
+    gap: [5, 10],
     text: {
-      fontSize: 14,
+      fontSize: 12,
       textShadow: '',
     },
   })

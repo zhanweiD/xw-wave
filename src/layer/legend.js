@@ -1,65 +1,48 @@
+import {sum, max} from 'd3'
 import drawCircle from '../basic/circle'
 import drawText from '../basic/text'
 import LayerBase from './base'
-import uuid from '../util/uuid'
 import getTextWidth from '../util/text-wdith'
-import getTextHeight from '../util/text-height'
 import needRedraw from '../util/need-redraw'
 
-// try {
-//   const waveLegend = new Wave({container: this._option.container, adjust: 'auto'})
-//   const legend = waveLegend.createLayer('legend')
-//   legend.data([
-//     '图例A',
-//     '图例B',
-//     '图例C',
-//     '图例D',
-//     '图例E',
-//   ])
-//   legend.style({
-//     align: 'start',
-//     verticalAlign: 'end',
-//     gap: [60, 0],
-//     text: {
-//       fontSize: 22,
-//       textShadow: '',
-//     },
-//     point: {
-//       size: 10,
-//     },
-//   })
-//   legend.draw()
-// } catch (e) {
-//   console.error(e.message)
-// }
+// 对齐方式
+const alignType = {
+  START: 'start',
+  MIDDLE: 'middle',
+  END: 'end',
+}
+
+// 排列方向
+const directionType = {
+  HORIZONTAL: 'horizontal',
+  VERTICAL: 'vertical',
+}
 
 const defaultStyle = {
-  align: 'start', // start | center | right
-  verticalAlign: 'start', // start | center | right
-  gap: [64, 24],
-  size: 10,
-  text: {
-    fontSize: 22,
-    textShadow: '',
-  },
-  point: {
-  },
+  align: 'start',
+  verticalAlign: 'start',
+  direction: 'horizontal', // 'horizontal' | 'vertical'
+  gap: [0, 0],
+  pointSize: 12,
+  text: {},
+  point: {},
 }
-// 标题图层
+
+// 图例图层
 export default class LegendLayer extends LayerBase {
   #container = null
 
-  #data = []
+  #data = ['']
 
-  #style = null
+  #style = {}
 
-  #position = null
+  #layout = {}
 
-  #layout = null
+  #backup = []
 
-  #backup = null
+  #circleData = []
 
-  #colors = []
+  #textData = []
 
   get layout() {
     return this.#layout
@@ -73,19 +56,22 @@ export default class LegendLayer extends LayerBase {
     return this.#style
   }
 
+  // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
-    // 初始化默认值
-    this.className = `wave-legend-${uuid()}`
+    this.className = 'wave-legend'
     this.#container = this.options.root.append('g').attr('class', this.className)
-    this.#data = ['默认图例']
+    this.#container.append('g').attr('class', `${this.className}-circle`)
+    this.#container.append('g').attr('class', `${this.className}-text`)
     this.setStyle(defaultStyle)
   }
 
-  // 传入标题文字作为数据
-  setData(tableList) {
-    this.#data = tableList || this.#data
-    this.#colors = this.options.getColor(this.#data.length)
+  /**
+   * 传入图例数据
+   * @param {Array<String>} data 
+   */
+  setData(data) {
+    this.#data = data || this.#data
   }
 
   // 显式传入布局
@@ -96,79 +82,88 @@ export default class LegendLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = {...this.#style, ...style}
-    const {align, verticalAlign, text: {fontSize}} = style
-    this.#position = this.#data.map(() => [0, 0])
-    const getTextWidthByIndex = index => getTextWidth(this.#data.slice(0, index).join(''), fontSize)
-
-    let {size, gap} = style
-    gap && gap[0] ? (size += gap[0]) : (gap = [0, 0]) && (this.#style.gap = [0, 0])
-
-    this.#data.forEach((data, index) => {
-      // 水平位置
-      switch (align) {
-        case 'start':
-          this.#position[index][0] = (gap[1] + size * 2) * index + getTextWidthByIndex(index)
-          break
-        case 'center':
-          const fullWidth = getTextWidth(this.#data.length) + (gap[1] + size * 2) * this.#data.length
-          this.#position[index][0] = ((gap[1] + size * 2) * index + getTextWidthByIndex(index) + this.#layout.width / 2 - fullWidth / 2)
-          break
-        case 'end':
-          this.#position[index][0] = this.#layout.width - ((gap[1] + size * 2) * index + getTextWidthByIndex(index + 1))
-          break
-        default:
-          break
-      }
-      // 垂直位置
-      switch (verticalAlign) {
-        case 'start':
-          this.#position[index][1] = getTextHeight(fontSize)
-          break
-        case 'center':
-          this.#position[index][1] = this.#layout.height / 2 - (Math.min(getTextHeight(fontSize), size)) / 2
-          break
-        case 'end':
-          this.#position[index][1] = this.#layout.height - (Math.min(getTextHeight(fontSize), size)) / 2
-          break
-        default:
-          break
-      }
-    })
+    const {align, verticalAlign, direction, pointSize} = this.#style
+    const {left, top, width, height} = this.#layout
+    const {fontSize = 12} = this.#style.text
+    const [inner, outer] = this.#style.gap
+    const maxHeight = max([pointSize, fontSize])
+    // 确定圆的数据
+    if (direction === directionType.HORIZONTAL) {
+      this.#circleData = this.#data.map((text, i) => {
+        const textWidth = sum(this.#data.slice(0, i).map(v => getTextWidth(v, fontSize)))
+        return {
+          cx: left + pointSize / 2 + (i ? (inner + outer + pointSize) * i + textWidth : 0),
+          cy: top + maxHeight / 2,
+          rx: pointSize / 2,
+          ry: pointSize / 2,
+        }
+      })
+    } else if (direction === directionType.VERTICAL) {
+      this.#circleData = this.#data.map((text, i) => ({
+        cx: left + pointSize / 2,
+        cy: top + maxHeight / 2 + (i ? (outer + fontSize + pointSize) * i : 0),
+        rx: pointSize / 2,
+        ry: pointSize / 2,
+      }))
+    }
+    // 根据圆的数据确定文字的数据
+    this.#textData = this.#circleData.map(({cx, cy}, i) => ({
+      text: this.#data[i],
+      x: cx + pointSize / 2 + inner,
+      y: cy + fontSize / 4, // 神奇的数字
+    }))
+    // 最后根据 align 整体移动，默认都是 start
+    let [totalWidth, totalHeight] = [0, 0]
+    if (direction === directionType.HORIZONTAL) {
+      const {x, text} = this.#textData[this.#textData.length - 1]
+      totalWidth = x - left + getTextWidth(text, fontSize)
+      totalHeight = maxHeight
+    } else if (direction === directionType.VERTICAL) {
+      const {y} = this.#textData[this.#textData.length - 1]
+      totalWidth = pointSize + inner + max(this.#data.map(text => getTextWidth(text, fontSize)))
+      totalHeight = y - top + maxHeight
+    }
+    const [offsetX, offsetY] = [width - totalWidth, height - totalHeight]
+    const [isHorizontalMiddle, isHorizontalEnd] = [align === alignType.MIDDLE, align === alignType.END]
+    const [isVerticalMiddle, isVerticalEnd] = [verticalAlign === alignType.MIDDLE, verticalAlign === alignType.END]
+    this.#circleData = this.#circleData.map(({cx, cy, ...size}) => ({
+      ...size,
+      cx: cx + (isHorizontalMiddle ? offsetX / 2 : isHorizontalEnd ? offsetX : 0),
+      cy: cy + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0), 
+    }))
+    this.#textData = this.#textData.map(({x, y, text}) => ({
+      text,
+      x: x + (isHorizontalMiddle ? offsetX / 2 : isHorizontalEnd ? offsetX : 0),
+      y: y + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0),
+    }))
   }
 
-  // 调用基础函数绘制图层元素
   draw() {
-    const backup = {
-      text: [],
-      circle: [],
+    // 圆点
+    const circleBackup = {
+      data: this.#circleData.map(({rx, ry}) => [rx, ry]),
+      position: this.#circleData.map(({cx, cy}) => [cx, cy]),
+      container: this.#container.selectAll(`.${this.className}-circle`),
+      className: `${this.className}-circle-el`,
+      ...this.#style.circle,
     }
-    const {size, gap} = this.#style
-    const {top, left, width, height} = this.#layout
-    const container = this.#container
-      .append('g')
-      .attr('width', width)
-      .attr('height', height)
-      .attr('transform', `translate(${left}, ${top})`)
     // 判断是否进行重新绘制
-    if (needRedraw(this.#backup, backup)) {
-      this.#backup = backup
-      drawCircle({
-        container,
-        className: `${this.className}-circle`,
-        fill: this.#colors,
-        data: this.#data.map(() => [size, size]),
-        position: this.#position.map(position => ([
-          position[0] - size - gap[0],
-          position[1] - size / 2,
-        ])),
-      })
-      drawText({
-        container,
-        className: `${this.className}-text`,
-        ...this.#style.text,
-        data: this.#data,
-        position: this.#position,
-      })
+    if (needRedraw(this.#backup.circle, circleBackup)) {
+      this.#backup.circle = circleBackup
+      drawCircle(circleBackup)
+    }
+    // 文字
+    const textBackup = {
+      data: this.#textData.map(({text}) => text),
+      position: this.#textData.map(({x, y}) => [x, y]),
+      container: this.#container.selectAll(`.${this.className}-text`),
+      className: `${this.className}-text-el`,
+      ...this.#style.text,
+    }
+    // 判断是否进行重新绘制
+    if (needRedraw(this.#backup.text, textBackup)) {
+      this.#backup.text = textBackup
+      drawText(textBackup)
     }
   }
 }
