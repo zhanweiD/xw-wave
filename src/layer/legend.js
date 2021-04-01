@@ -40,6 +40,8 @@ export default class LegendLayer extends LayerBase {
 
   #backup = []
 
+  #colors = []
+
   #circleData = []
 
   #textData = []
@@ -72,6 +74,7 @@ export default class LegendLayer extends LayerBase {
    */
   setData(data) {
     this.#data = data || this.#data
+    this.#colors = this.options.getColor(this.#data.length)
   }
 
   // 显式传入布局
@@ -145,6 +148,7 @@ export default class LegendLayer extends LayerBase {
       position: this.#circleData.map(({cx, cy}) => [cx, cy]),
       container: this.#container.selectAll(`.${this.className}-circle`),
       className: `${this.className}-circle-el`,
+      fill: this.#colors,
       ...this.#style.circle,
     }
     // 判断是否进行重新绘制

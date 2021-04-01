@@ -164,7 +164,9 @@ export default class RectLayer extends LayerBase {
     }
     // 矩形到条形的数据转换
     if (type === waveType.BAR) {
-      const zeroY = this.#rectData[0][0].y + this.#rectData[0][0].height
+      const firstRect = this.#rectData[0][0]
+      const offset = Array.isArray(firstRect.value) ? Math.abs(scaleY(0) - scaleY(firstRect.value[0])) : 0
+      const zeroY = firstRect.y + firstRect.height + offset
       this.#rectData = this.#rectData.map(groupData => {
         return groupData.map(({x, y, height, width, value}) => ({
           value, 
@@ -261,15 +263,12 @@ export default class RectLayer extends LayerBase {
     })
     // 矩形
     for (let i = 0; i < this.#rectData.length; i++) {
-      const rectPosition = this.#rectData[i].map(({x, y}) => [x, y])
-      const rectSize = this.#rectData[i].map(({width, height}) => [width, height])
-      const rectColor = this.#rectData[i].map(({color}) => color)
       const rectBackup = {
         container: this.#container.selectAll(`.${this.className}-rect-${i}`),
         className: `${this.className}-rect-${i}-el`,
-        data: rectSize,
-        position: rectPosition,
-        fill: rectColor,
+        data: this.#rectData[i].map(({width, height}) => [width, height]),
+        position: this.#rectData[i].map(({x, y}) => [x, y]),
+        fill: this.#rectData[i].map(({color}) => color),
         ...this.#style.rect,
       }
       // 判断是否进行重新绘制
@@ -281,13 +280,11 @@ export default class RectLayer extends LayerBase {
     }
     // 文本
     for (let i = 0; i < this.#rectData.length; i++) {
-      const label = this.#textData[i].map(({value}) => value)
-      const textPosition = this.#textData[i].map(({x, y}) => [x, y])
       const textBackup = {
         container: this.#container.selectAll(`.${this.className}-text-${i}`),
         className: `${this.className}-text-${i}-el`,
-        data: label,
-        position: textPosition,
+        data: this.#textData[i].map(({value}) => value),
+        position: this.#textData[i].map(({x, y}) => [x, y]),
         ...this.#style.text,
       }
       // 判断是否进行重新绘制
