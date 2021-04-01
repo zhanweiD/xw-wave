@@ -72,9 +72,9 @@ const createWave = container => {
   })
 
   const axisScaleValueY = new Scale({
-    type: 'linear',
-    domain: [0, 100],
-    // domain: ['标签1', '标签2', '标签3', '1', '2', '3'],
+    type: 'band',
+    // domain: [0, 100],
+    domain: ['标签1', '标签2', '标签3', '1', '2', '3'],
     range: [wave.layout.axisY.height, 0],
     // nice: {count: 6},
   })
@@ -96,40 +96,40 @@ const createWave = container => {
   axis.setLayout(wave.layout.axisX)
   axis.setStyle({
     type: 'axisX',
-    tickLine: {
-      className: '',
-      enableUpdateAnimation: true,
-    },
+    enableUpdateAnimation: true,
+    updateAnimationDuration: 1000,
+    updateAnimationDelay: 0,
     label: {
       // textAnchor: 'middle',
       className: '',
-      enableUpdateAnimation: true,
       fontSize: 12,
     },
   })
   axis.setScale(axisScale)
   axis.draw()
-  setTimeout(() => {
-    axis.setStyle({
-      type: 'axisX',
-      tickLine: {
-        className: '',
-        enableUpdateAnimation: true,
-      },
-      label: {
-        // textAnchor: 'middle',
-        className: '',
-        enableUpdateAnimation: true,
-        fontSize: 20,
-      },
-    })
-    axis.setScale(axisScale2)
-    axis.draw()
-  }, 3000)
+  // setTimeout(() => {
+  //   axis.setStyle({
+  //     type: 'axisX',
+  //     enableUpdateAnimation: true,
+  //     updateAnimationDuration: 1000,
+  //     updateAnimationDelay: 0,
+  //     tickLine: {
+  //       className: '',
+  //     },
+  //     label: {
+  //       // textAnchor: 'middle',
+  //       className: '',
+  //       fontSize: 20,
+  //     },
+  //   })
+  //   axis.setScale(axisScale2)
+  //   axis.draw()
+  // }, 3000)
 
   const axisY = wave.createLayer('axis')
   axisY.setLayout(wave.layout.axisY)
   axisY.setStyle({
+    // enableUpdateAnimation: false,
     type: 'axisY',
     orient: 'left',
     tickLine: {

@@ -6,20 +6,6 @@ import getTextHeight from '../util/text-height'
 import drawCircle from '../basic/circle'
 import uuid from '../util/uuid'
 
-const defaultStyle = {
-  type: 'axisX', // asisX asisY radius angular 4种坐标
-  orient: 'left', // 坐标轴位置
-
-  isTickLineVisible: true, // 是否显示坐标线
-  tickLine: {className: 'axis-line'}, // TODO：刻度线的样式，引用线的样式
-
-  isLabelVisible: true,
-  label: {
-    textAnchor: 'middle', 
-    className: 'axis-label',
-    fontSize: 12,
-  }, // TODO：标签的样式，引用文本的样式
-}
 export default class AxisLayer extends LayerBase {
   #container
 
@@ -27,7 +13,19 @@ export default class AxisLayer extends LayerBase {
 
   #scale
 
-  #style
+  #style = {
+    type: 'axisX', // asisX asisY radius angular 4种坐标
+    orient: 'left', // 坐标轴位置
+    isTickLineVisible: true, // 是否显示坐标线
+    tickLine: {}, // TODO：刻度线的样式，引用线的样式
+    isLabelVisible: true,
+    label: {
+      fontSize: 12,
+    }, // TODO：标签的样式，引用文本的样式
+    updateAnimationDuration: 1000,
+    updateAnimationDelay: 0,
+    enableUpdateAnimation: false,
+  }
 
   #id = uuid()
 
@@ -38,8 +36,6 @@ export default class AxisLayer extends LayerBase {
     // 两个容器初始化时完成
     this.#container.append('g').attr('class', 'wave-axis-line')
     this.#container.append('g').attr('class', 'wave-axis-text')
-
-    this.setStyle(defaultStyle)
   }
 
   // 读取布局信息
@@ -60,17 +56,37 @@ export default class AxisLayer extends LayerBase {
 
   // 此处处理不同坐标轴样式上的差异
   #niceStyle = () => {
-    if (this.#style.type === 'axisX') {
+    const {
+      type = 'axisX',
+      enableUpdateAnimation = false,
+    } = this.#style
+
+    if (type === 'axisX') {
       this.#style.label.textAnchor = 'middle'
     }
-    if (this.#style.type === 'axisY') {
+    if (type === 'axisY') {
       if (this.#scale && this.#scale.type === 'band') {
-        this.#style.label.textAnchor = 'end'
+        this.#style.label.textAnchor = 'start'
+        if (this.#style.orient === 'right') {
+          this.#style.label.textAnchor = 'end'
+        }
         this.#style.tickLine.opacity = 0
       }
       if (this.#scale && this.#scale.type === 'linear') {
         this.#style.label.textAnchor = 'start'
+        if (this.#style.orient === 'right') {
+          this.#style.label.textAnchor = 'end'
+        }
       }
+    }
+
+    if (enableUpdateAnimation) {
+      this.#style.label.enableUpdateAnimation = true
+      this.#style.label.updateAnimationDuration = this.#style.updateAnimationDuration || 1000
+      this.#style.label.updateAnimationDelay = this.#style.updateAnimationDelay || 0
+      this.#style.tickLine.enableUpdateAnimation = true
+      this.#style.tickLine.updateAnimationDuration = this.#style.updateAnimationDuration || 1000
+      this.#style.tickLine.updateAnimationDelay = this.#style.updateAnimationDelay || 0  
     }
   }
 
@@ -132,7 +148,10 @@ export default class AxisLayer extends LayerBase {
   _drawTickLabel({domain}) {
     const labelPosition = domain.map(label => {
       if (this.#style.type === 'axisY' && this.#scale.type === 'band') {
-        const x = this.#layout.left
+        let x = this.#layout.left
+        if (this.#style.orient === 'right') {
+          x = this.#layout.right
+        }
         const y = this.#scale(label) + this.#layout.top + this.#style.label.fontSize / 2 + (this.#scale.bandwidth() / 2)      
         return [x, y]
       }
