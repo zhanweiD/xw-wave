@@ -37,7 +37,7 @@ export default function Column({data = [[]], type = 'column', theme}) {
   }, [data, type, theme])
   
   return (
-    <div className="fbh fb1 fbjsb fbw">
+    <div className="fbh fb1 fbjsb fbw fbac">
       <div className={s.wave} ref={groupedColumnRef} />
       <div className={s.wave} ref={stackedColumnRef} />
       <div className={s.wave} ref={intervalColumnRef} />
@@ -109,12 +109,11 @@ const updateColumn = ({wave, data, type, mode}) => {
   axisX.setLayout(wave.layout.axisX)
   axisX.setStyle({
     orient: type === 'column' ? 'bottom' : 'left',
-    type: 'axisX',
+    type: type === 'column' ? 'axisX' : 'axisY',
     tickLine: {
       className: 'wave-axis-tick-line-x',
     },
     label: {
-      textAnchor: 'middle',
       className: 'wave-axis-tick-label-x',
       fontSize: 10,
       enableUpdateAnimation: true,
@@ -127,14 +126,13 @@ const updateColumn = ({wave, data, type, mode}) => {
   const axisY = wave.layer[3]?.instance || wave.createLayer('axis')
   axisY.setLayout(wave.layout.axisY)
   axisY.setStyle({
-    type: 'axisY',
+    type: type === 'column' ? 'axisY' : 'axisX',
     orient: type === 'column' ? 'left' : 'bottom',
     tickLine: {
       className: 'wave-axis-tick-line-y',
       opacity: 0.2,
     },
     label: {
-      textAnchor: 'start',
       className: 'wave-axis-tick-label-y',
       fontSize: 10,
       enableUpdateAnimation: true,

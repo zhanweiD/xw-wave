@@ -71,7 +71,7 @@ export default function Demo() {
           </div>
         ))}
       </div>
-      <div className="fbh fb7">
+      <div className="fbh fb10">
         {chart === 'column' && <Column data={data} theme={theme} type="column" />}
         {chart === 'bar' && <Column data={data} theme={theme} type="bar" />}
       </div>

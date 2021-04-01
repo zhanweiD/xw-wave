@@ -71,6 +71,10 @@ body {
   flex: 7
 }
 
+.fb10 {
+  flex: 10
+}
+
 .fbw {
   flex-wrap: wrap
 }
