@@ -77,35 +77,8 @@ const updateColumn = ({wave, data, type, mode}) => {
     nice: {count: 6},
   })
 
-  // 标题图层
-  const titleLayer = wave.layer[0]?.instance || wave.createLayer('text')
-  titleLayer.setData(titleMapping[mode])
-  titleLayer.setStyle({
-    text: {
-      fontSize: 16,
-    },
-  })
-  titleLayer.draw()
-
-  // 矩形图层
-  const rectLayer = wave.layer[1]?.instance || wave.createLayer('rect', {mode, type})
-  rectLayer.setLayout(wave.layout.main)
-  rectLayer.setData(tableList.select(data[0].slice(0)))
-  rectLayer.setScale({scaleX, scaleY})
-  rectLayer.setStyle({
-    labelPosition: type === 'bar' ? ['left-outer', 'right-outer'] : ['bottom-outer', 'top-outer'],
-    rect: {
-      enableUpdateAnimation: true,
-    },
-    text: {
-      fontSize: 10,
-      enableUpdateAnimation: true,
-    },
-  })
-  rectLayer.draw()
-
   // 标签轴图层
-  const axisX = wave.layer[2]?.instance || wave.createLayer('axis')
+  const axisX = wave.layer[0]?.instance || wave.createLayer('axis')
   axisX.setLayout(type === 'column' ? wave.layout.axisX : wave.layout.axisY)
   axisX.setStyle({
     orient: type === 'column' ? 'bottom' : 'left',
@@ -119,7 +92,7 @@ const updateColumn = ({wave, data, type, mode}) => {
   axisX.draw()
 
   // 数值轴图层
-  const axisY = wave.layer[3]?.instance || wave.createLayer('axis')
+  const axisY = wave.layer[1]?.instance || wave.createLayer('axis')
   axisY.setLayout(type === 'column' ? wave.layout.axisY : wave.layout.axisX)
   axisY.setStyle({
     type: type === 'column' ? 'axisY' : 'axisX',
@@ -134,6 +107,35 @@ const updateColumn = ({wave, data, type, mode}) => {
   })
   axisY.setScale(axisScaleY)
   axisY.draw()
+
+  // 标题图层
+  const titleLayer = wave.layer[2]?.instance || wave.createLayer('text')
+  titleLayer.setData(titleMapping[mode])
+  titleLayer.setStyle({
+    text: {
+      fontSize: 16,
+    },
+  })
+  titleLayer.draw()
+
+  // 矩形图层
+  const rectLayer = wave.layer[3]?.instance || wave.createLayer('rect', {mode, type})
+  rectLayer.setLayout(wave.layout.main)
+  rectLayer.setData(tableList.select(data[0].slice(0)))
+  rectLayer.setScale({scaleX, scaleY})
+  rectLayer.setStyle({
+    labelPosition: type === 'bar' 
+      ? ['left-outer', mode === 'stack' ? 'center' : 'right-outer'] 
+      : ['bottom-outer', mode === 'stack' ? 'center' : 'top-outer'],
+    rect: {
+      enableUpdateAnimation: true,
+    },
+    text: {
+      fontSize: 10,
+      enableUpdateAnimation: true,
+    },
+  })
+  rectLayer.draw()
 
   // 图例图层
   const legend = wave.layer[4]?.instance || wave.createLayer('legend')
