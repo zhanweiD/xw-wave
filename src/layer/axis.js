@@ -13,9 +13,6 @@ const defaultStyle = {
   isTickLineVisible: true, // 是否显示坐标线
   tickLine: {className: 'axis-line'}, // TODO：刻度线的样式，引用线的样式
 
-  //   isShowAuxiliaryLine: false, // 是否显示辅助线
-  //   auxiliaryLine: {}, // 辅助线的样式
-
   isLabelVisible: true,
   label: {
     textAnchor: 'middle', 
@@ -53,10 +50,28 @@ export default class AxisLayer extends LayerBase {
   // 自定义坐标轴的时候？
   setScale(scale) {
     this.#scale = scale
+    this.#niceStyle()
   }
 
   setStyle(style) {
     this.#style = this.#style ? Object.assign(this.#style, style) : style
+    this.#niceStyle()
+  }
+
+  // 此处处理不同坐标轴样式上的差异
+  #niceStyle = () => {
+    if (this.#style.type === 'axisX') {
+      this.#style.label.textAnchor = 'middle'
+    }
+    if (this.#style.type === 'axisY') {
+      if (this.#scale && this.#scale.type === 'band') {
+        this.#style.label.textAnchor = 'end'
+        this.#style.tickLine.opacity = 0
+      }
+      if (this.#scale && this.#scale.type === 'linear') {
+        this.#style.label.textAnchor = 'start'
+      }
+    }
   }
 
   draw() {
