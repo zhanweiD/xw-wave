@@ -61,9 +61,11 @@ const createWave = container => {
   //   rectLayer.draw()
 
   const axisScale = new Scale({
-    type: 'point',
-    domain: ['标签1', '标签2', '标签3'],
+    type: 'linear',
+    domain: [0, 100],
+    // domain: ['标签1', '标签2', '标签3'],
     range: [0, wave.layout.axisX.width],
+    nice: {count: 9},
   })
   const axisScale2 = new Scale({
     type: 'point',

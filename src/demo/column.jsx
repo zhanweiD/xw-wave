@@ -73,7 +73,7 @@ const updateColumn = ({wave, data, type, mode}) => {
   const axisScaleY = new Scale({
     type: 'linear',
     domain: scaleY.domain(),
-    range: type === 'column' ? [0, wave.layout.axisY.height] : [0, wave.layout.axisY.width],
+    range: type === 'column' ? [0, wave.layout.axisY.height] : [0, wave.layout.axisX.width],
     nice: {count: 6},
   })
 
