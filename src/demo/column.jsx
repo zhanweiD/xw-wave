@@ -23,10 +23,10 @@ export default function Column({data = [[]], type = 'column', theme}) {
   const waterfallRef = useRef(null)
  
   useEffect(() => {
-    groupedColumnWave = new Wave({container: groupedColumnRef.current, theme, padding: [50]})
-    stackedColumnWave = new Wave({container: stackedColumnRef.current, theme, padding: [50]})
-    intervalColumnWave = new Wave({container: intervalColumnRef.current, theme, padding: [50]})
-    waterfallWave = new Wave({container: waterfallRef.current, theme, padding: [50]})
+    groupedColumnWave = new Wave({container: groupedColumnRef.current, theme, padding: [0, 50, 30, 50]})
+    stackedColumnWave = new Wave({container: stackedColumnRef.current, theme, padding: [0, 50, 30, 50]})
+    intervalColumnWave = new Wave({container: intervalColumnRef.current, theme, padding: [0, 50, 30, 50]})
+    waterfallWave = new Wave({container: waterfallRef.current, theme, padding: [0, 50, 30, 50]})
   }, [theme])
 
   useEffect(() => {
@@ -104,17 +104,13 @@ const updateColumn = ({wave, data, type, mode}) => {
   })
   rectLayer.draw()
 
-  // x 坐标轴图层
+  // 标签轴图层
   const axisX = wave.layer[2]?.instance || wave.createLayer('axis')
-  axisX.setLayout(wave.layout.axisX)
+  axisX.setLayout(type === 'column' ? wave.layout.axisX : wave.layout.axisY)
   axisX.setStyle({
     orient: type === 'column' ? 'bottom' : 'left',
     type: type === 'column' ? 'axisX' : 'axisY',
-    tickLine: {
-      className: 'wave-axis-tick-line-x',
-    },
     label: {
-      className: 'wave-axis-tick-label-x',
       fontSize: 10,
       enableUpdateAnimation: true,
     },
@@ -122,18 +118,16 @@ const updateColumn = ({wave, data, type, mode}) => {
   axisX.setScale(axisScaleX)
   axisX.draw()
 
-  // y 坐标轴图层
+  // 数值轴图层
   const axisY = wave.layer[3]?.instance || wave.createLayer('axis')
-  axisY.setLayout(wave.layout.axisY)
+  axisY.setLayout(type === 'column' ? wave.layout.axisY : wave.layout.axisX)
   axisY.setStyle({
     type: type === 'column' ? 'axisY' : 'axisX',
     orient: type === 'column' ? 'left' : 'bottom',
     tickLine: {
-      className: 'wave-axis-tick-line-y',
       opacity: 0.2,
     },
     label: {
-      className: 'wave-axis-tick-label-y',
       fontSize: 10,
       enableUpdateAnimation: true,
     },

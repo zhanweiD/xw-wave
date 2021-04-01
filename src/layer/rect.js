@@ -1,5 +1,4 @@
 import LayerBase from './base'
-import uuid from '../util/uuid'
 import needRedraw from '../util/need-redraw'
 import getTextWidth from '../util/text-wdith'
 import drawText from '../basic/text'
@@ -79,7 +78,8 @@ export default class RectLayer extends LayerBase {
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
-    this.className = `wave-rect-${uuid()}`
+    const {type = waveType.COLUMN, mode = modeType.GROUP} = this.options
+    this.className = `wave-${mode}-${type}`
     this.#container = this.options.root.append('g').attr('class', this.className)
     this.setStyle(defaultStyle)
   }
@@ -246,25 +246,27 @@ export default class RectLayer extends LayerBase {
   // 绘制
   draw() {
     // 容器准备，删除上一次渲染多余的组
-    for (let i = 0; i < Infinity; i++) {
-      const groupClassName = `${this.className}-${i}`
-      const els = this.#container.selectAll(`.${groupClassName}`)
-      if (i < this.#rectData.length && els._groups[0].length === 0) {
-        this.#container.append('g').attr('class', groupClassName)
-      } else if (i >= this.#rectData.length && els._groups[0].length !== 0) {
-        els.remove()
-      } else if (i >= this.#rectData.length) {
-        break
-      } 
-    }
+    ['rect', 'text'].forEach(type => {
+      for (let i = 0; i < Infinity; i++) {
+        const groupClassName = `${this.className}-${type}-${i}`
+        const els = this.#container.selectAll(`.${groupClassName}`)
+        if (i < this.#rectData.length && els._groups[0].length === 0) {
+          this.#container.append('g').attr('class', groupClassName)
+        } else if (i >= this.#rectData.length && els._groups[0].length !== 0) {
+          els.remove()
+        } else if (i >= this.#rectData.length) {
+          break
+        }
+      }
+    })
     // 矩形
     for (let i = 0; i < this.#rectData.length; i++) {
       const rectPosition = this.#rectData[i].map(({x, y}) => [x, y])
       const rectSize = this.#rectData[i].map(({width, height}) => [width, height])
       const rectColor = this.#rectData[i].map(({color}) => color)
       const rectBackup = {
-        container: this.#container.selectAll(`.${this.className}-${i}`),
-        className: `${this.className}-${i}-rect`,
+        container: this.#container.selectAll(`.${this.className}-rect-${i}`),
+        className: `${this.className}-rect-${i}-el`,
         data: rectSize,
         position: rectPosition,
         fill: rectColor,
@@ -282,16 +284,18 @@ export default class RectLayer extends LayerBase {
       const label = this.#textData[i].map(({value}) => value)
       const textPosition = this.#textData[i].map(({x, y}) => [x, y])
       const textBackup = {
-        container: this.#container.selectAll(`.${this.className}-${i}`),
-        className: `${this.className}-${i}-text`,
+        container: this.#container.selectAll(`.${this.className}-text-${i}`),
+        className: `${this.className}-text-${i}-el`,
         data: label,
         position: textPosition,
         ...this.#style.text,
       }
-      // 文字需要在矩形上层显示，一般来说需要重绘
-      this.#backup[i] = {}
-      this.#backup[i].text = textBackup
-      drawText(textBackup)
+      // 判断是否进行重新绘制
+      if (this.#backup.length <= i || needRedraw(this.#backup[i].text, textBackup)) {
+        this.#backup[i] = {}
+        this.#backup[i].text = textBackup
+        drawText(textBackup)
+      }
     }
   }
 }

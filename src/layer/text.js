@@ -1,6 +1,5 @@
 import drawText from '../basic/text'
 import LayerBase from './base'
-import uuid from '../util/uuid'
 import getTextWidth from '../util/text-wdith'
 import needRedraw from '../util/need-redraw'
 
@@ -33,7 +32,7 @@ export default class TextLayer extends LayerBase {
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
-    this.className = `wave-text-${uuid()}`
+    this.className = 'wave-text'
     this.#container = this.options.root.append('g').attr('class', this.className)
     this.#position = [0, 0]
     this.setStyle(defaultStyle)
