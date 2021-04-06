@@ -1,15 +1,16 @@
 import * as d3 from 'd3'
 
 // 基于 d3 做一些比例尺的定制，方便图表操作
-export default function Scale({type, domain, range, nice = {count: 5, zero: false}}) {
-  let scale = {}
+export default function Scale({type, domain, range, nice = {count: 5, zero: false, paddingInner: 0.382}}) {
+  let scale
   // 离散到离散
   if (type === 'ordinal') {
     scale = d3.scaleOrdinal().domain(domain).range(range)
   }
   // 离散到连续
   if (type === 'band') {
-    scale = d3.scaleBand().domain(domain).range(range).paddingInner(1 - 0.618)
+    scale = d3.scaleBand().domain(domain).range(range)
+    nice && scale.paddingInner(nice.paddingInner)
   }
   // 离散到连续，bind 的变体，bandwidth 为 0
   if (type === 'point') {
@@ -18,14 +19,26 @@ export default function Scale({type, domain, range, nice = {count: 5, zero: fals
   // 连续到离散
   if (type === 'quantize') {
     scale = d3.scaleQuantize().domain(domain).range(range)
-    nice.zero && extendZero(scale)
+    nice && extendZero(scale)
     niceScale(scale, nice.count)
   }
   // 连续到连续
   if (type === 'linear') {
     scale = d3.scaleLinear().domain(domain).range(range)
-    nice.zero && extendZero(scale)
+    nice && extendZero(scale)
     niceScale(scale, nice.count)
+  }
+  // 为圆弧定制的比例尺，domain 是一个二维表（第一列纬度第二列百分比数值），range 是连续区间（0-360）
+  if (type === 'angle') {
+    const totalLength = range[1] - range[0]
+    const padding = (totalLength * nice.paddingInner) / domain.data[0].list.length
+    const availableLength = totalLength * (1 - nice.paddingInner)
+    const mappingArray = domain.data[1].list.reduce((prev, cur, index) => {
+      const startAngle = prev[index].endAngle + padding
+      const endAngle = startAngle + availableLength * cur
+      return [...prev, {startAngle, endAngle}]
+    }, [{endAngle: -padding}]).slice(1)
+    scale = d3.scaleOrdinal().domain(domain.data[0].list).range(mappingArray)
   }
   scale.type = type
   scale.nice = nice

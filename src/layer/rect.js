@@ -36,12 +36,12 @@ const labelPositionType = {
 }
 
 const defaultStyle = {
-  labelPosition: labelPositionType.OUTER,
+  labelPosition: labelPositionType.CENTER,
   rect: {},
   text: {},
 }
 
-// 标题图层
+// 矩形图层
 export default class RectLayer extends LayerBase {
   #container = null
 
