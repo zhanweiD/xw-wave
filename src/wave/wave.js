@@ -39,6 +39,8 @@ export default class Wave {
 
   #containerWidth = null
 
+  #baseFontSize = 1
+
   #padding = null
 
   #layout = null
@@ -59,6 +61,18 @@ export default class Wave {
 
   get theme() {
     return this.#theme
+  }
+
+  get baseFontSize() {
+    return this.#baseFontSize
+  }
+
+  set theme(theme) {
+    this.#theme = theme
+  }
+
+  set baseFontSize(baseFontSize) {
+    this.#baseFontSize = baseFontSize
   }
 
   constructor({
@@ -111,15 +125,7 @@ export default class Wave {
     })
 
     // 初始化主题颜色
-    this.setTheme(theme)
-  }
-
-  /**
-   * 重置主题信息
-   * @param {String} theme 主题
-   */
-  setTheme(theme) {
-    this.#theme = ThemeConfig[theme]?.colors || ThemeConfig.glaze.colors
+    this.#theme = theme
   }
 
   /**
@@ -135,7 +141,7 @@ export default class Wave {
    * @param {Number} count 数量
    */
   getColor(count) {
-    let colors = this.#theme
+    let colors = ThemeConfig[this.#theme]?.colors || ThemeConfig.glaze.colors
     // 颜色数量小于等于三时
     if (count <= 3) {
       colors = colors.slice(2, 7)
@@ -145,6 +151,15 @@ export default class Wave {
       colors = colors.slice(2)
     }
     return chroma.scale(colors).mode('lch').colors(count)
+  }
+
+  /**
+   * 获取文字的真实字号
+   * @param {Number} size 相对字号
+   * @returns {Number}
+   */
+  fontSize(size) {
+    return this.#baseFontSize * size
   }
 
   /**
@@ -159,6 +174,7 @@ export default class Wave {
       root: this.#root,
       layout: this.#layout,
       getColor: this.getColor.bind(this),
+      fontSize: this.fontSize.bind(this),
     }
     // 根据类型创建图层
     const layer = new LayerMapping[type](options, context)
