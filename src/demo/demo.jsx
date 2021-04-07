@@ -2,6 +2,7 @@ import {Children, useEffect, useState} from 'react'
 import c from 'classname'
 import ThemeConfig from '../util/theme'
 import Column from './column'
+import Pie from './pie'
 import s from './demo.module.css'
 
 const themeMapping = {
@@ -74,6 +75,7 @@ export default function Demo() {
       <div className="fbh fb10">
         {chart === 'column' && <Column data={data} theme={theme} type="column" />}
         {chart === 'bar' && <Column data={data} theme={theme} type="bar" />}
+        {chart === 'pie' && <Pie data={data} theme={theme} />}
       </div>
     </div>
   )

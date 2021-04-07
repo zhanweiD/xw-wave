@@ -23,17 +23,17 @@ export default function Column({data = [[]], type = 'column', theme}) {
   const waterfallRef = useRef(null)
  
   useEffect(() => {
-    groupedColumnWave = new Wave({container: groupedColumnRef.current, theme, padding: [0, 50, 30, 50]})
-    stackedColumnWave = new Wave({container: stackedColumnRef.current, theme, padding: [0, 50, 30, 50]})
-    intervalColumnWave = new Wave({container: intervalColumnRef.current, theme, padding: [0, 50, 30, 50]})
-    waterfallWave = new Wave({container: waterfallRef.current, theme, padding: [0, 50, 30, 50]})
+    groupedColumnWave = new Wave({container: groupedColumnRef.current, theme})
+    stackedColumnWave = new Wave({container: stackedColumnRef.current, theme})
+    intervalColumnWave = new Wave({container: intervalColumnRef.current, theme})
+    waterfallWave = new Wave({container: waterfallRef.current, theme})
   }, [theme])
 
   useEffect(() => {
-    updateColumn({wave: groupedColumnWave, mode: 'group', data, type})
-    updateColumn({wave: stackedColumnWave, mode: 'stack', data, type})
-    updateColumn({wave: intervalColumnWave, mode: 'interval', data, type})
-    updateColumn({wave: waterfallWave, mode: 'waterfall', data, type})
+    updateWave({wave: groupedColumnWave, mode: 'group', data, type})
+    updateWave({wave: stackedColumnWave, mode: 'stack', data, type})
+    updateWave({wave: intervalColumnWave, mode: 'interval', data, type})
+    updateWave({wave: waterfallWave, mode: 'waterfall', data, type})
   }, [data, type, theme])
   
   return (
@@ -47,7 +47,7 @@ export default function Column({data = [[]], type = 'column', theme}) {
 }
 
 // 分组柱状图
-const updateColumn = ({wave, data, type, mode}) => {
+const updateWave = ({wave, data, type, mode}) => {
   let tableList = new TableList(data)
   if (mode === 'waterfall') {
     tableList = new TableList(data).select(data[0].slice(0, 2))

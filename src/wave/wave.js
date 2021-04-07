@@ -3,11 +3,12 @@ import * as d3 from 'd3'
 import chroma from 'chroma-js'
 import getLayout from './layout'
 import ThemeConfig from '../util/theme'
+import LayerBase from '../layer/base'
 import TextLayer from '../layer/text'
 import AxisLayer from '../layer/axis'
 import RectLayer from '../layer/rect'
 import LegendLayer from '../layer/legend'
-import LayerBase from '../layer/base'
+import ArcLayer from '../layer/arc'
 
 // 图表状态
 const stateMapping = {
@@ -22,10 +23,10 @@ const LayerMapping = {
   legend: LegendLayer, // 图例
   text: TextLayer, // 文本
   rect: RectLayer, // 矩形
+  arc: ArcLayer, // 圆弧
   polygon: () => null, // 多边形
   line: () => null, // 直线/曲线
   circle: () => null, // 圆/椭圆
-  arc: () => null, // 圆弧
   decoration: () => null, // 装饰
 }
 
@@ -80,7 +81,7 @@ export default class Wave {
     adjust = 'auto',
     width = 100,
     height = 100,
-    padding = [60, 60, 60, 60],
+    padding = [0, 50, 30, 50],
     theme = 'glaze',
     layout = 'standard',
   }) {
