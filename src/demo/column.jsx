@@ -121,7 +121,6 @@ const updateWave = ({wave, data, type, mode}) => {
   // 矩形图层
   const rectLayer = wave.layer[3]?.instance || wave.createLayer('rect', {mode, type, layout: wave.layout.main})
   rectLayer.setData(tableList.select(data[0].slice(0)))
-  rectLayer.setScale({scaleX, scaleY})
   rectLayer.setStyle({
     labelPosition: type === 'bar' 
       ? ['left-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'right-outer'] 

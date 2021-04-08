@@ -39,23 +39,23 @@ export default class TextLayer extends LayerBase {
   setStyle(style) {
     this.#style = {...this.#style, ...style}
     const {align, verticalAlign, text = {}} = this.#style
-    const {layout} = this.options
+    const {width, height} = this.options.layout
     const {fontSize = 12} = text
     // 水平位置
     if (align === 'start') {
       this.#position[0] = 0
     } else if (align === 'center') {
-      this.#position[0] = (layout.width - getTextWidth(this.#data, fontSize)) / 2
+      this.#position[0] = (width - getTextWidth(this.#data, fontSize)) / 2
     } else if (align === 'end') {
-      this.#position[0] = layout.width - getTextWidth(this.#data, fontSize)
+      this.#position[0] = width - getTextWidth(this.#data, fontSize)
     }
     // 垂直位置
     if (verticalAlign === 'start') {
       this.#position[1] = fontSize
     } else if (verticalAlign === 'center') {
-      this.#position[1] = (layout.height + fontSize) / 2
+      this.#position[1] = (height + fontSize) / 2
     } else if (verticalAlign === 'end') {
-      this.#position[1] = layout.height
+      this.#position[1] = height
     }
   }
 

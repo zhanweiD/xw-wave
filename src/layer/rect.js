@@ -1,5 +1,6 @@
 import LayerBase from './base'
 import getTextWidth from '../util/text-wdith'
+import Scale from '../data/scale'
 
 // 映射的图表类型
 const waveType = {
@@ -74,26 +75,36 @@ export default class RectLayer extends LayerBase {
   // 传入二维表类，第一列数据要求为纬度数据列
   setData(tableList) {
     this.#data = tableList || this.#data
-  }
-
-  // 传入比例尺，矩形图层要求包含 scaleX 和 scaleY
-  setScale(scales) {
-    this.#scale = {...this.scale, ...scales}
-    const {scaleX, scaleY} = this.#scale
     const {type = waveType.COLUMN, mode = modeType.GROUP, layout} = this.options
-    const {left, top} = layout
-    const tableList = this.#data.transpose(this.#data.data.map(({list}) => list))
+    const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
+    const headers = this.#data.data.map(({header}) => header)
+    // 初始化比例尺
+    this.#scale = {
+      scaleX: new Scale({
+        type: 'band',
+        domain: this.#data.select(headers[0]).data[0].list,
+        range: type === waveType.COLUMN ? [0, layout.width] : [0, layout.height],
+      }),
+      scaleY: new Scale({
+        type: 'linear',
+        domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
+        range: type === waveType.COLUMN ? [layout.height, 0] : [0, layout.width],
+        nice: {count: 5, zero: true},
+      }),
+    }
+    // 计算基础数据
+    const {scaleX, scaleY} = this.#scale
     const barWidth = scaleX.bandwidth()
     // 由于 svg 坐标系和常规坐标系不同，在引入 bar 比例尺的时候需要进行值域的倒置
-    if (scales.scaleY && type === waveType.BAR) {
+    if (type === waveType.BAR) {
       this.#scale.scaleY.range(this.#scale.scaleY.range().reverse())
     }
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
-    this.#rectData = tableList.map(([dimension, ...values]) => {
+    this.#rectData = pureTableList.map(([dimension, ...values]) => {
       return values.map(value => ({
         value,
-        x: left + scaleX(dimension),
-        y: top + (value > 0 ? scaleY(value) : scaleY(0)),
+        x: layout.left + scaleX(dimension),
+        y: layout.top + (value > 0 ? scaleY(value) : scaleY(0)),
         width: barWidth,
         height: Math.abs(scaleY(value) - scaleY(0)),
       }))
@@ -154,8 +165,8 @@ export default class RectLayer extends LayerBase {
           value, 
           width: height, 
           height: width,
-          y: x - left + top, 
-          x: zeroY - height - y + left, 
+          y: x - layout.left + layout.top, 
+          x: zeroY - height - y + layout.left, 
         }))
       })
     }
