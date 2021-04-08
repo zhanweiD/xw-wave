@@ -12,9 +12,9 @@ const defaultStyle = {
 export default class TextLayer extends LayerBase {
   #data = null
 
-  #position = []
-
   #style = defaultStyle
+
+  #position = []
 
   get data() {
     return this.#data

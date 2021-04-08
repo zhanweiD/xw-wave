@@ -72,7 +72,7 @@ export default class LayerBase {
   /**
    * 统一的 draw 函数
    * @param {String} type 元素类型
-   * @param {Array<Array<Object>} data 图层元素数据
+   * @param {Array<Object>} data 图层元素数据
    */
   drawBasic(type, data) {
     // 元素容器准备，没有则追加

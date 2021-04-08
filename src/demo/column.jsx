@@ -54,20 +54,9 @@ const updateWave = ({wave, data, type, mode}) => {
     tableList.push(['总和', tableList.select(data[0][1], {mode: 'sum', target: 'column'}).range()[1]])
   }
 
-  const scaleX = new Scale({
-    type: 'band',
-    domain: tableList.select(data[0][0]).data[0].list,
-    range: type === 'column' ? [0, wave.layout.main.width] : [0, wave.layout.main.height],
-  })
-  const scaleY = new Scale({
-    type: 'linear',
-    domain: tableList.select(data[0].slice(1), {mode: mode === 'stack' && 'sum'}).range(),
-    range: type === 'column' ? [wave.layout.main.height, 0] : [0, wave.layout.main.width],
-    nice: {count: 5, zero: true},
-  })
   const axisScaleX = new Scale({
     type: 'band',
-    domain: scaleX.domain(),
+    domain: tableList.select(data[0][0]).data[0].list,
     range: type === 'column' ? [0, wave.layout.axisX.width] : [0, wave.layout.axisX.height],
   })
   const axisScaleY = new Scale({
