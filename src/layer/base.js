@@ -5,7 +5,6 @@ import drawLine from '../basic/line'
 import drawPolygon from '../basic/polygon'
 import drawRect from '../basic/rect'
 import drawText from '../basic/text'
-import needRedraw from '../util/need-redraw'
 
 // 基础元素绘制函数映射
 const basicMapping = {
@@ -95,10 +94,11 @@ export default class LayerBase {
     }
     // 根据对应二维表数据绘制最终的元素
     for (let i = 0; i < data.length; i++) {
-      const groupClassName = `${containerClassName}-${i}`
-      if (this.backup[type].length <= i || needRedraw(this.backup[type][i], data[i])) {
-        const elClassName = `${groupClassName}-el`
+      this.backup[type].length = data.length
+      if (JSON.stringify(this.backup[type][i]) !== JSON.stringify(data[i])) {
+        const groupClassName = `${containerClassName}-${i}`
         const elContainer = container.selectAll(`.${groupClassName}`)
+        const elClassName = `${groupClassName}-el`
         this.backup[type][i] = data[i]
         basicMapping[type]({...data[i], className: elClassName, container: elContainer})
       }
