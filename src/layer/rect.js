@@ -1,8 +1,5 @@
 import LayerBase from './base'
-import needRedraw from '../util/need-redraw'
 import getTextWidth from '../util/text-wdith'
-import drawText from '../basic/text'
-import drawRect from '../basic/rect'
 
 // 映射的图表类型
 const waveType = {
@@ -35,6 +32,7 @@ const labelPositionType = {
   LEFTOUTER: 'left-outer',
 }
 
+// 默认样式
 const defaultStyle = {
   labelPosition: labelPositionType.CENTER,
   rect: {},
@@ -43,21 +41,17 @@ const defaultStyle = {
 
 // 矩形图层
 export default class RectLayer extends LayerBase {
-  #container = null
-
   #layout = null
 
   #data = null
   
   #scale = null
 
-  #style = null
+  #style = defaultStyle
 
   #rectData = []
 
   #textData = []
-  
-  #backup = []
 
   get layout() {
     return this.#layout
@@ -80,8 +74,7 @@ export default class RectLayer extends LayerBase {
     super(layerOptions, waveOptions)
     const {type = waveType.COLUMN, mode = modeType.GROUP} = this.options
     this.className = `wave-${mode}-${type}`
-    this.#container = this.options.root.append('g').attr('class', this.className)
-    this.setStyle(defaultStyle)
+    this.container = this.options.root.append('g').attr('class', this.className)
   }
 
   // 传入二维表类，第一列数据要求为纬度数据列
@@ -247,52 +240,18 @@ export default class RectLayer extends LayerBase {
 
   // 绘制
   draw() {
-    // 容器准备，删除上一次渲染多余的组
-    ['rect', 'text'].forEach(type => {
-      for (let i = 0; i < Infinity; i++) {
-        const groupClassName = `${this.className}-${type}-${i}`
-        const els = this.#container.selectAll(`.${groupClassName}`)
-        if (i < this.#rectData.length && els._groups[0].length === 0) {
-          this.#container.append('g').attr('class', groupClassName)
-        } else if (i >= this.#rectData.length && els._groups[0].length !== 0) {
-          els.remove()
-        } else if (i >= this.#rectData.length) {
-          break
-        }
-      }
+    const rectData = this.#rectData.map(groupData => {
+      const data = groupData.map(({width, height}) => [width, height])
+      const position = groupData.map(({x, y}) => [x, y])
+      const fill = groupData.map(({color}) => color)
+      return {data, position, fill, ...this.#style.rect}
     })
-    // 矩形
-    for (let i = 0; i < this.#rectData.length; i++) {
-      const rectBackup = {
-        container: this.#container.selectAll(`.${this.className}-rect-${i}`),
-        className: `${this.className}-rect-${i}-el`,
-        data: this.#rectData[i].map(({width, height}) => [width, height]),
-        position: this.#rectData[i].map(({x, y}) => [x, y]),
-        fill: this.#rectData[i].map(({color}) => color),
-        ...this.#style.rect,
-      }
-      // 判断是否进行重新绘制
-      if (this.#backup.length <= i || needRedraw(this.#backup[i].rect, rectBackup)) {
-        this.#backup[i] = {}
-        this.#backup[i].rect = rectBackup
-        drawRect(rectBackup)
-      }
-    }
-    // 文本
-    for (let i = 0; i < this.#rectData.length; i++) {
-      const textBackup = {
-        container: this.#container.selectAll(`.${this.className}-text-${i}`),
-        className: `${this.className}-text-${i}-el`,
-        data: this.#textData[i].map(({value}) => value),
-        position: this.#textData[i].map(({x, y}) => [x, y]),
-        ...this.#style.text,
-      }
-      // 判断是否进行重新绘制
-      if (this.#backup.length <= i || needRedraw(this.#backup[i].text, textBackup)) {
-        this.#backup[i] = {}
-        this.#backup[i].text = textBackup
-        drawText(textBackup)
-      }
-    }
+    const textData = this.#textData.map(groupData => {
+      const data = groupData.map(({value}) => value)
+      const position = groupData.map(({x, y}) => [x, y])
+      return {data, position, ...this.#style.text}
+    })
+    this.drawBasic('rect', rectData)
+    this.drawBasic('text', textData)
   }
 }

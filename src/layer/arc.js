@@ -1,10 +1,7 @@
 import LayerBase from './base'
 import Scale from '../data/scale'
 import TableList from '../data/table-list'
-import needRedraw from '../util/need-redraw'
 import getTextWidth from '../util/text-wdith'
-import drawText from '../basic/text'
-import drawArc from '../basic/arc'
 
 // 映射的图表类型
 const waveType = {
@@ -26,6 +23,7 @@ const labelPositionType = {
   OUTER: 'outer',
 }
 
+// 默认样式
 const defaultStyle = {
   labelPosition: labelPositionType.INNER,
   arc: {},
@@ -34,21 +32,17 @@ const defaultStyle = {
 
 // 圆弧图层
 export default class RectLayer extends LayerBase {
-  #container = null
-
   #layout = null
 
   #data = new TableList([[]])
   
   #scale = null
 
-  #style = null
+  #style = defaultStyle
 
   #arcData = []
 
   #textData = []
-  
-  #backup = []
 
   get layout() {
     return this.#layout
@@ -71,8 +65,7 @@ export default class RectLayer extends LayerBase {
     super(layerOptions, waveOptions)
     const {type = waveType.PIE, mode = modeType.GROUP} = this.options
     this.className = `wave-${mode}-${type}`
-    this.#container = this.options.root.append('g').attr('class', this.className)
-    this.#style = defaultStyle
+    this.container = this.options.root.append('g').attr('class', this.className)
   }
   
   // 显式传入布局
@@ -192,56 +185,21 @@ export default class RectLayer extends LayerBase {
     })
   }
 
-  // 绘制
   draw() {
-    // 容器准备，删除上一次渲染多余的组
-    ['arc', 'text'].forEach(type => {
-      for (let i = 0; i < Infinity; i++) {
-        const groupClassName = `${this.className}-${type}-${i}`
-        const els = this.#container.selectAll(`.${groupClassName}`)
-        if (i < this.#arcData.length && els._groups[0].length === 0) {
-          this.#container.append('g').attr('class', groupClassName)
-        } else if (i >= this.#arcData.length && els._groups[0].length !== 0) {
-          els.remove()
-        } else if (i >= this.#arcData.length) {
-          break
-        }
-      }
+    const arcData = this.#arcData.map(groupData => {
+      const data = groupData.map(({startAngle, endAngle, innerRadius, outerRadius}) => [
+        startAngle, endAngle, innerRadius, outerRadius,
+      ])
+      const position = groupData.map(({x, y}) => [x, y])
+      const fill = groupData.map(({color}) => color)
+      return {data, position, fill, ...this.#style.arc}
     })
-    // 圆弧
-    for (let i = 0; i < this.#arcData.length; i++) {
-      const arcBackup = {
-        container: this.#container.selectAll(`.${this.className}-arc-${i}`),
-        className: `${this.className}-arc-${i}-el`,
-        data: this.#arcData[i].map(({startAngle, endAngle, innerRadius, outerRadius}) => [
-          startAngle, endAngle, innerRadius, outerRadius,
-        ]),
-        position: this.#arcData[i].map(({x, y}) => [x, y]),
-        fill: this.#arcData[i].map(({color}) => color),
-        ...this.#style.arc,
-      }
-      // 判断是否进行重新绘制
-      if (this.#backup.length <= i || needRedraw(this.#backup[i].arc, arcBackup)) {
-        this.#backup[i] = {}
-        this.#backup[i].arc = arcBackup
-        drawArc(arcBackup)
-      }
-    }
-    // 文本
-    for (let i = 0; i < this.#textData.length; i++) {
-      const textBackup = {
-        container: this.#container.selectAll(`.${this.className}-text-${i}`),
-        className: `${this.className}-text-${i}-el`,
-        data: this.#textData[i].map(({value}) => value),
-        position: this.#textData[i].map(({x, y}) => [x, y]),
-        ...this.#style.text,
-      }
-      // 判断是否进行重新绘制
-      if (this.#backup.length <= i || needRedraw(this.#backup[i].text, textBackup)) {
-        this.#backup[i] = {}
-        this.#backup[i].text = textBackup
-        drawText(textBackup)
-      }
-    }
+    const textData = this.#textData.map(groupData => {
+      const data = groupData.map(({value}) => value)
+      const position = groupData.map(({x, y}) => [x, y])
+      return {data, position, ...this.#style.text}
+    })
+    this.drawBasic('arc', arcData)
+    this.drawBasic('text', textData)
   }
 }

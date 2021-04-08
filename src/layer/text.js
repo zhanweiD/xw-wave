@@ -1,8 +1,7 @@
-import drawText from '../basic/text'
 import LayerBase from './base'
 import getTextWidth from '../util/text-wdith'
-import needRedraw from '../util/need-redraw'
 
+// 默认样式
 const defaultStyle = {
   align: 'start',
   verticalAlign: 'start',
@@ -11,15 +10,11 @@ const defaultStyle = {
 
 // 标题图层
 export default class TextLayer extends LayerBase {
-  #container = null
-
   #data = null
 
-  #style = null
+  #position = []
 
-  #position = null
-  
-  #backup = null
+  #style = defaultStyle
 
   get data() {
     return this.#data
@@ -29,13 +24,10 @@ export default class TextLayer extends LayerBase {
     return this.#style
   }
 
-  // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
     this.className = 'wave-text'
-    this.#container = this.options.root.append('g').attr('class', this.className)
-    this.#position = [0, 0]
-    this.setStyle(defaultStyle)
+    this.container = this.options.root.append('g').attr('class', this.className)
   }
 
   // 传入字符串
@@ -66,19 +58,12 @@ export default class TextLayer extends LayerBase {
     }
   }
 
-  // 绘制
   draw() {
-    const backup = {
+    const textData = [{
       data: [this.#data],
       position: [this.#position],
-      container: this.#container,
-      className: `${this._className}-text`,
       ...this.#style.text,
-    }
-    // 判断是否进行重新绘制
-    if (needRedraw(this.#backup, backup)) {
-      this.#backup = backup
-      drawText(backup)
-    }
+    }]
+    this.drawBasic('text', textData)
   }
 }

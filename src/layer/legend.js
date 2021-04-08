@@ -1,9 +1,6 @@
 import {sum, max} from 'd3'
-import drawCircle from '../basic/circle'
-import drawText from '../basic/text'
 import LayerBase from './base'
 import getTextWidth from '../util/text-wdith'
-import needRedraw from '../util/need-redraw'
 
 // 对齐方式
 const alignType = {
@@ -18,6 +15,7 @@ const directionType = {
   VERTICAL: 'vertical',
 }
 
+// 默认样式
 const defaultStyle = {
   align: 'start',
   verticalAlign: 'start',
@@ -30,15 +28,11 @@ const defaultStyle = {
 
 // 图例图层
 export default class LegendLayer extends LayerBase {
-  #container = null
-
   #data = ['']
 
-  #style = {}
+  #style = defaultStyle
 
   #layout = {}
-
-  #backup = []
 
   #colors = []
 
@@ -62,10 +56,7 @@ export default class LegendLayer extends LayerBase {
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
     this.className = 'wave-legend'
-    this.#container = this.options.root.append('g').attr('class', this.className)
-    this.#container.append('g').attr('class', `${this.className}-circle`)
-    this.#container.append('g').attr('class', `${this.className}-text`)
-    this.setStyle(defaultStyle)
+    this.container = this.options.root.append('g').attr('class', this.className)
   }
 
   /**
@@ -142,32 +133,18 @@ export default class LegendLayer extends LayerBase {
   }
 
   draw() {
-    // 圆点
-    const circleBackup = {
-      data: this.#circleData.map(({rx, ry}) => [rx, ry]),
-      position: this.#circleData.map(({cx, cy}) => [cx, cy]),
-      container: this.#container.selectAll(`.${this.className}-circle`),
-      className: `${this.className}-circle-el`,
-      fill: this.#colors,
+    const circleData = this.#circleData.map(({rx, ry, cx, cy}, i) => ({
+      data: [[rx, ry]],
+      position: [[cx, cy]],
+      fill: this.#colors[i],
       ...this.#style.circle,
-    }
-    // 判断是否进行重新绘制
-    if (needRedraw(this.#backup.circle, circleBackup)) {
-      this.#backup.circle = circleBackup
-      drawCircle(circleBackup)
-    }
-    // 文字
-    const textBackup = {
-      data: this.#textData.map(({text}) => text),
-      position: this.#textData.map(({x, y}) => [x, y]),
-      container: this.#container.selectAll(`.${this.className}-text`),
-      className: `${this.className}-text-el`,
+    }))
+    const textData = this.#textData.map(({text, x, y}) => ({
+      data: [text],
+      position: [[x, y]],
       ...this.#style.text,
-    }
-    // 判断是否进行重新绘制
-    if (needRedraw(this.#backup.text, textBackup)) {
-      this.#backup.text = textBackup
-      drawText(textBackup)
-    }
+    }))
+    this.drawBasic('circle', circleData)
+    this.drawBasic('text', textData)
   }
 }

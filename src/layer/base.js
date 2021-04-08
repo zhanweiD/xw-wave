@@ -5,9 +5,8 @@ import drawLine from '../basic/line'
 import drawPolygon from '../basic/polygon'
 import drawRect from '../basic/rect'
 import drawText from '../basic/text'
+import needRedraw from '../util/need-redraw'
 
-// 判断是否进行重新绘制
-const needRedraw = (data1, data2) => JSON.stringify(data1) !== JSON.stringify(data2)
 // 基础元素绘制函数映射
 const basicMapping = {
   arc: drawArc,
@@ -21,20 +20,12 @@ const basicMapping = {
 
 // 图层 Base，目前是一个函数架子，未来会引入更多公共方法
 export default class LayerBase {
-  #backup = {
-    arc: [],
-    circle: [],
-    curve: [],
-    line: [],
-    polygon: [],
-    rect: [],
-    text: [],
-  }
-
   constructor(layerOptions, waveOptions) {
     this.options = {...layerOptions, ...waveOptions}
-    this.className = 'wave-layerName'
+    this.className = null
     this.container = null
+    this.backup = {}
+    Object.keys(basicMapping).forEach(name => this.backup[name] = [])
   }
 
   // 数据处理
@@ -104,9 +95,12 @@ export default class LayerBase {
     }
     // 根据对应二维表数据绘制最终的元素
     for (let i = 0; i < data.length; i++) {
-      if (this.#backup[type].length <= i || needRedraw(this.#backup[type][i], data[i])) {
-        this.#backup[type][i] = data[i]
-        basicMapping[type](data[i])
+      const groupClassName = `${containerClassName}-${i}`
+      if (this.backup[type].length <= i || needRedraw(this.backup[type][i], data[i])) {
+        const elClassName = `${groupClassName}-el`
+        const elContainer = container.selectAll(`.${groupClassName}`)
+        this.backup[type][i] = data[i]
+        basicMapping[type]({...data[i], className: elClassName, container: elContainer})
       }
     }
   }
