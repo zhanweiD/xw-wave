@@ -50,7 +50,6 @@ export default class LegendLayer extends LayerBase {
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
     this.className = 'wave-legend'
-    this.container = this.options.root.append('g').attr('class', this.className)
   }
 
   /**

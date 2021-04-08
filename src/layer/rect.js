@@ -69,7 +69,6 @@ export default class RectLayer extends LayerBase {
     super(layerOptions, waveOptions)
     const {type = waveType.COLUMN, mode = modeType.GROUP} = this.options
     this.className = `wave-${mode}-${type}`
-    this.container = this.options.root.append('g').attr('class', this.className)
   }
 
   // 传入二维表类，第一列数据要求为纬度数据列

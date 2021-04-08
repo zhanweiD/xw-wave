@@ -27,7 +27,6 @@ export default class TextLayer extends LayerBase {
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
     this.className = 'wave-text'
-    this.container = this.options.root.append('g').attr('class', this.className)
   }
 
   // 传入字符串

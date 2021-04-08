@@ -22,7 +22,6 @@ export default class LayerBase {
   constructor(layerOptions, waveOptions) {
     this.options = {...layerOptions, ...waveOptions}
     this.className = null
-    this.container = null
     this.backup = {}
     Object.keys(basicMapping).forEach(name => this.backup[name] = [])
   }
@@ -74,11 +73,16 @@ export default class LayerBase {
    * @param {Array<Object>} data 图层元素数据
    */
   drawBasic(type, data) {
+    // 顶层图层容器准备
+    let layerRoot = this.options.root.selectAll(`.${this.className}`)
+    if (layerRoot._groups[0].length === 0) {
+      layerRoot = this.options.root.append('g').attr('class', this.className)
+    }
     // 元素容器准备，没有则追加
     const containerClassName = `${this.className}-${type}`
-    let container = this.container.selectAll(`.${containerClassName}`)
+    let container = layerRoot.selectAll(`.${containerClassName}`)
     if (container._groups[0].length === 0) {
-      container = this.container.append('g').attr('class', containerClassName)
+      container = layerRoot.append('g').attr('class', containerClassName)
     }
     // 分组容器准备，删除上一次渲染多余的组
     for (let i = 0; i < Infinity; i++) {

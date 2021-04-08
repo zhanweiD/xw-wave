@@ -59,7 +59,6 @@ export default class RectLayer extends LayerBase {
     super(layerOptions, waveOptions)
     const {type = waveType.PIE, mode = modeType.GROUP} = this.options
     this.className = `wave-${mode}-${type}`
-    this.container = this.options.root.append('g').attr('class', this.className)
   }
   
   /**
