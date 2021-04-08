@@ -48,7 +48,7 @@ const updateWave = ({wave, data, type, mode, donut}) => {
   const tableList = new TableList(data)
 
   // 标题图层
-  const titleLayer = wave.layer[0]?.instance || wave.createLayer('text')
+  const titleLayer = wave.layer[0]?.instance || wave.createLayer('text', {layout: wave.layout.title})
   titleLayer.setData(donut ? titleMapping[type][1] : titleMapping[type][0])
   titleLayer.setStyle({
     text: {
@@ -58,10 +58,9 @@ const updateWave = ({wave, data, type, mode, donut}) => {
   titleLayer.draw()
 
   // 圆弧图层
-  const rectLayer = wave.layer[1]?.instance || wave.createLayer('arc', {mode, type})
+  const rectLayer = wave.layer[1]?.instance || wave.createLayer('arc', {mode, type, layout: wave.layout.main})
   const {width, height} = wave.layout.main
   const arcData = tableList.select(data[0].slice(0, 2))
-  rectLayer.setLayout(wave.layout.main)
   rectLayer.setData(arcData)
   rectLayer.setStyle({
     innerRadius: donut ? Math.min(width, height) / 10 : 0,
@@ -75,8 +74,7 @@ const updateWave = ({wave, data, type, mode, donut}) => {
   rectLayer.draw()
 
   // 图例图层
-  const legend = wave.layer[2]?.instance || wave.createLayer('legend')
-  legend.setLayout(wave.layout.legend)
+  const legend = wave.layer[2]?.instance || wave.createLayer('legend', {layout: wave.layout.legend})
   legend.setData(data.slice(1).map(array => array[0]))
   legend.setStyle({
     align: 'end',

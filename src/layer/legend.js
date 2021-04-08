@@ -32,17 +32,11 @@ export default class LegendLayer extends LayerBase {
 
   #style = defaultStyle
 
-  #layout = {}
-
   #colors = []
 
   #circleData = []
 
   #textData = []
-
-  get layout() {
-    return this.#layout
-  }
 
   get data() {
     return this.#data
@@ -68,16 +62,11 @@ export default class LegendLayer extends LayerBase {
     this.#colors = this.options.getColor(this.#data.length)
   }
 
-  // 显式传入布局
-  setLayout(layout) {
-    this.#layout = layout
-  }
-
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = {...this.#style, ...style}
     const {align, verticalAlign, direction, pointSize} = this.#style
-    const {left, top, width, height} = this.#layout
+    const {left, top, width, height} = this.options.layout
     const {fontSize = 12} = this.#style.text
     const [inner, outer] = this.#style.gap
     const maxHeight = max([pointSize, fontSize])

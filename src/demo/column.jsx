@@ -109,7 +109,7 @@ const updateWave = ({wave, data, type, mode}) => {
   axisY.draw()
 
   // 标题图层
-  const titleLayer = wave.layer[2]?.instance || wave.createLayer('text')
+  const titleLayer = wave.layer[2]?.instance || wave.createLayer('text', {layout: wave.layout.title})
   titleLayer.setData(titleMapping[mode])
   titleLayer.setStyle({
     text: {
@@ -119,8 +119,7 @@ const updateWave = ({wave, data, type, mode}) => {
   titleLayer.draw()
 
   // 矩形图层
-  const rectLayer = wave.layer[3]?.instance || wave.createLayer('rect', {mode, type})
-  rectLayer.setLayout(wave.layout.main)
+  const rectLayer = wave.layer[3]?.instance || wave.createLayer('rect', {mode, type, layout: wave.layout.main})
   rectLayer.setData(tableList.select(data[0].slice(0)))
   rectLayer.setScale({scaleX, scaleY})
   rectLayer.setStyle({
@@ -138,8 +137,7 @@ const updateWave = ({wave, data, type, mode}) => {
   rectLayer.draw()
 
   // 图例图层
-  const legend = wave.layer[4]?.instance || wave.createLayer('legend')
-  legend.setLayout(wave.layout.legend)
+  const legend = wave.layer[4]?.instance || wave.createLayer('legend', {layout: wave.layout.legend})
   legend.setData(tableList.data.map(({header}) => header).slice(1))
   legend.setStyle({
     align: 'end',

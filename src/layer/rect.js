@@ -41,8 +41,6 @@ const defaultStyle = {
 
 // 矩形图层
 export default class RectLayer extends LayerBase {
-  #layout = null
-
   #data = null
   
   #scale = null
@@ -52,10 +50,6 @@ export default class RectLayer extends LayerBase {
   #rectData = []
 
   #textData = []
-
-  get layout() {
-    return this.#layout
-  }
 
   get data() {
     return this.#data
@@ -82,17 +76,12 @@ export default class RectLayer extends LayerBase {
     this.#data = tableList || this.#data
   }
 
-  // 显式传入布局
-  setLayout(layout) {
-    this.#layout = layout
-  }
-
   // 传入比例尺，矩形图层要求包含 scaleX 和 scaleY
   setScale(scales) {
     this.#scale = {...this.scale, ...scales}
-    const {left, top} = this.#layout
     const {scaleX, scaleY} = this.#scale
-    const {type = waveType.COLUMN, mode = modeType.GROUP} = this.options
+    const {type = waveType.COLUMN, mode = modeType.GROUP, layout} = this.options
+    const {left, top} = layout
     const tableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const barWidth = scaleX.bandwidth()
     // 由于 svg 坐标系和常规坐标系不同，在引入 bar 比例尺的时候需要进行值域的倒置

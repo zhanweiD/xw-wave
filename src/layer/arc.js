@@ -32,8 +32,6 @@ const defaultStyle = {
 
 // 圆弧图层
 export default class RectLayer extends LayerBase {
-  #layout = null
-
   #data = new TableList([[]])
   
   #scale = null
@@ -43,10 +41,6 @@ export default class RectLayer extends LayerBase {
   #arcData = []
 
   #textData = []
-
-  get layout() {
-    return this.#layout
-  }
 
   get data() {
     return this.#data
@@ -68,19 +62,14 @@ export default class RectLayer extends LayerBase {
     this.container = this.options.root.append('g').attr('class', this.className)
   }
   
-  // 显式传入布局
-  setLayout(layout) {
-    this.#layout = layout
-  }
-  
   /**
    * 传入二维表类，第一列数据要求为纬度数据列
    * @param {TableList} tableList 二维表
    */
   setData(tableList) {
     this.#data = tableList || this.#data
-    const {width, height} = this.#layout
-    const {mode = modeType.DEFAULT, type = waveType.PIE} = this.options
+    const {mode = modeType.DEFAULT, type = waveType.PIE, layout} = this.options
+    const {width, height} = layout
     const headers = this.#data.data.map(({header}) => header)
     const labels = this.#data.select(headers[0])
     const maxRadius = Math.min(width, height) / 2
@@ -137,8 +126,8 @@ export default class RectLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = {...this.#style, ...style}
-    const {getColor, type = waveType.PIE, mode = modeType.DEFAULT} = this.options
-    const {left, top, width, height} = this.#layout
+    const {getColor, type = waveType.PIE, mode = modeType.DEFAULT, layout} = this.options
+    const {left, top, width, height} = layout
     const {scaleAngle, scaleRadius} = this.#scale
     const {innerRadius = 0, fontSize = 12, labelPosition = labelPositionType.INNER} = this.#style
     const tableList = this.#data.transpose(this.#data.data.map(({list}) => list))
