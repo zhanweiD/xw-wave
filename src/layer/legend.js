@@ -17,9 +17,9 @@ const directionType = {
 
 // 默认样式
 const defaultStyle = {
-  align: 'start',
-  verticalAlign: 'start',
-  direction: 'horizontal', // 'horizontal' | 'vertical'
+  align: alignType.START,
+  verticalAlign: alignType.END,
+  direction: directionType.HORIZONTAL,
   gap: [0, 0],
   pointSize: 12,
   text: {},
