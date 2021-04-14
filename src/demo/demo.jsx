@@ -51,7 +51,6 @@ export default function Demo() {
 
   useEffect(() => {
     const timer = () => { 
-      console.log('1')
       setTimeout(() => setData(getData()), autoSwitchDataTime) 
     }
     requestAnimationFrame(timer)
