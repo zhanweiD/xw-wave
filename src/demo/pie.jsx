@@ -30,7 +30,7 @@ export default function Column({data = [[]], theme}) {
     donutNightingaleRoseWave = new Wave({container: donutNightingaleRoseRef.current, theme})
     stackNightingaleRoseWave = new Wave({container: stackNightingaleRoseRef.current, theme})
     stackDonutNightingaleRoseWave = new Wave({container: stackDonutNightingaleRoseRef.current, theme})
-  }, [theme])
+  }, [theme, window.innerHeight, window.innerWidth])
 
   useEffect(() => {
     updateWave({wave: pieWave, mode: 'default', data, type: 'pie', donut: false})
