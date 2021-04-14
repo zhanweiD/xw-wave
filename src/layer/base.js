@@ -63,7 +63,7 @@ export default class LayerBase {
   }
 
   // 控制整个图表的显示隐藏
-  setVisiable(isVisiable) {
+  setVisible(isVisiable) {
     this._root.selectAll(`.${this.className}`).attr('opacity', isVisiable ? 1 : 0)
   }
 

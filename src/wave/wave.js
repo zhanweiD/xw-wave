@@ -133,8 +133,8 @@ export default class Wave {
    * 控制整个图表的显示隐藏
    * @param {Boolean} isVisiable 是否可见
    */
-  setVisiable(isVisiable) {
-    this.#layer.forEach(layer => layer.setVisiable(isVisiable))
+  setVisible(isVisiable) {
+    this.#layer.forEach(layer => layer.setVisible(isVisiable))
   }
 
   /**
