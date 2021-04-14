@@ -50,8 +50,12 @@ export default function Demo() {
   }
 
   useEffect(() => {
-    const timer = setTimeout(() => setData(getData()), autoSwitchDataTime)
-    return () => clearTimeout(timer)
+    const timer = () => { 
+      console.log('1')
+      setTimeout(() => setData(getData()), autoSwitchDataTime) 
+    }
+    requestAnimationFrame(timer)
+    // return () => clearTimeout(timer)
   }, [data])
 
   return (
