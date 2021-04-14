@@ -176,7 +176,7 @@ export default class ScanAnimation extends AnimationBase {
     this.event.has('end') && this.event.fire('end')
   }
 
-  destory() {
+  destroy() {
     this.isAnimationAvailable = false
     this.lights.remove()
     this.instance.remove()

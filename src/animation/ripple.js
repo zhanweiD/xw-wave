@@ -136,7 +136,7 @@ export default class RippleAnimation extends AnimationBase {
   /**
    * 动画销毁钩子
    */
-  destory() {
+  destroy() {
     this.isAnimationAvailable = false
     this.gradient.remove()
     this.lights.remove()

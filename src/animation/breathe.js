@@ -77,7 +77,7 @@ export default class BreatheAnimation extends AnimationBase {
     this.event.has('end') && this.event.fire('end')
   }
 
-  destory() {
+  destroy() {
     this.instance.remove()
     this.extraNode.remove()
     this.isAnimationAvailable = false

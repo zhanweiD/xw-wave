@@ -169,7 +169,7 @@ export default class Track extends AnimationBase {
   }
 
   // 动画删除的时候
-  destory() {
+  destroy() {
     // console.log('执行清除', this.isAnimation, this.uuid)
     this.isAnimation = false
   }

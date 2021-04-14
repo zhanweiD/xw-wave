@@ -168,8 +168,8 @@ export default class AnimationQueue extends AnimationBase {
   }
 
   // 控制函数，销毁动画
-  destory() {
+  destroy() {
     this.isAnimationAvailable = false
-    this.animationQueue.forEach(item => item.destory())
+    this.animationQueue.forEach(item => item.destroy())
   }
 }
