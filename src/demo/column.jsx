@@ -27,7 +27,7 @@ export default function Column({data = [[]], type = 'column', theme}) {
     stackedColumnWave = new Wave({container: stackedColumnRef.current, theme})
     intervalColumnWave = new Wave({container: intervalColumnRef.current, theme})
     waterfallWave = new Wave({container: waterfallRef.current, theme})
-  }, [theme])
+  }, [theme, window.innerHeight, window.innerWidth])
 
   useEffect(() => {
     updateWave({wave: groupedColumnWave, mode: 'group', data, type})

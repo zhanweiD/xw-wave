@@ -49,12 +49,21 @@ export default function Demo() {
     background: ThemeConfig[theme].background,
   }
 
+  // 监听窗口变化，300毫秒防抖
   useEffect(() => {
-    const timer = () => { 
-      setTimeout(() => setData(getData()), autoSwitchDataTime) 
+    let interval
+    const delay = 300
+    const listener = () => {
+      clearInterval(interval)
+      interval = setTimeout(() => setData(getData(), delay))
     }
+    window.addEventListener('resize', listener)
+    return () => window.removeEventListener('resize', listener)
+  }, [data])
+
+  useEffect(() => {
+    const timer = () => setTimeout(() => setData(getData()), autoSwitchDataTime)
     requestAnimationFrame(timer)
-    // return () => clearTimeout(timer)
   }, [data])
 
   return (
