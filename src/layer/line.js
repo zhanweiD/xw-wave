@@ -104,7 +104,7 @@ export default class LineLayer extends LayerBase {
       const stackData = []
       this.#lineData.reduce((prev, cur) => {
         const result = {data: cur.data.map((item, i) => ({
-          value: item.value + prev.data[i].value,
+          value: item.value,
           x: item.x,
           //   y: prev.data[i].y + (layout.height - item.y),
           y: prev.data[i].y - (layout.height + layout.top - item.y),
@@ -149,7 +149,7 @@ export default class LineLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = {...this.#style, ...style}
-    const {getColor, layout} = this.options
+    const {getColor, layout, mode = modeType.GROUP} = this.options
     const {labelPosition, labelOffset = 5} = this.#style
     const {fontSize = 5} = this.#style.text
     const {r = 2} = this.#style.point
@@ -185,12 +185,12 @@ export default class LineLayer extends LayerBase {
     if (this.#style.hasArea) {
       this.#style.area.opacity = 0.2
       this.#style.area.curve = curve
-      this.#areaData = this.#lineData.map(groupData => ({
+      this.#areaData = this.#lineData.map((groupData, groupIndex) => ({
         fill: groupData.color,
         stroke: groupData.color,
-        data: groupData.data.map(({y, ...d}) => ({
+        data: groupData.data.map(({y, ...d}, index) => ({
           ...d,
-          y0: layout.height + layout.top,
+          y0: mode === modeType.STACK ? (groupIndex === 0 ? layout.height + layout.top : this.#lineData[groupIndex - 1].data[index].y) : layout.height + layout.top,
           y1: y,
         })),
       }))
