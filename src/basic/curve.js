@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
 
 // v4基础函数——画path
-// 此文件可以完全取代path
 export default function drawCurve({
   stroke = [],
   strokeWidth = 1,
