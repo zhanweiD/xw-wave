@@ -5,6 +5,7 @@ import drawLine from '../basic/line'
 import drawPolygon from '../basic/polygon'
 import drawRect from '../basic/rect'
 import drawText from '../basic/text'
+import drawArea from '../basic/area'
 
 // 基础元素绘制函数映射
 const basicMapping = {
@@ -15,6 +16,7 @@ const basicMapping = {
   polygon: drawPolygon,
   rect: drawRect,
   text: drawText,
+  area: drawArea,
 }
 
 // 图层 Base，目前是一个函数架子，未来会引入更多公共方法

@@ -2,29 +2,34 @@ import * as d3 from 'd3'
 
 // v4基础函数——画path
 // 此文件可以完全取代path
-export default function drawCurve({
+export default function drawArea({
   stroke = [],
+  fill = [],
   strokeWidth = 1,
   opacity = 1,
   enableUpdateAnimation = true,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
-  position = [], // 位置 [[[x,y], ...], ...]
+  position = [], // 位置 [[[x,y0,y1], ...], ...]
   container,
   className,
+  curve = false,
 }) {
-  // 曲线工厂
-  const lineGenerator = d3.line()
+  // 面积生成器
+  const areaGenerator = d3.area()
     .x(d => d[0])
-    .y(d => d[1])
-    .curve(d3.curveMonotoneX)
+    .y0(d => d[1])
+    .y1(d => d[2])
+  if (curve) {
+    areaGenerator.curve(d3.curveMonotoneX)
+  }
 
   const configuredData = position.map((data, i) => ({
     stroke: stroke[i],
     strokeWidth,
     class: className,
-    d: lineGenerator(data),
-    fill: 'none',
+    d: areaGenerator(data),
+    fill: fill[i],
     opacity,
   }))
 
