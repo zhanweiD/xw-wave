@@ -5,7 +5,7 @@ import Scale from '../data/scale'
 import s from './demo.module.css'
 
 const titleMapping = {
-  group: '分组折线',
+  default: '分组折线',
   stack: '堆叠折线',
   area: '面积',
   stackArea: '堆叠面积',
@@ -30,7 +30,7 @@ export default function Line({data = [[]], type = 'column', theme}) {
   }, [theme, window.innerHeight, window.innerWidth])
 
   useEffect(() => {
-    updateWave({wave: groupedLineWave, mode: 'group', data, type})
+    updateWave({wave: groupedLineWave, mode: 'default', data, type})
     updateWave({wave: stackedLineWave, mode: 'stack', data, type})
     updateWave({wave: areaWave, mode: 'area', data, type})
     updateWave({wave: stackAreaWave, mode: 'stackArea', data, type, area: true})

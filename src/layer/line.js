@@ -8,11 +8,11 @@ const waveType = {
 
 // 元素组合方式
 const modeType = {
-  GROUP: 'group',
+  DEFAULT: 'default',
   STACK: 'stack',
 }
 
-// 标签是显示在矩形外部还是矩形内部
+// 文字方向
 const labelPositionType = {
   CENTER: 'center',
   TOP: 'top',
@@ -63,14 +63,14 @@ export default class LineLayer extends LayerBase {
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
-    const {type = waveType.Line, mode = modeType.GROUP} = this.options
+    const {type = waveType.Line, mode = modeType.DEFAULT} = this.options
     this.className = `wave-${mode}-${type}`
   }
 
   // 传入二维表类，第一列数据要求为纬度数据列
   setData(tableList) {
     this.#data = tableList || this.#data
-    const {type = waveType.Line, mode = modeType.GROUP, layout} = this.options
+    const {type = waveType.Line, mode = modeType.DEFAULT, layout} = this.options
     const pureTableList = this.#data.data.map(({list}) => list)
     const label = pureTableList[0]
     pureTableList.shift()
@@ -149,7 +149,7 @@ export default class LineLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = {...this.#style, ...style}
-    const {getColor, layout, mode = modeType.GROUP} = this.options
+    const {getColor, layout, mode = modeType.DEFAULT} = this.options
     const {labelPosition, labelOffset = 5} = this.#style
     const {fontSize = 5} = this.#style.text
     const {r = 2} = this.#style.point
