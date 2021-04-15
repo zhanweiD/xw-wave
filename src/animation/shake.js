@@ -66,7 +66,7 @@ export default class shakeAnimation extends AnimationBase {
     this.event.has('end') && this.event.fire('end')
   }
 
-  destory() {
+  destroy() {
     anime.remove(this.container)
     this.isAnimationAvailable = false
   }

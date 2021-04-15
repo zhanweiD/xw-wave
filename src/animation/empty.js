@@ -53,7 +53,7 @@ export default class EmptyAnimation extends AnimationBase {
     this.event.has('end') && this.event.fire('end')
   }
 
-  destory() {
+  destroy() {
     this.isAnimationAvailable = false
     this.options.type === types.TIMER && this.instance.remove()
   }

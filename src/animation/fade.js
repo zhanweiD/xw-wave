@@ -51,7 +51,7 @@ export default class FadeAnimation extends AnimationBase {
     this.event.has('end') && this.event.fire('end')
   }
 
-  destory() {
+  destroy() {
     anime.remove(this.options.targets)
     this.isAnimationAvailable = false
   }

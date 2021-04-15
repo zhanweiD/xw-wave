@@ -90,7 +90,7 @@ export default class ScrollAnimation extends AnimationBase {
     this.isAnimationAvailable && this.options.loop && this.play()
   }
 
-  destory() {
+  destroy() {
     anime.remove(this.options.targets)
     this.isAnimationAvailable = false
   }
