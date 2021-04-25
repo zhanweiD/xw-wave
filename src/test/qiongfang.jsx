@@ -165,33 +165,34 @@ const createWave = container => {
   axisY1.setScale(axisScaleValueY)
   axisY1.draw()
 
-  // const asixRadius = wave.createLayer('axis')
-  // asixRadius.setLayout(wave.layout.main)
-  // asixRadius.setStyle({
-  //   type: 'radius',
-  //   tickLine: {
-  //     opacity: 1,
-  //     strokeWidth: 1,
-  //     stroke: 'white',
-  //     fill: 'none',
-  //   },
-  // })
-  // asixRadius.setScale(axisScaleRadius)
-  // asixRadius.draw()
+  const asixRadius = wave.createLayer('axis')
+  asixRadius.setLayout(wave.layout.main)
+  asixRadius.setStyle({
+    type: 'radius',
+    tickLine: {
+      opacity: 1,
+      strokeWidth: 1,
+      stroke: 'white',
+      fill: 'none',
+    },
+  })
+  asixRadius.setScale(axisScaleRadius)
+  asixRadius.draw()
 
-  // const asixAngle = wave.createLayer('axis')
-  // asixAngle.setLayout(wave.layout.main)
-  // asixAngle.setStyle({
-  //   type: 'angle',
-  //   tickLine: {
-  //     opacity: 1,
-  //     strokeWidth: 1,
-  //     stroke: 'white',
-  //     fill: 'none',
-  //   },
-  // })
-  // asixAngle.setScale(axisScaleRadius)
-  // asixAngle.draw()
+  const asixAngle = wave.createLayer('axis')
+  asixAngle.setLayout(wave.layout.main)
+  asixAngle.setStyle({
+    type: 'angle',
+    tickLine: {
+      opacity: 1,
+      strokeWidth: 1,
+      stroke: 'white',
+      fill: 'none',
+    },
+  })
+  
+  asixAngle.setScale(axisScaleRadius)
+  asixAngle.draw()
 }
 
 export default function Text() {
