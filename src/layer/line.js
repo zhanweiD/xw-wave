@@ -202,7 +202,7 @@ export default class LineLayer extends LayerBase {
     const lineData = this.#lineData.map(groupData => {
       const position = groupData.data.map(({x, y}) => [x, y])
       const {color} = groupData
-      return {position: [position], stroke: [color], ...this.#style.rect}
+      return {position: [position], stroke: [color], ...this.#style.line}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)

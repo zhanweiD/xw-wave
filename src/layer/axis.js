@@ -182,7 +182,7 @@ export default class AxisLayer extends LayerBase {
     const data = domain.map(label => ([this.#scale(label), this.#scale(label)]))
     const position = domain.map(() => ([this.#layout.width / 2 + this.#layout.left, this.#layout.height / 2 + this.#layout.top]))
     const lineBox = this.#container.selectAll('.wave-axis-line')
-    const className = `asix-tick-text-${this.#id}`
+    const className = `asix-tick-line-${this.#id}`
     drawCircle({data, position, container: lineBox, ...this.#style.tickLine, className})
   }
 
@@ -200,10 +200,12 @@ export default class AxisLayer extends LayerBase {
         return `translate(${x}, ${y}) rotate(${d})`
       })
     const tickLinePosition = [0, 0, Math.min(this.#layout.width / 2, this.#layout.height / 2), 0]
-    const className = `asix-tick-text-${this.#id}`
+    const className = `asix-tick-line-${this.#id}`
+    // const classNameText = `asix-tick-text-${this.#id}`
     
     g.each((data, i, elm) => {
       drawLine({position: [tickLinePosition], container: d3.select(elm[i]), ...this.#style.tickLine, className})
+      // drawText({position: [[Math.min(this.#layout.width / 2, this.#layout.height / 2) + 20, 0]], data: [`标签${i}`], className: classNameText, container: d3.select(elm[i])})
     })
   }
 }
