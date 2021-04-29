@@ -10,6 +10,7 @@ import RectLayer from '../layer/rect'
 import LegendLayer from '../layer/legend'
 import ArcLayer from '../layer/arc'
 import LineLayer from '../layer/line'
+import RadarLayer from '../layer/radar'
 
 // 图表状态
 const stateMapping = {
@@ -25,7 +26,7 @@ const LayerMapping = {
   text: TextLayer, // 文本
   rect: RectLayer, // 矩形
   arc: ArcLayer, // 圆弧
-  polygon: () => null, // 多边形
+  radar: RadarLayer, // 雷达多边形
   line: LineLayer, // 直线/曲线
   circle: () => null, // 圆/椭圆
   decoration: () => null, // 装饰

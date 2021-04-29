@@ -23,8 +23,8 @@ export default function drawCircle({
       rx,
       ry,
       fill: Array.isArray(fill) ? fill[index] : fill,
+      stroke: Array.isArray(stroke) ? fill[index] : fill,
       opacity,
-      stroke,
       strokeWidth,
     }
   })

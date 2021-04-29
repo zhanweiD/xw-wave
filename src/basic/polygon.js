@@ -8,21 +8,18 @@ export default function drawPolygon({
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   data = [],
-  position = [], // 直角坐标系二维表坐标数据
   container, // 容器父节点
   className, // 用于定位
 }) {
   // 为每一个元素生成单独的配置 JSON 用于绘制
-  const configuredData = data.map((point, index) => {
-    const [cx, cy] = position[index]
+  const configuredData = data.map((points, index) => {
     return {
-      class: className,
-      points: point,
-      fill,
-      opacity,
-      stroke,
+      className,
+      points: points.reduce((prev, cur) => `${prev} ${cur[0]},${cur[1]}`, ''),
+      fill: Array.isArray(fill) ? fill[index] : fill,
+      stroke: Array.isArray(stroke) ? stroke[index] : stroke,
       strokeWidth,
-      style: `transform: translate(${cx}px, ${cy}px)`,
+      opacity,
     }
   })
 
@@ -32,12 +29,12 @@ export default function drawPolygon({
     .transition()
     .duration(enableUpdateAnimation ? updateAnimationDuration : 0)
     .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
+    .attr('class', d => d.className)
+    .attr('points', d => d.points)
+    .attr('fill', d => d.fill)
+    .attr('opacity', d => d.opacity)
     .attr('stroke', d => d.stroke)
     .attr('stroke-width', d => d.strokeWidth)
-    .attr('class', d => d.class)
-    .attr('opacity', d => d.opacity)
-    .attr('style', d => d.style)
-    .attr('fill', d => d.fill)
-
+    
   return polygons
 }

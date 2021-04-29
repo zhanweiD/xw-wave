@@ -4,6 +4,7 @@ import ThemeConfig from '../util/theme'
 import Column from './column'
 import Line from './line'
 import Pie from './pie'
+import Radar from './radar'
 import s from './demo.module.css'
 
 const themeMapping = {
@@ -19,6 +20,7 @@ const chartMapping = {
   bar: '条形图',
   line: '折线图',
   pie: '饼图',
+  radar: '雷达图',
 }
 
 const getData = () => {
@@ -90,6 +92,7 @@ export default function Demo() {
         {chart === 'bar' && <Column data={data} theme={theme} type="bar" />}
         {chart === 'line' && <Line data={data} theme={theme} type="line" />}
         {chart === 'pie' && <Pie data={data} theme={theme} />}
+        {chart === 'radar' && <Radar data={data} theme={theme} />}
       </div>
     </div>
   )
