@@ -118,18 +118,18 @@ export default class ScanAnimation extends AnimationBase {
     this.isAnimationAvailable = true
     const {direction, scope, targets, color} = this.options
     // 定义渐变动画
-    this.extraNode = context.root.append('defs')
+    this.extraNode = context.append('defs')
     this.targets = createGradient(this.extraNode, direction, color)
     // 添加渐变实例
     if (direction === directions.ROTATE) {
-      this.lights = context.root.selectAll(targets).clone(false)
+      this.lights = context.selectAll(targets).clone(false)
         .attr('filter', `url(#scanAnimation${count}-filter)`)
         .attr('mask', direction === directions.ROTATE ? `url(#scanAnimation${count}-mask)` : '')
         .attr('stroke', scope !== scopes.FILL ? 'white' : '')
         .style('fill', scope !== scopes.STROKE ? 'white' : '')
         .style('opacity', 0)
     } else {
-      this.lights = context.root.selectAll(targets).clone(false)
+      this.lights = context.selectAll(targets).clone(false)
         .attr('filter', `url(#scanAnimation${count}-filter)`)
         .attr('stroke', scope !== scopes.FILL ? `url(#scanAnimation${count})` : '')
         .style('fill', scope !== scopes.STROKE ? `url(#scanAnimation${count})` : '')

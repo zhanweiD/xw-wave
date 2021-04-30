@@ -322,8 +322,6 @@ export const shortcut = {
       })
     }
 
-    // console.log('shortcut event', event)
-
     return () => {
       offs.forEach(off => {
         off()

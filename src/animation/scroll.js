@@ -53,15 +53,11 @@ export default class ScrollAnimation extends AnimationBase {
       keyframes: [{
         translateX: `${reverse ? '+=' : '-='}${offsetX}`,
         translateY: `${reverse ? '+=' : '-='}${offsetY}`,
-        opacity: (el, index) => (this.activeIndex === index ? 0 : 1),
+        opacity: (el, i) => (this.activeIndex === i ? 0 : 1),
         duration,
       }, {
-        translateX: (el, index, length) => {
-          return this.activeIndex === index ? `${reverse ? '-=' : '+='}${offsetX * length}` : '+=0'
-        },
-        translateY: (el, index, length) => {
-          return this.activeIndex === index ? `${reverse ? '-=' : '+='}${offsetY * length}` : '+=0'
-        },
+        translateX: (el, i, length) => (this.activeIndex === i ? `${reverse ? '-=' : '+='}${offsetX * length}` : '+=0'),
+        translateY: (el, i, length) => (this.activeIndex === i ? `${reverse ? '-=' : '+='}${offsetY * length}` : '+=0'),
         opacity: 1,
         duration: 0,
       }],

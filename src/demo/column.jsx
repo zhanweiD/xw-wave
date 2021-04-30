@@ -115,14 +115,42 @@ const updateWave = ({wave, data, type, mode}) => {
       ? ['left-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'right-outer'] 
       : ['bottom-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'top-outer'],
     rect: {
-      enableUpdateAnimation: true,
+      enableUpdateAnimation: false,
     },
     text: {
       fontSize: 10,
-      enableUpdateAnimation: true,
+      enableUpdateAnimation: false,
     },
   })
   rectLayer.draw()
+  const aniamtions = rectLayer.setAnimation({
+    rect: {
+      enterAnimation: {
+        type: 'zoom',
+        delay: 0,
+        duration: 2000,
+        mode: 'enlarge',
+        direction: 'both',
+      },
+      loopAnimation: {
+        type: 'scan',
+        delay: 1000,
+        duration: 3000,
+        color: 'rgba(255,255,255,0.5)',
+        direction: 'top',
+      },
+    },
+    text: {
+      enterAnimation: {
+        type: 'fade',
+        delay: 2000,
+        duration: 1000,
+        mode: 'fadeIn',
+      },
+    },
+  })
+  aniamtions.rect.enterAnimationQueue.play()
+  aniamtions.text.enterAnimationQueue.play()
 
   // 图例图层
   const legend = wave.layer[4]?.instance || wave.createLayer('legend', {layout: wave.layout.legend})

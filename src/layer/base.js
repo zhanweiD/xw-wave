@@ -6,6 +6,7 @@ import drawPolygon from '../basic/polygon'
 import drawRect from '../basic/rect'
 import drawText from '../basic/text'
 import drawArea from '../basic/area'
+import AnimationQueue from '../animation/animation'
 
 // 基础元素绘制函数映射
 const basicMapping = {
@@ -19,12 +20,25 @@ const basicMapping = {
   area: drawArea,
 }
 
+// 基础元素支持哪些动画（某些动画并非覆盖所有元素）
+const animationMapping = {
+  arc: ['zoom', 'scan', 'fade'],
+  circle: ['zoom', 'scan', 'fade'],
+  curve: ['zoom', 'scan', 'fade'],
+  line: ['zoom', 'scan', 'fade'],
+  polygon: ['zoom', 'scan', 'fade'],
+  rect: ['zoom', 'scan', 'fade'],
+  text: ['zoom', 'scan', 'fade'],
+  area: ['zoom', 'scan', 'fade'],
+}
+
 // 图层 Base，目前是一个函数架子，未来会引入更多公共方法
 export default class LayerBase {
   constructor(layerOptions, waveOptions) {
     this.options = {...layerOptions, ...waveOptions}
     this.className = null
     this.backup = {}
+    this.animation = {}
     Object.keys(basicMapping).forEach(name => this.backup[name] = [])
   }
 
@@ -49,8 +63,34 @@ export default class LayerBase {
   }
 
   // 配置动画
-  animation() {
-    console.warn('此图层的 animation 函数未重写')
+  setAnimation(options) {
+    const container = this.options.root.selectAll(`.${this.className}`)
+    const animation = {}
+    Object.keys(this.backup).forEach(name => {
+      // 没有数据，不需要配置动画
+      if (this.backup[name].length === 0 || !options[name]) {
+        animation[name] = null
+        return
+      }
+      // 为每种元素支持的每种动画配置
+      const enterAnimationQueue = new AnimationQueue({loop: false})
+      const loopAnimationQueue = new AnimationQueue({loop: true})
+      const {enterAnimation, loopAnimation} = options[name]
+      const supportAnimations = animationMapping[name]
+      // 配置入场动画
+      if (enterAnimation && supportAnimations.findIndex(key => key === enterAnimation.type) !== -1) {
+        enterAnimationQueue.push(enterAnimation.type, {...enterAnimation, targets: name}, container)
+      }
+      // 配置轮播动画
+      if (loopAnimation && supportAnimations.findIndex(key => key === loopAnimation.type) !== -1) {
+        loopAnimationQueue.push(loopAnimation.type, {...loopAnimation, targets: name}, container)
+      }
+      // 绑定顺序执行
+      enterAnimationQueue.event.on('end', () => loopAnimationQueue.play())
+      animation[name] = {enterAnimationQueue, loopAnimationQueue}
+    })
+    this.animation = animation
+    return animation
   }
 
   // 事件配置
@@ -94,9 +134,7 @@ export default class LayerBase {
         container.append('g').attr('class', groupClassName)
       } else if (i >= data.length && els._groups[0].length !== 0) {
         els.remove()
-      } else if (i >= data.length) {
-        break
-      }
+      } else if (i >= data.length) break
     }
     // 根据对应二维表数据绘制最终的元素
     for (let i = 0; i < data.length; i++) {

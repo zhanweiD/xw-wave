@@ -47,7 +47,7 @@ export default function Demo() {
   const [theme, setTheme] = useState('duskUniverse')
   const [chart, setChart] = useState('column')
   const [data, setData] = useState(getData())
-  const autoSwitchDataTime = 5000
+  const autoSwitchDataTime = 10000
   const containerStyle = {
     background: ThemeConfig[theme].background,
   }

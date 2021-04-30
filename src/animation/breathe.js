@@ -38,12 +38,12 @@ export default class BreatheAnimation extends AnimationBase {
   constructor(options, context) {
     super(options)
     this.options = {...defaultOptions, ...options}
-    this.extraNode = context.root.append('defs')
+    this.extraNode = context.append('defs')
     this.targets = createFilter(this.extraNode)
     this.isAnimationStart = false
     this.isAnimationAvailable = true
     // 给元素添加光晕滤镜
-    context.root.selectAll(options.targets).attr('filter', `url(#breatheAnimation${count})`)
+    context.selectAll(options.targets).attr('filter', `url(#breatheAnimation${count})`)
   }
 
   play() {

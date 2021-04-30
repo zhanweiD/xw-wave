@@ -2,14 +2,14 @@ import anime from 'animejs'
 import AnimationBase from './base'
 
 // 类型常量
-const types = {
+const modeType = {
   FUNCTION: 'funtion',
   TIMER: 'timer',
 }
 // 默认参数
 const defaultOptions = {
   duration: 0,
-  type: types.FUNCTION,
+  mode: modeType.FUNCTION,
   loop: false,
 }
 
@@ -23,12 +23,12 @@ export default class EmptyAnimation extends AnimationBase {
   }
 
   play() {
-    const {duration, loop, type} = this.options
-    if (type === types.FUNCTION) {
+    const {duration, loop, mode} = this.options
+    if (mode === modeType.FUNCTION) {
       this.start.call(this)
       this.process.call(this)
       this.end.call(this)
-    } else if (types.TIMER) {
+    } else if (mode === modeType.TIMER) {
       this.instance = anime({
         duration,
         loop,
@@ -55,6 +55,6 @@ export default class EmptyAnimation extends AnimationBase {
 
   destroy() {
     this.isAnimationAvailable = false
-    this.options.type === types.TIMER && this.instance.remove()
+    this.options.mode === modeType.TIMER && this.instance.remove()
   }
 }

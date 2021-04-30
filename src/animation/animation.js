@@ -1,5 +1,5 @@
 import AnimationBase from './base'
-import {createUuid} from '../util'
+import createUuid from '../util/uuid'
 import {AnimationMap, EmptyAnimation as Empty} from './index'
 
 // 默认参数
@@ -103,7 +103,7 @@ export default class AnimationQueue extends AnimationBase {
       animation.event.on('process', options)
       createQueueableAnimation(animation)
     } else if (AnimationMap[type]) {
-      createQueueableAnimation(new AnimationMap[type](options, context))
+      createQueueableAnimation(new AnimationMap[type]({...options, loop: false}, context))
     } else {
       this.log.error('Animation Type Error', type)
       return null

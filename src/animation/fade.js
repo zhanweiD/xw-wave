@@ -2,7 +2,7 @@ import anime from 'animejs'
 import AnimationBase from './base'
 
 // 类型常量
-const types = {
+const modeType = {
   SHOW: 'fadeIn',
   HIDE: 'fadeOut',
 }
@@ -10,20 +10,20 @@ const types = {
 const defaultOptions = {
   delay: 0,
   duration: 2000,
-  type: types.SHOW,
+  mode: modeType.SHOW,
   loop: false,
 }
 
 export default class FadeAnimation extends AnimationBase {
   constructor(options, context) {
     super(options)
-    this.options = {...defaultOptions, ...options, targets: context.root.selectAll(options.targets)._groups[0]}
+    this.options = {...defaultOptions, ...options, targets: context.selectAll(options.targets)._groups[0]}
     this.isAnimationStart = false
     this.isAnimationAvailable = true
   }
 
   play() {
-    const {targets, delay, duration, loop, type} = this.options
+    const {targets, delay, duration, loop, mode} = this.options
     anime({
       targets,
       duration,
@@ -32,7 +32,7 @@ export default class FadeAnimation extends AnimationBase {
       update: this.process.bind(this),
       loopBegin: this.start.bind(this),
       loopComplete: this.end.bind(this),
-      opacity: type === types.SHOW ? [0, 1] : [1, 0],
+      opacity: mode === modeType.SHOW ? [0, 1] : [1, 0],
       easing: 'linear',
     })
   }
