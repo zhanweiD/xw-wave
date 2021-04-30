@@ -1,5 +1,6 @@
 import LayerBase from './base'
 import Scale from '../data/scale'
+import getTextWidth from '../util/text-wdith'
 
 // 元素组合方式
 const modeType = {
@@ -81,7 +82,7 @@ export default class RectLayer extends LayerBase {
       return values.map(value => {
         const [angle, r] = [(scaleAngle(dimension) / 180) * Math.PI, scaleRadius(value)]
         const [x, y] = [polygonCenter.x + Math.sin(angle) * r, polygonCenter.y - Math.cos(angle) * r]
-        return ({value, x, y})
+        return ({value, x, y, angle, r})
       })
     })
     // 堆叠雷达图数据变更
@@ -98,11 +99,21 @@ export default class RectLayer extends LayerBase {
     }
   }
 
+  // 获取标签坐标
+  #getLabelData = ({value, x, y, angle, fontSize}) => {
+    // 计算文字相对坐标
+    const isRight = Math.abs(angle % (2 * Math.PI)) < Math.PI
+    // 基于相对点计算文字坐标
+    const [labelX, labelY] = [x - getTextWidth(value, fontSize) * (isRight ? 0 : 1), y]
+    return {value, x: labelX, y: labelY}
+  }
+
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = {...this.#style, ...style}
     const {getColor} = this.options
     const {pointSize = 2} = this.#style
+    const {fontSize = 12} = this.#style.text
     // 颜色跟随主题
     const colors = getColor(this.#polygonData[0].length)
     this.#polygonData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
@@ -114,6 +125,12 @@ export default class RectLayer extends LayerBase {
         rx: pointSize / 2,
         ry: pointSize / 2,
         color,
+      }))
+    })
+    // 标签文字数据
+    this.#textData = this.#polygonData.map(groupData => {
+      return groupData.map(data => ({
+        ...this.#getLabelData({...data, fontSize}),
       }))
     })
   }

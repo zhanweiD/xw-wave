@@ -113,13 +113,25 @@ export default class RectLayer extends LayerBase {
   }
 
   // 获取标签坐标
-  #getLabelData = ({value, x, y, innerRadius, outerRadius, startAngle, endAngle, fontSize}) => {
-    // 计算圆弧中心点，svg 是从 90 度开始顺时针画的，需要匹配 Math 的计算逻辑
-    const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, (innerRadius + outerRadius) / 2]
-    const [centerX, centerY] = [x + Math.sin(angle) * r, y - Math.cos(angle) * r]
-    // 基于中心点计算文字坐标
-    const [positionX, positionY] = [centerX - getTextWidth(value, fontSize) / 2, centerY]
-    return {x: positionX, y: positionY, value}
+  #getLabelData = ({value, x, y, innerRadius, outerRadius, startAngle, endAngle, fontSize, labelPosition}) => {
+    let result = null
+    if (labelPosition === labelPositionType.INNER) {
+      // 计算圆弧中心点，svg 是从 90 度开始顺时针画的，需要匹配 Math 的计算逻辑
+      const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, (innerRadius + outerRadius) / 2]
+      const [centerX, centerY] = [x + Math.sin(angle) * r, y - Math.cos(angle) * r]
+      // 基于中心点计算文字坐标
+      const [labelX, labelY] = [centerX - getTextWidth(value, fontSize) / 2, centerY]
+      result = {value, x: labelX, y: labelY}
+    } else if (labelPosition === labelPositionType.OUTER) {
+      // 计算文字相对坐标
+      const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, outerRadius + 5]
+      const [relativeX, relativeY] = [x + Math.sin(angle) * r, y - Math.cos(angle) * r]
+      const isRight = Math.abs(angle % (2 * Math.PI)) < Math.PI
+      // 基于相对点计算文字坐标
+      const [labelX, labelY] = [relativeX - getTextWidth(value, fontSize) * (isRight ? 0 : 1), relativeY]
+      result = {value, x: labelX, y: labelY}
+    }
+    return result
   }
 
   // 覆盖默认图层样式
@@ -128,7 +140,8 @@ export default class RectLayer extends LayerBase {
     const {getColor, type = waveType.PIE, mode = modeType.DEFAULT, layout} = this.options
     const {left, top, width, height} = layout
     const {scaleAngle, scaleRadius} = this.#scale
-    const {innerRadius = 0, fontSize = 12, labelPosition = labelPositionType.INNER} = this.#style
+    const {innerRadius = 0, labelPosition = labelPositionType.INNER} = this.#style
+    const {fontSize = 12} = this.#style.text
     const tableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const circleCenter = {x: left + width / 2, y: top + height / 2}
     // 根据内半径重制半径比例尺值域
