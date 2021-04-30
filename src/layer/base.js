@@ -65,14 +65,19 @@ export default class LayerBase {
   // 配置动画
   setAnimation(options) {
     const container = this.options.root.selectAll(`.${this.className}`)
-    const animation = {}
+    // 配置动画前先销毁之前的动画，释放资源
+    Object.keys(this.animation).forEach(name => {
+      this.animation[name] && this.animation[name].enterAnimationQueue.destroy()
+      this.animation[name] && this.animation[name].loopAnimationQueue.destroy()
+      this.animation[name] = null
+    })
+    // 为每种元素支持的每种动画配置
     Object.keys(this.backup).forEach(name => {
       // 没有数据，不需要配置动画
       if (this.backup[name].length === 0 || !options[name]) {
-        animation[name] = null
+        this.animation[name] = null
         return
       }
-      // 为每种元素支持的每种动画配置
       const enterAnimationQueue = new AnimationQueue({loop: false})
       const loopAnimationQueue = new AnimationQueue({loop: true})
       const {enterAnimation, loopAnimation} = options[name]
@@ -87,10 +92,9 @@ export default class LayerBase {
       }
       // 绑定顺序执行
       enterAnimationQueue.event.on('end', () => loopAnimationQueue.play())
-      animation[name] = {enterAnimationQueue, loopAnimationQueue}
+      this.animation[name] = {enterAnimationQueue, loopAnimationQueue}
     })
-    this.animation = animation
-    return animation
+    return this.animation
   }
 
   // 事件配置

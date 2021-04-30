@@ -113,31 +113,18 @@ const createGradient = (parentNode, direction, color) => {
 export default class ScanAnimation extends AnimationBase {
   constructor(options, context) {
     super(options)
-    this.options = {...defaultOptions, ...options}
+    this.options = {...defaultOptions, ...options, context}
     this.isAnimationStart = false
     this.isAnimationAvailable = true
-    const {direction, scope, targets, color} = this.options
+    this.isAnimationFirstPlay = true
+    const {direction, color} = this.options
     // 定义渐变动画
     this.extraNode = context.append('defs')
     this.targets = createGradient(this.extraNode, direction, color)
-    // 添加渐变实例
-    if (direction === directions.ROTATE) {
-      this.lights = context.selectAll(targets).clone(false)
-        .attr('filter', `url(#scanAnimation${count}-filter)`)
-        .attr('mask', direction === directions.ROTATE ? `url(#scanAnimation${count}-mask)` : '')
-        .attr('stroke', scope !== scopes.FILL ? 'white' : '')
-        .style('fill', scope !== scopes.STROKE ? 'white' : '')
-        .style('opacity', 0)
-    } else {
-      this.lights = context.selectAll(targets).clone(false)
-        .attr('filter', `url(#scanAnimation${count}-filter)`)
-        .attr('stroke', scope !== scopes.FILL ? `url(#scanAnimation${count})` : '')
-        .style('fill', scope !== scopes.STROKE ? `url(#scanAnimation${count})` : '')
-    }
   }
 
   play() {
-    const {delay, duration, direction, loop} = this.options
+    const {delay, duration, direction, scope, targets, loop, context} = this.options
     const attributes = getAttributes(direction)
     const configs = {
       targets: this.targets._groups[0],
@@ -159,6 +146,24 @@ export default class ScanAnimation extends AnimationBase {
       configs[attributes[0]] = 360
       this.lights.transition().style('opacity', 1).duration(2000)
     }
+    // 首次执行添加渐变实例
+    if (this.isAnimationFirstPlay) {
+      this.isAnimationFirstPlay = false
+      if (direction === directions.ROTATE) {
+        this.lights = context.selectAll(targets).clone(false)
+          .attr('filter', `url(#scanAnimation${count}-filter)`)
+          .attr('mask', direction === directions.ROTATE ? `url(#scanAnimation${count}-mask)` : '')
+          .attr('stroke', scope !== scopes.FILL ? 'white' : '')
+          .style('fill', scope !== scopes.STROKE ? 'white' : '')
+          .style('opacity', 0)
+      } else {
+        this.lights = context.selectAll(targets).clone(false)
+          .attr('filter', `url(#scanAnimation${count}-filter)`)
+          .attr('stroke', scope !== scopes.FILL ? `url(#scanAnimation${count})` : '')
+          .style('fill', scope !== scopes.STROKE ? `url(#scanAnimation${count})` : '')
+      }
+    }
+    // 开始执行
     this.instance = anime(configs)
   }
 
