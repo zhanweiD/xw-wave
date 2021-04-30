@@ -1,5 +1,5 @@
-import createEvent from '../../../common/event'
-import createLog from '../../../common/create-log'
+import createEvent from '../util/create-event'
+import createLog from '../util/create-log'
 
 // 动画抽象类
 export default class AnimationBase {

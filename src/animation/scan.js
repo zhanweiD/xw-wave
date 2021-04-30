@@ -1,6 +1,6 @@
 import anime from 'animejs'
 import AnimationBase from './base'
-import rgba2obj from '../../../common/rgba2obj'
+import rgba2obj from '../util/rgba2obj'
 
 // 方向常量
 const directions = {
