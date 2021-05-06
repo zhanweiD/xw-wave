@@ -6,6 +6,7 @@ import drawPolygon from '../basic/polygon'
 import drawRect from '../basic/rect'
 import drawText from '../basic/text'
 import drawArea from '../basic/area'
+import createEvent from '../util/create-event'
 import AnimationQueue from '../animation/animation'
 
 // 基础元素绘制函数映射
@@ -39,6 +40,7 @@ export default class LayerBase {
     this.className = null
     this.backup = {}
     this.animation = {}
+    this.event = createEvent(__filename)
     Object.keys(basicMapping).forEach(name => this.backup[name] = [])
   }
 
@@ -98,8 +100,14 @@ export default class LayerBase {
   }
 
   // 事件配置
-  event() {
-    console.warn('此图层的 event 函数未重写')
+  #setEvent = elementType => {
+    const container = this.options.root.selectAll(`.${this.className}`)
+    const listener = eventType => (event, data) => this.event.fire(`${elementType}-${eventType}`, {event, data})
+    // 添加监听事件
+    container.selectAll(elementType)
+      .style('cursor', 'pointer')
+      .on('click', listener('click'))
+      .on('mousemove', listener('mousemove'))
   }
 
   // 销毁图层
@@ -151,5 +159,7 @@ export default class LayerBase {
         basicMapping[type]({...data[i], className: elClassName, container: elContainer})
       }
     }
+    // 新的元素需要重新绑定事件
+    this.#setEvent(type)
   }
 }

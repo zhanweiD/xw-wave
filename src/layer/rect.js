@@ -241,9 +241,10 @@ export default class RectLayer extends LayerBase {
   draw() {
     const rectData = this.#rectData.map(groupData => {
       const data = groupData.map(({width, height}) => [width, height])
+      const value = groupData.map(item => item.value)
       const position = groupData.map(({x, y}) => [x, y])
       const fill = groupData.map(({color}) => color)
-      return {data, position, fill, ...this.#style.rect}
+      return {data, value, position, fill, ...this.#style.rect}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)

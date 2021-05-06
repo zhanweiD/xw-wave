@@ -8,6 +8,7 @@ export default function drawText({
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
+  value = [], // 矩形原始数据
   data = [], // 矩形二维表宽高数据
   position = [], // 直角坐标系二维表坐标数据
   container, // 容器父节点
@@ -27,6 +28,7 @@ export default function drawText({
       fill: Array.isArray(fill) ? fill[index] : fill,
       stroke: Array.isArray(stroke) ? stroke[index] : stroke,
       strokeWidth,
+      value: value[index],
     }
   })
 

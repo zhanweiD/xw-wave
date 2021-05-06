@@ -5,7 +5,7 @@ import createLog from '../util/create-log'
 export default class AnimationBase {
   constructor() {
     // 事件
-    this.event = createEvent()
+    this.event = createEvent(__filename)
     // 日志
     this.log = createLog(__filename)
     // 动画是否正在执行
