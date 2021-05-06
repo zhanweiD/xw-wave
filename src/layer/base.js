@@ -54,11 +54,6 @@ export default class LayerBase {
     console.warn('此图层的 setStyle 函数未重写')
   }
 
-  // 图层绘制
-  draw() {
-    console.warn('此图层的 draw 函数未重写')
-  }
-
   // tooltip 展示
   tooltip() {
     console.warn('此图层的 tooltip 函数未重写')
@@ -155,8 +150,15 @@ export default class LayerBase {
         const groupClassName = `${containerClassName}-${i}`
         const elContainer = container.selectAll(`.${groupClassName}`)
         const elClassName = `${groupClassName}-el`
+        basicMapping[type]({
+          ...data[i], 
+          className: elClassName, 
+          container: elContainer,
+          // 首次渲染不启用数据更新动画
+          enableUpdateAnimation: this.backup[type][i] ? data[i].enableUpdateAnimation : false,
+        })
+        // 备份数据以便支持其他功能
         this.backup[type][i] = data[i]
-        basicMapping[type]({...data[i], className: elClassName, container: elContainer})
       }
     }
     // 新的元素需要重新绑定事件

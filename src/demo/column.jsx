@@ -15,6 +15,7 @@ let groupedColumnWave
 let stackedColumnWave
 let intervalColumnWave
 let waterfallWave
+let drawCount = 0
 
 export default function Column({data = [[]], type = 'column', theme}) {
   const groupedColumnRef = useRef(null)
@@ -115,14 +116,16 @@ const updateWave = ({wave, data, type, mode}) => {
       ? ['left-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'right-outer'] 
       : ['bottom-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'top-outer'],
     rect: {
-      enableUpdateAnimation: false,
+      enableUpdateAnimation: true,
     },
     text: {
       fontSize: 10,
-      enableUpdateAnimation: false,
+      enableUpdateAnimation: true,
     },
   })
   rectLayer.draw()
+  rectLayer.event.on('rect-click', d => console.log(d))
+  rectLayer.event.on('text-click', d => console.log(d))
   const aniamtions = rectLayer.setAnimation({
     rect: {
       enterAnimation: {
@@ -132,13 +135,13 @@ const updateWave = ({wave, data, type, mode}) => {
         mode: 'enlarge',
         direction: 'both',
       },
-      loopAnimation: {
-        type: 'scan',
-        delay: 1000,
-        duration: 3000,
-        color: 'rgba(255,255,255,0.5)',
-        direction: type === 'bar' ? 'right' : 'top',
-      },
+      // loopAnimation: {
+      //   type: 'scan',
+      //   delay: 1000,
+      //   duration: 3000,
+      //   color: 'rgba(255,255,255,0.5)',
+      //   direction: type === 'bar' ? 'right' : 'top',
+      // },
     },
     text: {
       enterAnimation: {
@@ -149,8 +152,12 @@ const updateWave = ({wave, data, type, mode}) => {
       },
     },
   })
-  aniamtions.rect.enterAnimationQueue.play()
-  aniamtions.text.enterAnimationQueue.play()
+
+  if (drawCount < 4) {
+    aniamtions.rect.enterAnimationQueue.play()
+    aniamtions.text.enterAnimationQueue.play()
+    drawCount++
+  }
 
   // 图例图层
   const legend = wave.layer[4]?.instance || wave.createLayer('legend', {layout: wave.layout.legend})
