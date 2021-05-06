@@ -22,7 +22,7 @@ const scopes = {
 const defaultOptions = {
   delay: 1000, 
   duration: 3000, 
-  direction: directions.HORIZONTAL,
+  direction: directions.BOTTOM,
   scope: scopes.FILL,
   color: 'rgba(255,255,255,0.4)',
   loop: true,
@@ -94,9 +94,7 @@ const createGradient = (parentNode, direction, color) => {
       .attr('fill', `url(#scanAnimation${count})`)
       .attr('filter', `url(#scanAnimation${count}-filter)`)
   } else if (attributes[0] === 'r') {
-    targets = parentNode.append('radialGradient')
-      .attr('id', `scanAnimation${count}`)
-      .attr(attributes[0], direction === directions.INNER ? '300%' : '0%')
+    targets = parentNode.append('radialGradient').attr('id', `scanAnimation${count}`)
   } else if (attributes.length === 2) {
     targets = parentNode.append('linearGradient')
       .attr('id', `scanAnimation${count}`)
@@ -104,8 +102,6 @@ const createGradient = (parentNode, direction, color) => {
       .attr('x2', '0%')
       .attr('y1', '0%')
       .attr('y2', '0%')
-      .attr(attributes[0], direction === directions.LEFT || direction === directions.TOP ? '100%' : '-100%')
-      .attr(attributes[1], direction === directions.LEFT || direction === directions.TOP ? '200%' : '0%')
   }
   return direction === directions.ROTATE ? targets : insertOffsets(targets, color)
 }
@@ -126,6 +122,7 @@ export default class ScanAnimation extends AnimationBase {
   play() {
     const {delay, duration, direction, scope, targets, loop, context} = this.options
     const attributes = getAttributes(direction)
+    const isLeftOrTop = direction === directions.LEFT || direction === directions.TOP
     const configs = {
       targets: this.targets._groups[0],
       duration,
@@ -135,16 +132,6 @@ export default class ScanAnimation extends AnimationBase {
       loopBegin: this.start.bind(this),
       loopComplete: this.end.bind(this),
       easing: 'linear',
-    }
-    // 变换的动画属性
-    if (attributes.length === 2) {
-      configs[attributes[0]] = direction === directions.LEFT || direction === directions.TOP ? '-100%' : '100%'
-      configs[attributes[1]] = direction === directions.LEFT || direction === directions.TOP ? '0%' : '200%'
-    } else if (attributes[0] === 'r') {
-      configs[attributes[0]] = direction === directions.INNER ? '0%' : '300%'
-    } else if (attributes[0] === 'rotate') {
-      configs[attributes[0]] = 360
-      this.lights.transition().style('opacity', 1).duration(2000)
     }
     // 首次执行添加渐变实例
     if (this.isAnimationFirstPlay) {
@@ -163,7 +150,18 @@ export default class ScanAnimation extends AnimationBase {
           .style('fill', scope !== scopes.STROKE ? `url(#scanAnimation${count})` : '')
       }
     }
+    // 变换的动画属性
+    if (attributes.length === 2) {
+      configs[attributes[0]] = isLeftOrTop ? ['100%', '-100%'] : ['-100%', '100%']
+      configs[attributes[1]] = isLeftOrTop ? ['200%', '0%'] : ['0%', '200%']
+    } else if (attributes[0] === 'r') {
+      configs[attributes[0]] = direction === directions.INNER ? ['300%', '0%'] : ['0%', '300%']
+    } else if (attributes[0] === 'rotate') {
+      configs[attributes[0]] = [0, 360]
+      this.lights.transition().style('opacity', 1).duration(2000)
+    }
     // 开始执行
+    this.instance && anime.remove(this.targets._groups[0])
     this.instance = anime(configs)
   }
 
@@ -182,9 +180,9 @@ export default class ScanAnimation extends AnimationBase {
   }
 
   destroy() {
+    anime.remove(this.targets._groups[0])
     this.isAnimationAvailable = false
     this.lights.remove()
-    this.instance.remove()
     this.extraNode.remove()
   }
 }

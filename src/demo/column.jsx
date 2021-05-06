@@ -137,7 +137,7 @@ const updateWave = ({wave, data, type, mode}) => {
         delay: 1000,
         duration: 3000,
         color: 'rgba(255,255,255,0.5)',
-        direction: 'top',
+        direction: type === 'bar' ? 'right' : 'top',
       },
     },
     text: {
