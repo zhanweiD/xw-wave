@@ -176,6 +176,7 @@ export default class Wave {
     // 暴露给图层的上下文环境
     const context = {
       root: this.#root,
+      container: this.#container,
       getColor: this.getColor.bind(this),
       fontSize: this.fontSize.bind(this),
     }

@@ -8,6 +8,7 @@ import drawText from '../basic/text'
 import drawArea from '../basic/area'
 import createEvent from '../util/create-event'
 import AnimationQueue from '../animation/animation'
+import Tooltip, {globalTooltip} from './tooltip'
 
 // 基础元素绘制函数映射
 const basicMapping = {
@@ -37,9 +38,10 @@ const animationMapping = {
 export default class LayerBase {
   constructor(layerOptions, waveOptions) {
     this.options = {...layerOptions, ...waveOptions}
-    this.className = null
     this.backup = {}
     this.animation = {}
+    this.tooltip = null
+    this.className = null
     this.event = createEvent(__filename)
     Object.keys(basicMapping).forEach(name => this.backup[name] = [])
   }
@@ -55,8 +57,17 @@ export default class LayerBase {
   }
 
   // tooltip 展示
-  tooltip() {
-    console.warn('此图层的 tooltip 函数未重写')
+  setTooltip(options) {
+    // 初始化 tooltip 实例
+    this.tooltip = this.tooltip || new Tooltip(this.options.container)
+    // 绑定事件
+    Object.keys(options).forEach(elementType => {
+      const els = this.options.root.selectAll(`.${this.className} ${elementType}`)
+      els.on('click', (event, data) => globalTooltip.update([data]).move(event).show())
+      els.on('mouseover', (event, data) => this.tooltip.update([data]).move(event).show())
+      els.on('mouseout', () => this.tooltip.hide())
+      els.on('mousemove', event => this.tooltip.move(event))
+    })
   }
 
   // 配置动画
@@ -105,7 +116,12 @@ export default class LayerBase {
     container.selectAll(elementType)
       .style('cursor', 'pointer')
       .on('click', listener('click'))
+      .on('mouseover', listener('mouseover'))
+      .on('mouseout', listener('mouseout'))
       .on('mousemove', listener('mousemove'))
+      .on('mousedown', listener('mousedown'))
+      .on('mouseup', listener('mouseup'))
+      .on('dblclick', listener('dblclick'))
   }
 
   // 销毁图层
@@ -120,7 +136,7 @@ export default class LayerBase {
 
   // 控制整个图表的显示隐藏
   setVisible(isVisiable) {
-    this._root.selectAll(`.${this.className}`).attr('opacity', isVisiable ? 1 : 0)
+    this.options.root.selectAll(`.${this.className}`).style('display', isVisiable ? 'block' : 'none')
   }
 
   /**
@@ -130,15 +146,15 @@ export default class LayerBase {
    */
   drawBasic(type, data) {
     // 顶层图层容器准备
-    let layerRoot = this.options.root.selectAll(`.${this.className}`)
-    if (layerRoot._groups[0].length === 0) {
-      layerRoot = this.options.root.append('g').attr('class', this.className)
+    let root = this.options.root.selectAll(`.${this.className}`)
+    if (root._groups[0].length === 0) {
+      root = this.options.root.append('g').attr('class', this.className)
     }
     // 元素容器准备，没有则追加
     const containerClassName = `${this.className}-${type}`
-    let container = layerRoot.selectAll(`.${containerClassName}`)
+    let container = root.selectAll(`.${containerClassName}`)
     if (container._groups[0].length === 0) {
-      container = layerRoot.append('g').attr('class', containerClassName)
+      container = root.append('g').attr('class', containerClassName)
     }
     // 分组容器准备，删除上一次渲染多余的组
     for (let i = 0; i < Infinity; i++) {
@@ -155,20 +171,18 @@ export default class LayerBase {
       this.backup[type].length = data.length
       if (JSON.stringify(this.backup[type][i]) !== JSON.stringify(data[i])) {
         const groupClassName = `${containerClassName}-${i}`
-        const elContainer = container.selectAll(`.${groupClassName}`)
         const elClassName = `${groupClassName}-el`
-        basicMapping[type]({
-          ...data[i], 
-          className: elClassName, 
-          container: elContainer,
-          // 首次渲染不启用数据更新动画
-          enableUpdateAnimation: this.backup[type][i] ? data[i].enableUpdateAnimation : false,
-        })
+        const elContainer = container.selectAll(`.${groupClassName}`)
+        const options = {...data[i], className: elClassName, container: elContainer}
+        // 首次渲染不启用数据更新动画
+        options.enableUpdateAnimation = this.backup[type][i] ? data[i].enableUpdateAnimation : false
+        // 调用基础元素绘制函数进行绘制
+        basicMapping[type](options)
         // 备份数据以便支持其他功能
         this.backup[type][i] = data[i]
       }
     }
-    // 新的元素需要重新绑定事件
+    // 新的元素需要重新注册事件
     this.#setEvent(type)
   }
 }

@@ -152,12 +152,12 @@ const updateWave = ({wave, data, type, mode}) => {
       },
     },
   })
-
   if (drawCount < 4) {
     aniamtions.rect.play()
     aniamtions.text.play()
     drawCount++
   }
+  rectLayer.setTooltip({rect: null})
 
   // 图例图层
   const legend = wave.layer[4]?.instance || wave.createLayer('legend', {layout: wave.layout.legend})

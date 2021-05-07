@@ -3,6 +3,7 @@ import ZoomAnimation from './zoom'
 import ScanAnimation from './scan'
 import ScrollAnimation from './scroll'
 import EmptyAnimation from './empty'
+import MoveAnimation from './move'
 import BreatheAnimation from './breathe'
 
 const AnimationMap = {
@@ -12,6 +13,7 @@ const AnimationMap = {
   scroll: ScrollAnimation,
   empty: EmptyAnimation,
   breathe: BreatheAnimation,
+  move: MoveAnimation,
 }
 
 export {
@@ -29,4 +31,5 @@ export {
 
   // 其他
   EmptyAnimation,
+  MoveAnimation,
 }
