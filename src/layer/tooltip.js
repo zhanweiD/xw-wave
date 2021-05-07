@@ -1,4 +1,3 @@
-import ReactDOM from 'react-dom'
 import * as d3 from 'd3'
 import {MoveAnimation} from '../animation'
 
@@ -38,8 +37,8 @@ export default class Tooltip {
     // 生成 tooltip 数据
     const data = list.map(({fill, stroke, source}) => {
       const pointColor = fill || stroke
-      const [label, value] = [source.dimension, source.value]
-      return {pointColor, label, value}
+      const {dimension, category, value} = source
+      return {pointColor, dimension, category, value}
     })
     // 当且仅当数据变化时进行渲染
     if (JSON.stringify(this.backup) !== JSON.stringify(data)) {
@@ -79,7 +78,7 @@ export default class Tooltip {
         .style('background-color', d => d.pointColor)
       pointWidthLabel
         .append('div')
-        .text(d => d.label).style
+        .text(d => d.category)
       // 元素数值
       rows
         .append('div')
@@ -114,7 +113,7 @@ export default class Tooltip {
     this.hide()
     this.backup = null
     this.isAvailable = false
-    ReactDOM.unmountComponentAtNode(this.instance._groups[0])
+    this.instance.remove()
   }
 }
 

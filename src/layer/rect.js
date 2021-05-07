@@ -100,9 +100,10 @@ export default class RectLayer extends LayerBase {
     }
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
     this.#rectData = pureTableList.map(([dimension, ...values]) => {
-      return values.map(value => ({
+      return values.map((value, i) => ({
         value,
         dimension,
+        category: headers[i + 1],
         x: layout.left + scaleX(dimension),
         y: layout.top + (value > 0 ? scaleY(value) : scaleY(0)),
         width: barWidth,
@@ -242,7 +243,7 @@ export default class RectLayer extends LayerBase {
   draw() {
     const rectData = this.#rectData.map(groupData => {
       const data = groupData.map(({width, height}) => [width, height])
-      const source = groupData.map(({dimension, value}) => ({dimension, value}))
+      const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
       const position = groupData.map(({x, y}) => [x, y])
       const fill = groupData.map(({color}) => color)
       return {data, source, position, fill, ...this.#style.rect}

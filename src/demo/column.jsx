@@ -158,6 +158,7 @@ const updateWave = ({wave, data, type, mode}) => {
     drawCount++
   }
   rectLayer.setTooltip({rect: null})
+  rectLayer.event.on('rect-click', d => console.log(d))
 
   // 图例图层
   const legend = wave.layer[4]?.instance || wave.createLayer('legend', {layout: wave.layout.legend})
