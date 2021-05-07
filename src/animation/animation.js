@@ -102,6 +102,8 @@ export default class AnimationQueue extends AnimationBase {
       const animation = new Empty()
       animation.event.on('process', options)
       createQueueableAnimation(animation)
+    } else if (type === 'queue') {
+      createQueueableAnimation(options)
     } else if (AnimationMap[type]) {
       createQueueableAnimation(new AnimationMap[type]({...options, loop: false}, context))
     } else {

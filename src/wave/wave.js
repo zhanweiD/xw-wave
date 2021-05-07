@@ -11,6 +11,7 @@ import LegendLayer from '../layer/legend'
 import ArcLayer from '../layer/arc'
 import LineLayer from '../layer/line'
 import RadarLayer from '../layer/radar'
+import createUuid from '../util/uuid'
 
 // 图表状态
 const stateMapping = {
@@ -180,11 +181,13 @@ export default class Wave {
     }
     // 根据类型创建图层
     const layer = new LayerMapping[type](options, context)
-    this.#layer.push({
-      id: options.id || this.#layer.length,
-      instance: layer,
+    const layerID = options.id || createUuid()
+    this.#layer.push({id: layerID, instance: layer})
+    // 销毁 layer 的时候同步删除 wave 中的实例
+    layer.event.on('destroy', () => {
+      const index = this.#layer.findIndex(({id}) => id === layerID)
+      this.#layer.splice(index, 1)
     })
-    // TODO: 销毁 layer 的时候同步删除
     return layer
   }
 

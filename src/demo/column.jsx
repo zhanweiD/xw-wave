@@ -154,8 +154,8 @@ const updateWave = ({wave, data, type, mode}) => {
   })
 
   if (drawCount < 4) {
-    aniamtions.rect.enterAnimationQueue.play()
-    aniamtions.text.enterAnimationQueue.play()
+    aniamtions.rect.play()
+    aniamtions.text.play()
     drawCount++
   }
 

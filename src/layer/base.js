@@ -64,8 +64,7 @@ export default class LayerBase {
     const container = this.options.root.selectAll(`.${this.className}`)
     // 配置动画前先销毁之前的动画，释放资源
     Object.keys(this.animation).forEach(name => {
-      this.animation[name] && this.animation[name].enterAnimationQueue.destroy()
-      this.animation[name] && this.animation[name].loopAnimationQueue.destroy()
+      this.animation[name] && this.animation[name].destroy()
       this.animation[name] = null
     })
     // 为每种元素支持的每种动画配置
@@ -75,6 +74,7 @@ export default class LayerBase {
         this.animation[name] = null
         return
       }
+      const animationQueue = new AnimationQueue({loop: false})
       const enterAnimationQueue = new AnimationQueue({loop: false})
       const loopAnimationQueue = new AnimationQueue({loop: true})
       const {enterAnimation, loopAnimation} = options[name]
@@ -87,9 +87,12 @@ export default class LayerBase {
       if (loopAnimation && supportAnimations.findIndex(key => key === loopAnimation.type) !== -1) {
         loopAnimationQueue.push(loopAnimation.type, {...loopAnimation, targets: name}, container)
       }
-      // 绑定顺序执行
-      enterAnimationQueue.event.on('end', () => loopAnimationQueue.play())
-      this.animation[name] = {enterAnimationQueue, loopAnimationQueue}
+      // 连接入场动画和轮播动画
+      this.animation[name] = animationQueue.push('queue', enterAnimationQueue).push('queue', loopAnimationQueue)
+      // 动画事件注册
+      this.animation[name].event.on('start', data => this.event.fire(`${name}-animationStart`, data))
+      this.animation[name].event.on('process', data => this.event.fire(`${name}-animationProcess`, data))
+      this.animation[name].event.on('end', data => this.event.fire(`${name}-animationEnd`, data))
     })
     return this.animation
   }
@@ -107,8 +110,12 @@ export default class LayerBase {
 
   // 销毁图层
   destroy() {
+    // 删除图层 dom
     this.options.root.selectAll(`.${this.className}`).remove()
-    console.warn('此图层的 destroy 函数未重写')
+    // 动画资源销毁
+    Object.keys(this.animation).forEach(name => this.animation[name].destroy())
+    // 通知 wave 删除这个图层实例
+    this.event.fire('destroy')
   }
 
   // 控制整个图表的显示隐藏
