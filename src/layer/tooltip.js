@@ -13,7 +13,9 @@ export default class Tooltip {
     this.instance = container
       .append('div')
       .attr('class', 'wave-tooltip')
+      .style('border-radius', '2px')
       .style('position', 'absolute')
+      .style('overflow', 'hidden')
       .style('display', 'none')
       .style('left', 0)
       .style('top', 0)
@@ -42,7 +44,47 @@ export default class Tooltip {
     // 当且仅当数据变化时进行渲染
     if (JSON.stringify(this.backup) !== JSON.stringify(data)) {
       this.instance.selectAll('div').remove()
-      this.instance.append('div').text('test')
+      // 背景模糊
+      this.instance
+        .append('div')
+        .style('filter', 'blur(1px)')
+        .style('background-color', 'rgba(255,245,247,0.9)')
+        .style('position', 'absolute')
+        .style('width', '1000px')
+        .style('height', '1000px')
+      // 内容容器
+      const container = this.instance
+        .append('div')
+        .attr('class', 'fbv fbjsb fbac')
+        .style('font-size', '12px')
+        .style('color', '#383d41')
+        .style('padding', '5px')
+        .style('position', 'relative')
+      // 每一行
+      const rows = container
+        .selectAll('div')
+        .data(data).join('div')
+        .attr('class', 'fbh fbjsb fbac')
+      // 行内圆点和标签
+      const pointWidthLabel = rows
+        .append('div')
+        .attr('class', 'fbh fbjsb fbac')
+        .style('margin-right', '20px')
+      pointWidthLabel
+        .append('div')
+        .style('width', '10px')
+        .style('height', '10px')
+        .style('border-radius', '100%')
+        .style('margin-right', '5px')
+        .style('background-color', d => d.pointColor)
+      pointWidthLabel
+        .append('div')
+        .text(d => d.label).style
+      // 元素数值
+      rows
+        .append('div')
+        .style('font-weight', 'bold')
+        .text(d => d.value)
       this.backup = data
     }
     return this

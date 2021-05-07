@@ -64,6 +64,7 @@ export default class LayerBase {
     Object.keys(options).forEach(elementType => {
       const els = this.options.root.selectAll(`.${this.className} ${elementType}`)
       els.on('click', (event, data) => globalTooltip.update([data]).move(event).show())
+      els.on('blur', () => globalTooltip.hide())
       els.on('mouseover', (event, data) => this.tooltip.update([data]).move(event).show())
       els.on('mouseout', () => this.tooltip.hide())
       els.on('mousemove', event => this.tooltip.move(event))
