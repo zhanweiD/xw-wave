@@ -1,5 +1,5 @@
 import {useEffect, useRef} from 'react'
-import Wave from '../wave/wave'
+import Wave from '../wave'
 import TableList from '../data/table-list'
 import Scale from '../data/scale'
 

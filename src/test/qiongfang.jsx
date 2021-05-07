@@ -1,6 +1,6 @@
 import {useEffect, useRef} from 'react'
 import * as d3 from 'd3'
-import Wave from '../wave/wave'
+import Wave from '../wave'
 import TableList from '../data/table-list'
 import Scale from '../data/scale'
 

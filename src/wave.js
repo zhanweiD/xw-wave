@@ -1,17 +1,17 @@
 /* eslint-disable no-unused-vars */
 import * as d3 from 'd3'
 import chroma from 'chroma-js'
-import getLayout from './layout'
-import ThemeConfig from '../util/theme'
-import LayerBase from '../layer/base'
-import TextLayer from '../layer/text'
-import AxisLayer from '../layer/axis'
-import RectLayer from '../layer/rect'
-import LegendLayer from '../layer/legend'
-import ArcLayer from '../layer/arc'
-import LineLayer from '../layer/line'
-import RadarLayer from '../layer/radar'
-import createUuid from '../util/uuid'
+import getLayout from './layout/standard'
+import ThemeConfig from './util/theme'
+import LayerBase from './layer/base'
+import TextLayer from './layer/text'
+import AxisLayer from './layer/axis'
+import RectLayer from './layer/rect'
+import LegendLayer from './layer/legend'
+import ArcLayer from './layer/arc'
+import LineLayer from './layer/line'
+import RadarLayer from './layer/radar'
+import createUuid from './util/uuid'
 
 // 图表状态
 const stateMapping = {
