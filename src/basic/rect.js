@@ -8,16 +8,16 @@ export default function drawText({
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
-  value = [], // 矩形原始数据
+  source = [], // 原始数据
   data = [], // 矩形二维表宽高数据
   position = [], // 直角坐标系二维表坐标数据
   container, // 容器父节点
   className, // 用于定位
 }) {
   // 为每一个元素生成单独的配置 JSON 用于绘制
-  const configuredData = data.map((size, index) => {
+  const configuredData = data.map((size, i) => {
     const [width, height] = size
-    const realPositon = computePosition(size, position[index], rectAnchor)
+    const realPositon = computePosition(size, position[i], rectAnchor)
     return {
       className,
       x: realPositon[0],
@@ -25,10 +25,10 @@ export default function drawText({
       width,
       height,
       opacity,
-      fill: Array.isArray(fill) ? fill[index] : fill,
-      stroke: Array.isArray(stroke) ? stroke[index] : stroke,
+      fill: Array.isArray(fill) ? fill[i] : fill,
+      stroke: Array.isArray(stroke) ? stroke[i] : stroke,
       strokeWidth,
-      value: value[index],
+      source: source.length > i ? source[i] : null,
     }
   })
 

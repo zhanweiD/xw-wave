@@ -9,24 +9,26 @@ export default function drawArc({
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
+  source = [], // 原始数据
   data = [], // 圆弧出入角内外半径二维表数据
   position = [], // 圆心位置
   container, // 容器父节点
   className, // 用于定位
 }) {
   // 为每一个元素生成单独的配置 JSON 用于绘制
-  const configuredData = data.map((value, index) => {
-    const [x, y] = position[index]
+  const configuredData = data.map((value, i) => {
+    const [x, y] = position[i]
     const [startAngle, endAngle, innerRadius, outerRadius] = value
     const arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius)
     return {
       className,
       opacity,
-      fill: Array.isArray(fill) ? fill[index] : fill,
-      stroke: Array.isArray(stroke) ? stroke[index] : stroke,
+      fill: Array.isArray(fill) ? fill[i] : fill,
+      stroke: Array.isArray(stroke) ? stroke[i] : stroke,
       strokeWidth,
       d: arc({startAngle: Math.PI * (startAngle / 180), endAngle: Math.PI * (endAngle / 180)}),
       transform: `translate(${x}px, ${y}px)`,
+      source: source.length > i ? source[i] : null,
     }
   })
 

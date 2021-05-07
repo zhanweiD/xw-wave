@@ -8,23 +8,21 @@ export default function drawCurve({
   enableUpdateAnimation = true,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
+  source = [], // 原始数据
   position = [], // 位置 [[[x,y], ...], ...]
   container,
   className,
 }) {
   // 曲线工厂
-  const lineGenerator = d3.line()
-    .x(d => d[0])
-    .y(d => d[1])
-    .curve(d3.curveMonotoneX)
-
+  const lineGenerator = d3.line().x(d => d[0]).y(d => d[1]).curve(d3.curveMonotoneX)
   const configuredData = position.map((data, i) => ({
-    stroke: stroke[i],
+    fill: 'none',
+    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
     strokeWidth,
     class: className,
-    d: lineGenerator(data),
-    fill: 'none',
     opacity,
+    d: lineGenerator(data),
+    source: source.length > i ? source[i] : null,
   }))
 
   container.selectAll(`.${className}`)

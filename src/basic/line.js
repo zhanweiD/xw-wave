@@ -7,12 +7,13 @@ export default function drawLine({
   updateAnimationDelay = 0,
   opacity = 0.5,
   dasharray = '0',
+  source = [], // 原始数据
   position = [], // 位置 [[x1,y1,x2,y2], ...]
   container,
   className,
 }) {
-  const configuredData = position.map(data => ({
-    stroke: color,
+  const configuredData = position.map((data, i) => ({
+    stroke: Array.isArray(color) ? color[i] : color,
     strokeWidth: width,
     class: className,
     strokeDasharray: dasharray,
@@ -21,6 +22,7 @@ export default function drawLine({
     y1: data[1],
     x2: data[2],
     y2: data[3],
+    source: source.length > i ? source[i] : null,
   }))
 
   // 画线

@@ -7,19 +7,21 @@ export default function drawPolygon({
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
-  data = [],
+  source = [], // 原始数据
+  data = [], // 多边形二维坐标点
   container, // 容器父节点
   className, // 用于定位
 }) {
   // 为每一个元素生成单独的配置 JSON 用于绘制
-  const configuredData = data.map((points, index) => {
+  const configuredData = data.map((points, i) => {
     return {
       className,
       points: points.reduce((prev, cur) => `${prev} ${cur[0]},${cur[1]}`, ''),
-      fill: Array.isArray(fill) ? fill[index] : fill,
-      stroke: Array.isArray(stroke) ? stroke[index] : stroke,
+      fill: Array.isArray(fill) ? fill[i] : fill,
+      stroke: Array.isArray(stroke) ? stroke[i] : stroke,
       strokeWidth,
       opacity,
+      source: source.length > i ? source[i] : null,
     }
   })
 
