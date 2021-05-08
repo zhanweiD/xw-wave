@@ -127,10 +127,12 @@ export default class LayerBase {
 
   // 销毁图层
   destroy() {
-    // 删除图层 dom
-    this.options.root.selectAll(`.${this.className}`).remove()
     // 动画资源销毁
     Object.keys(this.animation).forEach(name => this.animation[name].destroy())
+    // tooltip 实例销毁
+    this.tooltip && this.tooltip.destroy()
+    // dom 元素销毁
+    this.options.root.selectAll(`.${this.className}`).remove()
     // 通知 wave 删除这个图层实例
     this.event.fire('destroy')
   }
