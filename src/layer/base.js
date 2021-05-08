@@ -63,7 +63,7 @@ export default class LayerBase {
     // 绑定事件
     Object.keys(options).forEach(elementType => {
       const els = this.options.root.selectAll(`.${this.className} ${elementType}`)
-      els.on('click', (event, data) => globalTooltip.update([data]).move(event).show())
+      els.on('click', (event, data) => globalTooltip.update([data]).move(event, {enableMoveAnimation: true}).show())
       els.on('blur', () => globalTooltip.hide())
       els.on('mouseover', (event, data) => this.tooltip.update([data]).move(event).show())
       els.on('mouseout', () => this.tooltip.hide())

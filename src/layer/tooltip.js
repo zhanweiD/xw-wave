@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 import {MoveAnimation} from '../animation'
 
-const defaultStyle = {
+const defaultOptions = {
   padding: 5,
   pointSize: 10,
   titleSize: 14,
@@ -11,6 +11,9 @@ const defaultStyle = {
   valueSize: 12,
   valueColor: '#383d41',
   gap: 20,
+  enableMoveAnimation: false,
+  moveAnimationDuration: 500,
+  moveAnimationDelay: 0,
 }
 
 // tooltip 类
@@ -28,7 +31,7 @@ export default class Tooltip {
       .style('border-radius', '2px')
       .style('position', 'absolute')
       .style('overflow', 'hidden')
-      .style('display', 'none')
+      .style('visibility', 'hidden')
       .style('left', 0)
       .style('top', 0)
     // 模糊背景
@@ -44,18 +47,18 @@ export default class Tooltip {
 
   show() {
     this.isVisible = true
-    this.instance.style('display', 'block')
+    this.instance.style('visibility', 'visible')
     return this
   }
 
   hide() {
     this.isVisible = false
-    this.instance.style('display', 'none')
+    this.instance.style('visibility', 'hidden')
     return this
   }
 
   // 更新数据
-  update(list, style = {}) {
+  update(list, options = {}) {
     const {
       padding,
       titleSize,
@@ -66,7 +69,7 @@ export default class Tooltip {
       valueSize,
       valueColor,
       gap,
-    } = {...defaultStyle, ...style}
+    } = {...defaultOptions, ...options}
     // 转换配置数据
     const data = list.map(({fill, stroke, source}) => ({pointColor: fill || stroke, ...source}))
     // 当且仅当数据变化时进行渲染
@@ -126,16 +129,28 @@ export default class Tooltip {
   }
 
   // 移动
-  move({x, y}) {
-    const threshold = 10
-    const [offsetX, offsetY] = [x - this.lastPosition.x, y - this.lastPosition.y]
+  move({x, y}, options = {}) {
+    const {enableMoveAnimation, moveAnimationDuration, moveAnimationDelay} = {...defaultOptions, ...options}
     const drift = 10
+    // 边界判断
+    const rect = this.instance._groups[0][0].getBoundingClientRect()
+    if (x + rect.width > document.body.clientWidth) {
+      x -= rect.width + drift
+    } else {
+      x += drift
+    }
+    if (y + rect.height > document.body.clientHeight) {
+      y -= rect.height + drift
+    } else {
+      y += drift
+    }
+    if (enableMoveAnimation) console.log(x, y, rect)
     // 移动距离过大时采用动画过渡
     const animation = new MoveAnimation({
-      delay: 0,
+      delay: enableMoveAnimation ? moveAnimationDelay : 0,
       targets: this.instance._groups[0][0],
-      duration: Math.abs(offsetX) > threshold || Math.abs(offsetY) > threshold ? 500 : 0,
-      position: [[this.lastPosition.x || 0, x + drift], [this.lastPosition.y || 0, y + drift]],
+      duration: enableMoveAnimation ? moveAnimationDuration : 0,
+      position: [[this.lastPosition.x || 0, x], [this.lastPosition.y || 0, y]],
       easing: 'easeInOutQuint',
     })
     // 一次性动画，结束时销毁

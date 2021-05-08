@@ -5,6 +5,10 @@ body {
   background: green;
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+
 /* flexbox */
 .fbh,
 .fbv {
