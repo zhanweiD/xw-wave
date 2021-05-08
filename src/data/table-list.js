@@ -12,7 +12,7 @@ const targetType = {
   COLUMN: 'column',
 }
 
-// 二维表数据处理工具
+// 列表数据处理工具
 export default class TableList {
   constructor(tableList, options) {
     this.data = []
@@ -22,7 +22,7 @@ export default class TableList {
   /**
    * 简单的数据结构校验
    * @param {Array<Array<Number|String>>} tableList 
-   * @returns {Boolean} 是否为合法的二维表数据结构
+   * @returns {Boolean} 是否为合法的列表数据结构
    */
   isTableList(tableList) {
     if (!Array.isArray(tableList) || tableList.length === 0) {
@@ -35,17 +35,17 @@ export default class TableList {
   }
 
   /**
-   * 矩阵转置操作，二维表行列互换
+   * 矩阵转置操作，列表行列互换
    * @param {Array<Array<Number|String>>} tableList 
-   * @returns {Array<Array<Number|String>>} 转置后的二维表
+   * @returns {Array<Array<Number|String>>} 转置后的列表
    */
   transpose(tableList) {
     if (!this.isTableList(tableList)) {
-      this.warn('二维表数据结构错误')
+      this.warn('列表数据结构错误')
       return false
     } 
     if (tableList.length === 0) {
-      this.warn('二维表数据为空')
+      this.warn('列表数据为空')
       return false
     }
     const rowLength = tableList[0].length
@@ -57,7 +57,7 @@ export default class TableList {
   }
 
   /**
-   * 二维表是否有某列
+   * 列表是否有某列
    * @param {String} name 
    * @returns 数据列的 index 或 fasle，注意 index 为 0 的情况
    */
@@ -67,10 +67,10 @@ export default class TableList {
   }
 
   /**
-   * 获取二维表的一个子集，并定义组合方式
+   * 获取列表的一个子集，并定义组合方式
    * @param {String | Array<String>} headers 数据列索引
    * @param {TableList} options 数据列组合配置
-   * @returns {TableList} 返回一个新的二维表实例
+   * @returns {TableList} 返回一个新的列表实例
    */
   select(headers, options = {}) {
     const {mode, target = targetType.ROW} = options
@@ -112,28 +112,28 @@ export default class TableList {
         })
       }
     }
-    // HACK: 返回一个新的二维表对象
+    // HACK: 返回一个新的列表对象
     const result = new TableList([[]])
     result.data = data
     return result
   }
 
   /**
-   * 克隆一个二维表
-   * @returns 克隆后的二维表实例
+   * 克隆一个列表
+   * @returns 克隆后的列表实例
    */
   clone() {
     return this.select(this.data.map(({header}) => header))
   }
 
   /**
-   * 更新二维表数据
+   * 更新列表数据
    * @param {Array<Array<Number|String>>} tableList 
    * @param {Object} options 数据列配置
    */
   update(tableList, options = {}) {
     if (!this.isTableList(tableList)) {
-      this.warn('二维表数据结构错误')
+      this.warn('列表数据结构错误')
       return
     }
     // 类内部用对象表示数据
@@ -154,14 +154,14 @@ export default class TableList {
   }
 
   /**
-   * 追加二维表的一行
+   * 追加列表的一行
    * @param {Array<Number|String>} rows 一些数据行
-   * @returns {TableList} 添加后的二维表数据长度
+   * @returns {TableList} 添加后的列表数据长度
    */
   push(...rows) {
     rows.forEach(row => {
       if (row.length !== this.data.length) {
-        this.warn('数据长度与当前二维表不匹配')
+        this.warn('数据长度与当前列表不匹配')
       } else {
         row.forEach((value, i) => this.data[i].list.push(value))
       }
@@ -170,7 +170,7 @@ export default class TableList {
   }
 
   /**
-   * 删除二维表数据
+   * 删除列表数据
    * @param {String | Array<String>} headers 数据列索引
    * @returns 删除的数据列
    */
@@ -189,7 +189,7 @@ export default class TableList {
   /**
    * 连接多个 TableList
    * @param {TableList} tableList
-   * @returns {TableList} 连接后新的二维表示实例
+   * @returns {TableList} 连接后新的列表示实例
    */
   concat(...tableLists) {
     const newTableList = this.clone()
@@ -207,8 +207,8 @@ export default class TableList {
   }
 
   /**
-   * 获取二维表数值范围
-   * @returns {Array} 返回二维表的最小值和最大值
+   * 获取列表数值范围
+   * @returns {Array} 返回列表的最小值和最大值
    */
   range() {
     const min = d3.min(this.data.map(({list}) => d3.min(list)))

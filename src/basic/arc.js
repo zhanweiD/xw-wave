@@ -10,7 +10,7 @@ export default function drawArc({
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   source = [], // 原始数据
-  data = [], // 圆弧出入角内外半径二维表数据
+  data = [], // 圆弧出入角和内外半径数据
   position = [], // 圆心位置
   container, // 容器父节点
   className, // 用于定位

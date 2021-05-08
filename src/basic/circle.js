@@ -9,7 +9,7 @@ export default function drawCircle({
   updateAnimationDelay = 0,
   source = [], // 原始数据
   data = [], // 水平垂直半径列表数据
-  position = [], // 直角坐标系二维表坐标数据
+  position = [], // 直角坐标系坐标数据
   container, // 容器父节点
   className, // 用于定位
 }) {

@@ -22,7 +22,7 @@ export default function drawText({
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   data = [], // 文字数据
-  position = [], // 直角坐标系二维表坐标数据
+  position = [], // 直角坐标系坐标数据
   container, // 容器父节点
   className, // 用于定位 
 }) {

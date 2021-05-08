@@ -49,7 +49,7 @@ export default class RectLayer extends LayerBase {
     this.className = `wave-${mode}`
   }
 
-  // 传入二维表类，第一列数据要求为纬度数据列
+  // 传入列表类，第一列数据要求为纬度数据列
   setData(tableList) {
     this.#data = tableList || this.#data
     const {mode = modeType.GROUP, layout} = this.options

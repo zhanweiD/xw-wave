@@ -62,8 +62,8 @@ export default class RectLayer extends LayerBase {
   }
   
   /**
-   * 传入二维表类，第一列数据要求为纬度数据列
-   * @param {TableList} tableList 二维表
+   * 传入列表类，第一列数据要求为纬度数据列
+   * @param {TableList} tableList 列表
    */
   setData(tableList) {
     this.#data = tableList || this.#data

@@ -169,7 +169,7 @@ export default class LayerBase {
         els.remove()
       }
     }
-    // 根据对应二维表数据绘制最终的元素
+    // 根据对应列表数据绘制最终的元素
     for (let i = 0; i < data.length; i++) {
       this.backup[type].length = data.length
       if (JSON.stringify(this.backup[type][i]) !== JSON.stringify(data[i])) {

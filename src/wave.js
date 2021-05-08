@@ -18,6 +18,7 @@ const stateMapping = {
   INITILIZE: 'initilize', // 初始化
   READY: 'ready', // 就绪
   WARN: 'warn', // 发生错误
+  DESTROY: 'destroy', // 已销毁
 }
 
 // 图表图层
@@ -33,7 +34,7 @@ const LayerMapping = {
   decoration: () => null, // 装饰
 }
 
-// 二维表数据处理工具
+// 图表类主要用于管理图层
 export default class Wave {
   #state = null
 
@@ -213,5 +214,6 @@ export default class Wave {
   // 销毁所有图层
   destroy() {
     this.#layer.forEach(layer => layer.destroy())
+    this.#state = stateMapping.DESTROY
   }
 }
