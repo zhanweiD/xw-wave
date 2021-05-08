@@ -176,7 +176,7 @@ const updateWave = ({wave, data, type, mode}) => {
   }, drawCount < 4 ? 0 : 2000)
 
   rectLayer.setTooltip({rect: null})
-  rectLayer.event.on('rect-click', d => console.log(d))
+  rectLayer.event.on('click-rect', d => console.log(d))
 
   // 图例图层
   const legendIndex = wave.layer.findIndex(item => item.id === 'legendLayer')

@@ -144,7 +144,6 @@ export default class Tooltip {
     } else {
       y += drift
     }
-    if (enableMoveAnimation) console.log(x, y, rect)
     // 移动距离过大时采用动画过渡
     const animation = new MoveAnimation({
       delay: enableMoveAnimation ? moveAnimationDelay : 0,

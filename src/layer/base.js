@@ -63,11 +63,11 @@ export default class LayerBase {
     // 绑定事件
     Object.keys(options).forEach(elementType => {
       const els = this.options.root.selectAll(`.${this.className} ${elementType}`)
-      els.on('click', (event, data) => globalTooltip.update([data]).move(event, {enableMoveAnimation: true}).show())
-      els.on('blur', () => globalTooltip.hide())
-      els.on('mouseover', (event, data) => this.tooltip.update([data]).move(event).show())
-      els.on('mouseout', () => this.tooltip.hide())
-      els.on('mousemove', event => this.tooltip.move(event))
+      els.on('click.tooltip', (event, data) => globalTooltip.update([data]).move(event, {enableMoveAnimation: true}).show())
+      els.on('blur.tooltip', () => globalTooltip.hide())
+      els.on('mouseover.tooltip', (event, data) => this.tooltip.update([data]).move(event).show())
+      els.on('mouseout.tooltip', () => this.tooltip.hide())
+      els.on('mousemove.tooltip', event => this.tooltip.move(event))
     })
   }
 
@@ -112,17 +112,17 @@ export default class LayerBase {
   // 事件配置
   #setEvent = elementType => {
     const container = this.options.root.selectAll(`.${this.className}`)
-    const listener = eventType => (event, data) => this.event.fire(`${elementType}-${eventType}`, {event, data})
+    const listener = eventType => (event, data) => this.event.fire(`${eventType}-${elementType}`, {event, data})
     // 添加监听事件
     container.selectAll(elementType)
       .style('cursor', 'pointer')
-      .on('click', listener('click'))
-      .on('mouseover', listener('mouseover'))
-      .on('mouseout', listener('mouseout'))
-      .on('mousemove', listener('mousemove'))
-      .on('mousedown', listener('mousedown'))
-      .on('mouseup', listener('mouseup'))
-      .on('dblclick', listener('dblclick'))
+      .on('click.common', listener('click'))
+      .on('mouseover.common', listener('mouseover'))
+      .on('mouseout.common', listener('mouseout'))
+      .on('mousemove.common', listener('mousemove'))
+      .on('mousedown.common', listener('mousedown'))
+      .on('mouseup.common', listener('mouseup'))
+      .on('dblclick.common', listener('dblclick'))
   }
 
   // 销毁图层
