@@ -128,7 +128,7 @@ export default class LayerBase {
   // 销毁图层
   destroy() {
     // 动画资源销毁
-    Object.keys(this.animation).forEach(name => this.animation[name].destroy())
+    Object.keys(this.animation).forEach(name => this.animation[name]?.destroy())
     // tooltip 实例销毁
     this.tooltip && this.tooltip.destroy()
     // dom 元素销毁
@@ -160,14 +160,14 @@ export default class LayerBase {
       container = root.append('g').attr('class', containerClassName)
     }
     // 分组容器准备，删除上一次渲染多余的组
-    for (let i = 0; i < Infinity; i++) {
+    for (let i = 0; i < Math.max(this.backup[type].length, data.length); i++) {
       const groupClassName = `${containerClassName}-${i}`
       const els = container.selectAll(`.${groupClassName}`)
       if (i < data.length && els._groups[0].length === 0) {
         container.append('g').attr('class', groupClassName)
-      } else if (i >= data.length && els._groups[0].length !== 0) {
+      } else if (i >= data.length) {
         els.remove()
-      } else if (i >= data.length) break
+      }
     }
     // 根据对应二维表数据绘制最终的元素
     for (let i = 0; i < data.length; i++) {

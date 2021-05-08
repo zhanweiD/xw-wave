@@ -138,16 +138,20 @@ export default class ScanAnimation extends AnimationBase {
       this.isAnimationFirstPlay = false
       if (direction === directions.ROTATE) {
         this.lights = context.selectAll(targets).clone(false)
+          .attr('class', 'scanAnimation-clone')
           .attr('filter', `url(#scanAnimation${count}-filter)`)
           .attr('mask', direction === directions.ROTATE ? `url(#scanAnimation${count}-mask)` : '')
           .attr('stroke', scope !== scopes.FILL ? 'white' : '')
           .style('fill', scope !== scopes.STROKE ? 'white' : '')
+          .style('pointer-events', 'none')
           .style('opacity', 0)
       } else {
         this.lights = context.selectAll(targets).clone(false)
+          .attr('class', 'scanAnimation-clone')
           .attr('filter', `url(#scanAnimation${count}-filter)`)
           .attr('stroke', scope !== scopes.FILL ? `url(#scanAnimation${count})` : '')
           .style('fill', scope !== scopes.STROKE ? `url(#scanAnimation${count})` : '')
+          .style('pointer-events', 'none')
       }
     }
     // 变换的动画属性
@@ -182,7 +186,7 @@ export default class ScanAnimation extends AnimationBase {
   destroy() {
     anime.remove(this.targets._groups[0])
     this.isAnimationAvailable = false
-    this.lights.remove()
+    this.lights?.remove()
     this.extraNode.remove()
   }
 }

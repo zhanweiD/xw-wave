@@ -68,7 +68,9 @@ const updateWave = ({wave, data, type, mode}) => {
   })
 
   // 标签轴图层
-  const axisX = wave.layer[0]?.instance || wave.createLayer('axis')
+  const axisXIndex = wave.layer.findIndex(item => item.id === 'axisXLayer')
+  // axisXIndex !== -1 && wave.layer[axisXIndex].instance.destroy()
+  const axisX = axisXIndex !== -1 ? wave.layer[axisXIndex].instance : wave.createLayer('axis', {id: 'axisXLayer'})
   axisX.setLayout(type === 'column' ? wave.layout.axisX : wave.layout.axisY)
   axisX.setStyle({
     orient: type === 'column' ? 'bottom' : 'left',
@@ -82,7 +84,9 @@ const updateWave = ({wave, data, type, mode}) => {
   axisX.draw()
 
   // 数值轴图层
-  const axisY = wave.layer[1]?.instance || wave.createLayer('axis')
+  const axisYIndex = wave.layer.findIndex(item => item.id === 'axisYLayer')
+  // axisYIndex !== -1 && wave.layer[axisYIndex].instance.destroy()
+  const axisY = axisYIndex !== -1 ? wave.layer[axisYIndex].instance : wave.createLayer('axis', {id: 'axisYLayer'})
   axisY.setLayout(type === 'column' ? wave.layout.axisY : wave.layout.axisX)
   axisY.setStyle({
     type: type === 'column' ? 'axisY' : 'axisX',
@@ -99,7 +103,9 @@ const updateWave = ({wave, data, type, mode}) => {
   axisY.draw()
 
   // 标题图层
-  const titleLayer = wave.layer[2]?.instance || wave.createLayer('text', {layout: wave.layout.title})
+  const titleIndex = wave.layer.findIndex(item => item.id === 'titleLayer')
+  // titleIndex !== -1 && wave.layer[titleIndex].instance.destroy()
+  const titleLayer = titleIndex !== -1 ? wave.layer[titleIndex].instance : wave.createLayer('text', {id: 'titleLayer', layout: wave.layout.title})
   titleLayer.setData(titleMapping[mode])
   titleLayer.setStyle({
     text: {
@@ -109,7 +115,9 @@ const updateWave = ({wave, data, type, mode}) => {
   titleLayer.draw()
 
   // 矩形图层
-  const rectLayer = wave.layer[3]?.instance || wave.createLayer('rect', {mode, type, layout: wave.layout.main})
+  const rectIndex = wave.layer.findIndex(item => item.id === 'rectLayer')
+  // rectIndex !== -1 && wave.layer[rectIndex].instance.destroy()
+  const rectLayer = rectIndex !== -1 ? wave.layer[rectIndex].instance : wave.createLayer('rect', {id: 'rectLayer', mode, type, layout: wave.layout.main})
   rectLayer.setData(tableList.select(data[0].slice(0)))
   rectLayer.setStyle({
     labelPosition: type === 'bar' 
@@ -126,42 +134,54 @@ const updateWave = ({wave, data, type, mode}) => {
   rectLayer.draw()
   rectLayer.event.on('rect-click', d => console.log(d))
   rectLayer.event.on('text-click', d => console.log(d))
-  const aniamtions = rectLayer.setAnimation({
-    rect: {
-      enterAnimation: {
-        type: 'zoom',
-        delay: 0,
-        duration: 2000,
-        mode: 'enlarge',
-        direction: 'both',
+  
+  // 删除动画，数据更新动画结束后在更新动画（因为扫光会基于原来的元素克隆新元素）
+  Object.keys(rectLayer.animation).forEach(name => rectLayer.animation[name]?.destroy())
+  setTimeout(() => {
+    const aniamtions = rectLayer.setAnimation({
+      rect: {
+        enterAnimation: {
+          type: 'zoom',
+          delay: 0,
+          duration: 2000,
+          mode: 'enlarge',
+          direction: 'both',
+        },
+        loopAnimation: {
+          type: 'scan',
+          delay: 1000,
+          duration: 3000,
+          color: 'rgba(255,255,255,0.5)',
+          direction: type === 'bar' ? 'right' : 'top',
+        },
       },
-      // loopAnimation: {
-      //   type: 'scan',
-      //   delay: 1000,
-      //   duration: 3000,
-      //   color: 'rgba(255,255,255,0.5)',
-      //   direction: type === 'bar' ? 'right' : 'top',
-      // },
-    },
-    text: {
-      enterAnimation: {
-        type: 'fade',
-        delay: 2000,
-        duration: 1000,
-        mode: 'fadeIn',
+      text: {
+        enterAnimation: {
+          type: 'fade',
+          delay: 2000,
+          duration: 1000,
+          mode: 'fadeIn',
+        },
       },
-    },
-  })
-  if (drawCount < 4) {
-    aniamtions.rect.play()
-    aniamtions.text.play()
-    drawCount++
-  }
+    })
+    // 出场动画仅仅触发一次
+    if (drawCount < 4) {
+      aniamtions.rect.play()
+      aniamtions.text.play()
+      drawCount++
+    } else {
+      aniamtions.rect.animationQueue[2].instance.play()
+      aniamtions.text.animationQueue[2].instance.play()
+    }
+  }, drawCount < 4 ? 0 : 2000)
+
   rectLayer.setTooltip({rect: null})
   rectLayer.event.on('rect-click', d => console.log(d))
 
   // 图例图层
-  const legend = wave.layer[4]?.instance || wave.createLayer('legend', {layout: wave.layout.legend})
+  const legendIndex = wave.layer.findIndex(item => item.id === 'legendLayer')
+  // legendIndex !== -1 && wave.layer[legendIndex].instance.destroy()
+  const legend = legendIndex !== -1 ? wave.layer[legendIndex].instance : wave.createLayer('legend', {id: 'legendLayer', layout: wave.layout.legend})
   legend.setData(tableList.data.map(({header}) => header).slice(1))
   legend.setStyle({
     align: 'end',
