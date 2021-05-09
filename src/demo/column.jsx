@@ -132,8 +132,6 @@ const updateWave = ({wave, data, type, mode}) => {
     },
   })
   rectLayer.draw()
-  rectLayer.event.on('rect-click', d => console.log(d))
-  rectLayer.event.on('text-click', d => console.log(d))
   
   // 删除动画，数据更新动画结束后在更新动画（因为扫光会基于原来的元素克隆新元素）
   Object.keys(rectLayer.animation).forEach(name => rectLayer.animation[name]?.destroy())

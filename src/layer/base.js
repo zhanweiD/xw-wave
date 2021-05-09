@@ -34,16 +34,22 @@ const animationMapping = {
   area: ['zoom', 'scan', 'fade'],
 }
 
+const elementTypes = ['arc', 'circle', 'curve', 'line', 'polygon', 'rect', 'text', 'area']
+const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
+const tooltipEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'blur']
+
 // 图层 Base，目前是一个函数架子，未来会引入更多公共方法
 export default class LayerBase {
   constructor(layerOptions, waveOptions) {
     this.options = {...layerOptions, ...waveOptions}
-    this.backup = {}
+    this.backupData = {}
+    this.backupEvent = {}
     this.animation = {}
     this.tooltip = null
     this.className = null
+    this.#createEvent()
     this.event = createEvent(__filename)
-    Object.keys(basicMapping).forEach(name => this.backup[name] = [])
+    elementTypes.forEach(name => this.backupData[name] = [])
   }
 
   // 数据处理
@@ -56,33 +62,58 @@ export default class LayerBase {
     console.warn('此图层的 setStyle 函数未重写')
   }
 
-  // tooltip 展示
+  // 初始化基础事件
+  #createEvent = () => {
+    this.backupEvent = {
+      common: {},
+      tooltip: {
+        click: (event, data) => globalTooltip.update([data]).show().move(event, {enableMoveAnimation: true}),
+        blur: () => globalTooltip.hide(),
+        mouseover: (event, data) => this.tooltip.update([data]).show().move(event),
+        mouseout: () => this.tooltip.hide(),
+        mousemove: event => this.tooltip.move(event),
+      },
+    }
+    commonEvents.forEach(eventType => {
+      this.backupEvent.common[eventType] = {}
+      const events = this.backupEvent.common[eventType]
+      elementTypes.forEach(elementType => {
+        events[elementType] = (event, data) => this.event.fire(`${eventType}-${elementType}`, {event, data})
+      })
+    })
+  }
+
+  // 配置事件，考虑到渲染延迟，推迟到下个事件循环执行
+  #setEvent = elementType => {
+    setTimeout(() => {
+      const els = this.options.root.selectAll(`.${this.className} .wave-basic-${elementType}`).style('cursor', 'pointer')
+      commonEvents.forEach(eventType => els.on(`${eventType}.common`, this.backupEvent.common[eventType][elementType]))
+    }, 0)
+  }
+
+  // 配置 tooltip
   setTooltip(options) {
     // 初始化 tooltip 实例
     this.tooltip = this.tooltip || new Tooltip(this.options.container)
-    // 绑定事件
-    Object.keys(options).forEach(elementType => {
-      const els = this.options.root.selectAll(`.${this.className} ${elementType}`)
-      els.on('click.tooltip', (event, data) => globalTooltip.update([data]).move(event, {enableMoveAnimation: true}).show())
-      els.on('blur.tooltip', () => globalTooltip.hide())
-      els.on('mouseover.tooltip', (event, data) => this.tooltip.update([data]).move(event).show())
-      els.on('mouseout.tooltip', () => this.tooltip.hide())
-      els.on('mousemove.tooltip', event => this.tooltip.move(event))
-    })
+    // 绑定事件，考虑到渲染延迟，推迟到下个事件循环执行
+    Object.keys(options).forEach(elementType => setTimeout(() => {
+      const els = this.options.root.selectAll(`.${this.className} .wave-basic-${elementType}`)
+      tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.backupEvent.tooltip[eventType]))
+    }, 0))
   }
 
   // 配置动画
   setAnimation(options) {
     const container = this.options.root.selectAll(`.${this.className}`)
     // 配置动画前先销毁之前的动画，释放资源
-    Object.keys(this.animation).forEach(name => {
+    elementTypes.forEach(name => {
       this.animation[name] && this.animation[name].destroy()
       this.animation[name] = null
     })
     // 为每种元素支持的每种动画配置
-    Object.keys(this.backup).forEach(name => {
+    elementTypes.forEach(name => {
       // 没有数据，不需要配置动画
-      if (this.backup[name].length === 0 || !options[name]) {
+      if (this.backupData[name].length === 0 || !options[name]) {
         this.animation[name] = null
         return
       }
@@ -93,11 +124,11 @@ export default class LayerBase {
       const supportAnimations = animationMapping[name]
       // 配置入场动画
       if (enterAnimation && supportAnimations.findIndex(key => key === enterAnimation.type) !== -1) {
-        enterAnimationQueue.push(enterAnimation.type, {...enterAnimation, targets: name}, container)
+        enterAnimationQueue.push(enterAnimation.type, {...enterAnimation, targets: `.wave-basic-${name}`}, container)
       }
       // 配置轮播动画
       if (loopAnimation && supportAnimations.findIndex(key => key === loopAnimation.type) !== -1) {
-        loopAnimationQueue.push(loopAnimation.type, {...loopAnimation, targets: name}, container)
+        loopAnimationQueue.push(loopAnimation.type, {...loopAnimation, targets: `.wave-basic-${name}`}, container)
       }
       // 连接入场动画和轮播动画
       this.animation[name] = animationQueue.push('queue', enterAnimationQueue).push('queue', loopAnimationQueue)
@@ -109,26 +140,10 @@ export default class LayerBase {
     return this.animation
   }
 
-  // 事件配置
-  #setEvent = elementType => {
-    const container = this.options.root.selectAll(`.${this.className}`)
-    const listener = eventType => (event, data) => this.event.fire(`${eventType}-${elementType}`, {event, data})
-    // 添加监听事件
-    container.selectAll(elementType)
-      .style('cursor', 'pointer')
-      .on('click.common', listener('click'))
-      .on('mouseover.common', listener('mouseover'))
-      .on('mouseout.common', listener('mouseout'))
-      .on('mousemove.common', listener('mousemove'))
-      .on('mousedown.common', listener('mousedown'))
-      .on('mouseup.common', listener('mouseup'))
-      .on('dblclick.common', listener('dblclick'))
-  }
-
   // 销毁图层
   destroy() {
     // 动画资源销毁
-    Object.keys(this.animation).forEach(name => this.animation[name]?.destroy())
+    elementTypes.forEach(name => this.animation[name]?.destroy())
     // tooltip 实例销毁
     this.tooltip && this.tooltip.destroy()
     // dom 元素销毁
@@ -160,7 +175,7 @@ export default class LayerBase {
       container = root.append('g').attr('class', containerClassName)
     }
     // 分组容器准备，删除上一次渲染多余的组
-    for (let i = 0; i < Math.max(this.backup[type].length, data.length); i++) {
+    for (let i = 0; i < Math.max(this.backupData[type].length, data.length); i++) {
       const groupClassName = `${containerClassName}-${i}`
       const els = container.selectAll(`.${groupClassName}`)
       if (i < data.length && els._groups[0].length === 0) {
@@ -171,18 +186,17 @@ export default class LayerBase {
     }
     // 根据对应列表数据绘制最终的元素
     for (let i = 0; i < data.length; i++) {
-      this.backup[type].length = data.length
-      if (JSON.stringify(this.backup[type][i]) !== JSON.stringify(data[i])) {
+      this.backupData[type].length = data.length
+      if (JSON.stringify(this.backupData[type][i]) !== JSON.stringify(data[i])) {
         const groupClassName = `${containerClassName}-${i}`
-        const elClassName = `${groupClassName}-el`
         const elContainer = container.selectAll(`.${groupClassName}`)
-        const options = {...data[i], className: elClassName, container: elContainer}
+        const options = {...data[i], className: `wave-basic-${type}`, container: elContainer}
         // 首次渲染不启用数据更新动画
-        options.enableUpdateAnimation = this.backup[type][i] ? data[i].enableUpdateAnimation : false
+        options.enableUpdateAnimation = this.backupData[type][i] ? data[i].enableUpdateAnimation : false
         // 调用基础元素绘制函数进行绘制
         basicMapping[type](options)
         // 备份数据以便支持其他功能
-        this.backup[type][i] = data[i]
+        this.backupData[type][i] = data[i]
       }
     }
     // 新的元素需要重新注册事件

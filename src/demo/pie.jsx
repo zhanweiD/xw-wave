@@ -14,6 +14,7 @@ let nightingaleRoseWave
 let donutNightingaleRoseWave
 let stackNightingaleRoseWave
 let stackDonutNightingaleRoseWave
+let drawCount = 0
 
 export default function Column({data = [[]], theme}) {
   const pieRef = useRef(null)
@@ -58,7 +59,9 @@ const updateWave = ({wave, data, type, mode, donut}) => {
   const tableList = new TableList(data)
 
   // 标题图层
-  const titleLayer = wave.layer[0]?.instance || wave.createLayer('text', {layout: wave.layout.title})
+  const titleIndex = wave.layer.findIndex(item => item.id === 'titleLayer')
+  // titleIndex !== -1 && wave.layer[titleIndex].instance.destroy()
+  const titleLayer = titleIndex !== -1 ? wave.layer[titleIndex].instance : wave.createLayer('text', {id: 'titleLayer', layout: wave.layout.title})
   titleLayer.setData(`${mode === 'stack' ? '堆叠' : ''}${donut ? titleMapping[type][1] : titleMapping[type][0]}`)
   titleLayer.setStyle({
     text: {
@@ -68,11 +71,12 @@ const updateWave = ({wave, data, type, mode, donut}) => {
   titleLayer.draw()
 
   // 圆弧图层
-  const rectLayer = wave.layer[1]?.instance || wave.createLayer('arc', {mode, type, layout: wave.layout.main})
+  const arcIndex = wave.layer.findIndex(item => item.id === 'arcLayer')
+  const arcLayer = arcIndex !== -1 ? wave.layer[arcIndex].instance : wave.createLayer('arc', {id: 'arcLayer', mode, type, layout: wave.layout.main})
   const {width, height} = wave.layout.main
   const arcData = tableList.select(data[0].slice(0, mode === 'default' ? 2 : Infinity))
-  rectLayer.setData(arcData)
-  rectLayer.setStyle({
+  arcLayer.setData(arcData)
+  arcLayer.setStyle({
     innerRadius: donut ? Math.min(width, height) / 10 : 0,
     arc: {
       enableUpdateAnimation: true,
@@ -82,10 +86,55 @@ const updateWave = ({wave, data, type, mode, donut}) => {
       fontSize: 8,
     },
   })
-  rectLayer.draw()
+  arcLayer.draw()
+
+  // 删除动画，数据更新动画结束后在更新动画（因为扫光会基于原来的元素克隆新元素）
+  Object.keys(arcLayer.animation).forEach(name => arcLayer.animation[name]?.destroy())
+  setTimeout(() => {
+    const aniamtions = arcLayer.setAnimation({
+      arc: {
+        enterAnimation: {
+          type: 'zoom',
+          delay: 0,
+          duration: 2000,
+          mode: 'enlarge',
+          direction: 'both',
+        },
+        loopAnimation: {
+          type: 'scan',
+          delay: 1000,
+          duration: 3000,
+          color: 'rgba(255,255,255,0.5)',
+          direction: type === 'bar' ? 'right' : 'top',
+        },
+      },
+      text: {
+        enterAnimation: {
+          type: 'fade',
+          delay: 2000,
+          duration: 1000,
+          mode: 'fadeIn',
+        },
+      },
+    })
+    // 出场动画仅仅触发一次
+    if (drawCount < 6) {
+      aniamtions.arc.play()
+      // aniamtions.text.play()
+      drawCount++
+    } else {
+      aniamtions.arc.animationQueue[2].instance.play()
+      aniamtions.text.animationQueue[2].instance.play()
+    }
+  }, drawCount < 6 ? 0 : 2000)
+
+  arcLayer.setTooltip({arc: null})
+  arcLayer.event.on('click-arc', d => console.log(d))
 
   // 图例图层
-  const legend = wave.layer[2]?.instance || wave.createLayer('legend', {layout: wave.layout.legend})
+  const legendIndex = wave.layer.findIndex(item => item.id === 'legendLayer')
+  // legendIndex !== -1 && wave.layer[legendIndex].instance.destroy()
+  const legend = legendIndex !== -1 ? wave.layer[legendIndex].instance : wave.createLayer('legend', {id: 'legendLayer', layout: wave.layout.legend})
   legend.setData(mode === 'default' ? data.slice(1).map(array => array[0]) : data[0].slice(1))
   legend.setStyle({
     align: 'end',

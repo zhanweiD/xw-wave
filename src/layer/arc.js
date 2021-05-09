@@ -142,6 +142,7 @@ export default class RectLayer extends LayerBase {
     const {scaleAngle, scaleRadius} = this.#scale
     const {innerRadius = 0, labelPosition = labelPositionType.INNER} = this.#style
     const {fontSize = 12} = this.#style.text
+    const headers = this.#data.data.map(({header}) => header)
     const tableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const circleCenter = {x: left + width / 2, y: top + height / 2}
     // 根据内半径重制半径比例尺值域
@@ -150,8 +151,10 @@ export default class RectLayer extends LayerBase {
     }
     // 圆弧基础数据
     this.#arcData = tableList.map(([dimension, ...values]) => {
-      return values.map(value => ({
+      return values.map((value, i) => ({
         value,
+        dimension,
+        category: headers[i + 1],
         innerRadius,
         outerRadius: scaleRadius(value),
         ...circleCenter,
@@ -191,9 +194,10 @@ export default class RectLayer extends LayerBase {
       const data = groupData.map(({startAngle, endAngle, innerRadius, outerRadius}) => [
         startAngle, endAngle, innerRadius, outerRadius,
       ])
+      const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
       const position = groupData.map(({x, y}) => [x, y])
       const fill = groupData.map(({color}) => color)
-      return {data, position, fill, ...this.#style.arc}
+      return {data, position, source, fill, ...this.#style.arc}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)

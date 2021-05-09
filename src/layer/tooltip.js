@@ -31,7 +31,7 @@ export default class Tooltip {
       .style('border-radius', '2px')
       .style('position', 'absolute')
       .style('overflow', 'hidden')
-      .style('visibility', 'hidden')
+      .style('display', 'none')
       .style('left', 0)
       .style('top', 0)
     // 模糊背景
@@ -47,13 +47,13 @@ export default class Tooltip {
 
   show() {
     this.isVisible = true
-    this.instance.style('visibility', 'visible')
+    this.instance.style('display', 'block')
     return this
   }
 
   hide() {
     this.isVisible = false
-    this.instance.style('visibility', 'hidden')
+    this.instance.style('display', 'none')
     return this
   }
 
@@ -150,7 +150,7 @@ export default class Tooltip {
       targets: this.instance._groups[0][0],
       duration: enableMoveAnimation ? moveAnimationDuration : 0,
       position: [[this.lastPosition.x || 0, x], [this.lastPosition.y || 0, y]],
-      easing: 'easeInOutQuint',
+      easing: 'easeOutQuart',
     })
     // 一次性动画，结束时销毁
     animation.event.on('end', () => animation.destroy())
