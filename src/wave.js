@@ -12,6 +12,7 @@ import ArcLayer from './layer/arc'
 import LineLayer from './layer/line'
 import RadarLayer from './layer/radar'
 import createUuid from './util/uuid'
+import AuxiliaryLayer from './layer/auxiliary'
 
 // 图表状态
 const stateMapping = {
@@ -29,7 +30,8 @@ const LayerMapping = {
   rect: RectLayer, // 矩形
   arc: ArcLayer, // 圆弧
   radar: RadarLayer, // 雷达多边形
-  line: LineLayer, // 直线/曲线
+  line: LineLayer, // 折线
+  auxiliary: AuxiliaryLayer, // 辅助直线
   circle: () => null, // 圆/椭圆
   decoration: () => null, // 装饰
 }

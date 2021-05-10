@@ -36,6 +36,7 @@ const labelPositionType = {
 // 默认样式
 const defaultStyle = {
   labelPosition: labelPositionType.CENTER,
+  labelOffset: 5,
   rect: {},
   text: {},
 }

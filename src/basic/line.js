@@ -1,20 +1,20 @@
 // v4基础函数——画直线
 export default function drawLine({
-  color = 'rgba(255,255,255,1)',
-  width = 1,
+  stroke = 'rgba(255,255,255,1)',
+  strokeWidth = 1,
+  opacity = 0.5,
+  dasharray = '0',
   enableUpdateAnimation = false,
   updateAnimationDuration = 1000,
   updateAnimationDelay = 0,
-  opacity = 0.5,
-  dasharray = '0',
   source = [], // 原始数据
   position = [], // 位置 [[x1,y1,x2,y2], ...]
   container,
   className,
 }) {
   const configuredData = position.map((data, i) => ({
-    stroke: Array.isArray(color) ? color[i] : color,
-    strokeWidth: width,
+    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
+    strokeWidth,
     class: className,
     strokeDasharray: dasharray,
     opacity,

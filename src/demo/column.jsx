@@ -194,4 +194,27 @@ const updateWave = ({wave, data, type, mode}) => {
     },
   })
   legend.draw()
+
+  // 辅助线图层
+  const auxiliaryIndex = wave.layer.findIndex(item => item.id === 'auxiliaryLayer')
+  // auxiliaryIndex !== -1 && wave.layer[auxiliaryIndex].instance.destroy()
+  const auxiliary = auxiliaryIndex !== -1 ? wave.layer[auxiliaryIndex].instance : wave.createLayer('auxiliary', {
+    id: 'auxiliaryLayer', layout: wave.layout.main, mode: type === 'bar' ? 'vertical' : 'horizontal',
+  })
+  const auxiliaryScale = new Scale({...rectLayer.scale.scaleY, nice: null})
+  type === 'bar' && auxiliaryScale.range(auxiliaryScale.range().reverse())
+  auxiliary.setData([300, 600], auxiliaryScale)
+  auxiliary.setStyle({
+    labelPosition: type === 'bar' ? 'top' : 'right',
+    line: {
+      stroke: 'yellow',
+      strokeWidth: 2,
+      dasharray: '10 5',
+    },
+    text: {
+      fill: 'yellow',
+      fontSize: 8,
+    },
+  })
+  auxiliary.draw()
 }
