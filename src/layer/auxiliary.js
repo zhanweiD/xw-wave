@@ -57,6 +57,7 @@ export default class AuxiliaryLayer extends LayerBase {
   // 传入数据数组和比例尺，辅助线需要外部的比例尺
   setData(data, scale) {
     this.#data = data || this.#data
+    this.#scale = scale || this.#scale
     const {mode = modeType.HORIZONTAL, layout} = this.options
     const {left, top, width, height} = layout
     // 根据比例尺计算原始坐标
@@ -67,7 +68,6 @@ export default class AuxiliaryLayer extends LayerBase {
       x2: left + (mode === modeType.HORIZONTAL ? width : scale(value)),
       y2: top + (mode === modeType.HORIZONTAL ? scale(value) : height),
     }))
-    console.log(this.#lineData)
   }
 
   // 覆盖默认图层样式
