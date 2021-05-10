@@ -69,6 +69,7 @@ const insertOffsets = (gradient, color) => {
 const createGradient = (parentNode, direction, color) => {
   let targets
   const attributes = getAttributes(direction)
+  const isLeftOrTop = direction === directions.LEFT || direction === directions.TOP
   count++
   parentNode.append('filter')
     .attr('id', `scanAnimation${count}-filter`)
@@ -104,8 +105,8 @@ const createGradient = (parentNode, direction, color) => {
       .attr('x2', '0%')
       .attr('y1', '0%')
       .attr('y2', '0%')
-      .attr(attributes[0], direction === directions.LEFT || direction === directions.TOP ? '100%' : '-100%')
-      .attr(attributes[1], direction === directions.LEFT || direction === directions.TOP ? '200%' : '0%')
+      .attr(attributes[0], isLeftOrTop ? '100%' : '-100%')
+      .attr(attributes[1], isLeftOrTop ? '200%' : '0%')
   }
   return direction === directions.ROTATE ? targets : insertOffsets(targets, color)
 }
