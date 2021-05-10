@@ -105,7 +105,7 @@ const updateWave = ({wave, data, type, mode, donut}) => {
           delay: 1000,
           duration: 3000,
           color: 'rgba(255,255,255,0.5)',
-          direction: type === 'bar' ? 'right' : 'top',
+          direction: 'outer',
         },
       },
       text: {
@@ -129,6 +129,7 @@ const updateWave = ({wave, data, type, mode, donut}) => {
   }, drawCount < 6 ? 0 : 2000)
 
   arcLayer.setTooltip({arc: null})
+  arcLayer.event.off('click-arc')
   arcLayer.event.on('click-arc', d => console.log(d))
 
   // 图例图层

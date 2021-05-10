@@ -174,6 +174,7 @@ const updateWave = ({wave, data, type, mode}) => {
   }, drawCount < 4 ? 0 : 2000)
 
   rectLayer.setTooltip({rect: null})
+  rectLayer.event.off('click-rect')
   rectLayer.event.on('click-rect', d => console.log(d))
 
   // 图例图层

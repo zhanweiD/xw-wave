@@ -94,7 +94,9 @@ const createGradient = (parentNode, direction, color) => {
       .attr('fill', `url(#scanAnimation${count})`)
       .attr('filter', `url(#scanAnimation${count}-filter)`)
   } else if (attributes[0] === 'r') {
-    targets = parentNode.append('radialGradient').attr('id', `scanAnimation${count}`)
+    targets = parentNode.append('radialGradient')
+      .attr('id', `scanAnimation${count}`)
+      .attr(attributes[0], direction === directions.INNER ? '300%' : '0%')
   } else if (attributes.length === 2) {
     targets = parentNode.append('linearGradient')
       .attr('id', `scanAnimation${count}`)
@@ -102,6 +104,8 @@ const createGradient = (parentNode, direction, color) => {
       .attr('x2', '0%')
       .attr('y1', '0%')
       .attr('y2', '0%')
+      .attr(attributes[0], direction === directions.LEFT || direction === directions.TOP ? '100%' : '-100%')
+      .attr(attributes[1], direction === directions.LEFT || direction === directions.TOP ? '200%' : '0%')
   }
   return direction === directions.ROTATE ? targets : insertOffsets(targets, color)
 }
