@@ -5,6 +5,7 @@ import Column from './column'
 import Line from './line'
 import Pie from './pie'
 import Radar from './radar'
+import Scatter from './scatter'
 import s from './demo.module.css'
 
 const themeMapping = {
@@ -21,6 +22,7 @@ const chartMapping = {
   line: '折线图',
   pie: '饼图',
   radar: '雷达图',
+  scatter: '点图',
 }
 
 const getData = () => {
@@ -37,8 +39,8 @@ const getData = () => {
     ['2015', 732.7, 162.7, 439.9, 321.5], 
     ['2016', 718.1, 141.2, 416.6, 323.2],
   ]
-  const column = Math.round(Math.random() * (originalData[0].length - 3) + 2)
-  const row = Math.round(Math.random() * (originalData.length - 5) + 4)
+  const column = Math.round(Math.random() * (originalData[0].length - 4) + 4)
+  const row = Math.round(Math.random() * (originalData.length - 6) + 3)
   const finalData = originalData.slice(0, row + 1).map(item => item.slice(0, column + 1))
   return finalData
 }
@@ -93,6 +95,7 @@ export default function Demo() {
         {chart === 'line' && <Line data={data} theme={theme} type="line" />}
         {chart === 'pie' && <Pie data={data} theme={theme} />}
         {chart === 'radar' && <Radar data={data} theme={theme} />}
+        {chart === 'scatter' && <Scatter data={data} theme={theme} />}
       </div>
     </div>
   )

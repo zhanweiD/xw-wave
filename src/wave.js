@@ -13,6 +13,7 @@ import LineLayer from './layer/line'
 import RadarLayer from './layer/radar'
 import createUuid from './util/uuid'
 import AuxiliaryLayer from './layer/auxiliary'
+import ScatterLayer from './layer/scatter'
 
 // 图表状态
 const stateMapping = {
@@ -32,6 +33,7 @@ const LayerMapping = {
   radar: RadarLayer, // 雷达多边形
   line: LineLayer, // 折线
   auxiliary: AuxiliaryLayer, // 辅助直线
+  scatter: ScatterLayer, // 辅助直线
   circle: () => null, // 圆/椭圆
   decoration: () => null, // 装饰
 }
