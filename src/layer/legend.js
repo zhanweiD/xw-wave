@@ -92,7 +92,7 @@ export default class LegendLayer extends LayerBase {
     this.#textData = this.#circleData.map(({cx, cy}, i) => ({
       text: this.#data[i],
       x: cx + pointSize / 2 + inner,
-      y: cy + fontSize / 4, // 神奇的数字
+      y: cy + fontSize / 2,
     }))
     // 最后根据 align 整体移动，默认都是 start
     let [totalWidth, totalHeight] = [0, 0]

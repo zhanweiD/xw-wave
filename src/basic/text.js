@@ -32,7 +32,7 @@ export default function drawText({
       text: formatText(text, format),
       className,
       x: position[i][0],
-      y: position[i][1],
+      y: position[i][1] - fontSize * 0.2, // 这个数字为黑体的高度差
       fill: Array.isArray(fill) ? fill[i] : fill,
       opacity,
       fontFamily,
