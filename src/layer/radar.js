@@ -110,7 +110,7 @@ export default class RectLayer extends LayerBase {
 
   // 覆盖默认图层样式
   setStyle(style) {
-    this.#style = {...this.#style, ...style}
+    this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {getColor} = this.options
     const {pointSize = 2} = this.#style
     const {fontSize = 12} = this.#style.text

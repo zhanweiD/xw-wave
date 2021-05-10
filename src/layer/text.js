@@ -43,7 +43,7 @@ export default class TextLayer extends LayerBase {
 
   // 覆盖默认图层样式
   setStyle(style) {
-    this.#style = {...this.#style, ...style}
+    this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {align, verticalAlign, text = {}} = this.#style
     const {left, top, width, height} = this.options.layout
     const {fontSize = 12} = text

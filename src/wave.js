@@ -159,15 +159,6 @@ export default class Wave {
   }
 
   /**
-   * 获取文字的真实字号
-   * @param {Number} size 相对字号
-   * @returns {Number}
-   */
-  fontSize(size) {
-    return this.#baseFontSize * size
-  }
-
-  /**
    * 创建一个图层
    * @param {String} type 图层类型
    * @param {Object} options 图层配置参数
@@ -178,8 +169,8 @@ export default class Wave {
     const context = {
       root: this.#root,
       container: this.#container,
+      baseFontSize: this.baseFontSize,
       getColor: this.getColor.bind(this),
-      fontSize: this.fontSize.bind(this),
     }
     // 根据类型创建图层
     const layer = new LayerMapping[type](options, context)

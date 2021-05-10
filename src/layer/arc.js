@@ -136,7 +136,7 @@ export default class RectLayer extends LayerBase {
 
   // 覆盖默认图层样式
   setStyle(style) {
-    this.#style = {...this.#style, ...style}
+    this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {getColor, type = waveType.PIE, mode = modeType.DEFAULT, layout} = this.options
     const {left, top, width, height} = layout
     const {scaleAngle, scaleRadius} = this.#scale

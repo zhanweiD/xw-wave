@@ -62,6 +62,16 @@ export default class LayerBase {
     console.warn('此图层的 setStyle 函数未重写')
   }
 
+  // 返回统一处理后的样式
+  createStyle(defaultStyle, currentStyle, incomingStyle) {
+    const copy = style => JSON.parse(JSON.stringify(style))
+    const result = {...copy(defaultStyle), ...copy(currentStyle), ...copy(incomingStyle)}
+    if (result?.text?.fontSize) {
+      result.text.fontSize *= this.options.baseFontSize
+    }
+    return result
+  }
+
   // 初始化基础事件
   #createEvent = () => {
     this.backupEvent = {
