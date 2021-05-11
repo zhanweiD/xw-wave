@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import DataBase from './base'
 
 // 定义数据组合方式
 const modeType = {
@@ -13,57 +14,11 @@ const targetType = {
 }
 
 // 列表数据处理工具
-export default class TableList {
+export default class TableList extends DataBase {
   constructor(tableList, options) {
+    super()
     this.data = []
     this.update(tableList, options)
-  }
-
-  /**
-   * 简单的数据结构校验
-   * @param {Array<Array<Number|String>>} tableList 
-   * @returns {Boolean} 是否为合法的列表数据结构
-   */
-  isTableList(tableList) {
-    if (!Array.isArray(tableList) || tableList.length === 0) {
-      return false
-    }
-    if (tableList.findIndex(listItem => !Array.isArray(listItem)) !== -1) {
-      return false
-    }
-    return true
-  }
-
-  /**
-   * 矩阵转置操作，列表行列互换
-   * @param {Array<Array<Number|String>>} tableList 
-   * @returns {Array<Array<Number|String>>} 转置后的列表
-   */
-  transpose(tableList) {
-    if (!this.isTableList(tableList)) {
-      this.warn('列表数据结构错误')
-      return false
-    } 
-    if (tableList.length === 0) {
-      this.warn('列表数据为空')
-      return false
-    }
-    const rowLength = tableList[0].length
-    const newTableList = []
-    for (let i = 0; i < rowLength; i++) {
-      newTableList.push(tableList.map(item => item[i]))
-    }
-    return newTableList
-  }
-
-  /**
-   * 列表是否有某列
-   * @param {String} name 
-   * @returns 数据列的 index 或 fasle，注意 index 为 0 的情况
-   */
-  hasColumn(name) {
-    const index = this.data.findIndex(({header}) => name === header)
-    return index === -1 ? false : index
   }
 
   /**
@@ -87,10 +42,7 @@ export default class TableList {
           max: d3.min([prev.max, cur.max]),
         }))]
       } else if (target === targetType.COLUMN) {
-        data = data.map(item => ({
-          ...item,
-          list: [d3.sum(item.list)],
-        }))
+        data = data.map(item => ({...item, list: [d3.sum(item.list)]}))
       }
     }
     // 列计算百分比的情况
@@ -105,10 +57,7 @@ export default class TableList {
       } else if (target === targetType.COLUMN) {
         data = data.map(item => {
           const sum = d3.sum(item.list)
-          return {
-            ...item,
-            list: item.list.map(value => value / sum),
-          }
+          return {...item, list: item.list.map(value => value / sum)}
         })
       }
     }
@@ -130,27 +79,29 @@ export default class TableList {
    * 更新列表数据
    * @param {Array<Array<Number|String>>} tableList 
    * @param {Object} options 数据列配置
+   * @returns {TableList} 当前实例
    */
   update(tableList, options = {}) {
-    if (!this.isTableList(tableList)) {
+    if (!this.isLegalData('list', tableList)) {
       this.warn('列表数据结构错误')
-      return
+    } else {
+      // 类内部用对象表示数据
+      const updateData = tableList[0].map((header, index) => ({
+        ...options[header],
+        list: tableList.slice(1).map(row => row[index]),
+        header,
+      }))
+      // 覆盖已有数据或者追加新的数据
+      updateData.forEach(item => {
+        const index = this.data.findIndex(({header}) => item.header === header)
+        if (index !== -1) {
+          this.data[index] = item
+        } else {
+          this.data.push(item)
+        }
+      })
     }
-    // 类内部用对象表示数据
-    const updateData = tableList[0].map((header, index) => ({
-      ...options[header],
-      list: tableList.slice(1).map(row => row[index]),
-      header,
-    }))
-    // 覆盖已有数据或者追加新的数据
-    updateData.forEach(item => {
-      const columnIndex = this.hasColumn(item.header)
-      if (columnIndex !== false) {
-        this.data[columnIndex] = item
-      } else {
-        this.data.push(item)
-      }
-    })
+    return this
   }
 
   /**
@@ -178,9 +129,9 @@ export default class TableList {
     const removedList = []
     const _headers = Array.isArray(headers) ? headers : [headers]
     _headers.forEach(header => {
-      const columnIndex = this.hasColumn(header)
-      if (columnIndex !== false) {
-        removedList.concat(this.data.splice(columnIndex, 1)) 
+      const index = this.data.findIndex(item => item.header === header)
+      if (index !== -1) {
+        removedList.concat(this.data.splice(index, 1)) 
       }
     })
     return removedList
@@ -195,9 +146,9 @@ export default class TableList {
     const newTableList = this.clone()
     tableLists.forEach(tableList => {
       tableList.clone().data.forEach(item => {
-        const columnIndex = newTableList.hasColumn(item.header)
-        if (columnIndex !== false) {
-          newTableList.data[columnIndex] = item
+        const index = newTableList.data.findIndex(({header}) => item.header === header)
+        if (index !== -1) {
+          newTableList.data[index] = item
         } else {
           newTableList.data.push(item)
         }
@@ -214,13 +165,5 @@ export default class TableList {
     const min = d3.min(this.data.map(({list}) => d3.min(list)))
     const max = d3.max(this.data.map(({list}) => d3.max(list)))
     return [min, max]
-  }
-
-  /**
-   * 定义报错时的行为，可以被覆盖
-   * @param {String} text 报错文字
-   */
-  warn(text) {
-    console.error(text)
   }
 }
