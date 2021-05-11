@@ -204,7 +204,7 @@ export default class LayerBase {
         // 首次渲染不启用数据更新动画
         options.enableUpdateAnimation = this.backupData[type][i] ? data[i].enableUpdateAnimation : false
         // 调用基础元素绘制函数进行绘制
-        basicMapping[type](options)
+        !options.hide && basicMapping[type](options)
         // 备份数据以便支持其他功能
         this.backupData[type][i] = data[i]
       }
