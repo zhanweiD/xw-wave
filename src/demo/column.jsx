@@ -38,7 +38,7 @@ export default function Column({data = [[]], type = 'column', theme}) {
   }, [data, type, theme])
   
   return (
-    <div className="fbh fb1 fbjsb fbw fbac">
+    <div className="fbh fb1 fbw">
       <div className={s.wave} ref={groupedColumnRef} />
       <div className={s.wave} ref={stackedColumnRef} />
       <div className={s.wave} ref={intervalColumnRef} />

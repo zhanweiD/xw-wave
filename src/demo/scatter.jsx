@@ -28,7 +28,7 @@ export default function Scatter({data = [[]], theme}) {
   }, [data, theme])
   
   return (
-    <div className="fbh fb1 fbjsb fbw fbac">
+    <div className="fbh fb1 fbw">
       <div className={s.wave} ref={scatterRef} />
       <div className={s.wave} ref={bubbleRef} />
     </div>

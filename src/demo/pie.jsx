@@ -43,7 +43,7 @@ export default function Column({data = [[]], theme}) {
   }, [data, theme])
   
   return (
-    <div className="fbh fb1 fbjsb fbw fbac">
+    <div className="fbh fb1 fbw">
       <div className={s.wave} ref={pieRef} />
       <div className={s.wave} ref={donutRef} />
       <div className={s.wave} ref={nightingaleRoseRef} />

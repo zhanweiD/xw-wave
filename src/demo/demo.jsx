@@ -75,7 +75,7 @@ const getTableData = () => {
 
 export default function Demo() {
   const [theme, setTheme] = useState('duskUniverse')
-  const [chart, setChart] = useState('column')
+  const [chart, setChart] = useState('matrix')
   const [data, setData] = useState(getTableListData())
   const autoSwitchDataTime = 10000
   const containerStyle = {

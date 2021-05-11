@@ -99,6 +99,7 @@ export default class Tooltip {
         .data(data)
         .join('div')
         .attr('class', 'fbh fbjsb fbac')
+        .style('width', '100%')
       // 行内圆点和标签
       const pointWidthLabel = rows
         .append('div')

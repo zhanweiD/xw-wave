@@ -28,7 +28,7 @@ export default function Matrix({data = [[]], type = 'column', theme}) {
   }, [data, type, theme])
   
   return (
-    <div className="fbh fb1 fbjsb fbw fbac">
+    <div className="fbh fb1 fbw">
       <div className={s.wave} ref={columnMatrixMapRef} />
       <div className={s.wave} ref={circleMatrixMapRef} />
     </div>
