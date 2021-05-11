@@ -36,11 +36,7 @@ export default function Column({data = [[]], type = 'column', theme}) {
 
 // 分组柱状图
 const updateWave = ({wave, data, type, mode}) => {
-  let tableList = new TableList(data)
-  if (mode === 'waterfall') {
-    tableList = new TableList(data).select(data[0].slice(0, 2))
-    tableList.push(['总和', tableList.select(data[0][1], {mode: 'sum', target: 'column'}).range()[1]])
-  }
+  const tableList = new TableList(data)
 
   const {width, height} = wave.layout.main
   const headers = tableList.data.map(({header}) => header)

@@ -8,7 +8,7 @@ const directionMapping = {
 
 // 绘制一组文本
 export default function drawText({
-  fontFamily = 'SimHei',
+  fontFamily = '',
   fontSize = 12,
   fontWeight = 'normal',
   fill = 'rgba(255,255,255,1)', // 可以是数组定义渐变色

@@ -14,8 +14,6 @@ export default class DataBase {
   static isTable = table => {
     if (!Array.isArray(table) 
       || table.length < 3 
-      || table[0].length === 0 
-      || table[1].length === 0 
       || table.findIndex(item => !Array.isArray(item)) !== -1
       || !DataBase.isTableLilst(table[2])) {
       return false
@@ -111,7 +109,7 @@ export default class DataBase {
    * 定义报错时的行为，可以被覆盖
    * @param {String} text 报错文字
    */
-  warn(text) {
-    console.error(text)
+  warn(text, data) {
+    console.error(text, data)
   }
 }

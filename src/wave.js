@@ -14,6 +14,7 @@ import RadarLayer from './layer/radar'
 import createUuid from './util/uuid'
 import AuxiliaryLayer from './layer/auxiliary'
 import ScatterLayer from './layer/scatter'
+import Matrix from './layer/matrix'
 
 // 图表状态
 const stateMapping = {
@@ -34,8 +35,7 @@ const LayerMapping = {
   line: LineLayer, // 折线
   auxiliary: AuxiliaryLayer, // 辅助直线
   scatter: ScatterLayer, // 辅助直线
-  circle: () => null, // 圆/椭圆
-  decoration: () => null, // 装饰
+  matrix: Matrix, // 矩阵
 }
 
 // 图表类主要用于管理图层

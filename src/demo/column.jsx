@@ -47,7 +47,7 @@ export default function Column({data = [[]], type = 'column', theme}) {
   )
 }
 
-// 分组柱状图
+// 柱状图
 const updateWave = ({wave, data, type, mode}) => {
   let tableList = new TableList(data)
   if (mode === 'waterfall') {

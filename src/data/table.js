@@ -52,8 +52,8 @@ export default class Table extends DataBase {
    * @param {Object} options 数据列配置
    */
   update(table) {
-    if (!this.isLegalData(table)) {
-      this.warn('列表数据结构错误')
+    if (!this.isLegalData('table', table)) {
+      this.warn('列表数据结构错误', table)
     } else {
       this.data = table
     }
@@ -109,8 +109,8 @@ export default class Table extends DataBase {
    * @returns {Array} 返回列表的最小值和最大值
    */
   range() {
-    const min = d3.min(this.data[2].map(({row}) => d3.min(row)))
-    const max = d3.max(this.data[2].map(({row}) => d3.max(row)))
+    const min = d3.min(this.data[2].map(row => d3.min(row)))
+    const max = d3.max(this.data[2].map(row => d3.max(row)))
     return [min, max]
   }
 }
