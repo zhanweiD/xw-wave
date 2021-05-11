@@ -162,16 +162,14 @@ export default class RectLayer extends LayerBase {
       const firstRect = this.#rectData[0][0]
       const offset = Array.isArray(firstRect.value) ? Math.abs(scaleY(0) - scaleY(firstRect.value[0])) : 0
       const zeroY = firstRect.y + firstRect.height + offset
-      this.#rectData = this.#rectData.map(groupData => {
-        return groupData.map(({x, y, height, width, value, ...others}) => ({
-          value, 
-          width: height, 
-          height: width,
-          y: x - layout.left + layout.top, 
-          x: zeroY - height - y + layout.left,
-          ...others,
-        }))
-      })
+      this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, height, width, value, ...others}) => ({
+        value, 
+        width: height, 
+        height: width,
+        y: x - layout.left + layout.top, 
+        x: zeroY - height - y + layout.left,
+        ...others,
+      })))
     }
   }
 

@@ -11,6 +11,7 @@ const modeType = {
 
 // 默认样式
 const defaultStyle = {
+  circleSizeRange: ['auto', 'auto'],
   circle: {},
   rect: {},
   text: {},
@@ -114,12 +115,32 @@ export default class RectLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
+    const {mode = modeType.RECT} = this.options
     const {fontSize = 12} = this.#style.text
     // 标签文字数据
     this.#textData.forEach(groupData => groupData.forEach(item => {
       item.x -= getTextWidth(item.value, fontSize) / 2
       item.y += fontSize / 2
     }))
+    // 圆形的大小随数值大小变化
+    if (mode === modeType.CIRCLE) {
+      const {circleSizeRange} = this.#style
+      let [min, max] = circleSizeRange
+      const [bandWidthX, bandWidthY] = [this.#scale.scaleX.bandwidth(), this.#scale.scaleY.bandwidth()]
+      const ceiling = Math.min(bandWidthX, bandWidthY) / 2
+      if (max === 'auto') max = ceiling
+      if (min === 'auto') min = max > ceiling ? ceiling / 2 : max / 2
+      const scale = new Scale({
+        type: 'linear',
+        domain: this.#data.range(),
+        range: [min, max],
+        nice: null,
+      })
+      this.#circleData.forEach(groupData => groupData.forEach(item => {
+        item.rx = scale(item.value)
+        item.ry = scale(item.value)
+      }))
+    }
   }
 
   // 绘制
