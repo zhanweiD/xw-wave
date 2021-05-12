@@ -65,11 +65,17 @@ export default class LayerBase {
   // 返回统一处理后的样式
   createStyle(defaultStyle, currentStyle, incomingStyle) {
     const copy = style => JSON.parse(JSON.stringify(style))
-    const result = {...copy(defaultStyle), ...copy(currentStyle), ...copy(incomingStyle)}
-    if (result?.text?.fontSize) {
-      result.text.fontSize *= this.options.baseFontSize
+    const layerStyle = {...copy(defaultStyle), ...copy(currentStyle), ...copy(incomingStyle)}
+    elementTypes.forEach(elementType => layerStyle[elementType] = {
+      ...copy(defaultStyle[elementType] || {}), 
+      ...copy(currentStyle[elementType] || {}), 
+      ...copy(incomingStyle[elementType] || {}),
+    })
+    // 统一缩放字号
+    if (layerStyle?.text?.fontSize) {
+      layerStyle.text.fontSize *= this.options.baseFontSize
     }
-    return result
+    return layerStyle
   }
 
   // 初始化基础事件
