@@ -4,6 +4,8 @@ export default function drawCircle({
   stroke = 'rgba(255,255,255,0)', // 描边
   strokeWidth = 0, // 描边粗细
   opacity = 1, // 不透明度
+  fillOpacity = 1,
+  strokeOpacity = 1,
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -26,6 +28,8 @@ export default function drawCircle({
       fill: Array.isArray(fill) ? fill[i] : fill,
       stroke: Array.isArray(stroke) ? stroke[i] : stroke,
       opacity,
+      fillOpacity,
+      strokeOpacity,
       strokeWidth,
       source: source.length > i ? source[i] : null,
     }
@@ -40,12 +44,14 @@ export default function drawCircle({
     .attr('stroke', d => d.stroke)
     .attr('stroke-width', d => d.strokeWidth)
     .attr('class', d => d.class)
-    .attr('opacity', d => d.opacity)
     .attr('cx', d => d.cx)
     .attr('cy', d => d.cy)
     .attr('rx', d => d.rx)
     .attr('ry', d => d.ry)
     .attr('fill', d => d.fill)
+    .attr('opacity', d => d.opacity)
+    .attr('fill-opacity', d => d.fillOpacity)
+    .attr('stroke-opacity', d => d.strokeOpacity)
 
   return circles
 }

@@ -4,6 +4,8 @@ export default function drawPolygon({
   stroke = 'rgba(255,255,255,0)', // 描边
   strokeWidth = 0, // 描边粗细
   opacity = 1, // 不透明度
+  fillOpacity = 0,
+  strokeOpacity = 1,
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -21,6 +23,8 @@ export default function drawPolygon({
       stroke: Array.isArray(stroke) ? stroke[i] : stroke,
       strokeWidth,
       opacity,
+      fillOpacity,
+      strokeOpacity,
       source: source.length > i ? source[i] : null,
     }
   })
@@ -34,9 +38,11 @@ export default function drawPolygon({
     .attr('class', d => d.className)
     .attr('points', d => d.points)
     .attr('fill', d => d.fill)
-    .attr('opacity', d => d.opacity)
     .attr('stroke', d => d.stroke)
     .attr('stroke-width', d => d.strokeWidth)
+    .attr('opacity', d => d.opacity)
+    .attr('fill-opacity', d => d.fillOpacity)
+    .attr('stroke-opacity', d => d.strokeOpacity)
     
   return polygons
 }

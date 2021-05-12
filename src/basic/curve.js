@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 
 // v4基础函数——画path
 export default function drawCurve({
-  stroke = [],
+  stroke = 'rgba(255,255,255,0)',
   strokeWidth = 1,
   opacity = 1,
   enableUpdateAnimation = true,

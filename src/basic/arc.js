@@ -6,6 +6,8 @@ export default function drawArc({
   stroke = 'rgba(255,255,255,0)',
   strokeWidth = 0,
   opacity = 1,
+  fillOpacity = 1,
+  strokeOpacity = 1,
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -23,6 +25,8 @@ export default function drawArc({
     return {
       className,
       opacity,
+      fillOpacity,
+      strokeOpacity,
       fill: Array.isArray(fill) ? fill[i] : fill,
       stroke: Array.isArray(stroke) ? stroke[i] : stroke,
       strokeWidth,
@@ -40,6 +44,8 @@ export default function drawArc({
     .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
     .attr('class', d => d.className)
     .attr('opacity', d => d.opacity)
+    .attr('fill-opacity', d => d.fillOpacity)
+    .attr('stroke-opacity', d => d.strokeOpacity)
     .attr('fill', d => d.fill)
     .attr('stroke', d => d.stroke)
     .attr('stroke-width', d => d.strokeWidth)

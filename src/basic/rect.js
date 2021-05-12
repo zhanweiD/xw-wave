@@ -4,6 +4,8 @@ export default function drawText({
   stroke = 'rgba(255,255,255,0)', // 可以是数组定义渐变色
   strokeWidth = 0,
   opacity = 1,
+  fillOpacity = 1,
+  strokeOpacity = 1,
   rectAnchor = 'left-top', // 元素锚点 ['left-top', 'left-bottom', 'right-top', 'right-bottom', 'middle]
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
@@ -25,6 +27,8 @@ export default function drawText({
       width,
       height,
       opacity,
+      fillOpacity,
+      strokeOpacity,
       fill: Array.isArray(fill) ? fill[i] : fill,
       stroke: Array.isArray(stroke) ? stroke[i] : stroke,
       strokeWidth,
@@ -43,10 +47,11 @@ export default function drawText({
     .attr('y', d => d.y)
     .attr('width', d => d.width)
     .attr('height', d => d.height)
-    .attr('opacity', d => d.opacity)
     .attr('fill', d => d.fill)
     .attr('stroke', d => d.stroke)
     .attr('stroke-width', d => d.strokeWidth)
+    .attr('fill-opacity', d => d.fillOpacity)
+    .attr('stroke-opacity', d => d.strokeOpacity)
 
   return rects
 }

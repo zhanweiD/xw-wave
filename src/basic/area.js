@@ -1,10 +1,12 @@
 import * as d3 from 'd3'
 
 export default function drawArea({
-  fill = [],
-  stroke = [],
+  fill = 'rgba(255,255,255,1)',
+  stroke = 'rgba(255,255,255,0)',
   strokeWidth = 1,
   opacity = 1,
+  fillOpacity = 1,
+  strokeOpacity = 1,
   enableUpdateAnimation = true,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -19,11 +21,13 @@ export default function drawArea({
   curve && areaGenerator.curve(d3.curveMonotoneX)
   
   const configuredData = position.map((data, i) => ({
+    className,
+    opacity,
+    fillOpacity,
+    strokeOpacity,
     fill: Array.isArray(fill) ? fill[i] : fill,
     stroke: Array.isArray(stroke) ? stroke[i] : stroke,
     strokeWidth,
-    className,
-    opacity,
     d: areaGenerator(data),
     source: source.length > i ? source[i] : null,
   }))
@@ -40,4 +44,6 @@ export default function drawArea({
     .attr('d', d => d.d)
     .attr('fill', d => d.fill)
     .attr('opacity', d => d.opacity)
+    .attr('fill-opacity', d => d.fillOpacity)
+    .attr('stroke-opacity', d => d.strokeOpacity)
 }
