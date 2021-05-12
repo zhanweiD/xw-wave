@@ -189,10 +189,9 @@ export default class Wave {
   }
 
   // 重绘制所有图层
-  draw() {
-    this.#layer.forEach(layer => layer.data())
-    this.#layer.forEach(layer => layer.scale())
-    this.#layer.forEach(layer => layer.style())
+  draw({redraw = false}) {
+    redraw && this.#layer.forEach(layer => layer.instance.setData())
+    redraw && this.#layer.forEach(layer => layer.instance.setStyle())
     this.#layer.forEach(layer => layer.draw())
   }
 
@@ -208,7 +207,7 @@ export default class Wave {
 
   // 销毁所有图层
   destroy() {
-    this.#layer.forEach(layer => layer.destroy())
+    this.#layer.forEach(layer => layer.instance.destroy())
     this.#state = stateMapping.DESTROY
   }
 }

@@ -74,7 +74,7 @@ export default class RectLayer extends LayerBase {
       scaleColor: new Scale({
         type: 'ordinal',
         domain: d3.range(0, max - min, 1),
-        range: getColor(max - min),
+        range: getColor(max - min + 1),
       }),
     }
     // 计算基础数据
