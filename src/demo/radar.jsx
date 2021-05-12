@@ -104,7 +104,6 @@ const updateWave = ({wave, data, type, mode}) => {
     },
     polygon: {
       enableUpdateAnimation: true,
-      opacity: 0.5,
     },
     text: {
       fontSize: 10,

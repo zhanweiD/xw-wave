@@ -12,7 +12,11 @@ const modeType = {
 
 // 默认样式
 const defaultStyle = {
-  polygon: {},
+  pointSize: 4,
+  polygon: {
+    strokeWidth: 2,
+    fillOpacity: 0.4,
+  },
   text: {},
 }
 
@@ -139,7 +143,7 @@ export default class RectLayer extends LayerBase {
   draw() {
     const polygonData = this.#polygonData[0].map(({color}, index) => {
       const data = this.#polygonData.map(item => [item[index].x, item[index].y])
-      return {data: [data], fill: color, ...this.#style.polygon}
+      return {data: [data], fill: color, stroke: color, ...this.#style.polygon}
     })
     const pointData = this.#pointData.map(groupData => {
       const data = groupData.map(({rx, ry}) => [rx, ry])
