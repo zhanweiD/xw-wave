@@ -1,7 +1,7 @@
 import LayerBase from './base'
 import Scale from '../data/scale'
 import TableList from '../data/table-list'
-import getTextWidth from '../util/text-wdith'
+import getTextWidth from '../util/text-width'
 
 // 映射的图表类型
 const waveType = {
@@ -144,7 +144,7 @@ export default class RectLayer extends LayerBase {
     const {fontSize = 12} = this.#style.text
     const headers = this.#data.data.map(({header}) => header)
     const tableList = this.#data.transpose(this.#data.data.map(({list}) => list))
-    const circleCenter = {x: left + width / 2, y: top + height / 2}
+    const arcCenter = {x: left + width / 2, y: top + height / 2}
     // 根据内半径重制半径比例尺值域
     if (type === waveType.NIGHTINGALEROSE) {
       scaleRadius.range([innerRadius, scaleRadius.range()[1]])
@@ -157,8 +157,8 @@ export default class RectLayer extends LayerBase {
         category: headers[i + 1],
         innerRadius,
         outerRadius: scaleRadius(value),
-        ...circleCenter,
         ...scaleAngle(dimension),
+        ...arcCenter,
       }))
     })
     // 堆叠的夜莺玫瑰图

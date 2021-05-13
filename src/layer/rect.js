@@ -1,5 +1,5 @@
 import LayerBase from './base'
-import getTextWidth from '../util/text-wdith'
+import getTextWidth from '../util/text-width'
 import Scale from '../data/scale'
 
 // 映射的图表类型

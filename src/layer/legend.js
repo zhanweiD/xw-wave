@@ -1,6 +1,6 @@
 import {sum, max} from 'd3'
 import LayerBase from './base'
-import getTextWidth from '../util/text-wdith'
+import getTextWidth from '../util/text-width'
 
 // 对齐方式
 const alignType = {

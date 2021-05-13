@@ -1,6 +1,6 @@
 import LayerBase from './base'
 import Scale from '../data/scale'
-import getTextWidth from '../util/text-wdith'
+import getTextWidth from '../util/text-width'
 
 // 元素组合方式
 const modeType = {

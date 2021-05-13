@@ -7,6 +7,7 @@ import Pie from './pie'
 import Radar from './radar'
 import Scatter from './scatter'
 import Matrix from './matrix'
+import Gauge from './gauge'
 import s from './demo.module.css'
 
 const themeMapping = {
@@ -25,6 +26,7 @@ const chartMapping = {
   radar: '雷达图',
   scatter: '点图',
   matrix: '矩阵图',
+  gauge: '仪表盘',
 }
 
 const getTableListData = () => {
@@ -73,9 +75,17 @@ const getTableData = () => {
   return finalData
 }
 
+const getGaugeData = () => {
+  return {
+    value: Math.floor(Math.random() * 100),
+    label: '仪表盘',
+    fragments: [[0, 30, '低'], [30, 60, '中'], [60, 100, '高']],
+  }
+}
+
 export default function Demo() {
   const [theme, setTheme] = useState('duskUniverse')
-  const [chart, setChart] = useState('matrix')
+  const [chart, setChart] = useState('gauge')
   const [data, setData] = useState(getTableListData())
   const autoSwitchDataTime = 10000
   const containerStyle = {
@@ -125,6 +135,7 @@ export default function Demo() {
         {chart === 'radar' && <Radar data={data} theme={theme} />}
         {chart === 'scatter' && <Scatter data={data} theme={theme} />}
         {chart === 'matrix' && <Matrix data={getTableData()} theme={theme} />}
+        {chart === 'gauge' && <Gauge data={getGaugeData()} theme={theme} />}
       </div>
     </div>
   )

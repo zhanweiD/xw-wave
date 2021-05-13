@@ -9,6 +9,17 @@ import drawArea from '../basic/area'
 import createEvent from '../util/create-event'
 import AnimationQueue from '../animation/animation'
 import Tooltip, {globalTooltip} from './tooltip'
+import formatText from '../util/format-text'
+import getTextWidth from '../util/text-width'
+
+// 文字基于坐标的方向
+const positionType = {
+  CENTER: 'center',
+  TOP: 'top',
+  RIGHT: 'right',
+  BOTTOM: 'bottom',
+  LEFT: 'left',
+}
 
 // 基础元素绘制函数映射
 const basicMapping = {
@@ -48,6 +59,7 @@ export default class LayerBase {
     this.tooltip = null
     this.className = null
     this.#createEvent()
+    this.warn = this.options.warn
     this.event = createEvent(__filename)
     elementTypes.forEach(name => this.backupData[name] = [])
   }
@@ -78,8 +90,33 @@ export default class LayerBase {
     return layerStyle
   }
 
+  // 返回统一处理后的标签数据
+  createText({x, y, value, fontSize = 12, format = null, position = positionType.CENTER, offset = 0}) {
+    let [positionX, positionY] = [x, y]
+    const formattedText = format ? formatText(value, format) : value
+    const textWidth = getTextWidth(formattedText, fontSize)
+    if (position === positionType.CENTER) {
+      positionX -= textWidth / 2
+      positionY += fontSize / 2
+    } else if (position === positionType.LEFT) {
+      positionX -= textWidth + offset
+      positionY += fontSize / 2
+    } else if (position === positionType.RIGHT) {
+      positionX += offset
+      positionY += fontSize / 2
+    } else if (position === positionType.TOP) {
+      positionX -= textWidth / 2
+      positionY += offset
+    } else if (position === positionType.BOTTOM) {
+      positionX -= textWidth / 2
+      positionY += fontSize + offset
+    }
+    return {x: positionX, y: positionY, value: formattedText}
+  }
+
   // 初始化基础事件
   #createEvent = () => {
+    // tooltip 事件
     this.backupEvent = {
       common: {},
       tooltip: {
@@ -90,6 +127,7 @@ export default class LayerBase {
         mousemove: event => this.tooltip.move(event),
       },
     }
+    // 基础鼠标事件
     commonEvents.forEach(eventType => {
       this.backupEvent.common[eventType] = {}
       const events = this.backupEvent.common[eventType]

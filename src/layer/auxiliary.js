@@ -1,5 +1,5 @@
 import LayerBase from './base'
-import getTextWidth from '../util/text-wdith'
+import getTextWidth from '../util/text-width'
 
 // 辅助线方向
 const modeType = {

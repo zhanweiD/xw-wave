@@ -1,5 +1,3 @@
-import * as d3 from 'd3'
-
 // 文字方向映射
 const directionMapping = {
   horizontal: 'horizontal-tb',
@@ -17,7 +15,6 @@ export default function drawText({
   rotation = 0,
   direction = 'horizontal', // 文字方向 enumeration ['horizontal', 'vertical']
   textAnchor = 'start', // 文字锚点 enumeration ['start', 'middle', 'end']
-  format = 'plainText', // 文字格式，传入数组可自定义格式 ['number', numberOptions]
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -29,7 +26,7 @@ export default function drawText({
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((text, i) => {
     return {
-      text: formatText(text, format),
+      text,
       className,
       x: position[i][0],
       y: position[i][1] - fontSize * 0.2, // 这个数字为黑体的高度差
@@ -66,21 +63,4 @@ export default function drawText({
     .style('text-shadow', d => d.textShadow)
 
   return texts
-}
-
-// 格式化文本，对于数字型文本，千分位、百分比、保留小数位等设置会有影响
-const formatText = (text, format) => {
-  const type = Array.isArray(format) ? format[0] : format
-  const options = Array.isArray(format) ? format[1] : {}
-  const {
-    isPercentage = false, // 百分比数字
-    isThousandth = false, // 千分位数字
-    decimalPlace = 8, // 保留小数位
-  } = options
-
-  if (type === 'number') {
-    return d3.format(`${isThousandth ? ',' : ''}.${decimalPlace}~${isPercentage ? '%' : 'f'}`)(text)
-  }
-
-  return String(text)
 }

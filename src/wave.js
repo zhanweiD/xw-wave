@@ -14,7 +14,8 @@ import RadarLayer from './layer/radar'
 import createUuid from './util/uuid'
 import AuxiliaryLayer from './layer/auxiliary'
 import ScatterLayer from './layer/scatter'
-import Matrix from './layer/matrix'
+import MatrixLayer from './layer/matrix'
+import GaugeLayer from './layer/gauge'
 
 // 图表状态
 const stateMapping = {
@@ -35,7 +36,8 @@ const LayerMapping = {
   line: LineLayer, // 折线
   auxiliary: AuxiliaryLayer, // 辅助直线
   scatter: ScatterLayer, // 辅助直线
-  matrix: Matrix, // 矩阵
+  matrix: MatrixLayer, // 矩阵
+  gauge: GaugeLayer, // 仪表盘
 }
 
 // 图表类主要用于管理图层
@@ -175,6 +177,7 @@ export default class Wave {
       container: this.#container,
       baseFontSize: this.baseFontSize,
       getColor: this.getColor.bind(this),
+      warn: this.warn.bind(this),
     }
     // 根据类型创建图层
     const layer = new LayerMapping[type](options, context)
@@ -199,10 +202,10 @@ export default class Wave {
    * 图表报错生命周期
    * @param {String} text 报错信息
    */
-  warn({text}) {
+  warn({text, data}) {
     this.#state = stateMapping.WARN
     this.#root.html('')
-    console.error(text)
+    console.error(text, data)
   }
 
   // 销毁所有图层
