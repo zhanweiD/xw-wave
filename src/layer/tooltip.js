@@ -45,12 +45,14 @@ export default class Tooltip {
       .style('height', '1000px')
   }
 
+  // 显示
   show() {
     this.isVisible = true
     this.instance.style('display', 'block')
     return this
   }
 
+  // 隐藏
   hide() {
     this.isVisible = false
     this.instance.style('display', 'none')
@@ -59,16 +61,7 @@ export default class Tooltip {
 
   // 更新数据
   update(list, options = {}) {
-    const {
-      padding,
-      titleSize,
-      titleColor,
-      pointSize,
-      labelSize,
-      labelColor,
-      valueSize,
-      valueColor,
-      gap,
+    const {padding, titleSize, titleColor, pointSize, labelSize, labelColor, valueSize, valueColor, gap,
     } = {...defaultOptions, ...options}
     // 转换配置数据
     const data = list.map(({fill, stroke, source}) => ({pointColor: fill || stroke, ...source}))

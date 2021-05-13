@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import LayerBase from './base'
-import getTextWidth from '../util/text-width'
 import Scale from '../data/scale'
 
 // 映射的图表类型
@@ -116,12 +115,11 @@ export default class MatrixLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {mode = modeType.RECT} = this.options
-    const {fontSize = 12} = this.#style.text
+    const {fontSize = 12, format} = this.#style.text
     // 标签文字数据
-    this.#textData.forEach(groupData => groupData.forEach(item => {
-      item.x -= getTextWidth(item.value, fontSize) / 2
-      item.y += fontSize / 2
-    }))
+    this.#textData = this.#textData.map(groupData => groupData.map(item => this.createText({
+      ...item, format, fontSize, position: 'center',
+    })))
     // 圆形的大小随数值大小变化
     if (mode === modeType.CIRCLE) {
       const {circleSizeRange} = this.#style

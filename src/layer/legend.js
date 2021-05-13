@@ -1,6 +1,7 @@
 import {sum, max} from 'd3'
 import LayerBase from './base'
 import getTextWidth from '../util/text-width'
+import formatText from '../util/format-text'
 
 // 对齐方式
 const alignType = {
@@ -66,13 +67,15 @@ export default class LegendLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {align, verticalAlign, direction, pointSize} = this.#style
     const {left, top, width, height} = this.options.layout
-    const {fontSize = 12} = this.#style.text
+    const {fontSize = 12, format} = this.#style.text
     const [inner, outer] = this.#style.gap
     const maxHeight = max([pointSize, fontSize])
+    // 格式化图例数据
+    const data = format ? this.#data.map(value => formatText(value, format)) : this.#data
     // 确定圆的数据
     if (direction === directionType.HORIZONTAL) {
-      this.#circleData = this.#data.map((text, i) => {
-        const textWidth = sum(this.#data.slice(0, i).map(v => getTextWidth(v, fontSize)))
+      this.#circleData = data.map((item, i) => {
+        const textWidth = sum(data.slice(0, i).map(value => getTextWidth(value, fontSize)))
         return {
           cx: left + pointSize / 2 + (i ? (inner + outer + pointSize) * i + textWidth : 0),
           cy: top + maxHeight / 2,
@@ -81,7 +84,7 @@ export default class LegendLayer extends LayerBase {
         }
       })
     } else if (direction === directionType.VERTICAL) {
-      this.#circleData = this.#data.map((text, i) => ({
+      this.#circleData = data.map((item, i) => ({
         cx: left + pointSize / 2,
         cy: top + maxHeight / 2 + (i ? (outer + fontSize + pointSize) * i : 0),
         rx: pointSize / 2,
@@ -90,19 +93,19 @@ export default class LegendLayer extends LayerBase {
     }
     // 根据圆的数据确定文字的数据
     this.#textData = this.#circleData.map(({cx, cy}, i) => ({
-      text: this.#data[i],
+      value: data[i],
       x: cx + pointSize / 2 + inner,
       y: cy + fontSize / 2,
     }))
     // 最后根据 align 整体移动，默认都是 start
     let [totalWidth, totalHeight] = [0, 0]
     if (direction === directionType.HORIZONTAL) {
-      const {x, text} = this.#textData[this.#textData.length - 1]
-      totalWidth = x - left + getTextWidth(text, fontSize)
+      const {x, value} = this.#textData[this.#textData.length - 1]
+      totalWidth = x - left + getTextWidth(value, fontSize)
       totalHeight = maxHeight
     } else if (direction === directionType.VERTICAL) {
       const {y} = this.#textData[this.#textData.length - 1]
-      totalWidth = pointSize + inner + max(this.#data.map(text => getTextWidth(text, fontSize)))
+      totalWidth = pointSize + inner + max(data.map(value => getTextWidth(value, fontSize)))
       totalHeight = y - top + maxHeight
     }
     const [offsetX, offsetY] = [width - totalWidth, height - totalHeight]
@@ -113,8 +116,8 @@ export default class LegendLayer extends LayerBase {
       cx: cx + (isHorizontalMiddle ? offsetX / 2 : isHorizontalEnd ? offsetX : 0),
       cy: cy + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0), 
     }))
-    this.#textData = this.#textData.map(({x, y, text}) => ({
-      text,
+    this.#textData = this.#textData.map(({x, y, value}) => ({
+      value,
       x: x + (isHorizontalMiddle ? offsetX / 2 : isHorizontalEnd ? offsetX : 0),
       y: y + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0),
     }))
@@ -127,8 +130,8 @@ export default class LegendLayer extends LayerBase {
       fill: this.#colors[i],
       ...this.#style.circle,
     }))
-    const textData = this.#textData.map(({text, x, y}) => ({
-      data: [text],
+    const textData = this.#textData.map(({value, x, y}) => ({
+      data: [value],
       position: [[x, y]],
       ...this.#style.text,
     }))

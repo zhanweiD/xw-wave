@@ -1,7 +1,6 @@
 import LayerBase from './base'
 import Scale from '../data/scale'
 import TableList from '../data/table-list'
-import getTextWidth from '../util/text-width'
 
 // 映射的图表类型
 const waveType = {
@@ -17,7 +16,7 @@ const modeType = {
   STACK: 'stack',
 }
 
-// 标签是显示在矩形外部还是矩形内部
+// 数值标签位置
 const labelPositionType = {
   INNER: 'inner',
   OUTER: 'outer',
@@ -113,23 +112,21 @@ export default class RectLayer extends LayerBase {
   }
 
   // 获取标签坐标
-  #getLabelData = ({value, x, y, innerRadius, outerRadius, startAngle, endAngle, fontSize, labelPosition}) => {
+  #getLabelData = ({value, x, y, innerRadius, outerRadius, startAngle, endAngle, fontSize, labelPosition, format}) => {
     let result = null
     if (labelPosition === labelPositionType.INNER) {
       // 计算圆弧中心点，svg 是从 90 度开始顺时针画的，需要匹配 Math 的计算逻辑
       const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, (innerRadius + outerRadius) / 2]
       const [centerX, centerY] = [x + Math.sin(angle) * r, y - Math.cos(angle) * r]
       // 基于中心点计算文字坐标
-      const [labelX, labelY] = [centerX - getTextWidth(value, fontSize) / 2, centerY]
-      result = {value, x: labelX, y: labelY}
+      result = this.createText({x: centerX, y: centerY, value, fontSize, format})
     } else if (labelPosition === labelPositionType.OUTER) {
       // 计算文字相对坐标
       const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, outerRadius + 5]
       const [relativeX, relativeY] = [x + Math.sin(angle) * r, y - Math.cos(angle) * r]
-      const isRight = Math.abs(angle % (2 * Math.PI)) < Math.PI
+      const position = Math.abs(angle % (2 * Math.PI)) < Math.PI ? 'right' : 'left'
       // 基于相对点计算文字坐标
-      const [labelX, labelY] = [relativeX - getTextWidth(value, fontSize) * (isRight ? 0 : 1), relativeY]
-      result = {value, x: labelX, y: labelY}
+      result = this.createText({x: relativeX, y: relativeY, value, fontSize, format, position})
     }
     return result
   }
@@ -141,7 +138,7 @@ export default class RectLayer extends LayerBase {
     const {left, top, width, height} = layout
     const {scaleAngle, scaleRadius} = this.#scale
     const {innerRadius = 0, labelPosition = labelPositionType.INNER} = this.#style
-    const {fontSize = 12} = this.#style.text
+    const {fontSize = 12, format} = this.#style.text
     const headers = this.#data.data.map(({header}) => header)
     const tableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const arcCenter = {x: left + width / 2, y: top + height / 2}
@@ -184,7 +181,7 @@ export default class RectLayer extends LayerBase {
     // 标签文字数据
     this.#textData = this.#arcData.map(groupData => {
       return groupData.map(data => ({
-        ...this.#getLabelData({...data, labelPosition, fontSize}),
+        ...this.#getLabelData({...data, labelPosition, fontSize, format}),
       }))
     })
   }

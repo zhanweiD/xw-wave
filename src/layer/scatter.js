@@ -1,5 +1,4 @@
 import LayerBase from './base'
-import getTextWidth from '../util/text-width'
 import Scale from '../data/scale'
 
 // 默认样式
@@ -81,7 +80,7 @@ export default class ScatterLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {getColor} = this.options
     const {circleSizeRange} = this.#style
-    const {fontSize = 12} = this.#style.text
+    const {fontSize = 12, format} = this.#style.text
     const scaleSize = new Scale({
       type: 'linear',
       domain: this.#data.data.length >= 4 ? this.#data.select(this.#data.data[3].header).range() : [],
@@ -101,11 +100,9 @@ export default class ScatterLayer extends LayerBase {
       }))
     })
     // 标签文字数据
-    this.#textData = this.#circleData.map(groupData => groupData.map(({cx, cy, value}) => ({
-      x: cx - getTextWidth(value, fontSize) / 2,
-      y: cy + fontSize / 2,
-      value: value || '',
-    })))
+    this.#textData = this.#circleData.map(groupData => groupData.map(({cx, cy, value}) => {
+      return this.createText({x: cx, y: cy, value, fontSize, format, position: 'center'})
+    }))
   }
 
   // 绘制

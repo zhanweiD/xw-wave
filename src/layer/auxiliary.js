@@ -1,5 +1,4 @@
 import LayerBase from './base'
-import getTextWidth from '../util/text-width'
 
 // 辅助线方向
 const modeType = {
@@ -74,7 +73,7 @@ export default class AuxiliaryLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {labelPosition = labelPositionType.RIGHT, labelOffset = 5} = this.#style
-    const {fontSize = 12} = this.#style.text
+    const {fontSize = 12, format} = this.#style.text
     const [isTop, isBottom, isLeft, isRight] = [
       labelPosition === labelPositionType.TOP,
       labelPosition === labelPositionType.BOTTOM,
@@ -82,14 +81,15 @@ export default class AuxiliaryLayer extends LayerBase {
       labelPosition === labelPositionType.RIGHT,
     ]
     // 标签文字数据
-    this.#textData = this.#lineData.map(({value, x1, y1, x2, y2}) => {
-      const labelWidth = getTextWidth(value, fontSize)
-      return {
-        value,
-        x: isLeft ? x1 - labelWidth - labelOffset : isRight ? x2 + labelOffset : (x1 + x2 - labelWidth) / 2,
-        y: isTop ? y1 - labelOffset : isBottom ? y2 + fontSize + labelOffset : (y1 + y2 + fontSize) / 2,
-      }
-    })
+    this.#textData = this.#lineData.map(({value, x1, y1, x2, y2}) => this.createText({
+      x: isLeft ? x1 : isRight ? x2 : (x1 + x2) / 2, 
+      y: isTop ? y1 : isBottom ? y2 : (y1 + y2) / 2,
+      value, 
+      fontSize,
+      format,
+      position: labelPosition,
+      offset: labelOffset,
+    }))
   }
 
   // 绘制

@@ -1,5 +1,4 @@
 import LayerBase from './base'
-import getTextWidth from '../util/text-width'
 import Scale from '../data/scale'
 
 // 映射的图表类型
@@ -174,42 +173,35 @@ export default class RectLayer extends LayerBase {
   }
 
   // 获取标签坐标
-  #getLabelData = ({x, y, width, height, value, fontSize, labelPosition, labelOffset}) => {
+  #getLabelData = ({x, y, width, height, value, labelPosition}) => {
+    const {labelOffset = 5} = this.#style
+    const {fontSize = 12, format} = this.#style.text
     // 计算标签的水平位置
-    let positionX
-    if (labelPosition === labelPositionType.LEFTOUTER) {
-      positionX = x - getTextWidth(value, fontSize) - labelOffset
-    } else if (labelPosition === labelPositionType.LEFTINNER) {
-      positionX = x + labelOffset
-    } else if (labelPosition === labelPositionType.RIGHTINNER) {
-      positionX = x + width - getTextWidth(value, fontSize) - labelOffset
-    } else if (labelPosition === labelPositionType.RIGHTOUTER) {
-      positionX = x + width + labelOffset
-    } else {
-      positionX = x + (width - getTextWidth(value, fontSize)) / 2
+    let [position, positionX, positionY] = ['default', null, null]
+    if (labelPosition === labelPositionType.LEFTOUTER || labelPosition === labelPositionType.LEFTINNER) {
+      [positionX, positionY] = [x, y + height / 2]
+      position = labelPosition === labelPositionType.LEFTOUTER ? 'left' : 'right'
+    } else if (labelPosition === labelPositionType.RIGHTOUTER || labelPosition === labelPositionType.RIGHTINNER) {
+      [positionX, positionY] = [x + width, y + height / 2]
+      position = labelPosition === labelPositionType.RIGHTOUTER ? 'right' : 'left'
+    } else if (labelPosition === labelPositionType.TOPOUTER || labelPosition === labelPositionType.TOPINNER) {
+      [positionX, positionY] = [x + width / 2, y]
+      position = labelPosition === labelPositionType.TOPOUTER ? 'top' : 'bottom'
+    } else if (labelPosition === labelPositionType.BOTTOMOUTER || labelPosition === labelPositionType.BOTTOMINNER) {
+      [positionX, positionY] = [x + width / 2, y + height]
+      position = labelPosition === labelPositionType.BOTTOMOUTER ? 'bottom' : 'top'
+    } else if (labelPosition === labelPositionType.CENTER) {
+      [positionX, positionY] = [x + width / 2, y + height / 2]
+      position = 'center'
     }
-    // 计算标签的垂直位置
-    let positionY
-    if (labelPosition === labelPositionType.TOPOUTER) {
-      positionY = y - labelOffset
-    } else if (labelPosition === labelPositionType.TOPINNER) {
-      positionY = y + fontSize
-    } else if (labelPosition === labelPositionType.BOTTOMINNER) {
-      positionY = y + height - labelOffset
-    } else if (labelPosition === labelPositionType.BOTTOMOUTER) {
-      positionY = y + height + fontSize + labelOffset
-    } else {
-      positionY = y + (height / 2) + fontSize / 2
-    }
-    return {x: positionX, y: positionY, value}
+    return this.createText({x: positionX, y: positionY, value, fontSize, format, position, offset: labelOffset})
   }
 
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
+    const {labelPosition} = this.#style
     const {getColor} = this.options
-    const {labelPosition, labelOffset = 5} = this.#style
-    const {fontSize = 12} = this.#style.text
     // 颜色跟随主题
     if (this.#rectData[0]?.length > 1) {
       const colors = getColor(this.#rectData[0].length)
@@ -224,16 +216,15 @@ export default class RectLayer extends LayerBase {
       const labelPositionMin = Array.isArray(labelPosition) ? labelPosition[0] : labelPosition
       const labelPositionMax = Array.isArray(labelPosition) ? labelPosition[1] : labelPosition
       groupData.forEach(({value, ...data}) => {
+        // value 为数值，对应一个标签
+        !Array.isArray(value) && result.push(
+          this.#getLabelData({...data, value, labelPosition: labelPositionMax})
+        )
         // value 为区间，对应两个标签
-        if (Array.isArray(value)) {
-          const [min, max] = value
-          result.push(
-            this.#getLabelData({...data, value: min, fontSize, labelPosition: labelPositionMin, labelOffset}),
-            this.#getLabelData({...data, value: max, fontSize, labelPosition: labelPositionMax, labelOffset}),
-          )
-        } else {
-          result.push(this.#getLabelData({...data, value, fontSize, labelPosition: labelPositionMax, labelOffset}))
-        }
+        Array.isArray(value) && result.push(
+          this.#getLabelData({...data, value: value[0], labelPosition: labelPositionMin}),
+          this.#getLabelData({...data, value: value[1], labelPosition: labelPositionMax}),
+        )
       })
       return result
     })

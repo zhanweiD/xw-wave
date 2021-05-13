@@ -14,6 +14,7 @@ import getTextWidth from '../util/text-width'
 
 // 文字基于坐标的方向
 const positionType = {
+  DEFAULT: 'default',
   CENTER: 'center',
   TOP: 'top',
   RIGHT: 'right',
@@ -91,7 +92,7 @@ export default class LayerBase {
   }
 
   // 返回统一处理后的标签数据
-  createText({x, y, value, fontSize = 12, format = null, position = positionType.CENTER, offset = 0}) {
+  createText({x, y, value, fontSize = 12, format = null, position = positionType.DEFAULT, offset = 0}) {
     let [positionX, positionY] = [x, y]
     const formattedText = format ? formatText(value, format) : value
     const textWidth = getTextWidth(formattedText, fontSize)
@@ -106,7 +107,7 @@ export default class LayerBase {
       positionY += fontSize / 2
     } else if (position === positionType.TOP) {
       positionX -= textWidth / 2
-      positionY += offset
+      positionY -= offset
     } else if (position === positionType.BOTTOM) {
       positionX -= textWidth / 2
       positionY += fontSize + offset
