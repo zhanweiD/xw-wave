@@ -87,6 +87,8 @@ export default class LayerBase {
     // 统一缩放字号
     if (layerStyle?.text?.fontSize) {
       layerStyle.text.fontSize *= this.options.baseFontSize
+    } else {
+      layerStyle.text.fontSize = this.options.baseFontSize * 12
     }
     return layerStyle
   }

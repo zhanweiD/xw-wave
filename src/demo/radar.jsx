@@ -106,6 +106,7 @@ const updateWave = ({wave, data, type, mode}) => {
       enableUpdateAnimation: true,
     },
     text: {
+      hide: true,
       fontSize: 10,
       enableUpdateAnimation: true,
     },

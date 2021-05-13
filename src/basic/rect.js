@@ -6,7 +6,8 @@ export default function drawText({
   opacity = 1,
   fillOpacity = 1,
   strokeOpacity = 1,
-  rectAnchor = 'left-top', // 元素锚点 ['left-top', 'left-bottom', 'right-top', 'right-bottom', 'middle]
+  rotate = 0, // 旋转
+  transformOrigin = null, // 影响动画和旋转
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -19,7 +20,7 @@ export default function drawText({
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((size, i) => {
     const [width, height] = size
-    const realPositon = computePosition(size, position[i], rectAnchor)
+    const realPositon = position[i]
     return {
       className,
       x: realPositon[0],
@@ -33,6 +34,7 @@ export default function drawText({
       stroke: Array.isArray(stroke) ? stroke[i] : stroke,
       strokeWidth,
       source: source.length > i ? source[i] : null,
+      rotate,
     }
   })
 
@@ -52,26 +54,8 @@ export default function drawText({
     .attr('stroke-width', d => d.strokeWidth)
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
+    .attr('transform', d => `rotate(${d.rotate})`)
+    .attr('transform-origin', () => transformOrigin && `${transformOrigin[0]} ${transformOrigin[1]}`)
 
   return rects
-}
-
-const computePosition = (size, position, rectAnchor) => {
-  const [width, height] = size
-  const [x, y] = position
-  let result = [x, y]
-
-  if (rectAnchor === 'middle') {
-    result = [x - width / 2, y - width / 2]
-  } else if (rectAnchor === 'left-top') {
-    result = [x, y]
-  } else if (rectAnchor === 'left-bottom') {
-    result = [x, y - height]
-  } else if (rectAnchor === 'right-top') {
-    result = [x - width, y]
-  } else if (rectAnchor === 'right-bottom') {
-    result = [x - width, y - height]
-  }
-
-  return result
 }

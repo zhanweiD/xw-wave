@@ -53,6 +53,14 @@ const updateWave = ({wave, data, type}) => {
   const gaugeLayer = gaugeIndex !== -1 ? wave.layer[gaugeIndex].instance : wave.createLayer('gauge', {id: 'gaugeLayer', type, layout: wave.layout.main})
   gaugeLayer.setData(data)
   gaugeLayer.setStyle({
+    offset: 15,
+    rect: {
+      fontSize: 12,
+      enableUpdateAnimation: true,
+    },
+    valueText: {
+      fontSize: 14,
+    },
   })
   gaugeLayer.draw()
 }
