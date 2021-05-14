@@ -3,38 +3,30 @@ import Wave from '../wave'
 import s from './demo.module.css'
 
 const titleMapping = {
-  gauge1: '分组图',
-  gauge2: '堆叠图',
+  gauge: '普通仪表盘',
 }
 
-let gauge1Wave
-let gauge2Wave
+let gaugeWave
 
 export default function Column({data = [[]], type = 'column', theme}) {
-  const gauge1Ref = useRef(null)
-  const gauge2Ref = useRef(null)
+  const gaugeRef = useRef(null)
  
   useEffect(() => {
-    gauge1Wave = new Wave({container: gauge1Ref.current, theme})
-    gauge2Wave = new Wave({container: gauge2Ref.current, theme})
+    gaugeWave = new Wave({container: gaugeRef.current, theme})
   }, [theme, window.innerHeight, window.innerWidth])
 
   useEffect(() => {
-    updateWave({wave: gauge1Wave, type: 'gauge1', data})
-    updateWave({wave: gauge2Wave, type: 'gauge2', data})
+    updateWave({wave: gaugeWave, type: 'gauge', data})
   }, [data, type, theme])
   
   return (
     <div className="fbh fb1 fbw">
-      <div className={s.wave} ref={gauge1Ref} />
-      <div className={s.wave} ref={gauge2Ref} />
+      <div className={s.wave} ref={gaugeRef} />
     </div>
   )
 }
 
-// 分组柱状图
 const updateWave = ({wave, data, type}) => {
-  // 标题图层
   // 标题图层
   const titleIndex = wave.layer.findIndex(item => item.id === 'titleLayer')
   // titleIndex !== -1 && wave.layer[titleIndex].instance.destroy()

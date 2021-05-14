@@ -199,7 +199,7 @@ const updateWave = ({wave, data, type, mode}) => {
   const auxiliaryIndex = wave.layer.findIndex(item => item.id === 'auxiliaryLayer')
   // auxiliaryIndex !== -1 && wave.layer[auxiliaryIndex].instance.destroy()
   const auxiliary = auxiliaryIndex !== -1 ? wave.layer[auxiliaryIndex].instance : wave.createLayer('auxiliary', {
-    id: 'auxiliaryLayer', layout: wave.layout.main, mode: type === 'bar' ? 'vertical' : 'horizontal',
+    id: 'auxiliaryLayer', layout: wave.layout.main, direction: type === 'bar' ? 'vertical' : 'horizontal',
   })
   const auxiliaryScale = new Scale({...rectLayer.scale.scaleY, nice: null})
   type === 'bar' && auxiliaryScale.range(auxiliaryScale.range().reverse())

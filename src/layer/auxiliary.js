@@ -1,7 +1,7 @@
 import LayerBase from './base'
 
 // 辅助线方向
-const modeType = {
+const directionType = {
   HORIZONTAL: 'horizontal',
   VERTICAL: 'vertical',
 }
@@ -49,23 +49,23 @@ export default class AuxiliaryLayer extends LayerBase {
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
-    const {mode = modeType.HORIZONTAL} = this.options
-    this.className = `wave-${mode}-auxiliary-line`
+    const {direction = directionType.HORIZONTAL} = this.options
+    this.className = `wave-${direction}-auxiliary-line`
   }
 
   // 传入数据数组和比例尺，辅助线需要外部的比例尺
   setData(data, scale) {
     this.#data = data || this.#data
     this.#scale = scale || this.#scale
-    const {mode = modeType.HORIZONTAL, layout} = this.options
+    const {direction = directionType.HORIZONTAL, layout} = this.options
     const {left, top, width, height} = layout
     // 根据比例尺计算原始坐标
     this.#lineData = this.#data.map(value => ({
       value,
-      x1: left + (mode === modeType.HORIZONTAL ? 0 : scale(value)),
-      y1: top + (mode === modeType.HORIZONTAL ? scale(value) : 0),
-      x2: left + (mode === modeType.HORIZONTAL ? width : scale(value)),
-      y2: top + (mode === modeType.HORIZONTAL ? scale(value) : height),
+      x1: left + (direction === directionType.HORIZONTAL ? 0 : scale(value)),
+      y1: top + (direction === directionType.HORIZONTAL ? scale(value) : 0),
+      x2: left + (direction === directionType.HORIZONTAL ? width : scale(value)),
+      y2: top + (direction === directionType.HORIZONTAL ? scale(value) : height),
     }))
   }
 

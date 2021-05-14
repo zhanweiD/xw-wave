@@ -119,7 +119,7 @@ export default class RectLayer extends LayerBase {
       const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, (innerRadius + outerRadius) / 2]
       const [centerX, centerY] = [x + Math.sin(angle) * r, y - Math.cos(angle) * r]
       // 基于中心点计算文字坐标
-      result = this.createText({x: centerX, y: centerY, value, fontSize, format})
+      result = this.createText({x: centerX, y: centerY, value, fontSize, format, position: 'center'})
     } else if (labelPosition === labelPositionType.OUTER) {
       // 计算文字相对坐标
       const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, outerRadius + 5]
