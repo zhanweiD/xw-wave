@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import {cloneDeep} from 'lodash'
 import DataBase from './base'
 
 // 定义操作对象
@@ -34,7 +35,7 @@ export default class Table extends DataBase {
     }
     // HACK: 返回一个新的列表对象
     const result = new Table([[], [], []])
-    result.data = JSON.parse(JSON.stringify(data))
+    result.data = cloneDeep(data)
     return result
   }
 

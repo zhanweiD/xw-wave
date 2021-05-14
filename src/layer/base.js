@@ -1,3 +1,4 @@
+import {isEqual, merge} from 'lodash'
 import drawArc from '../basic/arc'
 import drawCircle from '../basic/circle'
 import drawCurve from '../basic/curve'
@@ -79,13 +80,7 @@ export default class LayerBase {
 
   // 返回统一处理后的样式
   createStyle(defaultStyle, currentStyle, incomingStyle) {
-    const copy = style => JSON.parse(JSON.stringify(style))
-    const layerStyle = {...copy(defaultStyle), ...copy(currentStyle), ...copy(incomingStyle)}
-    elTypes.forEach(elType => layerStyle[elType] = {
-      ...copy(defaultStyle[elType] || {}), 
-      ...copy(currentStyle[elType] || {}), 
-      ...copy(incomingStyle[elType] || {}),
-    })
+    const layerStyle = merge({}, defaultStyle, currentStyle, incomingStyle)
     // 统一缩放字号
     if (layerStyle?.text?.fontSize) {
       layerStyle.text.fontSize *= this.options.baseFontSize
@@ -246,7 +241,7 @@ export default class LayerBase {
     // 根据对应列表数据绘制最终的元素
     for (let i = 0; i < data.length; i++) {
       this.#backupData[type].length = data.length
-      if (JSON.stringify(this.#backupData[type][i]) !== JSON.stringify(data[i])) {
+      if (!isEqual(this.#backupData[type][i], data[i])) {
         const groupClassName = `${containerClassName}-${i}`
         const elContainer = container.selectAll(`.${groupClassName}`)
         const options = {...data[i], className: `wave-basic-${type}`, container: elContainer}

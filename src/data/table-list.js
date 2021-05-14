@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import {cloneDeep} from 'lodash'
 import DataBase from './base'
 
 // 定义数据组合方式
@@ -30,7 +31,7 @@ export default class TableList extends DataBase {
   select(headers, options = {}) {
     const {mode, target = targetType.ROW} = options
     const _headers = Array.isArray(headers) ? headers : [headers]
-    let data = JSON.parse(JSON.stringify(this.data.filter(({header}) => _headers.includes(header))))
+    let data = cloneDeep(this.data.filter(({header}) => _headers.includes(header)))
     // 列求和的情况
     if (mode === modeType.SUM) {
       if (target === targetType.ROW) {
