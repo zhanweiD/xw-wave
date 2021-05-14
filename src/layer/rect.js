@@ -87,15 +87,13 @@ export default class RectLayer extends LayerBase {
       scaleY: new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
-        range: type === waveType.COLUMN ? [layout.height, 0] : [0, layout.width],
+        range: type === waveType.COLUMN ? [layout.height, 0] : [layout.width, 0],
         nice: {count: 5, zero: true},
       }),
     }
     // 计算基础数据
     const [scaleX, scaleY] = [this.#scale.scaleX, new Scale({...this.#scale.scaleY, nice: false})]
     const barWidth = scaleX.bandwidth()
-    // 由于 svg 坐标系和常规坐标系不同，在引入 bar 比例尺的时候需要进行值域的倒置
-    type === waveType.BAR && scaleY.range(scaleY.range().reverse())
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
     this.#rectData = pureTableList.map(([dimension, ...values]) => {
       return values.map((value, i) => ({
@@ -154,18 +152,20 @@ export default class RectLayer extends LayerBase {
       const {y, height} = this.#rectData[this.#rectData.length - 1][0]
       this.#rectData[this.#rectData.length - 1][0].y = y + height
     }
-    // 矩形到条形的数据转换
+    // 矩形到条形的数据转换，同时更新比例尺
     if (type === waveType.BAR) {
+      [this.scale.scaleX, this.scale.scaleY] = [this.scale.scaleY, this.scale.scaleX]
+      this.scale.scaleX.range(this.scale.scaleX.range().reverse())
       const firstRect = this.#rectData[0][0]
       const offset = Array.isArray(firstRect.value) ? Math.abs(scaleY(0) - scaleY(firstRect.value[0])) : 0
       const zeroY = firstRect.y + firstRect.height + offset
-      this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, height, width, value, ...others}) => ({
+      this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, height, width, value, ...other}) => ({
         value, 
         width: height, 
         height: width,
         y: x - layout.left + layout.top, 
         x: zeroY - height - y + layout.left,
-        ...others,
+        ...other,
       })))
     }
   }
