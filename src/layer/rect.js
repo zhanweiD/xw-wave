@@ -92,12 +92,10 @@ export default class RectLayer extends LayerBase {
       }),
     }
     // 计算基础数据
-    const {scaleX, scaleY} = this.#scale
+    const [scaleX, scaleY] = [this.#scale.scaleX, new Scale({...this.#scale.scaleY, nice: false})]
     const barWidth = scaleX.bandwidth()
     // 由于 svg 坐标系和常规坐标系不同，在引入 bar 比例尺的时候需要进行值域的倒置
-    if (type === waveType.BAR) {
-      this.#scale.scaleY.range(this.#scale.scaleY.range().reverse())
-    }
+    type === waveType.BAR && scaleY.range(scaleY.range().reverse())
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
     this.#rectData = pureTableList.map(([dimension, ...values]) => {
       return values.map((value, i) => ({

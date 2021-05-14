@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import * as d3 from 'd3'
 import chroma from 'chroma-js'
-import getLayout from './layout/standard'
+import standardLayout from './layout/standard'
 import ThemeConfig from './util/theme'
 import LayerBase from './layer/base'
 import TextLayer from './layer/text'
@@ -50,8 +50,6 @@ export default class Wave {
 
   #containerWidth = null
 
-  #baseFontSize = 1
-
   #padding = null
 
   #layout = null
@@ -59,8 +57,6 @@ export default class Wave {
   #root = null
 
   #layer = []
-
-  #theme = []
 
   get layout() {
     return this.#layout
@@ -70,22 +66,6 @@ export default class Wave {
     return this.#layer
   }
 
-  get theme() {
-    return this.#theme
-  }
-
-  get baseFontSize() {
-    return this.#baseFontSize
-  }
-
-  set theme(theme) {
-    this.#theme = theme
-  }
-
-  set baseFontSize(baseFontSize) {
-    this.#baseFontSize = baseFontSize
-  }
-
   constructor({
     container,
     adjust = 'auto',
@@ -93,7 +73,8 @@ export default class Wave {
     height = 100,
     padding = [0, 50, 30, 50],
     theme = 'glaze',
-    layout = 'standard',
+    baseFontSize = 1,
+    layout = standardLayout,
   }) {
     // 初始化状态和容器
     this.#state = stateMapping.INITILIZE
@@ -128,15 +109,15 @@ export default class Wave {
       .attr('height', this.#containerHeight)
 
     // 初始化布局信息
-    this.#layout = getLayout({
-      type: layout,
+    this.#layout = ((typeof layout === 'function' && layout) || standardLayout)({
       containerWidth: this.#containerWidth,
       containerHeight: this.#containerHeight,
       padding: this.#padding,
     })
 
-    // 初始化主题颜色
-    this.#theme = theme
+    // 初始化主题颜色和基础字号
+    this.theme = theme
+    this.baseFontSize = baseFontSize
   }
 
   /**
@@ -152,7 +133,7 @@ export default class Wave {
    * @param {Number} count 数量
    */
   getColor(count) {
-    let colors = ThemeConfig[this.#theme]?.colors || ThemeConfig.glaze.colors
+    let colors = ThemeConfig[this.theme]?.colors || ThemeConfig.glaze.colors
     // 颜色数量小于等于三时
     if (count <= 3) {
       colors = colors.slice(2, 7)
@@ -192,10 +173,10 @@ export default class Wave {
   }
 
   // 重绘制所有图层
-  draw({redraw = false}) {
+  draw(redraw = false) {
     redraw && this.#layer.forEach(layer => layer.instance.setData())
     redraw && this.#layer.forEach(layer => layer.instance.setStyle())
-    this.#layer.forEach(layer => layer.draw())
+    this.#layer.forEach(layer => layer.instance.draw())
   }
 
   /**

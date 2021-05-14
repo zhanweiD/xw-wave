@@ -21,13 +21,13 @@ export default function Scale({type, domain, range, nice = {count: 5, zero: fals
   // 连续到离散
   if (type === 'quantize') {
     scale = d3.scaleQuantize().domain(getData(domain)).range(getData(range))
-    nice && extendZero(scale)
+    nice && nice.zero && extendZero(scale)
     nice && niceScale(scale, nice.count)
   }
   // 连续到连续
   if (type === 'linear') {
     scale = d3.scaleLinear().domain(getData(domain)).range(getData(range))
-    nice && extendZero(scale)
+    nice && nice.zero && extendZero(scale)
     nice && niceScale(scale, nice.count)
   }
   // 为圆弧定制的比例尺，domain 是一个列表（第一列纬度第二列百分比数值），range 是连续区间（0-360）
