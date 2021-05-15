@@ -1,9 +1,10 @@
 import {Children, useRef, useEffect, useState} from 'react'
 import c from 'classname'
 import ThemeConfig from '../util/theme'
-import schemaCreator from './column'
+import columnSchema from './column'
+import pieSchema from './pie'
 import Parser from '../parser'
-import s from './example.module.css'
+import s from './demo.module.css'
 
 const themeMapping = {
   fairyLand: '梦幻岛',
@@ -36,17 +37,31 @@ export default function Example() {
   const ref6 = useRef(null)
   const ref7 = useRef(null)
   const ref8 = useRef(null)
+  const ref9 = useRef(null)
+  const ref10 = useRef(null)
+  const ref11 = useRef(null)
+  const ref12 = useRef(null)
+  const ref13 = useRef(null)
+  const ref14 = useRef(null)
 
   useEffect(() => {
     const waves = []
-    waves.push(chart === 'column' && Parser.createWave(schemaCreator.groupColumn(ref1.current, theme)))
-    waves.push(chart === 'column' && Parser.createWave(schemaCreator.stackColumn(ref2.current, theme)))
-    waves.push(chart === 'column' && Parser.createWave(schemaCreator.intervalColumn(ref3.current, theme)))
-    waves.push(chart === 'column' && Parser.createWave(schemaCreator.waterfallColumn(ref4.current, theme)))
-    waves.push(chart === 'bar' && Parser.createWave(schemaCreator.groupBar(ref5.current, theme)))
-    waves.push(chart === 'bar' && Parser.createWave(schemaCreator.stackBar(ref6.current, theme)))
-    waves.push(chart === 'bar' && Parser.createWave(schemaCreator.intervalBar(ref7.current, theme)))
-    waves.push(chart === 'bar' && Parser.createWave(schemaCreator.waterfallBar(ref8.current, theme)))
+    // 柱状图和条形图
+    waves.push(chart === 'column' && Parser.createWave(columnSchema.groupColumn(ref1.current, theme)))
+    waves.push(chart === 'column' && Parser.createWave(columnSchema.stackColumn(ref2.current, theme)))
+    waves.push(chart === 'column' && Parser.createWave(columnSchema.intervalColumn(ref3.current, theme)))
+    waves.push(chart === 'column' && Parser.createWave(columnSchema.waterfallColumn(ref4.current, theme)))
+    waves.push(chart === 'bar' && Parser.createWave(columnSchema.groupBar(ref5.current, theme)))
+    waves.push(chart === 'bar' && Parser.createWave(columnSchema.stackBar(ref6.current, theme)))
+    waves.push(chart === 'bar' && Parser.createWave(columnSchema.intervalBar(ref7.current, theme)))
+    waves.push(chart === 'bar' && Parser.createWave(columnSchema.waterfallBar(ref8.current, theme)))
+    // 饼图类
+    waves.push(chart === 'pie' && Parser.createWave(pieSchema.pie(ref9.current, theme)))
+    waves.push(chart === 'pie' && Parser.createWave(pieSchema.donut(ref10.current, theme)))
+    waves.push(chart === 'pie' && Parser.createWave(pieSchema.nightingaleRose(ref11.current, theme)))
+    waves.push(chart === 'pie' && Parser.createWave(pieSchema.donutNightingaleRose(ref12.current, theme)))
+    waves.push(chart === 'pie' && Parser.createWave(pieSchema.stackNightingaleRose(ref13.current, theme)))
+    waves.push(chart === 'pie' && Parser.createWave(pieSchema.stackDonutNightingaleRose(ref14.current, theme)))
   }, [theme, chart])
 
   return (
@@ -77,6 +92,12 @@ export default function Example() {
           {chart === 'bar' && <div className={s.wave} ref={ref6} />}
           {chart === 'bar' && <div className={s.wave} ref={ref7} />}
           {chart === 'bar' && <div className={s.wave} ref={ref8} />}
+          {chart === 'pie' && <div className={s.wave} ref={ref9} />}
+          {chart === 'pie' && <div className={s.wave} ref={ref10} />}
+          {chart === 'pie' && <div className={s.wave} ref={ref11} />}
+          {chart === 'pie' && <div className={s.wave} ref={ref12} />}
+          {chart === 'pie' && <div className={s.wave} ref={ref13} />}
+          {chart === 'pie' && <div className={s.wave} ref={ref14} />}
         </div>
       </div>
     </div>

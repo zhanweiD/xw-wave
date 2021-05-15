@@ -26,13 +26,15 @@ const createLayer = (wave, config) => {
   let dataObject = data
   if (DataBase.isTableLilst(data)) {
     dataObject = new TableList(dataObject)
-    // 矩形的区间图和瀑布图需要控制列数
+    // 某些图表需要控制列数
     if (type === 'rect' && options.mode === 'interval') {
       dataObject = dataObject.select(dataObject.data.map(({header}) => header).slice(0, 3))
     } else if (type === 'rect' && options.mode === 'waterfall') {
       dataObject = dataObject.select(dataObject.data.map(({header}) => header).slice(0, 2))
       // 瀑布图需要手动添加最后一列数据（待优化到图层内部）
       dataObject.push(['总和', dataObject.select(data[0][1], {mode: 'sum', target: 'column'}).range()[1]])
+    } else if (type === 'arc' && options.mode !== 'stack') {
+      dataObject = dataObject.select(dataObject.data.map(({header}) => header).slice(0, 2))
     }
   } else if (DataBase.isTable(data)) {
     dataObject = new Table(dataObject)
