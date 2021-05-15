@@ -14,17 +14,17 @@ const createLayer = (wave, config) => {
     let result = null
     const scales = wave.layer.find(({id}) => id === options.bind).instance.scale
     if (type === 'auxiliary') {
-      result = scales.scaleX.type === 'linear' ? scales.scaleX : scales.scaleY
-    } else if (type === 'axis' && style.type === 'axisX') {
-      result = scales.scaleX
-    } else if (type === 'axis' && style.type === 'axisY') {
-      result = scales.scaleY
+      result = options.direction === 'horizontal' ? scales.scaleY : scales.scaleX
+    } else if (type === 'axis') {
+      result = style.type === 'axisX' ? scales.scaleX : scales.scaleY
     }
     return result
   })()
   // 数据结构判断
   let dataObject = data
-  if (DataBase.isTableLilst(data)) {
+  if (DataBase.isTable(data)) {
+    dataObject = new Table(dataObject)
+  } else if (DataBase.isTableLilst(data)) {
     dataObject = new TableList(dataObject)
     // 某些图表需要控制列数
     if (type === 'rect' && options.mode === 'interval') {
@@ -36,8 +36,6 @@ const createLayer = (wave, config) => {
     } else if (type === 'arc' && options.mode !== 'stack') {
       dataObject = dataObject.select(dataObject.data.map(({header}) => header).slice(0, 2))
     }
-  } else if (DataBase.isTable(data)) {
-    dataObject = new Table(dataObject)
   }
   // 待删除
   type === 'axis' && layer.setScale(scale)
@@ -76,7 +74,7 @@ function createWave(schema) {
     normalLayer.map(layer => createLayer(wave, layer))
     dependentLayer.map(layer => createLayer(wave, layer)) 
   } catch (e) {
-    console.error('图层配置解析错误', e.message)
+    console.error('图层配置解析错误', e)
   }
   return wave
 }

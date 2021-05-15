@@ -80,13 +80,14 @@ export default class LayerBase {
 
   // 返回统一处理后的样式
   createStyle(defaultStyle, currentStyle, incomingStyle) {
+    const {baseFontSize} = this.options
     const layerStyle = merge({}, defaultStyle, currentStyle, incomingStyle)
     // 统一缩放字号
-    if (layerStyle?.text?.fontSize) {
-      layerStyle.text.fontSize *= this.options.baseFontSize
-    } else {
-      layerStyle.text.fontSize = this.options.baseFontSize * 12
-    }
+    Object.keys(layerStyle).forEach(key => {
+      if (key.search(/text/i) !== -1 && layerStyle[key].fontSize) {
+        layerStyle[key].fontSize *= baseFontSize
+      }
+    })
     return layerStyle
   }
 

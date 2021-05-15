@@ -38,6 +38,7 @@ export default function drawText({
     }
   })
 
+  const origin = Array.isArray(transformOrigin) ? `${transformOrigin[0]} ${transformOrigin[1]}` : transformOrigin
   const rects = container.selectAll(`.${className}`)
     .data(configuredData)
     .join('rect')
@@ -55,7 +56,7 @@ export default function drawText({
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
     .attr('transform', d => `rotate(${d.rotate})`)
-    .attr('transform-origin', transformOrigin)
+    .attr('transform-origin', origin)
 
   return rects
 }

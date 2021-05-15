@@ -1,8 +1,13 @@
 import {Children, useRef, useEffect, useState} from 'react'
 import c from 'classname'
+import {range} from 'd3'
 import ThemeConfig from '../util/theme'
 import columnSchema from './column'
 import pieSchema from './pie'
+import radarSchema from './radar'
+import scatterSchema from './scatter'
+import matrixSchema from './matrix'
+import gaugeSchema from './gauge'
 import Parser from '../parser'
 import s from './demo.module.css'
 
@@ -26,42 +31,40 @@ const chartMapping = {
 }
 
 export default function Example() {
-  const [theme, setTheme] = useState('duskUniverse')
+  const [theme, setTheme] = useState('fairyLand')
   const [chart, setChart] = useState('column')
   const containerStyle = {background: ThemeConfig[theme].background}
-  const ref1 = useRef(null)
-  const ref2 = useRef(null)
-  const ref3 = useRef(null)
-  const ref4 = useRef(null)
-  const ref5 = useRef(null)
-  const ref6 = useRef(null)
-  const ref7 = useRef(null)
-  const ref8 = useRef(null)
-  const ref9 = useRef(null)
-  const ref10 = useRef(null)
-  const ref11 = useRef(null)
-  const ref12 = useRef(null)
-  const ref13 = useRef(null)
-  const ref14 = useRef(null)
+  const refs = range(1, 100, 1).map(() => useRef(null))
 
   useEffect(() => {
     const waves = []
     // 柱状图和条形图
-    waves.push(chart === 'column' && Parser.createWave(columnSchema.groupColumn(ref1.current, theme)))
-    waves.push(chart === 'column' && Parser.createWave(columnSchema.stackColumn(ref2.current, theme)))
-    waves.push(chart === 'column' && Parser.createWave(columnSchema.intervalColumn(ref3.current, theme)))
-    waves.push(chart === 'column' && Parser.createWave(columnSchema.waterfallColumn(ref4.current, theme)))
-    waves.push(chart === 'bar' && Parser.createWave(columnSchema.groupBar(ref5.current, theme)))
-    waves.push(chart === 'bar' && Parser.createWave(columnSchema.stackBar(ref6.current, theme)))
-    waves.push(chart === 'bar' && Parser.createWave(columnSchema.intervalBar(ref7.current, theme)))
-    waves.push(chart === 'bar' && Parser.createWave(columnSchema.waterfallBar(ref8.current, theme)))
+    waves.push(chart === 'column' && Parser.createWave(columnSchema.groupColumn(refs[1].current, theme)))
+    waves.push(chart === 'column' && Parser.createWave(columnSchema.stackColumn(refs[2].current, theme)))
+    waves.push(chart === 'column' && Parser.createWave(columnSchema.intervalColumn(refs[3].current, theme)))
+    waves.push(chart === 'column' && Parser.createWave(columnSchema.waterfallColumn(refs[4].current, theme)))
+    waves.push(chart === 'bar' && Parser.createWave(columnSchema.groupBar(refs[5].current, theme)))
+    waves.push(chart === 'bar' && Parser.createWave(columnSchema.stackBar(refs[6].current, theme)))
+    waves.push(chart === 'bar' && Parser.createWave(columnSchema.intervalBar(refs[7].current, theme)))
+    waves.push(chart === 'bar' && Parser.createWave(columnSchema.waterfallBar(refs[8].current, theme)))
     // 饼图类
-    waves.push(chart === 'pie' && Parser.createWave(pieSchema.pie(ref9.current, theme)))
-    waves.push(chart === 'pie' && Parser.createWave(pieSchema.donut(ref10.current, theme)))
-    waves.push(chart === 'pie' && Parser.createWave(pieSchema.nightingaleRose(ref11.current, theme)))
-    waves.push(chart === 'pie' && Parser.createWave(pieSchema.donutNightingaleRose(ref12.current, theme)))
-    waves.push(chart === 'pie' && Parser.createWave(pieSchema.stackNightingaleRose(ref13.current, theme)))
-    waves.push(chart === 'pie' && Parser.createWave(pieSchema.stackDonutNightingaleRose(ref14.current, theme)))
+    waves.push(chart === 'pie' && Parser.createWave(pieSchema.pie(refs[9].current, theme)))
+    waves.push(chart === 'pie' && Parser.createWave(pieSchema.donut(refs[10].current, theme)))
+    waves.push(chart === 'pie' && Parser.createWave(pieSchema.nightingaleRose(refs[11].current, theme)))
+    waves.push(chart === 'pie' && Parser.createWave(pieSchema.donutNightingaleRose(refs[12].current, theme)))
+    waves.push(chart === 'pie' && Parser.createWave(pieSchema.stackNightingaleRose(refs[13].current, theme)))
+    waves.push(chart === 'pie' && Parser.createWave(pieSchema.stackDonutNightingaleRose(refs[14].current, theme)))
+    // 雷达图类
+    waves.push(chart === 'radar' && Parser.createWave(radarSchema.radar(refs[15].current, theme)))
+    waves.push(chart === 'radar' && Parser.createWave(radarSchema.stackRadar(refs[16].current, theme)))
+    // 点图类
+    waves.push(chart === 'scatter' && Parser.createWave(scatterSchema.scatter(refs[17].current, theme)))
+    waves.push(chart === 'scatter' && Parser.createWave(scatterSchema.bubble(refs[18].current, theme)))
+    // 热力图类
+    waves.push(chart === 'matrix' && Parser.createWave(matrixSchema.rectHeatmap(refs[19].current, theme)))
+    waves.push(chart === 'matrix' && Parser.createWave(matrixSchema.circleHeatmap(refs[20].current, theme)))
+    // 仪表盘
+    waves.push(chart === 'gauge' && Parser.createWave(gaugeSchema.gauge(refs[21].current, theme)))
   }, [theme, chart])
 
   return (
@@ -84,20 +87,27 @@ export default function Example() {
       </div>
       <div className="fbh fb10">
         <div className="fbh fb1 fbw">
-          {chart === 'column' && <div className={s.wave} ref={ref1} /> }
-          {chart === 'column' && <div className={s.wave} ref={ref2} />}
-          {chart === 'column' && <div className={s.wave} ref={ref3} />}
-          {chart === 'column' && <div className={s.wave} ref={ref4} />}
-          {chart === 'bar' && <div className={s.wave} ref={ref5} />}
-          {chart === 'bar' && <div className={s.wave} ref={ref6} />}
-          {chart === 'bar' && <div className={s.wave} ref={ref7} />}
-          {chart === 'bar' && <div className={s.wave} ref={ref8} />}
-          {chart === 'pie' && <div className={s.wave} ref={ref9} />}
-          {chart === 'pie' && <div className={s.wave} ref={ref10} />}
-          {chart === 'pie' && <div className={s.wave} ref={ref11} />}
-          {chart === 'pie' && <div className={s.wave} ref={ref12} />}
-          {chart === 'pie' && <div className={s.wave} ref={ref13} />}
-          {chart === 'pie' && <div className={s.wave} ref={ref14} />}
+          {chart === 'column' && <div className={s.wave} ref={refs[1]} /> }
+          {chart === 'column' && <div className={s.wave} ref={refs[2]} />}
+          {chart === 'column' && <div className={s.wave} ref={refs[3]} />}
+          {chart === 'column' && <div className={s.wave} ref={refs[4]} />}
+          {chart === 'bar' && <div className={s.wave} ref={refs[5]} />}
+          {chart === 'bar' && <div className={s.wave} ref={refs[6]} />}
+          {chart === 'bar' && <div className={s.wave} ref={refs[7]} />}
+          {chart === 'bar' && <div className={s.wave} ref={refs[8]} />}
+          {chart === 'pie' && <div className={s.wave} ref={refs[9]} />}
+          {chart === 'pie' && <div className={s.wave} ref={refs[10]} />}
+          {chart === 'pie' && <div className={s.wave} ref={refs[11]} />}
+          {chart === 'pie' && <div className={s.wave} ref={refs[12]} />}
+          {chart === 'pie' && <div className={s.wave} ref={refs[13]} />}
+          {chart === 'pie' && <div className={s.wave} ref={refs[14]} />}
+          {chart === 'radar' && <div className={s.wave} ref={refs[15]} />}
+          {chart === 'radar' && <div className={s.wave} ref={refs[16]} />}
+          {chart === 'scatter' && <div className={s.wave} ref={refs[17]} />}
+          {chart === 'scatter' && <div className={s.wave} ref={refs[18]} />}
+          {chart === 'matrix' && <div className={s.wave} ref={refs[19]} />}
+          {chart === 'matrix' && <div className={s.wave} ref={refs[20]} />}
+          {chart === 'gauge' && <div className={s.wave} ref={refs[21]} />}
         </div>
       </div>
     </div>
