@@ -3,7 +3,7 @@ import c from 'classname'
 import ThemeConfig from '../util/theme'
 import schemaCreator from './column'
 import Parser from '../parser'
-import s from './demo.module.css'
+import s from './example.module.css'
 
 const themeMapping = {
   fairyLand: '梦幻岛',
@@ -47,7 +47,6 @@ export default function Example() {
     waves.push(chart === 'bar' && Parser.createWave(schemaCreator.stackBar(ref6.current, theme)))
     waves.push(chart === 'bar' && Parser.createWave(schemaCreator.intervalBar(ref7.current, theme)))
     waves.push(chart === 'bar' && Parser.createWave(schemaCreator.waterfallBar(ref8.current, theme)))
-    waves.forEach(wave => wave && wave.draw())
   }, [theme, chart])
 
   return (

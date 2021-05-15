@@ -55,7 +55,7 @@ export default function drawText({
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
     .attr('transform', d => `rotate(${d.rotate})`)
-    .attr('transform-origin', () => transformOrigin && `${transformOrigin[0]} ${transformOrigin[1]}`)
+    .attr('transform-origin', transformOrigin)
 
   return rects
 }

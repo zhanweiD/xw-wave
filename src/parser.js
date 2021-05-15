@@ -13,16 +13,12 @@ const createLayer = (wave, config) => {
   const scale = isDependentLayer(type) && (() => {
     let result = null
     const scales = wave.layer.find(({id}) => id === options.bind).instance.scale
-    try {
-      if (type === 'auxiliary') {
-        result = scales.scaleX.type === 'linear' ? scales.scaleX : scales.scaleY
-      } else if (type === 'axis' && style.type === 'axisX') {
-        result = scales.scaleX
-      } else if (type === 'axis' && style.type === 'axisY') {
-        result = scales.scaleY
-      }
-    } catch (e) {
-      console.error('图层配置解析错误', e.message)
+    if (type === 'auxiliary') {
+      result = scales.scaleX.type === 'linear' ? scales.scaleX : scales.scaleY
+    } else if (type === 'axis' && style.type === 'axisX') {
+      result = scales.scaleX
+    } else if (type === 'axis' && style.type === 'axisY') {
+      result = scales.scaleY
     }
     return result
   })()
@@ -74,8 +70,12 @@ function createWave(schema) {
   const dependentLayer = layers.filter(({type}) => isDependentLayer(type))
   const normalLayer = layers.filter(({type}) => !isDependentLayer(type))
   // 先创建前置图层
-  normalLayer.map(layer => createLayer(wave, layer))
-  dependentLayer.map(layer => createLayer(wave, layer)) 
+  try {
+    normalLayer.map(layer => createLayer(wave, layer))
+    dependentLayer.map(layer => createLayer(wave, layer)) 
+  } catch (e) {
+    console.error('图层配置解析错误', e.message)
+  }
   return wave
 }
 
