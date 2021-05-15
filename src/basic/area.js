@@ -7,6 +7,7 @@ export default function drawArea({
   opacity = 1,
   fillOpacity = 1,
   strokeOpacity = 1,
+  curve = false,
   enableUpdateAnimation = true,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -14,7 +15,6 @@ export default function drawArea({
   position = [], // 位置 [[[x,y0,y1], ...], ...]
   container,
   className,
-  curve = false,
 }) {
   // 面积生成器
   const areaGenerator = d3.area().x(d => d[0]).y0(d => d[1]).y1(d => d[2])

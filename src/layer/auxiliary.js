@@ -50,7 +50,7 @@ export default class AuxiliaryLayer extends LayerBase {
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
     const {direction = directionType.HORIZONTAL} = this.options
-    this.className = `wave-${direction}-auxiliary-line`
+    this.className = `wave-${direction}-auxiliary`
   }
 
   // 传入数据数组和比例尺，辅助线需要外部的比例尺

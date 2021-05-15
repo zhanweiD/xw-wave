@@ -11,8 +11,8 @@ import './index.css'
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-      <Route exact path="/" render={() => <Demo />} />
-      <Route path="/demo2" render={() => <Demo2 />} />
+      <Route exact path="/" render={() => <Demo2 />} />
+      <Route path="/old" render={() => <Demo />} />
       <Route path="/sanwen" render={() => <Text1 />} />
       <Route path="/qiongfang" render={() => <Text2 />} />
       <Route path="/nanfeng" render={() => <Text3 />} />

@@ -8,6 +8,7 @@ import radarSchema from './radar'
 import scatterSchema from './scatter'
 import matrixSchema from './matrix'
 import gaugeSchema from './gauge'
+import lineSchema from './line'
 import Parser from '../parser'
 import s from './demo.module.css'
 
@@ -65,6 +66,11 @@ export default function Example() {
     waves.push(chart === 'matrix' && Parser.createWave(matrixSchema.circleHeatmap(refs[20].current, theme)))
     // 仪表盘
     waves.push(chart === 'gauge' && Parser.createWave(gaugeSchema.gauge(refs[21].current, theme)))
+    // 折线类
+    waves.push(chart === 'line' && Parser.createWave(lineSchema.line(refs[22].current, theme)))
+    waves.push(chart === 'line' && Parser.createWave(lineSchema.stackLine(refs[23].current, theme)))
+    waves.push(chart === 'line' && Parser.createWave(lineSchema.area(refs[24].current, theme)))
+    waves.push(chart === 'line' && Parser.createWave(lineSchema.stackArea(refs[25].current, theme)))
   }, [theme, chart])
 
   return (
@@ -108,6 +114,10 @@ export default function Example() {
           {chart === 'matrix' && <div className={s.wave} ref={refs[19]} />}
           {chart === 'matrix' && <div className={s.wave} ref={refs[20]} />}
           {chart === 'gauge' && <div className={s.wave} ref={refs[21]} />}
+          {chart === 'line' && <div className={s.wave} ref={refs[22]} />}
+          {chart === 'line' && <div className={s.wave} ref={refs[23]} />}
+          {chart === 'line' && <div className={s.wave} ref={refs[24]} />}
+          {chart === 'line' && <div className={s.wave} ref={refs[25]} />}
         </div>
       </div>
     </div>

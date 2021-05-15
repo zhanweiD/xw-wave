@@ -5,6 +5,7 @@ export default function drawCurve({
   stroke = 'rgba(255,255,255,0)',
   strokeWidth = 1,
   opacity = 1,
+  curve = false,
   enableUpdateAnimation = true,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -14,7 +15,9 @@ export default function drawCurve({
   className,
 }) {
   // 曲线工厂
-  const lineGenerator = d3.line().x(d => d[0]).y(d => d[1]).curve(d3.curveMonotoneX)
+  const lineGenerator = d3.line().x(d => d[0]).y(d => d[1])
+  curve && lineGenerator.curve(d3.curveMonotoneX)
+
   const configuredData = position.map((data, i) => ({
     fill: 'none',
     stroke: Array.isArray(stroke) ? stroke[i] : stroke,
