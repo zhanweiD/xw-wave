@@ -59,11 +59,47 @@ const createSchema = (container, theme, layout, mode) => ({
         },
       },
     },
+    // 角度轴
+    {
+      type: 'axis',
+      options: {
+        id: 'axisAngle',
+        layout: 'main',
+        bind: 'radar',
+      },
+      style: {
+        type: 'angle', // 此处对应角坐标
+        tickLine: {
+          opacity: 0.3,
+          strokeWidth: 1,
+          stroke: 'white',
+          fill: 'none',
+        },
+      },
+    },
+    // 半径轴
+    {
+      type: 'axis',
+      options: {
+        id: 'axisRadius',
+        layout: 'main',
+        bind: 'radar',
+      },
+      style: {
+        type: 'radius', // 此处对应半径坐标
+        tickLine: {
+          opacity: 0.3,
+          strokeWidth: 1,
+          stroke: 'white',
+          fill: 'none',
+        },
+      },
+    },
     // 雷达图层
     {
       type: 'radar',
       options: {
-        id: 'arc',
+        id: 'radar',
         layout: 'main',
         mode,
       },
@@ -76,28 +112,11 @@ const createSchema = (container, theme, layout, mode) => ({
           enableUpdateAnimation: true,
         },
         text: {
-          hide: true,
           fontSize: 10,
           enableUpdateAnimation: true,
         },
       },
       animation: {
-        arc: {
-          enterAnimation: {
-            type: 'zoom',
-            delay: 0,
-            duration: 2000,
-            mode: 'enlarge',
-            direction: 'both',
-          },
-          loopAnimation: {
-            type: 'scan',
-            delay: 1000,
-            duration: 3000,
-            color: 'rgba(255,255,255,0.5)',
-            direction: 'outer',
-          },
-        },
         text: {
           enterAnimation: {
             type: 'fade',
@@ -108,7 +127,6 @@ const createSchema = (container, theme, layout, mode) => ({
         },
       },
       tooltip: {
-        polygon: null,
       },
       event: {
         'click-polygon': d => console.log(d),

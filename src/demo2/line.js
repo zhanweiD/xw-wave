@@ -126,6 +126,9 @@ const createSchema = (container, theme, layout, mode, hasArea) => ({
       data,
       style: {
         labelPosition: 'top',
+        line: {
+          strokeWidth: 2,
+        },
         area: {
           hide: !hasArea,
           opacity: 0.2,
@@ -165,10 +168,10 @@ const createSchema = (container, theme, layout, mode, hasArea) => ({
         },
       },
       tooltip: {
-        rect: null,
+        circle: null,
       },
       event: {
-        'click-rect': d => console.log(d),
+        'click-circle': d => console.log(d),
       },
     },
   ],

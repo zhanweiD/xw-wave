@@ -20,11 +20,13 @@ const labelPositionType = {
 const defaultStyle = {
   pointSize: 5,
   labelPosition: labelPositionType.TOP,
-  line: {},
   text: {},
+  line: {
+    strokeWidth: 2,
+  },
   circle: {
     fill: 'white',
-    strokeWidth: 1,
+    strokeWidth: 2,
   },
   area: {
     hide: true,
@@ -134,7 +136,7 @@ export default class LineLayer extends LayerBase {
       y0: y,
       y1: mode === modeType.STACK && j !== 0 ? this.#lineData[i][j - 1].y : height + top,
       ...item,
-    })),)
+    })))
   }
 
   // 绘制
@@ -156,7 +158,8 @@ export default class LineLayer extends LayerBase {
       const data = groupData.map(({r}) => [r, r])
       const position = groupData.map(({x, y}) => [x, y])
       const stroke = groupData.map(({color}) => color)
-      return {data, position, stroke, ...this.#style.circle}
+      const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
+      return {data, position, source, stroke, ...this.#style.circle}
     })
     this.drawBasic('area', areaData)
     this.drawBasic('curve', lineData)

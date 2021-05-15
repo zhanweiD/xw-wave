@@ -16,7 +16,10 @@ const createLayer = (wave, config) => {
     if (type === 'auxiliary') {
       result = options.direction === 'horizontal' ? scales.scaleY : scales.scaleX
     } else if (type === 'axis') {
-      result = style.type === 'axisX' ? scales.scaleX : scales.scaleY
+      style.type === 'axisX' && (result = scales.scaleX)
+      style.type === 'axisY' && (result = scales.scaleY)
+      style.type === 'angle' && (result = scales.scaleAngle)
+      style.type === 'radius' && (result = scales.scaleRadius)
     }
     return result
   })()
