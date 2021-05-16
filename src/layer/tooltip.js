@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import {isEqual} from 'lodash'
 import {MoveAnimation} from '../animation'
 
 const defaultOptions = {
@@ -11,15 +12,16 @@ const defaultOptions = {
   valueSize: 12,
   valueColor: '#383d41',
   gap: 20,
-  enableMoveAnimation: false,
-  moveAnimationDuration: 500,
-  moveAnimationDelay: 0,
+  enableAnimation: false,
+  animationDuration: 500,
+  animationDelay: 0,
 }
 
 // tooltip 类
 export default class Tooltip {
   constructor(container) {
     this.backup = null
+    this.target = null
     this.isMoving = false
     this.isVisible = false
     this.isAvailable = false
@@ -49,6 +51,7 @@ export default class Tooltip {
   show() {
     this.isVisible = true
     this.instance.style('display', 'block')
+    d3.select(this.target).classed('tooltip-active', true)
     return this
   }
 
@@ -56,21 +59,23 @@ export default class Tooltip {
   hide() {
     this.isVisible = false
     this.instance.style('display', 'none')
+    d3.select(this.target).classed('tooltip-active', false)
     return this
   }
 
   // 更新数据
-  update(list, options = {}) {
+  update({target}, data, options = {}) {
     const {padding, titleSize, titleColor, pointSize, labelSize, labelColor, valueSize, valueColor, gap,
     } = {...defaultOptions, ...options}
     // 转换配置数据
-    const data = list.map(({fill, stroke, source}) => ({pointColor: fill || stroke, ...source}))
+    this.target = target
+    const list = data.map(({fill, stroke, source}) => ({pointColor: fill || stroke, ...source}))
     // 当且仅当数据变化时进行渲染
-    if (JSON.stringify(this.backup) !== JSON.stringify(data)) {
+    if (!isEqual(this.backup, list)) {
       // 头部维度信息
       this.instance
         .selectAll('.wave-tooltip-title')
-        .data([data[0].dimension])
+        .data([list[0].dimension])
         .join('div')
         .attr('class', 'wave-tooltip-title')
         .style('padding', `${padding}px ${padding}px 0`)
@@ -89,7 +94,7 @@ export default class Tooltip {
       // 每一行
       const rows = container
         .selectAll('div')
-        .data(data)
+        .data(list)
         .join('div')
         .attr('class', 'fbh fbjsb fbac')
         .style('width', '100%')
@@ -117,14 +122,14 @@ export default class Tooltip {
         .style('font-size', `${valueSize}px`)
         .style('color', valueColor)
         .text(d => d.value)
-      this.backup = data
+      this.backup = list
     }
     return this
   }
 
   // 移动
   move({x, y}, options = {}) {
-    const {enableMoveAnimation, moveAnimationDuration, moveAnimationDelay} = {...defaultOptions, ...options}
+    const {enableAnimation, animationDuration, animationDelay} = {...defaultOptions, ...options}
     const drift = 10
     // 边界判断
     const rect = this.instance._groups[0][0].getBoundingClientRect()
@@ -140,9 +145,9 @@ export default class Tooltip {
     }
     // 移动距离过大时采用动画过渡
     const animation = new MoveAnimation({
-      delay: enableMoveAnimation ? moveAnimationDelay : 0,
+      delay: enableAnimation ? animationDelay : 0,
       targets: this.instance._groups[0][0],
-      duration: enableMoveAnimation ? moveAnimationDuration : 0,
+      duration: enableAnimation ? animationDuration : 0,
       position: [[this.lastPosition.x || 0, x], [this.lastPosition.y || 0, y]],
       easing: 'easeOutQuart',
     })

@@ -50,12 +50,7 @@ const createLayer = (wave, config) => {
   // 绘制图层
   layer.draw()
   // 设置图层的动画，由于渲染是异步的，动画需要在渲染之后才能配置
-  setTimeout(() => {
-    animation && layer.setAnimation(animation)
-    animation && Object.keys(layer.animation).forEach(elType => {
-      layer.animation[elType] && layer.animation[elType].play()
-    })
-  }, 0)
+  setTimeout(() => animation && layer.setAnimation(animation)(), 0)
   // 设置图层的 Tooltip
   tooltip && layer.setTooltip(tooltip)
   // 设置图层的事件
@@ -68,7 +63,6 @@ const createLayer = (wave, config) => {
 function createWave(schema) {
   const {container, adjust, width, height, padding, theme, layout, layers} = schema
   const wave = new Wave({container, adjust, width, height, padding, theme, layout})
-
   // 辅助层比较特殊，需要依赖其他图层的数据或者比例尺
   const dependentLayer = layers.filter(({type}) => isDependentLayer(type))
   const normalLayer = layers.filter(({type}) => !isDependentLayer(type))

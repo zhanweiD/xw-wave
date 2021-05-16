@@ -117,13 +117,13 @@ export default class LayerBase {
 
   // 初始化基础事件
   #createEvent = () => {
-    // tooltip 事件
+    // tooltip 事件，必须先 show 然后 move
     this.#backupEvent = {
       common: {},
       tooltip: {
-        click: (event, data) => globalTooltip.update([data]).move(event, {enableMoveAnimation: true}).show(),
+        click: (event, data) => globalTooltip.update(event, [data]).show().move(event, {enableAnimation: true}),
         blur: () => globalTooltip.hide(),
-        mouseover: (event, data) => this.tooltip.update([data]).move(event).show(),
+        mouseover: (event, data) => this.tooltip.update(event, [data]).show().move(event),
         mouseout: () => this.tooltip.hide(),
         mousemove: event => this.tooltip.move(event),
       },
@@ -192,7 +192,7 @@ export default class LayerBase {
       this.animation[name].event.on('process', data => this.event.fire(`${name}-animation-process`, data))
       this.animation[name].event.on('end', data => this.event.fire(`${name}-animation-end`, data))
     })
-    return this.animation
+    return () => elTypes.forEach(type => this.animation[type] && this.animation[type].play())
   }
 
   // 销毁图层
