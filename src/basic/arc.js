@@ -51,6 +51,7 @@ export default function drawArc({
     .attr('stroke-width', d => d.strokeWidth)
     .attr('d', d => d.d)
     .style('transform', d => d.transform)
+    .style('outline', 'none')
 
   return arcs
 }

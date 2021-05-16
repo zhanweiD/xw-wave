@@ -61,6 +61,7 @@ export default function drawText({
     .attr('writing-mode', d => d.writingMode)
     .style('transform', d => d.transform)
     .style('text-shadow', d => d.textShadow)
+    .style('pointer-events', 'none')
 
   return texts
 }

@@ -63,7 +63,7 @@ export default class ScatterLayer extends LayerBase {
     const circleData = pureTableList.map(([category, x, y, value]) => ({
       category,
       cx: left + this.#scale.scaleX(x),
-      cy: top + this.#scale.scaleX(y),
+      cy: top + this.#scale.scaleY(y),
       value,
     }))
     // 数据根据第一列的名称分组
