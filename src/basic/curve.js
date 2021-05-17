@@ -22,7 +22,7 @@ export default function drawCurve({
     fill: 'none',
     stroke: Array.isArray(stroke) ? stroke[i] : stroke,
     strokeWidth,
-    class: className,
+    className,
     opacity,
     d: lineGenerator(data),
     source: source.length > i ? source[i] : null,
@@ -36,7 +36,7 @@ export default function drawCurve({
     .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
     .attr('stroke', d => d.stroke)
     .attr('stroke-width', d => d.strokeWidth)
-    .attr('class', d => d.class)
+    .attr('class', d => d.className)
     .attr('d', d => d.d)
     .attr('fill', d => d.fill)
     .attr('opacity', d => d.opacity)

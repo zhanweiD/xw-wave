@@ -121,9 +121,11 @@ export default class LayerBase {
     this.#backupEvent = {
       common: {},
       tooltip: {
-        click: (event, data) => globalTooltip.update(event, [data]).show().move(event, {enableAnimation: true}),
+        click: (event, data) => globalTooltip
+          .update(event, {data, backup: this.#backupData}).show().move(event, {enableAnimation: true}),
         blur: () => globalTooltip.hide(),
-        mouseover: (event, data) => this.tooltip.update(event, [data]).show().move(event),
+        mouseover: (event, data) => this.tooltip
+          .update(event, {data, backup: this.#backupData}).show().move(event),
         mouseout: () => this.tooltip.hide(),
         mousemove: event => this.tooltip.move(event),
       },

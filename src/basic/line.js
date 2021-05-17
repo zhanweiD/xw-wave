@@ -15,7 +15,7 @@ export default function drawLine({
   const configuredData = position.map((data, i) => ({
     stroke: Array.isArray(stroke) ? stroke[i] : stroke,
     strokeWidth,
-    class: className,
+    className,
     strokeDasharray: dasharray,
     opacity,
     x1: data[0],
@@ -34,7 +34,7 @@ export default function drawLine({
     .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
     .attr('stroke', d => d.stroke)
     .attr('stroke-width', d => d.strokeWidth)
-    .attr('class', d => d.class)
+    .attr('class', d => d.className)
     .attr('stroke-dasharray', d => d.strokeDasharray)
     .attr('opacity', d => d.opacity)
     .attr('x1', d => d.x1)

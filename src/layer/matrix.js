@@ -95,7 +95,7 @@ export default class MatrixLayer extends LayerBase {
     if (mode === modeType.CIRCLE) {
       this.#circleData = pureTableList.map((values, i) => values.map((value, j) => ({
         value,
-        dimension: [rows[i], columns[i]],
+        dimension: [rows[i], columns[j]],
         color: scaleColor(value - min),
         cx: left + scaleX(rows[i]) + bandWidthX / 2,
         cy: top + scaleY(columns[j]) + bandWidthY / 2,

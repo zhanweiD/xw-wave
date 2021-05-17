@@ -1,6 +1,13 @@
 import * as d3 from 'd3'
-import {isEqual} from 'lodash'
+import {isEqual, isArray} from 'lodash'
 import {MoveAnimation} from '../animation'
+import createLog from '../util/create-log'
+
+// 展示类型
+const modeType = {
+  SINGLE: 'single', // 基于单个元素展示
+  GOURP: 'group', // 基于组展示
+}
 
 const defaultOptions = {
   padding: 5,
@@ -25,6 +32,7 @@ export default class Tooltip {
     this.isMoving = false
     this.isVisible = false
     this.isAvailable = false
+    this.log = createLog(__filename)
     this.lastPosition = {x: -100, y: -100}
     // 根容器
     this.instance = container
@@ -64,14 +72,26 @@ export default class Tooltip {
   }
 
   // 更新数据
-  update({target}, data, options = {}) {
+  update({target}, {data, backup}, options = {mode: modeType.SINGLE}) {
     const {padding, titleSize, titleColor, pointSize, labelSize, labelColor, valueSize, valueColor, gap,
     } = {...defaultOptions, ...options}
-    // 转换配置数据
+    // 计算和筛选需要展示的数据
     this.target = target
-    const list = data.map(({fill, stroke, source}) => ({pointColor: fill || stroke, ...source}))
+    let list
+    if (options.mode === modeType.SINGLE) {
+      list = [data].map(({fill, stroke, source}) => ({pointColor: fill || stroke, ...source}))
+    } else if (options.mode === modeType.GOURP) {
+      try {
+        const elType = data.className.split('-')[2]
+        const groupData = backup[elType].filter(({source}) => isEqual(source[0].dimension, data.source.dimension))[0]
+        const {source, fill, stroke} = groupData
+        list = source.map((item, i) => ({...item, pointColor: isArray(fill) ? fill[i] : stroke[i]}))
+      } catch (e) {
+        this.log.warn('此图表不支持分组 Tooltip 展示', e)
+      }
+    }
     // 当且仅当数据变化时进行渲染
-    if (!isEqual(this.backup, list)) {
+    if (isArray(list) && !isEqual(this.backup, list)) {
       // 头部维度信息
       this.instance
         .selectAll('.wave-tooltip-title')
@@ -92,6 +112,7 @@ export default class Tooltip {
         .style('padding', '5px')
         .style('position', 'relative')
       // 每一行
+      container.selectAll('div').remove()
       const rows = container
         .selectAll('div')
         .data(list)

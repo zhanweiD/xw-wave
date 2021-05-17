@@ -20,7 +20,7 @@ export default function drawCircle({
     const [rx, ry] = size
     const [cx, cy] = position[i]
     return {
-      class: className,
+      className,
       cx,
       cy,
       rx,
@@ -43,7 +43,7 @@ export default function drawCircle({
     .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
     .attr('stroke', d => d.stroke)
     .attr('stroke-width', d => d.strokeWidth)
-    .attr('class', d => d.class)
+    .attr('class', d => d.className)
     .attr('cx', d => d.cx)
     .attr('cy', d => d.cy)
     .attr('rx', d => d.rx)
