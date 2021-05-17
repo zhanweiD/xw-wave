@@ -37,9 +37,8 @@ const judgeScaleValue = (mode, direction) => {
 // 比例缩放动画
 export default class ZoomAnimation extends AnimationBase {
   constructor(options, context) {
-    super(options)
-    this.options = {...defaultOptions, ...options, targets: context.selectAll(options.targets)._groups[0]}
-    this.elementNumber = context.selectAll(options.targets)._groups[0].length
+    super(defaultOptions, options, context)
+    this.elementNumber = this.options.targets.length
     this.isAnimationStart = false
     this.isAnimationAvailable = true
   }

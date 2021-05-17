@@ -113,8 +113,7 @@ const createGradient = (parentNode, direction, color) => {
 
 export default class ScanAnimation extends AnimationBase {
   constructor(options, context) {
-    super(options)
-    this.options = {...defaultOptions, ...options, context}
+    super(defaultOptions, options, context)
     this.isAnimationStart = false
     this.isAnimationAvailable = true
     this.isAnimationFirstPlay = true
@@ -125,7 +124,7 @@ export default class ScanAnimation extends AnimationBase {
   }
 
   play() {
-    const {delay, duration, direction, scope, targets, loop, context} = this.options
+    const {delay, duration, direction, scope, loop, className, context} = this.options
     const attributes = getAttributes(direction)
     const isLeftOrTop = direction === directions.LEFT || direction === directions.TOP
     const configs = {
@@ -142,7 +141,7 @@ export default class ScanAnimation extends AnimationBase {
     if (this.isAnimationFirstPlay) {
       this.isAnimationFirstPlay = false
       if (direction === directions.ROTATE) {
-        this.lights = context.selectAll(targets).clone(false)
+        this.lights = context.selectAll(className).clone(false)
           .attr('class', 'scanAnimation-clone')
           .attr('filter', `url(#scanAnimation${count}-filter)`)
           .attr('mask', direction === directions.ROTATE ? `url(#scanAnimation${count}-mask)` : '')
@@ -151,7 +150,7 @@ export default class ScanAnimation extends AnimationBase {
           .style('pointer-events', 'none')
           .style('opacity', 0)
       } else {
-        this.lights = context.selectAll(targets).clone(false)
+        this.lights = context.selectAll(className).clone(false)
           .attr('class', 'scanAnimation-clone')
           .attr('filter', `url(#scanAnimation${count}-filter)`)
           .attr('stroke', scope !== scopes.FILL ? `url(#scanAnimation${count})` : '')

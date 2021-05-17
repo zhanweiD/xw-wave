@@ -15,9 +15,8 @@ const defaultOptions = {
 
 // 空动画对象，用于执行中间函数或其他功能
 export default class EmptyAnimation extends AnimationBase {
-  constructor(options = {}) {
-    super(options)
-    this.options = {...defaultOptions, ...options}
+  constructor(options, context) {
+    super(defaultOptions, options, context)
     this.isAnimationStart = false
     this.isAnimationAvailable = true
   }
