@@ -168,7 +168,8 @@ const createSchema = (container, theme, layout, mode, hasArea) => ({
         },
       },
       tooltip: {
-        circle: null,
+        mode: 'group',
+        targets: ['circle'],
       },
       event: {
         'click-circle': d => console.log(d),

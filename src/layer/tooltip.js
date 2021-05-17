@@ -10,7 +10,7 @@ const modeType = {
 }
 
 const defaultOptions = {
-  padding: 5,
+  mode: modeType.SINGLE,
   pointSize: 10,
   titleSize: 14,
   titleColor: '#383d41',
@@ -18,7 +18,6 @@ const defaultOptions = {
   labelColor: '#383d41',
   valueSize: 12,
   valueColor: '#383d41',
-  gap: 20,
   enableAnimation: false,
   animationDuration: 500,
   animationDelay: 0,
@@ -32,6 +31,7 @@ export default class Tooltip {
     this.isMoving = false
     this.isVisible = false
     this.isAvailable = false
+    this.options = defaultOptions
     this.log = createLog(__filename)
     this.lastPosition = {x: -100, y: -100}
     // 根容器
@@ -72,15 +72,15 @@ export default class Tooltip {
   }
 
   // 更新数据
-  update({target}, {data, backup}, options = {mode: modeType.SINGLE}) {
-    const {padding, titleSize, titleColor, pointSize, labelSize, labelColor, valueSize, valueColor, gap,
-    } = {...defaultOptions, ...options}
-    // 计算和筛选需要展示的数据
+  update({target}, {data, backup}, options = {}) {
+    let list = null
     this.target = target
-    let list
-    if (options.mode === modeType.SINGLE) {
+    this.options = {...this.options, ...options}
+    const {titleSize, titleColor, pointSize, labelSize, labelColor, valueSize, valueColor, mode} = this.options
+    // 计算和筛选需要展示的数据
+    if (mode === modeType.SINGLE) {
       list = [data].map(({fill, stroke, source}) => ({pointColor: fill || stroke, ...source}))
-    } else if (options.mode === modeType.GOURP) {
+    } else if (mode === modeType.GOURP) {
       try {
         const elType = data.className.split('-')[2]
         const groupData = backup[elType].filter(({source}) => isEqual(source[0].dimension, data.source.dimension))[0]
@@ -98,7 +98,7 @@ export default class Tooltip {
         .data([list[0].dimension])
         .join('div')
         .attr('class', 'wave-tooltip-title')
-        .style('padding', `${padding}px ${padding}px 0`)
+        .style('padding', '5px 5px 0')
         .style('font-size', `${titleSize}px`)
         .style('color', titleColor)
         .style('position', 'relative')
@@ -123,7 +123,7 @@ export default class Tooltip {
       const pointWidthLabel = rows
         .append('div')
         .attr('class', 'fbh fbjsb fbac')
-        .style('margin-right', `${gap}px`)
+        .style('margin-right', '20px')
       pointWidthLabel
         .append('div')
         .style('width', `${pointSize}px`)

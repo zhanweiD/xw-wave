@@ -124,8 +124,8 @@ const createSchema = (container, theme, layout, mode) => ({
         },
       },
       tooltip: {
-        rect: null,
-        circle: null,
+        mode: 'single',
+        targets: ['rect', 'circle'],
       },
       event: {
         'click-rect': d => console.log(d),

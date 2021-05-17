@@ -106,7 +106,8 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
         },
       },
       tooltip: {
-        arc: null,
+        mode: 'single',
+        targets: ['arc'],
       },
       event: {
         'click-arc': d => console.log(d),

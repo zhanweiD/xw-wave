@@ -126,8 +126,6 @@ const createSchema = (container, theme, layout, mode) => ({
           },
         },
       },
-      tooltip: {
-      },
       event: {
         'click-polygon': d => console.log(d),
       },

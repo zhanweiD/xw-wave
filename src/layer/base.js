@@ -153,7 +153,9 @@ export default class LayerBase {
     // 初始化 tooltip 实例
     this.tooltip = this.tooltip || new Tooltip(this.options.container)
     // 绑定事件，考虑到渲染延迟，推迟到下个事件循环执行
-    Object.keys(options).forEach(elType => setTimeout(() => {
+    const {mode, targets} = options
+    this.tooltip.options.mode = mode
+    targets.forEach(elType => setTimeout(() => {
       const els = this.options.root.selectAll(`.${this.className} .wave-basic-${elType}`)
       tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
     }, 0))
