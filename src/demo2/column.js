@@ -1,5 +1,5 @@
 import {createTableListData} from './mock'
-import createStandardLayout from '../layout/standard'
+import {getStandardLayoutWithBrush} from '../layout/standard'
 
 const data = createTableListData()
 const titleMapping = {
@@ -127,6 +127,7 @@ const createSchema = (container, theme, layout, type, mode) => ({
       options: {
         id: 'rect',
         layout: 'main',
+        brush: type === 'column' ? 'horizontal' : 'vertical',
         type,
         mode,
       },
@@ -181,12 +182,12 @@ const createSchema = (container, theme, layout, type, mode) => ({
 })
 
 export default {
-  groupColumn: (container, theme) => createSchema(container, theme, createStandardLayout, 'column', 'group'),
-  stackColumn: (container, theme) => createSchema(container, theme, createStandardLayout, 'column', 'stack'),
-  intervalColumn: (container, theme) => createSchema(container, theme, createStandardLayout, 'column', 'interval'),
-  waterfallColumn: (container, theme) => createSchema(container, theme, createStandardLayout, 'column', 'waterfall'),
-  groupBar: (container, theme) => createSchema(container, theme, createStandardLayout, 'bar', 'group'),
-  stackBar: (container, theme) => createSchema(container, theme, createStandardLayout, 'bar', 'stack'),
-  intervalBar: (container, theme) => createSchema(container, theme, createStandardLayout, 'bar', 'interval'),
-  waterfallBar: (container, theme) => createSchema(container, theme, createStandardLayout, 'bar', 'waterfall'),
+  groupColumn: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'column', 'group'),
+  stackColumn: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'column', 'stack'),
+  intervalColumn: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'column', 'interval'),
+  waterfallColumn: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'column', 'waterfall'),
+  groupBar: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'bar', 'group'),
+  stackBar: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'bar', 'stack'),
+  intervalBar: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'bar', 'interval'),
+  waterfallBar: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'bar', 'waterfall'),
 }

@@ -69,14 +69,10 @@ export default class LayerBase {
   }
 
   // 数据处理
-  setData() {
-    console.warn('此图层的 setData 函数未重写')
-  }
+  setData() { this.warn('此图层的 setData 函数未重写') }
 
   // 样式处理
-  setStyle() {
-    console.warn('此图层的 setStyle 函数未重写')
-  }
+  setStyle() { this.warn('此图层的 setStyle 函数未重写') }
 
   // 返回统一处理后的样式
   createStyle(defaultStyle, currentStyle, incomingStyle) {

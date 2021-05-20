@@ -1,5 +1,5 @@
 import {createTableListData} from './mock'
-import createStandardLayout from '../layout/standard'
+import {getStandardLayoutWithBrush} from '../layout/standard'
 
 const data = createTableListData()
 const titleMapping = {
@@ -148,6 +148,7 @@ const createSchema = (container, theme, layout, mode) => ({
       options: {
         id: 'scatter',
         layout: 'main',
+        brush: 'horizontal',
         mode,
       },
       data,
@@ -200,6 +201,6 @@ const createSchema = (container, theme, layout, mode) => ({
 })
 
 export default {
-  scatter: (container, theme) => createSchema(container, theme, createStandardLayout, 'scatter'),
-  bubble: (container, theme) => createSchema(container, theme, createStandardLayout, 'bubble'),
+  scatter: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'scatter'),
+  bubble: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'bubble'),
 }

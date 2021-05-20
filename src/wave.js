@@ -25,6 +25,12 @@ const stateMapping = {
   DESTROY: 'destroy', // 已销毁
 }
 
+// 笔刷模式
+const brushType = {
+  HORIZONTAL: 'horizontal',
+  VERTICAL: 'vertical',
+}
+
 // 图表图层
 const LayerMapping = {
   axis: AxisLayer, // 坐标轴
@@ -57,6 +63,10 @@ export default class Wave {
   #root = null
 
   #layer = []
+
+  get state() {
+    return this.#state
+  }
 
   get layout() {
     return this.#layout
@@ -135,13 +145,9 @@ export default class Wave {
   getColor(count) {
     let colors = ThemeConfig[this.theme]?.colors || ThemeConfig.glaze.colors
     // 颜色数量小于等于三时
-    if (count <= 3) {
-      colors = colors.slice(2, 7)
-    }
+    count <= 3 && (colors = colors.slice(2, 7))
     // 颜色数量等于四时
-    if (count === 4) {
-      colors = colors.slice(2)
-    }
+    count === 4 && (colors = colors.slice(2))
     return chroma.scale(colors).mode('lch').colors(count)
   }
 
@@ -169,7 +175,39 @@ export default class Wave {
       const index = this.#layer.findIndex(({id}) => id === layerID)
       this.#layer.splice(index, 1)
     })
+    // 添加笔刷实例
+    options.brush && this.createBrush(layer, options.brush)
     return layer
+  }
+
+  // 基于某个图层创建笔刷
+  createBrush(layer, type) {
+    const isHorizontal = type === brushType.HORIZONTAL
+    const {width, height, left, top} = this.layout.brush
+    let prevRange = null
+    // 笔刷影响图层的比例尺
+    const brushed = event => {
+      if (layer.scale) {
+        const total = isHorizontal ? width : height
+        const {selection} = event
+        const scale = isHorizontal ? layer.scale.scaleX : layer.scale.scaleY
+        if (prevRange === null) prevRange = scale.range()
+        const zoomFactor = total / ((selection[1] - selection[0]) || 1)
+        const nextRange = [prevRange[0], prevRange[0] + (prevRange[1] - prevRange[0]) * zoomFactor]
+        const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
+        scale.range(nextRange.map(value => value - offset))
+        layer.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
+        layer.setStyle()
+        layer.draw()
+      }
+    }
+    // 创建笔刷实例
+    const [brushX1, brushX2, brushY1, brushY2] = [left, left + width, top, top + height]
+    const brush = (isHorizontal ? d3.brushX() : d3.brushY())
+    brush.extent([[brushX1, brushY1], [brushX2, brushY2]]).on('brush', brushed)
+    // 确定笔刷区域
+    const brushDOM = this.#root.append('g').attr('class', 'brush').call(brush)
+    brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
   }
 
   // 重绘制所有图层
