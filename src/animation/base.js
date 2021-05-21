@@ -4,7 +4,7 @@ import createLog from '../util/create-log'
 
 // 动画基类
 export default class AnimationBase {
-  constructor(defaultOptions, options, context) {
+  constructor(defaultOptions, incomingOptions, context) {
     // 事件
     this.event = createEvent(__filename)
     // 日志
@@ -16,11 +16,6 @@ export default class AnimationBase {
     // 动画实例对象，暴露出去用于动画控制
     this.instance = null
     // 初始化 options
-    this.#createOptions(defaultOptions, options, context)
-  }
-
-  // 统一的样式处理判断，确保 targets 是 dom 元素
-  #createOptions = (defaultOptions, incomingOptions, context) => {
     const options = merge({context}, defaultOptions, incomingOptions)
     const {targets} = options
     if (targets && typeof targets === 'string') {

@@ -40,9 +40,9 @@ const animationMapping = {
   arc: ['zoom', 'scan', 'fade'],
   circle: ['zoom', 'scan', 'fade'],
   curve: ['zoom', 'scan', 'fade'],
-  line: ['zoom', 'scan', 'fade'],
+  line: ['zoom', 'scan', 'fade', 'scroll'],
   polygon: ['zoom', 'scan', 'fade'],
-  rect: ['zoom', 'scan', 'fade'],
+  rect: ['zoom', 'scan', 'fade', 'scroll'],
   text: ['zoom', 'scan', 'fade'],
   area: ['zoom', 'scan', 'fade'],
 }
