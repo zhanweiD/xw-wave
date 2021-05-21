@@ -1,4 +1,5 @@
 import anime from 'animejs'
+import * as d3 from 'd3'
 import AnimationBase from './base'
 import rgba2obj from '../util/rgba2obj'
 
@@ -157,6 +158,16 @@ export default class ScanAnimation extends AnimationBase {
           .style('fill', scope !== scopes.STROKE ? `url(#scanAnimation${count})` : '')
           .style('pointer-events', 'none')
       }
+      // 监听属性变化以便于同步
+      const targetNode = context.selectAll(className)._groups[0]
+      const observers = targetNode.forEach((el, i) => {
+        const observer = new MutationObserver(mutationList => mutationList.forEach(({attributeName}) => {
+          d3.select(this.lights._groups[0][i]).attr(attributeName, d3.select(el).attr(attributeName))
+        })).observe(el, {attributes: true})
+        return observer
+      })
+      // 销毁时取消监听
+      this.event.on('destroy', () => observers.forEach(observer => observer.disconnect()))
     }
     // 变换的动画属性
     if (attributes.length === 2) {
@@ -189,6 +200,7 @@ export default class ScanAnimation extends AnimationBase {
 
   destroy() {
     anime.remove(this.targets._groups[0])
+    this.event.has('destroy') && this.event.fire('destroy')
     this.isAnimationAvailable = false
     this.lights?.remove()
     this.extraNode.remove()
