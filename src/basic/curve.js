@@ -28,7 +28,7 @@ export default function drawCurve({
     source: source.length > i ? source[i] : null,
   }))
 
-  container.selectAll(`.${className}`)
+  return container.selectAll(`.${className}`)
     .data(configuredData)
     .join('path')
     .transition()

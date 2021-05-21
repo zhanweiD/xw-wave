@@ -42,7 +42,7 @@ export default function drawText({
     }
   })
 
-  const texts = container.selectAll(`.${className}`)
+  return container.selectAll(`.${className}`)
     .data(configuredData)
     .join('text')
     .transition()
@@ -62,6 +62,4 @@ export default function drawText({
     .style('transform', d => d.transform)
     .style('text-shadow', d => d.textShadow)
     .style('pointer-events', 'none')
-
-  return texts
 }

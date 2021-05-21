@@ -36,7 +36,7 @@ export default function drawArc({
     }
   })
 
-  const arcs = container.selectAll(`.${className}`)
+  return container.selectAll(`.${className}`)
     .data(configuredData)
     .join('path')
     .transition()
@@ -52,6 +52,4 @@ export default function drawArc({
     .attr('d', d => d.d)
     .style('transform', d => d.transform)
     .style('outline', 'none')
-
-  return arcs
 }

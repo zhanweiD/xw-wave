@@ -29,7 +29,7 @@ export default function drawPolygon({
     }
   })
 
-  const polygons = container.selectAll(`.${className}`)
+  return container.selectAll(`.${className}`)
     .data(configuredData)
     .join('polygon')
     .transition()
@@ -43,6 +43,4 @@ export default function drawPolygon({
     .attr('opacity', d => d.opacity)
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
-    
-  return polygons
 }

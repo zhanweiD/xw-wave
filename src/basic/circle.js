@@ -35,7 +35,7 @@ export default function drawCircle({
     }
   })
 
-  const circles = container.selectAll(`.${className}`)
+  return container.selectAll(`.${className}`)
     .data(configuredData)
     .join('ellipse')
     .transition()
@@ -52,6 +52,4 @@ export default function drawCircle({
     .attr('opacity', d => d.opacity)
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
-
-  return circles
 }

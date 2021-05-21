@@ -26,7 +26,7 @@ export default function drawLine({
   }))
 
   // 画线
-  container.selectAll(`.${className}`)
+  return container.selectAll(`.${className}`)
     .data(configuredData)
     .join('line')
     .transition()
@@ -41,4 +41,5 @@ export default function drawLine({
     .attr('y1', d => d.y1)
     .attr('x2', d => d.x2)
     .attr('y2', d => d.y2)
+    .style('pointer-events', 'none')
 }
