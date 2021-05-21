@@ -36,24 +36,12 @@ export default class EmptyAnimation extends AnimationBase {
         loopComplete: this.end.bind(this),
       })
     }
-  }
-
-  start() {
-    this.isAnimationStart = true
-    this.event.has('start') && this.event.fire('start')
-  }
-
-  process() {
-    this.event.has('process') && this.event.fire('process')
-  }
-
-  end() {
-    this.isAnimationStart = false
-    this.event.has('end') && this.event.fire('end')
+    this.event.has('play') && this.event.fire('play')
   }
 
   destroy() {
     this.isAnimationAvailable = false
     this.options.mode === modeType.TIMER && this.instance.remove()
+    this.event.has('destroy') && this.event.fire('destroy')
   }
 }

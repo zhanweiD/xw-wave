@@ -182,20 +182,7 @@ export default class ScanAnimation extends AnimationBase {
     // 开始执行
     this.instance && anime.remove(this.targets._groups[0])
     this.instance = anime(configs)
-  }
-
-  start() {
-    this.isAnimationStart = true
-    this.event.has('start') && this.event.fire('start')
-  }
-
-  process(data) {
-    this.event.has('process') && this.event.fire('process', data.progress)
-  }
-
-  end() {
-    this.isAnimationStart = false
-    this.event.has('end') && this.event.fire('end')
+    this.event.has('play') && this.event.fire('play')
   }
 
   destroy() {

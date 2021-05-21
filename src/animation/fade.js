@@ -34,24 +34,12 @@ export default class FadeAnimation extends AnimationBase {
       opacity: mode === modeType.SHOW ? [0, 1] : [1, 0],
       easing: 'linear',
     })
-  }
-
-  start() {
-    this.isAnimationStart = true
-    this.event.has('start') && this.event.fire('start')
-  }
-
-  process(data) {
-    this.event.has('process') && this.event.fire('process', data.progress)
-  }
-
-  end() {
-    this.isAnimationStart = false
-    this.event.has('end') && this.event.fire('end')
+    this.event.has('play') && this.event.fire('play')
   }
 
   destroy() {
     anime.remove(this.options.targets)
     this.isAnimationAvailable = false
+    this.event.has('destroy') && this.event.fire('destroy')
   }
 }

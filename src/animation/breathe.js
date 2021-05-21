@@ -61,25 +61,13 @@ export default class BreatheAnimation extends AnimationBase {
       direction: 'alternate',
       easing: 'linear',
     })
-  }
-
-  start() {
-    this.isAnimationStart = true
-    this.event.has('start') && this.event.fire('start')
-  }
-
-  process(data) {
-    this.event.has('process') && this.event.fire('process', data.progress)
-  }
-
-  end() {
-    this.isAnimationStart = false
-    this.event.has('end') && this.event.fire('end')
+    this.event.has('play') && this.event.fire('play')
   }
 
   destroy() {
     this.instance.remove()
     this.extraNode.remove()
     this.isAnimationAvailable = false
+    this.event.has('destroy') && this.event.fire('destroy')
   }
 }

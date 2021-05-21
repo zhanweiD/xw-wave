@@ -32,4 +32,35 @@ export default class AnimationBase {
     }
     this.options = options
   }
+
+  // 生命周期钩子：控制动画执行
+  play() {
+    this.event.has('play') && this.event.fire('play')
+    this.start()
+    this.process(null)
+    this.end()
+  }
+
+  // 生命周期：动画开始
+  start() {
+    this.isAnimationStart = true
+    this.event.has('start') && this.event.fire('start')
+  }
+
+  // 生命周期：动画进行中
+  process(data) {
+    this.event.has('process') && this.event.fire('process', data.progress)
+  }
+
+  // 生命周期：动画结束
+  end() {
+    this.isAnimationStart = false
+    this.event.has('end') && this.event.fire('end')
+  }
+
+  // 生命周期钩子：控制动画销毁
+  destroy() {
+    this.isAnimationAvailable = false
+    this.event.has('destroy') && this.event.fire('destroy')
+  }
 }

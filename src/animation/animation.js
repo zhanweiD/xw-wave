@@ -10,11 +10,10 @@ const defaultOptions = {
 // 动画队列类
 export default class AnimationQueue extends AnimationBase {
   constructor(options) {
-    super(options)
+    super(defaultOptions, options)
     this.isAnimationStart = false
     this.isAnimationAvailable = true
     this.isReady = false
-    this.options = {...defaultOptions, ...options}
     // 初始化动画队列
     const animationHead = {id: createUuid(), instance: new Empty()}
     // 第一个元素绑定动画序列的 start 生命周期
@@ -116,14 +115,6 @@ export default class AnimationQueue extends AnimationBase {
   }
 
   /**
-   * 获取现有的一个动画实例
-   * @param {动画ID} id
-   */
-  get(id) {
-    return this.animationQueue.find(item => item.id === id)
-  }
-
-  /**
    * 移除序列中已有的一个动画
    * @param {动画ID} id
    */
@@ -138,7 +129,6 @@ export default class AnimationQueue extends AnimationBase {
     return null
   }
 
-  // 控制函数，开启动画
   play() {
     if (this.isAnimationStart || !this.isAnimationAvailable) {
       this.isAnimationStart && this.log.error('The animation is already started!')
@@ -148,30 +138,19 @@ export default class AnimationQueue extends AnimationBase {
       !this.isReady && this.connect()
       this.animationQueue[0].instance.play()
     }
+    this.event.has('play') && this.event.fire('play')
     return this
   }
 
-  // 图表生命周期，标志动画开始
-  start() {
-    this.isAnimationStart = true
-    this.event.has('start') && this.event.fire('start')
-  }
-
-  // 图表生命周期，标志动画进行时
-  process(data) {
-    this.event.has('process') && this.event.fire('process', data)
-  }
-
-  // 图表生命周期，标志动画结束
   end() {
     this.isAnimationStart = false
-    this.event.has('end') && this.event.fire('end')
     this.isAnimationAvailable && this.options.loop && this.play()
+    this.event.has('end') && this.event.fire('end')
   }
 
-  // 控制函数，销毁动画
   destroy() {
     this.isAnimationAvailable = false
     this.animationQueue.forEach(item => item.instance.destroy())
+    this.event.has('destroy') && this.event.fire('destroy')
   }
 }
