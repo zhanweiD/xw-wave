@@ -37,7 +37,7 @@ export default class AnimationBase {
   play() {
     this.event.has('play') && this.event.fire('play')
     this.start()
-    this.process(null)
+    this.process()
     this.end()
   }
 
@@ -49,7 +49,7 @@ export default class AnimationBase {
 
   // 生命周期：动画进行中
   process(data) {
-    this.event.has('process') && this.event.fire('process', data.progress)
+    this.event.has('process') && this.event.fire('process', data?.progress)
   }
 
   // 生命周期：动画结束
