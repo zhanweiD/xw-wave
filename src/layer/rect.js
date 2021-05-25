@@ -235,7 +235,7 @@ export default class RectLayer extends LayerBase {
       const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
       const position = groupData.map(({x, y}) => [x, y])
       const fill = groupData.map(({color}) => color)
-      const transformOrigin = this.options.type === waveType.COLUMN ? '0% 100%' : '0% 0%'
+      const transformOrigin = this.options.type === waveType.COLUMN ? 'bottom' : 'left'
       return {data, source, position, fill, transformOrigin, ...this.#style.rect}
     })
     const textData = this.#textData.map(groupData => {

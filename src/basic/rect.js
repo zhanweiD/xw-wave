@@ -7,7 +7,7 @@ export default function drawText({
   fillOpacity = 1,
   strokeOpacity = 1,
   rotate = 0, // 旋转
-  transformOrigin = null, // 影响动画和旋转
+  transformOrigin = 'center', // 影响动画和旋转
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -35,10 +35,14 @@ export default function drawText({
       strokeWidth,
       source: source.length > i ? source[i] : null,
       rotate,
+      transformOrigin: transformOrigin === 'left' ? `${realPositon[0]} ${realPositon[1]}`
+        : transformOrigin === 'center' ? `${realPositon[0] + width / 2} ${realPositon[1] + height / 2}`
+          : transformOrigin === 'bottom' ? `${realPositon[0]} ${realPositon[1] + height}` 
+            : transformOrigin === 'top' ? `${realPositon[0] + width / 2} ${realPositon[1]}` 
+              : transformOrigin,
     }
   })
 
-  const origin = Array.isArray(transformOrigin) ? `${transformOrigin[0]} ${transformOrigin[1]}` : transformOrigin
   return container.selectAll(`.${className}`)
     .data(configuredData)
     .join('rect')
@@ -56,5 +60,5 @@ export default function drawText({
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
     .attr('transform', d => `rotate(${d.rotate})`)
-    .attr('transform-origin', origin)
+    .attr('transform-origin', d => d.transformOrigin)
 }

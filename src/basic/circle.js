@@ -32,6 +32,7 @@ export default function drawCircle({
       strokeOpacity,
       strokeWidth,
       source: source.length > i ? source[i] : null,
+      transformOrigin: `${cx} ${cy}`,
     }
   })
 
@@ -52,4 +53,5 @@ export default function drawCircle({
     .attr('opacity', d => d.opacity)
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
+    .attr('transform-origin', d => d.transformOrigin)
 }

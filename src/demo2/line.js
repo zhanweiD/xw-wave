@@ -142,7 +142,7 @@ const createSchema = (container, theme, layout, mode, hasArea) => ({
         },
       },
       animation: {
-        line: {
+        curve: {
           enterAnimation: {
             type: 'zoom',
             delay: 0,
@@ -154,8 +154,9 @@ const createSchema = (container, theme, layout, mode, hasArea) => ({
             type: 'scan',
             delay: 2000,
             duration: 3000,
-            color: 'rgba(255,255,255,0.5)',
+            color: 'rgba(255,255,255,0.9)',
             direction: 'right',
+            scope: 'stroke',
           },
         },
         text: {

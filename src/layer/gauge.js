@@ -155,7 +155,7 @@ export default class GaugeLayer extends LayerBase {
       data: [[this.#rectData.width, this.#rectData.height]],
       position: [[this.#rectData.x, this.#rectData.y]],
       rotate: this.#rectData.rotate,
-      transformOrigin: [this.#rectData.x + this.#rectData.width / 2, this.#rectData.y],
+      transformOrigin: 'top',
       ...this.#style.rect,
     }]
     const circleData = [{
