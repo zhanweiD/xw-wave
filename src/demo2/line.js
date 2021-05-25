@@ -61,7 +61,7 @@ const createSchema = (container, theme, layout, mode, hasArea) => ({
       options: {
         id: 'auxiliary',
         layout: 'main',
-        direction: 'horizontal',
+        type: 'horizontal',
         bind: 'line',
       },
       data: [300, 600],

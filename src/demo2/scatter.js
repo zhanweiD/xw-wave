@@ -65,7 +65,7 @@ const createSchema = (container, theme, layout, mode) => ({
       options: {
         id: 'auxiliary',
         layout: 'main',
-        direction: 'horizontal',
+        type: 'horizontal',
         bind: 'scatter',
       },
       data: [100, 200],
@@ -88,7 +88,7 @@ const createSchema = (container, theme, layout, mode) => ({
       options: {
         id: 'auxiliary',
         layout: 'main',
-        direction: 'vertical',
+        type: 'vertical',
         bind: 'scatter',
       },
       data: [400],

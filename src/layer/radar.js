@@ -134,7 +134,7 @@ export default class RectLayer extends LayerBase {
       const transformOrigin = [center.x, center.y]
       const data = this.#polygonData.map(item => [item[index].x, item[index].y])
       return {data: [data], fill: color, stroke: color, transformOrigin, ...this.#style.polygon}
-    })
+    }).reverse()
     const pointData = this.#pointData.map(groupData => {
       const data = groupData.map(({rx, ry}) => [rx, ry])
       const position = groupData.map(({cx, cy}) => [cx, cy])

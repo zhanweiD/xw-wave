@@ -67,7 +67,7 @@ const createSchema = (container, theme, layout, type, mode) => ({
       options: {
         id: 'auxiliary',
         layout: 'main',
-        direction: type === 'bar' ? 'vertical' : 'horizontal',
+        type: type === 'bar' ? 'vertical' : 'horizontal',
         bind: 'rect',
       },
       data: [300, 600],
