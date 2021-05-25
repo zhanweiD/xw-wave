@@ -148,8 +148,11 @@ const createSchema = (container, theme, layout, mode) => ({
       options: {
         id: 'scatter',
         layout: 'main',
-        brush: 'horizontal',
         mode,
+      },
+      brush: {
+        layout: 'brush',
+        type: 'horizontal',
       },
       data,
       style: {

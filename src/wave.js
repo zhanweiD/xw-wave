@@ -175,15 +175,14 @@ export default class Wave {
       const index = this.#layer.findIndex(({id}) => id === layerID)
       this.#layer.splice(index, 1)
     })
-    // 添加笔刷实例
-    options.brush && this.createBrush(layer, options.brush)
     return layer
   }
 
   // 基于某个图层创建笔刷
-  createBrush(layer, type) {
+  createBrush(layer, options = {}) {
+    const {type, layout} = options
     const isHorizontal = type === brushType.HORIZONTAL
-    const {width, height, left, top} = this.layout.brush
+    const {width, height, left, top} = layout
     let prevRange = null
     // 笔刷影响图层的比例尺
     const brushed = event => {

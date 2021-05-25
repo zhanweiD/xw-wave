@@ -127,9 +127,12 @@ const createSchema = (container, theme, layout, type, mode) => ({
       options: {
         id: 'rect',
         layout: 'main',
-        brush: type === 'column' ? 'horizontal' : 'vertical',
         type,
         mode,
+      },
+      brush: {
+        layout: 'brush',
+        type: type === 'column' ? 'horizontal' : 'vertical',
       },
       data,
       style: {
