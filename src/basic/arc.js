@@ -46,10 +46,10 @@ export default function drawArc({
     .attr('opacity', d => d.opacity)
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
+    .attr('d', d => d.d)
     .attr('fill', d => d.fill)
     .attr('stroke', d => d.stroke)
     .attr('stroke-width', d => d.strokeWidth)
-    .attr('d', d => d.d)
     .style('transform', d => d.transform)
     .style('outline', 'none')
 }

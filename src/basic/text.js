@@ -24,23 +24,21 @@ export default function drawText({
   className, // 用于定位 
 }) {
   // 为每一个元素生成单独的配置 JSON 用于绘制
-  const configuredData = data.map((text, i) => {
-    return {
-      text,
-      className,
-      x: position[i][0],
-      y: position[i][1] - fontSize * 0.2, // 这个数字为黑体的高度差
-      fill: Array.isArray(fill) ? fill[i] : fill,
-      opacity,
-      fontFamily,
-      fontSize: `${fontSize}px`,
-      fontWeight,
-      textAnchor,
-      writingMode: directionMapping[direction],
-      transform: `rotate(${rotation})`,
-      textShadow,
-    }
-  })
+  const configuredData = data.map((text, i) => ({
+    text,
+    className,
+    x: position[i][0],
+    y: position[i][1] - fontSize * 0.2, // 这个数字为黑体的高度差
+    fill: Array.isArray(fill) ? fill[i] : fill,
+    opacity,
+    fontFamily,
+    fontSize: `${fontSize}px`,
+    fontWeight,
+    textAnchor,
+    writingMode: directionMapping[direction],
+    transform: `rotate(${rotation})`,
+    textShadow,
+  }))
 
   return container.selectAll(`.${className}`)
     .data(configuredData)

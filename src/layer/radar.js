@@ -85,7 +85,7 @@ export default class RectLayer extends LayerBase {
       return values.map(value => {
         const [angle, r] = [(scaleAngle(dimension) / 180) * Math.PI, scaleRadius(value)]
         const [x, y] = [polygonCenter.x + Math.sin(angle) * r, polygonCenter.y - Math.cos(angle) * r]
-        return ({value, x, y, angle, r})
+        return ({value, x, y, angle, r, center: polygonCenter})
       })
     })
     // 堆叠雷达图数据变更
@@ -130,9 +130,10 @@ export default class RectLayer extends LayerBase {
 
   // 绘制
   draw() {
-    const polygonData = this.#polygonData[0].map(({color}, index) => {
+    const polygonData = this.#polygonData[0].map(({color, center}, index) => {
+      const transformOrigin = [center.x, center.y]
       const data = this.#polygonData.map(item => [item[index].x, item[index].y])
-      return {data: [data], fill: color, stroke: color, ...this.#style.polygon}
+      return {data: [data], fill: color, stroke: color, transformOrigin, ...this.#style.polygon}
     })
     const pointData = this.#pointData.map(groupData => {
       const data = groupData.map(({rx, ry}) => [rx, ry])

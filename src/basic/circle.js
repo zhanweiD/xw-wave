@@ -16,25 +16,21 @@ export default function drawCircle({
   className, // 用于定位
 }) {
   // 为每一个元素生成单独的配置 JSON 用于绘制
-  const configuredData = data.map((size, i) => {
-    const [rx, ry] = size
-    const [cx, cy] = position[i]
-    return {
-      className,
-      cx,
-      cy,
-      rx,
-      ry,
-      fill: Array.isArray(fill) ? fill[i] : fill,
-      stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-      opacity,
-      fillOpacity,
-      strokeOpacity,
-      strokeWidth,
-      source: source.length > i ? source[i] : null,
-      transformOrigin: `${cx} ${cy}`,
-    }
-  })
+  const configuredData = data.map((size, i) => ({
+    className,
+    cx: position[i][0],
+    cy: position[i][1],
+    rx: size[0],
+    ry: size[1],
+    fill: Array.isArray(fill) ? fill[i] : fill,
+    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
+    opacity,
+    fillOpacity,
+    strokeOpacity,
+    strokeWidth,
+    source: source.length > i ? source[i] : null,
+    transformOrigin: `${position[i][0]} ${position[i][1]}`,
+  }))
 
   return container.selectAll(`.${className}`)
     .data(configuredData)

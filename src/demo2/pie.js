@@ -88,21 +88,14 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
             mode: 'enlarge',
             direction: 'both',
           },
-          loopAnimation: {
-            type: 'scan',
-            delay: 1000,
-            duration: 3000,
-            color: 'rgba(255,255,255,0.5)',
-            direction: 'outer',
-          },
         },
         text: {
-          // enterAnimation: {
-          //   type: 'fade',
-          //   delay: 2000,
-          //   duration: 1000,
-          //   mode: 'fadeIn',
-          // },
+          enterAnimation: {
+            type: 'fade',
+            delay: 2000,
+            duration: 1000,
+            mode: 'fadeIn',
+          },
         },
       },
       tooltip: {

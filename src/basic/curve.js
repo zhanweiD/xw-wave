@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 
-// v4基础函数——画path
+// 绘制一组曲线
 export default function drawCurve({
   stroke = 'rgba(255,255,255,0)',
   strokeWidth = 1,
@@ -14,10 +14,9 @@ export default function drawCurve({
   container,
   className,
 }) {
-  // 曲线工厂
+  // 为每一个元素生成单独的配置 JSON 用于绘制
   const lineGenerator = d3.line().x(d => d[0]).y(d => d[1])
   curve && lineGenerator.curve(d3.curveMonotoneX)
-
   const configuredData = position.map((data, i) => ({
     fill: 'none',
     stroke: Array.isArray(stroke) ? stroke[i] : stroke,

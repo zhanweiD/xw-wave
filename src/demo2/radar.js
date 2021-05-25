@@ -117,6 +117,22 @@ const createSchema = (container, theme, layout, mode) => ({
         },
       },
       animation: {
+        polygon: {
+          enterAnimation: {
+            type: 'zoom',
+            delay: 0,
+            duration: 2000,
+            mode: 'enlarge',
+            direction: 'both',
+          },
+          loopAnimation: {
+            type: 'scan',
+            delay: 1000,
+            duration: 3000,
+            color: 'rgba(255,255,255,0.5)',
+            direction: 'outer',
+          },
+        },
         text: {
           enterAnimation: {
             type: 'fade',

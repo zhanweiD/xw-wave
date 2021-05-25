@@ -6,6 +6,7 @@ export default function drawPolygon({
   opacity = 1, // 不透明度
   fillOpacity = 0,
   strokeOpacity = 1,
+  transformOrigin = null, // 影响动画和旋转
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -15,19 +16,18 @@ export default function drawPolygon({
   className, // 用于定位
 }) {
   // 为每一个元素生成单独的配置 JSON 用于绘制
-  const configuredData = data.map((points, i) => {
-    return {
-      className,
-      points: points.reduce((prev, cur) => `${prev} ${cur[0]},${cur[1]}`, ''),
-      fill: Array.isArray(fill) ? fill[i] : fill,
-      stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-      strokeWidth,
-      opacity,
-      fillOpacity,
-      strokeOpacity,
-      source: source.length > i ? source[i] : null,
-    }
-  })
+  const configuredData = data.map((points, i) => ({
+    className,
+    points: points.reduce((prev, cur) => `${prev} ${cur[0]},${cur[1]}`, ''),
+    fill: Array.isArray(fill) ? fill[i] : fill,
+    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
+    strokeWidth,
+    opacity,
+    fillOpacity,
+    strokeOpacity,
+    source: source.length > i ? source[i] : null,
+    transformOrigin: transformOrigin && `${transformOrigin[0]} ${transformOrigin[1]}`,
+  }))
 
   return container.selectAll(`.${className}`)
     .data(configuredData)
@@ -43,4 +43,5 @@ export default function drawPolygon({
     .attr('opacity', d => d.opacity)
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
+    .attr('transform-origin', d => d.transformOrigin)
 }

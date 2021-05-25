@@ -20,11 +20,11 @@ export default function drawText({
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((size, i) => {
     const [width, height] = size
-    const realPositon = position[i]
+    const [x, y] = position[i]
     return {
       className,
-      x: realPositon[0],
-      y: realPositon[1],
+      x,
+      y,
       width,
       height,
       opacity,
@@ -35,11 +35,7 @@ export default function drawText({
       strokeWidth,
       source: source.length > i ? source[i] : null,
       rotate,
-      transformOrigin: transformOrigin === 'left' ? `${realPositon[0]} ${realPositon[1]}`
-        : transformOrigin === 'center' ? `${realPositon[0] + width / 2} ${realPositon[1] + height / 2}`
-          : transformOrigin === 'bottom' ? `${realPositon[0]} ${realPositon[1] + height}` 
-            : transformOrigin === 'top' ? `${realPositon[0] + width / 2} ${realPositon[1]}` 
-              : transformOrigin,
+      transformOrigin: getTransformOrigin({x, y, width, height, transformOrigin}),
     }
   })
 
@@ -61,4 +57,22 @@ export default function drawText({
     .attr('stroke-opacity', d => d.strokeOpacity)
     .attr('transform', d => `rotate(${d.rotate})`)
     .attr('transform-origin', d => d.transformOrigin)
+}
+
+const getTransformOrigin = ({x, y, height, width, transformOrigin}) => {
+  let result = transformOrigin
+  if (transformOrigin === 'center') {
+    result = `${x + width / 2} ${y + height / 2}`
+  } else if (transformOrigin === 'left') {
+    result = `${x} ${y + height / 2}`
+  } else if (transformOrigin === 'right') {
+    result = `${x + width} ${y + height / 2}`
+  } else if (transformOrigin === 'top') {
+    result = `${x + width / 2} ${y}`
+  } else if (transformOrigin === 'bottom') {
+    result = `${x + width / 2} ${y + height}`
+  } else if (Array.isArray(transformOrigin)) {
+    result = `${transformOrigin[0]} ${transformOrigin[1]}`
+  }
+  return result
 }

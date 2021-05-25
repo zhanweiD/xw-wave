@@ -23,13 +23,14 @@ const defaultOptions = {
 
 const judgeScaleValue = (mode, direction) => {
   let values = []
+  const [min, max] = [0.0001, 1]
   // 方向判断
   if (direction === directions.HORIZONTAL) {
-    values = (mode === modeType.SHOW ? [0, 1] : [1, 1])
+    values = (mode === modeType.SHOW ? [min, max] : [max, max])
   } else if (direction === directions.VERTICAL) {
-    values = (mode === modeType.SHOW ? [1, 0] : [1, 1])
+    values = (mode === modeType.SHOW ? [max, min] : [max, max])
   } else if (direction === directions.BOTH) {
-    values = (mode === modeType.SHOW ? [0, 0] : [1, 1])
+    values = (mode === modeType.SHOW ? [min, min] : [max, max])
   }
   return values
 }

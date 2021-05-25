@@ -1,4 +1,4 @@
-// v4基础函数——画直线
+// 绘制一组直线
 export default function drawLine({
   stroke = 'rgba(255,255,255,1)',
   strokeWidth = 1,
@@ -12,6 +12,7 @@ export default function drawLine({
   container,
   className,
 }) {
+  // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = position.map((data, i) => ({
     stroke: Array.isArray(stroke) ? stroke[i] : stroke,
     strokeWidth,
