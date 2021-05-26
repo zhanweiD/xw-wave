@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import LayerBase from './base'
-import ReactLayer from './rect'
 
 // 辅助线方向
 const axisType = {
@@ -49,15 +48,15 @@ export default class AxisLayer extends LayerBase {
   // 传入数据数组和比例尺，辅助线需要外部的比例尺
   setData(data, scale) {
     this.#scale = scale || this.#scale
-    const {className} = data
     const {type = axisType.HORIZONTAL, layout} = this.options
     const {left, top, width, height} = layout
     // 获取坐标值
     const position = []
     if (this.#scale.type === 'band' || this.#scale.type === 'point') {
-      const isRectLayer = ReactLayer.name === className
+      const isCartesianCoordinate = type === axisType.HORIZONTAL || type === axisType.VERTICAL
+      const needOffset = this.#scale.type === 'band' && isCartesianCoordinate
       this.#scale.domain().forEach(label => {
-        position.push([label, this.#scale(label) + (isRectLayer ? this.#scale.bandwidth() / 2 : 0)])
+        position.push([label, this.#scale(label) + (needOffset ? this.#scale.bandwidth() / 2 : 0)])
       })
     } else if (this.#scale.type === 'linear') {
       const [min, max] = this.#scale.domain()
@@ -162,7 +161,7 @@ export default class AxisLayer extends LayerBase {
       ...this.#style.text,
     }));
     (scale === 'linear' || !isCartesianCoordinate) && this.drawBasic('line', lineData)
-    this.options.type === axisType.RADIUS && this.drawBasic('circle', circleData)
+    axis === axisType.RADIUS && this.drawBasic('circle', circleData)
     this.drawBasic('text', textData)
   }
 }

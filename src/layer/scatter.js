@@ -41,8 +41,7 @@ export default class ScatterLayer extends LayerBase {
   // 列数据依次为：分组名称、x轴坐标值、y轴坐标值、数值（可缺省）
   setData(data, scales = {}, nice = {}) {
     this.#data = data || this.#data
-    const {layout} = this.options
-    const {left, top, width, height} = layout
+    const {left, top, width, height} = this.options.layout
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     // 初始化比例尺

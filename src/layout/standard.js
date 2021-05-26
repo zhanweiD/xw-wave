@@ -1,6 +1,6 @@
 // 计算布局信息
 function getStandardLayout({containerWidth, containerHeight, padding, brush = false}) {
-  const brushHeight = brush ? containerHeight / 10 : 0
+  const brushHeight = brush ? containerHeight / 10 : containerHeight / 30
   const heightWithoutBrush = containerHeight - brushHeight
   const layout = {
     title: {
