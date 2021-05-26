@@ -135,6 +135,10 @@ const createSchema = (container, theme, layout, type, mode) => ({
         type: type === 'column' ? 'horizontal' : 'vertical',
       },
       data,
+      scale: {
+        count: 3,
+        zero: true,
+      },
       style: {
         labelPosition: type === 'bar' 
           ? ['left-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'right-outer'] 

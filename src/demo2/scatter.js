@@ -155,6 +155,10 @@ const createSchema = (container, theme, layout, mode) => ({
         type: 'horizontal',
       },
       data,
+      scale: {
+        count: 4,
+        zero: true,
+      },
       style: {
         circleSizeRange: mode === 'bubble' ? [10, 30] : [5, 5],
         circle: {

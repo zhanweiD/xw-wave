@@ -72,7 +72,7 @@ export default class RectLayer extends LayerBase {
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
-  setData(tableList, scales = {}) {
+  setData(tableList, scales = {}, nice = {}) {
     this.#data = tableList || this.#data
     const {type = waveType.COLUMN, mode = modeType.GROUP, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
@@ -83,12 +83,13 @@ export default class RectLayer extends LayerBase {
         type: 'band',
         domain: this.#data.select(headers[0]).data[0].list,
         range: type === waveType.COLUMN ? [0, layout.width] : [0, layout.height],
+        nice,
       }),
       scaleY: (type === waveType.BAR ? scales.scaleX : scales.scaleY) || new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
         range: type === waveType.COLUMN ? [layout.height, 0] : [layout.width, 0],
-        nice: {count: 5, zero: true},
+        nice: {zero: true, ...nice},
       }),
     }
     // 计算基础数据

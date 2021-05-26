@@ -64,7 +64,7 @@ export default class RectLayer extends LayerBase {
    * 传入列表类，第一列数据要求为纬度数据列
    * @param {TableList} tableList 列表
    */
-  setData(tableList) {
+  setData(tableList, scales = {}, nice = {}) {
     this.#data = tableList || this.#data
     const {mode = modeType.DEFAULT, type = waveType.PIE, layout} = this.options
     const {width, height} = layout
@@ -75,13 +75,13 @@ export default class RectLayer extends LayerBase {
     if (type === waveType.PIE) {
       const percentages = this.#data.select(headers[1], {mode: 'percentage', target: 'column'})
       this.#scale = {
-        scaleAngle: new Scale({
+        scaleAngle: scales.scaleAngle || new Scale({
           type: 'angle',
           domain: labels.concat(percentages),
           range: [0, 360],
-          nice: {paddingInner: 0},
+          nice: {paddingInner: 0, ...nice},
         }),
-        scaleRadius: new Scale({
+        scaleRadius: scales.scaleRadius || new Scale({
           type: 'quantize',
           domain: [-Infinity, Infinity],
           range: [maxRadius],
@@ -93,19 +93,19 @@ export default class RectLayer extends LayerBase {
       const percentages = this.#data.select(headers[1])
       percentages.data[0].list = percentages.data[0].list.map(() => 1 / percentages.data[0].list.length)
       this.#scale = {
-        scaleAngle: new Scale({
+        scaleAngle: scales.scaleAngle || new Scale({
           type: 'angle',
           domain: labels.concat(percentages),
           range: [0, 360],
-          nice: {paddingInner: 0},
+          nice: {paddingInner: 0, ...nice},
         }),
-        scaleRadius: new Scale({
+        scaleRadius: scales.scaleRadius || new Scale({
           type: 'linear',
           domain: mode === modeType.STACK
             ? [0, this.#data.select(headers.slice(1), {mode: 'sum', target: 'row'}).range()[1]]
             : [0, this.#data.select(headers.slice(1)).range()[1]],
           range: [0, maxRadius],
-          nice: false,
+          nice,
         }),
       }
     }

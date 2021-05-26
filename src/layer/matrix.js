@@ -50,7 +50,7 @@ export default class MatrixLayer extends LayerBase {
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
-  setData(tableList) {
+  setData(tableList, scales = {}, nice = {}) {
     this.#data = tableList || this.#data
     const {mode = modeType.RECT, layout, getColor} = this.options
     const {left, top, width, height} = layout
@@ -58,19 +58,19 @@ export default class MatrixLayer extends LayerBase {
     const [min, max] = this.#data.range()
     // 初始化比例尺
     this.#scale = {
-      scaleX: new Scale({
+      scaleX: scales.scaleX || new Scale({
         type: 'band',
         domain: rows,
         range: [0, width],
-        nice: {paddingInner: 0},
+        nice: {paddingInner: 0, ...nice},
       }),
-      scaleY: new Scale({
+      scaleY: scales.scaleY || new Scale({
         type: 'band',
         domain: columns,
         range: [height, 0],
-        nice: {paddingInner: 0},
+        nice: {paddingInner: 0, ...nice},
       }),
-      scaleColor: new Scale({
+      scaleColor: scales.scaleColor || new Scale({
         type: 'ordinal',
         domain: d3.range(0, max - min, 1),
         range: getColor(max - min + 1),

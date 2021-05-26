@@ -70,7 +70,7 @@ export default class LineLayer extends LayerBase {
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
-  setData(tableList) {
+  setData(tableList, scales = {}, nice = {}) {
     this.#data = tableList || this.#data
     const {mode = modeType.DEFAULT, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
@@ -78,16 +78,17 @@ export default class LineLayer extends LayerBase {
     const {width, height, top, left} = layout
     // 初始化比例尺
     this.#scale = {
-      scaleX: new Scale({
+      scaleX: scales.scaleX || new Scale({
         type: 'point',
         domain: this.#data.select(headers[0]).data[0].list,
         range: [0, width],
+        nice,
       }),
-      scaleY: new Scale({
+      scaleY: scales.scaleY || new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
         range: [height, 0],
-        nice: {count: 5, zero: true},
+        nice: {zero: true, ...nice},
       }),
     }
     // 计算基础数据

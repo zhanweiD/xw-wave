@@ -39,7 +39,7 @@ export default class ScatterLayer extends LayerBase {
   }
 
   // 列数据依次为：分组名称、x轴坐标值、y轴坐标值、数值（可缺省）
-  setData(data, scales = {}) {
+  setData(data, scales = {}, nice = {}) {
     this.#data = data || this.#data
     const {layout} = this.options
     const {left, top, width, height} = layout
@@ -51,12 +51,13 @@ export default class ScatterLayer extends LayerBase {
         type: 'linear',
         domain: this.#data.select(headers.slice(1, 2)).range(),
         range: [0, width],
+        nice,
       }),
       scaleY: scales.scaleY || new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(2, 3)).range(),
         range: [height, 0],
-        nice: {count: 5, zero: true},
+        nice,
       }),
     }
     // 计算点的基础数据

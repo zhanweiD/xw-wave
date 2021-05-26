@@ -53,7 +53,7 @@ export default class RectLayer extends LayerBase {
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
-  setData(tableList) {
+  setData(tableList, scales = {}, nice = {}) {
     this.#data = tableList || this.#data
     const {mode = modeType.GROUP, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
@@ -64,19 +64,19 @@ export default class RectLayer extends LayerBase {
     const maxRadius = Math.min(width, height) / 2
     // 初始化比例尺
     this.#scale = {
-      scaleAngle: new Scale({
+      scaleAngle: scales.scaleAngle || new Scale({
         type: 'band',
         domain: labels,
         range: [0, 360],
-        nice: {paddingInner: 0},
+        nice: {paddingInner: 0, ...nice},
       }),
-      scaleRadius: new Scale({
+      scaleRadius: scales.scaleRadius || new Scale({
         type: 'linear',
         domain: mode === modeType.STACK
           ? [0, this.#data.select(headers.slice(1), {mode: 'sum', target: 'row'}).range()[1]]
           : [0, this.#data.select(headers.slice(1)).range()[1]],
         range: [0, maxRadius],
-        nice: false,
+        nice,
       }),
     }
     // 根据比例尺计算顶点

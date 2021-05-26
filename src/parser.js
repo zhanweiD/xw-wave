@@ -7,14 +7,14 @@ import Table from './data/table'
 const isDependentLayer = layerType => ['auxiliary', 'axis'].find(type => type === layerType)
 // 根据配置创建一个图层
 const createLayer = (wave, config) => {
-  const {type, options, data, style, brush, animation, tooltip, event} = config
+  const {type, options, data, scale, style, brush, animation, tooltip, event} = config
   const layer = wave.createLayer(type, {...options, layout: wave.layout[options.layout]})
   // 特殊图层需要其他图层的比例尺
-  const scale = isDependentLayer(type) && (() => {
+  const customScale = isDependentLayer(type) && (() => {
     let result = null
     const scales = wave.layer.find(({id}) => id === options.bind).instance.scale
     if (type === 'auxiliary') {
-      result = options.direction === 'horizontal' ? scales.scaleY : scales.scaleX
+      result = options.type === 'horizontal' ? scales.scaleY : scales.scaleX
     } else if (type === 'axis') {
       style.type === 'axisX' && (result = scales.scaleX)
       style.type === 'axisY' && (result = scales.scaleY)
@@ -41,12 +41,12 @@ const createLayer = (wave, config) => {
     }
   }
   // 待删除
-  type === 'axis' && layer.setScale(scale)
+  type === 'axis' && layer.setScale(customScale)
   type === 'axis' && layer.setLayout(wave.layout[options.layout])
   // 图层笔刷支持
   brush && wave.createBrush(layer, {...brush, layout: wave.layout[brush.layout]})
-  // 设置图层的数据
-  dataObject && layer.setData(dataObject, scale)
+  // 设置图层的数据，第二个参数为比例尺，第三个参数为比例尺配置
+  dataObject && layer.setData(dataObject, customScale, scale)
   // 设置图层的样式
   layer.setStyle(style)
   // 绘制图层
