@@ -45,6 +45,9 @@ const createSchema = (container, theme, layout) => ({
       },
       data,
       style: {
+        valueText: {
+          fontSize: 15,
+        },
       },
     },
   ],

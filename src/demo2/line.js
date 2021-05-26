@@ -84,11 +84,11 @@ const createSchema = (container, theme, layout, mode, hasArea) => ({
       options: {
         id: 'axisX',
         layout: 'axisX',
+        type: 'horizontal',
         bind: 'line',
       },
       style: {
         orient: 'bottom',
-        type: 'axisX',
         label: {
           fontSize: 10,
           enableUpdateAnimation: true,
@@ -101,11 +101,11 @@ const createSchema = (container, theme, layout, mode, hasArea) => ({
       options: {
         id: 'axisY',
         layout: 'axisY',
+        type: 'vertical',
         bind: 'line',
       },
       style: {
         orient: 'left',
-        type: 'axisY',
         tickLine: {
           opacity: 0.2,
         },

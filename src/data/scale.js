@@ -1,7 +1,14 @@
+import {isNumber} from 'lodash'
 import * as d3 from 'd3'
 
+const defaultNice = {
+  count: 5,
+  zero: false,
+  paddingInner: 0.382,
+}
+
 // 基于 d3 做一些比例尺的定制，方便图表操作
-export default function Scale({type, domain, range, nice}) {
+export default function Scale({type, domain, range, nice = defaultNice}) {
   let scale
   // 复制比例尺的时候会用到
   const getData = option => (typeof option === 'function' ? option() : option)
@@ -12,7 +19,7 @@ export default function Scale({type, domain, range, nice}) {
   // 离散到连续
   if (type === 'band') {
     scale = d3.scaleBand().domain(getData(domain)).range(getData(range))
-    nice && scale.paddingInner(nice.paddingInner || 0.382)
+    nice && scale.paddingInner(isNumber(nice.paddingInner) ? nice.paddingInner : defaultNice.paddingInner)
   }
   // 离散到连续，bind 的变体，bandwidth 为 0
   if (type === 'point') {
@@ -22,13 +29,13 @@ export default function Scale({type, domain, range, nice}) {
   if (type === 'quantize') {
     scale = d3.scaleQuantize().domain(getData(domain)).range(getData(range))
     nice && nice.zero && extendZero(scale)
-    nice && niceScale(scale, nice.count || 5)
+    nice && niceScale(scale, nice.count || defaultNice.count)
   }
   // 连续到连续
   if (type === 'linear') {
     scale = d3.scaleLinear().domain(getData(domain)).range(getData(range))
     nice && nice.zero && extendZero(scale)
-    nice && niceScale(scale, nice.count || 5)
+    nice && niceScale(scale, nice.count || defaultNice.count)
   }
   // 为圆弧定制的比例尺，domain 是一个列表（第一列纬度第二列百分比数值），range 是连续区间（0-360）
   if (type === 'angle') {
@@ -43,7 +50,7 @@ export default function Scale({type, domain, range, nice}) {
     scale = d3.scaleOrdinal().domain(domain.data[0].list).range(mappingArray)
   }
   scale.type = type
-  scale.nice = nice
+  scale.nice = nice && {...defaultNice, ...nice}
   return scale
 }
 

@@ -30,7 +30,7 @@ const defaultStyle = {
 }
 
 // 圆弧图层
-export default class RectLayer extends LayerBase {
+export default class ArcLayer extends LayerBase {
   #data = new TableList([[]])
   
   #scale = null

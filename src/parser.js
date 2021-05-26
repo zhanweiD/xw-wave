@@ -9,20 +9,6 @@ const isDependentLayer = layerType => ['auxiliary', 'axis'].find(type => type ==
 const createLayer = (wave, config) => {
   const {type, options, data, scale, style, brush, animation, tooltip, event} = config
   const layer = wave.createLayer(type, {...options, layout: wave.layout[options.layout]})
-  // 特殊图层需要其他图层的比例尺
-  const customScale = isDependentLayer(type) && (() => {
-    let result = null
-    const scales = wave.layer.find(({id}) => id === options.bind).instance.scale
-    if (type === 'auxiliary') {
-      result = options.type === 'horizontal' ? scales.scaleY : scales.scaleX
-    } else if (type === 'axis') {
-      style.type === 'axisX' && (result = scales.scaleX)
-      style.type === 'axisY' && (result = scales.scaleY)
-      style.type === 'angle' && (result = scales.scaleAngle)
-      style.type === 'radius' && (result = scales.scaleRadius)
-    }
-    return result
-  })()
   // 数据结构判断
   let dataObject = data
   if (DataBase.isTable(data)) {
@@ -40,9 +26,23 @@ const createLayer = (wave, config) => {
       dataObject = dataObject.select(dataObject.data.map(({header}) => header).slice(0, 2))
     }
   }
-  // 待删除
-  type === 'axis' && layer.setScale(customScale)
-  type === 'axis' && layer.setLayout(wave.layout[options.layout])
+  // 特殊图层需要其他图层的比例尺
+  const customScale = isDependentLayer(type) && (() => {
+    let result = null
+    const dependLayer = wave.layer.find(({id}) => id === options.bind).instance
+    const scales = dependLayer.scale
+    if (type === 'auxiliary') {
+      result = options.type === 'horizontal' ? scales.scaleY : scales.scaleX
+    } else if (type === 'axis') {
+      options.type === 'horizontal' && (result = scales.scaleX)
+      options.type === 'vertical' && (result = scales.scaleY)
+      options.type === 'angle' && (result = scales.scaleAngle)
+      options.type === 'radius' && (result = scales.scaleRadius)
+      // 坐标轴根据不同的图层进行优化显示
+      dataObject = {className: dependLayer.constructor.name}
+    }
+    return result
+  })()
   // 图层笔刷支持
   brush && wave.createBrush(layer, {...brush, layout: wave.layout[brush.layout]})
   // 设置图层的数据，第二个参数为比例尺，第三个参数为比例尺配置

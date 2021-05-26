@@ -65,10 +65,10 @@ const createSchema = (container, theme, layout, mode) => ({
       options: {
         id: 'axisAngle',
         layout: 'main',
+        type: 'angle',
         bind: 'radar',
       },
       style: {
-        type: 'angle', // 此处对应角坐标
         tickLine: {
           opacity: 0.3,
           strokeWidth: 1,
@@ -84,9 +84,9 @@ const createSchema = (container, theme, layout, mode) => ({
         id: 'axisRadius',
         layout: 'main',
         bind: 'radar',
+        type: 'radius',
       },
       style: {
-        type: 'radius', // 此处对应半径坐标
         tickLine: {
           opacity: 0.3,
           strokeWidth: 1,

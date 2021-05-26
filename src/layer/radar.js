@@ -16,11 +16,13 @@ const defaultStyle = {
     strokeWidth: 2,
     fillOpacity: 0.4,
   },
-  text: {},
+  text: {
+    hide: true,
+  },
 }
 
 // 矩形图层
-export default class RectLayer extends LayerBase {
+export default class RadarLayer extends LayerBase {
   #data = null
   
   #scale = null
