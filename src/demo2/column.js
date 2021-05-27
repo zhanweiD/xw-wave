@@ -136,8 +136,11 @@ const createSchema = (container, theme, layout, type, mode) => ({
       },
       data,
       scale: {
-        count: 3,
+        count: 5,
         zero: true,
+        fixedPaddingInner: 5,
+        fixedBandWidth: 30,
+        fixedBoundary: 'start',
       },
       style: {
         labelPosition: type === 'bar' 

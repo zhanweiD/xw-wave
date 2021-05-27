@@ -5,6 +5,9 @@ const defaultNice = {
   count: 5,
   zero: false,
   paddingInner: 0.382,
+  fixedPaddingInner: null,
+  fixedBandWidth: null,
+  fixedBoundary: 'start', // end
 }
 
 // 基于 d3 做一些比例尺的定制，方便图表操作
@@ -19,7 +22,25 @@ export default function Scale({type, domain, range, nice = defaultNice}) {
   // 离散到连续
   if (type === 'band') {
     scale = d3.scaleBand().domain(getData(domain)).range(getData(range))
-    nice && scale.paddingInner(isNumber(nice.paddingInner) ? nice.paddingInner : defaultNice.paddingInner)
+    // band 比例尺支持调整比例和固定值
+    if (isNumber(nice?.fixedBandWidth) && isNumber(nice?.fixedPaddingInner)) {
+      const {fixedBandWidth, fixedPaddingInner, fixedBoundary} = nice
+      const totalRange = fixedBandWidth * domain.length + fixedPaddingInner * (domain.length - 1)
+      const offset = (totalRange - Math.abs(range[1] - range[0])) * (range[1] > range[0] ? 1 : -1)
+      const [fixedStart, fixedEnd] = [fixedBoundary === 'start', fixedBoundary === 'end']
+      // 无自适应，调整修改值域
+      scale.range([fixedEnd ? range[0] - offset : range[0], fixedStart ? range[1] + offset : range[1]])
+      scale.paddingInner(fixedPaddingInner / (fixedPaddingInner + fixedBandWidth))
+    } else if (isNumber(nice?.fixedBandWidth)) {
+      // 只固定带宽，间距自适应
+      scale.paddingInner(1 - (nice.fixedBandWidth * domain.length) / Math.abs(range[1] - range[0]))
+    } else if (isNumber(nice?.fixedPaddingInner)) {
+      // 只固定间距，带宽自适应
+      scale.paddingInner((nice.fixedPaddingInner * (domain.length - 1)) / Math.abs(range[1] - range[0]))
+    } else if (nice) {
+      // 间距和带宽都根据比例自适应
+      scale.paddingInner(isNumber(nice.paddingInner) ? nice.paddingInner : defaultNice.paddingInner)
+    }
   }
   // 离散到连续，bind 的变体，bandwidth 为 0
   if (type === 'point') {
