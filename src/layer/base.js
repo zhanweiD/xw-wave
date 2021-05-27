@@ -1,4 +1,4 @@
-import {isEqual, merge} from 'lodash'
+import {isArray, isEqual, merge} from 'lodash'
 import drawArc from '../basic/arc'
 import drawCircle from '../basic/circle'
 import drawCurve from '../basic/curve'
@@ -76,12 +76,21 @@ export default class LayerBase {
 
   // 返回统一处理后的样式
   createStyle(defaultStyle, currentStyle, incomingStyle) {
-    const {baseFontSize} = this.options
+    const {baseFontSize, getColor} = this.options
     const layerStyle = merge({}, defaultStyle, currentStyle, incomingStyle)
+    const keys = Object.keys(layerStyle)
     // 统一缩放字号
-    Object.keys(layerStyle).forEach(key => {
+    keys.forEach(key => {
       if (key.search(/text/i) !== -1 && layerStyle[key].fontSize) {
         layerStyle[key].fontSize *= baseFontSize
+      }
+    })
+    // 支持自定义颜色，增强颜色函数
+    keys.forEach(key => {
+      if (isArray(layerStyle[key]?.fill)) {
+        const customColors = layerStyle[key].fill
+        this.options.getColor = count => getColor(count, customColors)
+        delete layerStyle[key].fill
       }
     })
     return layerStyle

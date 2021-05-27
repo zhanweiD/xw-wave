@@ -142,12 +142,12 @@ export default class Wave {
    * 根据主题获取颜色
    * @param {Number} count 数量
    */
-  getColor(count) {
-    let colors = ThemeConfig[this.theme]?.colors || ThemeConfig.glaze.colors
+  getColor(count, customColors) {
+    let colors = customColors || ThemeConfig[this.theme]?.colors || ThemeConfig.glaze.colors
     // 颜色数量小于等于三时
-    count <= 3 && (colors = colors.slice(2, 7))
+    colors.length > 2 && count <= 3 && (colors = colors.slice(2, 7))
     // 颜色数量等于四时
-    count === 4 && (colors = colors.slice(2))
+    colors.length > 2 && count === 4 && (colors = colors.slice(2))
     return chroma.scale(colors).mode('lch').colors(count)
   }
 

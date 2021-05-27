@@ -144,6 +144,7 @@ const createSchema = (container, theme, layout, type, mode) => ({
           ? ['left-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'right-outer'] 
           : ['bottom-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'top-outer'],
         rect: {
+          fill: ['rgb(74,144,226)', 'rgb(80,227,194)'],
           enableUpdateAnimation: true,
         },
         text: {
