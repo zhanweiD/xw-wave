@@ -7,7 +7,7 @@ import Table from './data/table'
 const isDependentLayer = layerType => ['auxiliary', 'axis'].find(type => type === layerType)
 // 根据配置创建一个图层
 const createLayer = (wave, config) => {
-  const {type, options, data, scale, style, brush, animation, tooltip, event} = config
+  const {type, options, data, scale, style, animation, tooltip, event} = config
   const layer = wave.createLayer(type, {...options, layout: wave.layout[options.layout]})
   // 数据结构判断
   let dataObject = data
@@ -45,8 +45,6 @@ const createLayer = (wave, config) => {
     }
     return result
   })()
-  // 图层笔刷支持
-  brush && wave.createBrush(layer, {...brush, layout: wave.layout[brush.layout]})
   // 设置图层的数据，第二个参数为比例尺，第三个参数为比例尺配置
   dataObject && layer.setData(dataObject, customScale, scale)
   // 设置图层的样式
@@ -61,7 +59,7 @@ const createLayer = (wave, config) => {
 
 // 根据配置创建一个新的图表
 function createWave(schema) {
-  const {container, adjust, width, height, padding, theme, layout, layers} = schema
+  const {container, adjust, width, height, padding, theme, layout, brush, layers} = schema
   const wave = new Wave({container, adjust, width, height, padding, theme, layout})
   // 辅助层比较特殊，需要依赖其他图层的数据或者比例尺
   const dependentLayer = layers.filter(({type}) => isDependentLayer(type))
@@ -72,6 +70,8 @@ function createWave(schema) {
     dependentLayer.map(layer => createLayer(wave, layer))
     // 根据 schema 配置的顺序进行绘制
     layers.map(({options}) => wave.layer.find(({id}) => id === options.id).instance.draw())
+    // 绘制完成后添加笔刷
+    wave.createBrush({...brush, layout: wave.layout[brush.layout]})
   } catch (e) {
     console.error('图层配置解析错误，初始化失败', e)
   }

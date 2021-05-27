@@ -179,26 +179,28 @@ export default class Wave {
   }
 
   // 基于某个图层创建笔刷
-  createBrush(layer, options = {}) {
-    const {type, layout} = options
+  createBrush(options = {}) {
+    const {type, layout, targets} = options
     const isHorizontal = type === brushType.HORIZONTAL
     const {width, height, left, top} = layout
-    let prevRange = null
+    const layers = this.#layer.filter(({id}) => targets.find(item => item === id))
+    const prevRange = new Array(layers.length).fill(null)
     // 笔刷影响图层的比例尺
     const brushed = event => {
-      if (layer.scale) {
-        const total = isHorizontal ? width : height
+      layers.forEach(({id, instance}, i) => {
         const {selection} = event
-        const scale = isHorizontal ? layer.scale.scaleX : layer.scale.scaleY
-        if (prevRange === null) prevRange = scale.range()
+        const total = isHorizontal ? width : height
+        const isDependentLayer = ['AuxiliaryLayer', 'AxisLayer'].find(item => item === instance.constructor.name)
+        const scale = isDependentLayer ? instance.scale : isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
+        if (prevRange[i] === null) prevRange[i] = scale.range()
         const zoomFactor = total / ((selection[1] - selection[0]) || 1)
-        const nextRange = [prevRange[0], prevRange[0] + (prevRange[1] - prevRange[0]) * zoomFactor]
+        const nextRange = [prevRange[i][0], prevRange[i][0] + (prevRange[i][1] - prevRange[i][0]) * zoomFactor]
         const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
         scale.range(nextRange.map(value => value - offset))
-        layer.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
-        layer.setStyle()
-        layer.draw()
-      }
+        instance.setData(null, isDependentLayer ? scale : {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
+        instance.setStyle()
+        instance.draw()
+      })
     }
     // 创建笔刷实例
     const [brushX1, brushX2, brushY1, brushY2] = [left, left + width, top, top + height]

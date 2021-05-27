@@ -26,6 +26,13 @@ const createSchema = (container, theme, layout, type, mode) => ({
   // 这个 layout 应该是一个生成函数
   layout,
 
+  // 先考虑只有一个笔刷，多笔刷感觉很少会用到
+  brush: {
+    layout: 'brush',
+    type: type === 'column' ? 'horizontal' : 'vertical',
+    // 哪些图层支持笔刷
+    targets: ['rect', 'axisX'],
+  },
   // 图层数据，下标顺序代表绘制顺序
   layers: [
     // 标题文字图层
@@ -129,10 +136,6 @@ const createSchema = (container, theme, layout, type, mode) => ({
         layout: 'main',
         type,
         mode,
-      },
-      brush: {
-        layout: 'brush',
-        type: type === 'column' ? 'horizontal' : 'vertical',
       },
       data,
       scale: {
