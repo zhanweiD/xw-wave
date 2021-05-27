@@ -127,7 +127,7 @@ const niceScale = (scale, tickCount) => {
     const distance = end - start
     const level = judgeLevel(distance / tickCount)
     // 图表上方留白约束比例，当空白过多时考虑增加减小步长拉伸图表
-    const spaceThreshold = 0.3
+    const spaceThreshold = 0
     // 保证图表不会溢出的 step，但有时候空白空间过大
     let step = Math.ceil(distance / (tickCount) / level) * level
     const newStart = Math.floor(start / step) * step

@@ -1,4 +1,5 @@
 import anime from 'animejs'
+import * as d3 from 'd3'
 import AnimationBase from './base'
 
 // 默认参数
@@ -26,7 +27,7 @@ const createFilter = parentNode => {
   const targets = filter.append('feGaussianBlur')
     .attr('result', 'blurOut')
     .attr('in', 'offOut')
-    .attr('stdDeviation', 10)
+    .attr('stdDeviation', 0)
   filter.append('feBlend')
     .attr('in', 'SourceGraphic')
     .attr('in2', 'blurOut')
@@ -36,29 +37,27 @@ const createFilter = parentNode => {
 
 export default class BreatheAnimation extends AnimationBase {
   constructor(options, context) {
-    super(options)
-    this.options = {...defaultOptions, ...options}
+    super(defaultOptions, options, context)
     this.extraNode = context.append('defs')
     this.targets = createFilter(this.extraNode)
     this.isAnimationStart = false
     this.isAnimationAvailable = true
     // 给元素添加光晕滤镜
-    context.selectAll(options.targets).attr('filter', `url(#breatheAnimation${count})`)
+    d3.selectAll(this.options.targets).attr('filter', `url(#breatheAnimation${count})`)
   }
 
   play() {
     const {targets, delay, duration, loop} = this.options
     this.instance = anime({
       targets: [this.targets._groups[0], targets],
-      duration: duration * 0.5,
+      duration,
       delay,
       loop,
-      opacity: [1, 0.3],
-      stdDeviation: [10, 0],
+      opacity: [1, 0, 1],
+      stdDeviation: [0, 10],
       update: this.process.bind(this),
       loopBegin: this.start.bind(this),
       loopComplete: this.end.bind(this),
-      direction: 'alternate',
       easing: 'linear',
     })
     this.event.has('play') && this.event.fire('play')

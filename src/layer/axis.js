@@ -126,7 +126,7 @@ export default class AxisLayer extends LayerBase {
       }
       // Y轴坐标在线的左下方
       if (type === axisType.VERTICAL) {
-        const offset = this.#scale.type === 'linear' ? fontSize : fontSize / 2 + basicTextData.offset
+        const offset = basicTextData.offset + (this.#scale.type === 'linear' ? fontSize : fontSize / 2)
         return this.createText({x: x1, y: y1 + offset, ...basicTextData})
       }
       // 角度坐标在线的延伸处（和饼图外部坐标一样）

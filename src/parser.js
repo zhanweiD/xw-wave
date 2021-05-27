@@ -24,6 +24,8 @@ const createLayer = (wave, config) => {
       dataObject.push(['总和', dataObject.select(data[0][1], {mode: 'sum', target: 'column'}).range()[1]])
     } else if (type === 'arc' && options.mode !== 'stack') {
       dataObject = dataObject.select(dataObject.data.map(({header}) => header).slice(0, 2))
+    } else if (type === 'radar' && options.mode === 'default') {
+      dataObject = dataObject.select(dataObject.data.map(({header}) => header).slice(0, 2))
     }
   }
   // 特殊图层需要其他图层的比例尺

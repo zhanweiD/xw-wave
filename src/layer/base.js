@@ -38,7 +38,7 @@ const basicMapping = {
 // 基础元素支持哪些动画（某些动画并非覆盖所有元素）
 const animationMapping = {
   arc: ['zoom', 'scan', 'fade'],
-  circle: ['zoom', 'scan', 'fade'],
+  circle: ['zoom', 'scan', 'fade', 'breathe'],
   curve: ['zoom', 'scan', 'fade'],
   line: ['zoom', 'scan', 'fade', 'scroll'],
   polygon: ['zoom', 'scan', 'fade'],

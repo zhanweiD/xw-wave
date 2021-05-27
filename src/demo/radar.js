@@ -105,6 +105,7 @@ const createSchema = (container, theme, layout, mode) => ({
       },
       data,
       style: {
+        pointSize: 5,
         circle: {
           enableUpdateAnimation: true,
         },
@@ -133,6 +134,19 @@ const createSchema = (container, theme, layout, mode) => ({
             direction: 'outer',
           },
         },
+        circle: {
+          enterAnimation: {
+            type: 'fade',
+            delay: 2000,
+            duration: 1000,
+            mode: 'fadeIn',
+          },
+          loopAnimation: {
+            type: 'breathe',
+            delay: 1000,
+            duration: 2000,
+          },
+        },
         text: {
           enterAnimation: {
             type: 'fade',
@@ -142,8 +156,12 @@ const createSchema = (container, theme, layout, mode) => ({
           },
         },
       },
+      tooltip: {
+        mode: 'single',
+        targets: ['circle'],
+      },
       event: {
-        'click-polygon': d => console.log(d),
+        'click-circle': d => console.log(d),
       },
     },
   ],

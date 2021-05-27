@@ -84,10 +84,10 @@ export default class RadarLayer extends LayerBase {
     // 根据比例尺计算顶点
     const {scaleAngle, scaleRadius} = this.#scale
     this.#polygonData = pureTableList.map(([dimension, ...values]) => {
-      return values.map(value => {
+      return values.map((value, i) => {
         const [angle, r] = [(scaleAngle(dimension) / 180) * Math.PI, scaleRadius(value)]
         const [x, y] = [polygonCenter.x + Math.sin(angle) * r, polygonCenter.y - Math.cos(angle) * r]
-        return ({value, x, y, angle, r, center: polygonCenter})
+        return ({value, dimension, category: headers[i + 1], x, y, angle, r, center: polygonCenter})
       })
     })
     // 堆叠雷达图数据变更
@@ -115,7 +115,8 @@ export default class RadarLayer extends LayerBase {
     this.#polygonData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
     // 圆点数据依赖多边形数据
     this.#pointData = this.#polygonData.map(groupData => {
-      return groupData.map(({x, y, color}) => ({
+      return groupData.map(({x, y, color, ...others}) => ({
+        ...others,
         cx: x,
         cy: y,
         rx: pointSize / 2,
@@ -141,15 +142,16 @@ export default class RadarLayer extends LayerBase {
       const data = groupData.map(({rx, ry}) => [rx, ry])
       const position = groupData.map(({cx, cy}) => [cx, cy])
       const fill = groupData.map(({color}) => color)
-      return {data, position, fill, ...this.#style.circle}
+      const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
+      return {data, position, source, fill, ...this.#style.circle}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)
       const position = groupData.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
-    this.drawBasic('circle', pointData)
     this.drawBasic('polygon', polygonData)
+    this.drawBasic('circle', pointData)
     this.drawBasic('text', textData)
   }
 }
