@@ -48,17 +48,13 @@ const createLayer = (wave, config) => {
   // 设置图层的数据，第二个参数为比例尺，第三个参数为比例尺配置
   dataObject && layer.setData(dataObject, customScale, scale)
   // 设置图层的样式
-  layer.setStyle(style)
-  // 绘制图层
-  layer.draw()
+  style && layer.setStyle(style)
+  // 设置图层的事件
+  event && Object.keys(event).forEach(eventName => layer.event.on(eventName, event[eventName]))
   // 设置图层的动画，由于渲染是异步的，动画需要在渲染之后才能配置
   setTimeout(() => animation && layer.setAnimation(animation)(), 0)
-  // 设置图层的 Tooltip
-  tooltip && layer.setTooltip(tooltip)
-  // 设置图层的事件
-  event && Object.keys(event).forEach(eventName => {
-    layer.event.on(eventName, event[eventName])
-  })
+  // 设置图层的 Tooltip，由于渲染是异步的，tooltip 事件需要在渲染之后才能绑定 dom
+  setTimeout(() => tooltip && layer.setTooltip(tooltip), 0)
 }
 
 // 根据配置创建一个新的图表
@@ -71,9 +67,11 @@ function createWave(schema) {
   // 先创建前置图层
   try {
     normalLayer.map(layer => createLayer(wave, layer))
-    dependentLayer.map(layer => createLayer(wave, layer)) 
+    dependentLayer.map(layer => createLayer(wave, layer))
+    // 根据 schema 配置的顺序进行绘制
+    layers.map(({options}) => wave.layer.find(({id}) => id === options.id).instance.draw())
   } catch (e) {
-    console.error('图层配置解析错误', e)
+    console.error('图层配置解析错误，初始化失败', e)
   }
   return wave
 }
