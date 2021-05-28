@@ -9,6 +9,7 @@ export default function drawCircle({
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
+  mapping = item => item, // 高级数据过滤函数
   source = [], // 原始数据
   data = [], // 水平垂直半径列表数据
   position = [], // 直角坐标系坐标数据
@@ -33,7 +34,7 @@ export default function drawCircle({
   }))
 
   return container.selectAll(`.${className}`)
-    .data(configuredData)
+    .data(configuredData.map(item => mapping(item)))
     .join('ellipse')
     .transition()
     .duration(enableUpdateAnimation ? updateAnimationDuration : 0)

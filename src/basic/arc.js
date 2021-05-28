@@ -11,6 +11,7 @@ export default function drawArc({
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
+  mapping = item => item, // 高级数据过滤函数
   source = [], // 原始数据
   data = [], // 圆弧出入角和内外半径数据
   position = [], // 圆心位置
@@ -37,7 +38,7 @@ export default function drawArc({
   })
 
   return container.selectAll(`.${className}`)
-    .data(configuredData)
+    .data(configuredData.map(item => mapping(item)))
     .join('path')
     .transition()
     .duration(enableUpdateAnimation ? updateAnimationDuration : 0)

@@ -10,6 +10,7 @@ export default function drawPolygon({
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
+  mapping = item => item, // 高级数据过滤函数
   source = [], // 原始数据
   data = [], // 多边形二维坐标点
   container, // 容器父节点
@@ -30,7 +31,7 @@ export default function drawPolygon({
   }))
 
   return container.selectAll(`.${className}`)
-    .data(configuredData)
+    .data(configuredData.map(item => mapping(item)))
     .join('polygon')
     .transition()
     .duration(enableUpdateAnimation ? updateAnimationDuration : 0)

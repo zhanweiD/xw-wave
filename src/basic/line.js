@@ -7,6 +7,7 @@ export default function drawLine({
   enableUpdateAnimation = false,
   updateAnimationDuration = 1000,
   updateAnimationDelay = 0,
+  mapping = item => item, // 高级数据过滤函数
   source = [], // 原始数据
   position = [], // 位置 [[x1,y1,x2,y2], ...]
   container,
@@ -28,7 +29,7 @@ export default function drawLine({
 
   // 画线
   return container.selectAll(`.${className}`)
-    .data(configuredData)
+    .data(configuredData.map(item => mapping(item)))
     .join('line')
     .transition()
     .duration(enableUpdateAnimation ? updateAnimationDuration : 0)

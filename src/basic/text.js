@@ -18,6 +18,7 @@ export default function drawText({
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
+  mapping = item => item, // 高级数据过滤函数
   data = [], // 文字数据
   position = [], // 直角坐标系坐标数据
   container, // 容器父节点
@@ -41,7 +42,7 @@ export default function drawText({
   }))
 
   return container.selectAll(`.${className}`)
-    .data(configuredData)
+    .data(configuredData.map(item => mapping(item)))
     .join('text')
     .transition()
     .duration(enableUpdateAnimation ? updateAnimationDuration : 0)

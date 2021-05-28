@@ -152,6 +152,12 @@ const createSchema = (container, theme, layout, type, mode) => ({
         rect: {
           fill: ['rgb(74,144,226)', 'rgb(80,227,194)'],
           enableUpdateAnimation: true,
+          mapping: elData => {
+            if (elData.source.value > 700) {
+              elData.fill = 'red'
+            }
+            return elData
+          },
         },
         text: {
           fontSize: 10,
