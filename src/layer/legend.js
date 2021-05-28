@@ -91,10 +91,9 @@ export default class LegendLayer extends LayerBase {
         this.#textColors[colorIndex] = textColors[colorIndex]
       } else {
         disableHeaders.push(legendValue)
-        this.#colors[colorIndex] = 'gray'
-        this.#textColors[colorIndex] = 'gray'
+        this.#colors[colorIndex] = '#E2E3E588'
+        this.#textColors[colorIndex] = '#E2E3E588'
       }
-      console.log(this.#textColors)
       // 更新绑定的图层
       layer.setData(data.select(headers))
       layer.setStyle()
