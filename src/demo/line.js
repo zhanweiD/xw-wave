@@ -42,8 +42,8 @@ const createSchema = (container, theme, layout, mode, hasArea) => ({
       options: {
         id: 'legend',
         layout: 'legend',
+        bind: 'line',
       },
-      data: data[0].slice(1),
       style: {
         align: 'end',
         verticalAlign: 'start',

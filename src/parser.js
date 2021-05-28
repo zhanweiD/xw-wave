@@ -4,7 +4,8 @@ import TableList from './data/table-list'
 import Table from './data/table'
 
 // 图层是否依赖其他图层
-const isDependentLayer = layerType => ['auxiliary', 'axis'].find(type => type === layerType)
+const dependentLayers = ['auxiliary', 'axis', 'legend']
+const isDependentLayer = layerType => dependentLayers.find(type => type === layerType)
 // 根据配置创建一个图层
 const createLayer = (wave, config) => {
   const {type, options, data, scale, style, animation, tooltip, event} = config
@@ -42,6 +43,9 @@ const createLayer = (wave, config) => {
       options.type === 'radius' && (result = scales.scaleRadius)
       // 坐标轴根据不同的图层进行优化显示
       dataObject = {className: dependLayer.constructor.name}
+    } else if (type === 'legend') {
+      // 图例需要的数据很特殊，是一个图层的实例，以便控制数据过滤
+      dataObject = dependLayer
     }
     return result
   })()
@@ -71,7 +75,7 @@ function createWave(schema) {
     // 根据 schema 配置的顺序进行绘制
     layers.map(({options}) => wave.layer.find(({id}) => id === options.id).instance.draw())
     // 绘制完成后添加笔刷
-    wave.createBrush({...brush, layout: wave.layout[brush.layout]})
+    brush && wave.createBrush({...brush, layout: wave.layout[brush.layout]})
   } catch (e) {
     console.error('图层配置解析错误，初始化失败', e)
   }

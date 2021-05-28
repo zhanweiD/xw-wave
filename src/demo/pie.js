@@ -46,8 +46,8 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
       options: {
         id: 'legend',
         layout: 'legend',
+        bind: 'arc',
       },
-      data: data[0].slice(1),
       style: {
         align: 'end',
         verticalAlign: 'start',

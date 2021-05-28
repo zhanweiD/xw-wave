@@ -17,6 +17,12 @@ import ScatterLayer from './layer/scatter'
 import MatrixLayer from './layer/matrix'
 import GaugeLayer from './layer/gauge'
 
+// 判定哪些层是依赖其他层的
+const dependentLayers = [
+  AxisLayer.name, // 坐标轴
+  AuxiliaryLayer.name, // 辅助线
+]
+
 // 图表状态
 const stateMapping = {
   INITILIZE: 'initilize', // 初始化
@@ -144,10 +150,11 @@ export default class Wave {
    */
   getColor(count, customColors) {
     let colors = customColors || ThemeConfig[this.theme]?.colors || ThemeConfig.glaze.colors
-    // 颜色数量小于等于三时
-    colors.length > 2 && count <= 3 && (colors = colors.slice(2, 7))
-    // 颜色数量等于四时
-    colors.length > 2 && count === 4 && (colors = colors.slice(2))
+    // 主题色的取色逻辑
+    if (colors.length > 2 && !customColors) {
+      colors.length > 2 && count <= 3 && (colors = colors.slice(2, 7))
+      colors.length > 2 && count === 4 && (colors = colors.slice(2))
+    }
     return chroma.scale(colors).mode('lch').colors(count)
   }
 
@@ -190,7 +197,7 @@ export default class Wave {
       layers.forEach(({id, instance}, i) => {
         const {selection} = event
         const total = isHorizontal ? width : height
-        const isDependentLayer = ['AuxiliaryLayer', 'AxisLayer'].find(item => item === instance.constructor.name)
+        const isDependentLayer = dependentLayers.find(item => item === instance.constructor.name)
         const scale = isDependentLayer ? instance.scale : isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
         if (prevRange[i] === null) prevRange[i] = scale.range()
         const zoomFactor = total / ((selection[1] - selection[0]) || 1)
