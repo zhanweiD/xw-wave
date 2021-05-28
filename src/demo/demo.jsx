@@ -66,6 +66,7 @@ export default function Example() {
     waves.push(chart === 'matrix' && Parser.createWave(matrixSchema.circleHeatmap(refs[20].current, theme)))
     // 仪表盘
     waves.push(chart === 'gauge' && Parser.createWave(gaugeSchema.gauge(refs[21].current, theme)))
+    waves.push(chart === 'gauge' && Parser.createWave(gaugeSchema.indicator(refs[28].current, theme)))
     // 折线类
     waves.push(chart === 'line' && Parser.createWave(lineSchema.line(refs[22].current, theme)))
     waves.push(chart === 'line' && Parser.createWave(lineSchema.stackLine(refs[23].current, theme)))
@@ -116,6 +117,7 @@ export default function Example() {
           {chart === 'matrix' && <div className={s.wave} ref={refs[19]} />}
           {chart === 'matrix' && <div className={s.wave} ref={refs[20]} />}
           {chart === 'gauge' && <div className={s.wave} ref={refs[21]} />}
+          {chart === 'gauge' && <div className={s.wave} ref={refs[28]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[22]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[23]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[24]} />}

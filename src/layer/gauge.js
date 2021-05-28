@@ -45,7 +45,7 @@ export default class GaugeLayer extends LayerBase {
 
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
-    this.className = 'wave-text'
+    this.className = 'wave-gauge'
   }
 
   // 仪表盘的数据为对象
@@ -114,6 +114,8 @@ export default class GaugeLayer extends LayerBase {
     this.#lineData = range(minValue, maxValue + 1, step[0]).map((number, i) => {
       const isBigTick = (i * step[0]) % step[1] === 0 && step[0] !== step[1]
       const angle = (scaleAngle(number) / 180) * Math.PI
+      const isLeft = (angle + 2 * Math.PI) % (2 * Math.PI) > Math.PI
+      const isRight = (angle + 2 * Math.PI) % (2 * Math.PI) < Math.PI
       const computeX = r => arcCenter.x + Math.sin(angle) * r
       const computeY = r => arcCenter.y - Math.cos(angle) * r
       const innerRadius = maxRadius - arcWidth - (isBigTick ? tickSize / 0.618 : tickSize)
@@ -134,10 +136,10 @@ export default class GaugeLayer extends LayerBase {
       })
       // 分类标签数据
       const labelTextData = fragment && this.createText({
-        x: computeX(outerRadius + tickSize * 2),
-        y: computeY(outerRadius + tickSize * 2),
+        x: computeX(maxRadius + (this.#style.labelText?.fontSize || 12)),
+        y: computeY(maxRadius + (this.#style.labelText?.fontSize || 12)),
         value: fragment[2],
-        position: 'center',
+        position: isLeft ? 'left' : isRight ? 'right' : 'center',
         ...this.#style.labelText,
       })
       return {number, x1, y1, x2, y2, labelTextData, tickTextData}

@@ -1,10 +1,8 @@
 import {createGaugeData} from './mock'
 import createStandardLayout from '../layout/standard'
 
-const data = createGaugeData()
-
 // 仪表盘数据生成
-const createSchema = (container, theme, layout) => ({
+const createSchema = (container, theme, layout, type) => ({
   // 容器
   container,
   // 颜色主题
@@ -43,8 +41,32 @@ const createSchema = (container, theme, layout) => ({
         id: 'gauge',
         layout: 'main',
       },
-      data,
-      style: {
+      data: createGaugeData(type),
+      style: type === 'gauge' ? {
+        tickSize: 10,
+        valueText: {
+          fontSize: 15,
+        },
+      } : {
+        step: [2, 10],
+        startAngle: 0,
+        endAngle: 360,
+        arcWidth: 15,
+        offset: -15,
+        tickSize: 10,
+        pointerSize: 5,
+        line: {
+          hide: true,
+        },
+        rect: {
+          hide: true,
+        },
+        circle: {
+          fill: ['rgb(74,144,226)', '#eaeaea55'],
+        },
+        tickText: {
+          hide: true,
+        },
         valueText: {
           fontSize: 15,
         },
@@ -54,5 +76,6 @@ const createSchema = (container, theme, layout) => ({
 })
 
 export default {
-  gauge: (container, theme) => createSchema(container, theme, createStandardLayout),
+  gauge: (container, theme) => createSchema(container, theme, createStandardLayout, 'gauge'),
+  indicator: (container, theme) => createSchema(container, theme, createStandardLayout, 'indicator'),
 }
