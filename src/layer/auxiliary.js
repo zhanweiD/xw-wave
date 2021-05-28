@@ -62,10 +62,10 @@ export default class AuxiliaryLayer extends LayerBase {
     // 根据比例尺计算原始坐标
     this.#lineData = this.#data.map(value => ({
       value,
-      x1: left + (type === directionType.HORIZONTAL ? 0 : scale(value)),
-      y1: top + (type === directionType.HORIZONTAL ? scale(value) : 0),
-      x2: left + (type === directionType.HORIZONTAL ? width : scale(value)),
-      y2: top + (type === directionType.HORIZONTAL ? scale(value) : height),
+      x1: left + (type === directionType.HORIZONTAL ? 0 : this.#scale.scaleX(value)),
+      y1: top + (type === directionType.HORIZONTAL ? this.#scale.scaleY(value) : 0),
+      x2: left + (type === directionType.HORIZONTAL ? width : this.#scale.scaleX(value)),
+      y2: top + (type === directionType.HORIZONTAL ? this.#scale.scaleY(value) : height),
     }))
   }
 
@@ -85,8 +85,8 @@ export default class AuxiliaryLayer extends LayerBase {
       x: isLeft ? x1 : isRight ? x2 : (x1 + x2) / 2, 
       y: isTop ? y1 : isBottom ? y2 : (y1 + y2) / 2,
       value, 
-      fontSize,
       format,
+      fontSize,
       position: labelPosition,
       offset: labelOffset,
     }))

@@ -31,7 +31,7 @@ const createSchema = (container, theme, layout, type, mode) => ({
     layout: 'brush',
     type: type === 'column' ? 'horizontal' : 'vertical',
     // 哪些图层支持笔刷
-    targets: ['rect', 'axisX'],
+    targets: ['rect', type === 'column' ? 'axisX' : 'axisY'],
   },
   // 图层数据，下标顺序代表绘制顺序
   layers: [

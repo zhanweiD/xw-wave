@@ -15,12 +15,6 @@ import ScatterLayer from './layer/scatter'
 import MatrixLayer from './layer/matrix'
 import GaugeLayer from './layer/gauge'
 
-// 判定哪些层是依赖其他层的
-const dependentLayers = [
-  AxisLayer.name, // 坐标轴
-  AuxiliaryLayer.name, // 辅助线
-]
-
 // 图表状态
 const stateMapping = {
   INITILIZE: 'initilize', // 初始化
@@ -195,14 +189,13 @@ export default class Wave {
       layers.forEach(({instance}, i) => {
         const {selection} = event
         const total = isHorizontal ? width : height
-        const isDependentLayer = dependentLayers.find(item => item === instance.constructor.name)
-        const scale = isDependentLayer ? instance.scale : isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
+        const scale = isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
         if (prevRange[i] === null) prevRange[i] = scale.range()
         const zoomFactor = total / ((selection[1] - selection[0]) || 1)
         const nextRange = [prevRange[i][0], prevRange[i][0] + (prevRange[i][1] - prevRange[i][0]) * zoomFactor]
         const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
         scale.range(nextRange.map(value => value - offset))
-        instance.setData(null, isDependentLayer ? scale : {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
+        instance.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
         instance.setStyle()
         instance.draw()
       })

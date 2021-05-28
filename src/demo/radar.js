@@ -59,32 +59,14 @@ const createSchema = (container, theme, layout, mode) => ({
         },
       },
     },
-    // 角度轴
+    // 极坐标系
     {
       type: 'axis',
       options: {
         id: 'axisAngle',
         layout: 'main',
-        type: 'angle',
+        type: 'polar',
         bind: 'radar',
-      },
-      style: {
-        tickLine: {
-          opacity: 0.3,
-          strokeWidth: 1,
-          stroke: 'white',
-          fill: 'none',
-        },
-      },
-    },
-    // 半径轴
-    {
-      type: 'axis',
-      options: {
-        id: 'axisRadius',
-        layout: 'main',
-        bind: 'radar',
-        type: 'radius',
       },
       style: {
         tickLine: {

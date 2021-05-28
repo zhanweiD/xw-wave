@@ -31,23 +31,15 @@ const createLayer = (wave, config) => {
   }
   // 特殊图层需要其他图层的比例尺
   const customScale = isDependentLayer(type) && (() => {
-    let result = null
     const dependLayer = wave.layer.find(({id}) => id === options.bind).instance
-    const scales = dependLayer.scale
-    if (type === 'auxiliary') {
-      result = options.type === 'horizontal' ? scales.scaleY : scales.scaleX
-    } else if (type === 'axis') {
-      options.type === 'horizontal' && (result = scales.scaleX)
-      options.type === 'vertical' && (result = scales.scaleY)
-      options.type === 'angle' && (result = scales.scaleAngle)
-      options.type === 'radius' && (result = scales.scaleRadius)
+    if (type === 'axis') {
       // 坐标轴根据不同的图层进行优化显示
       dataObject = {className: dependLayer.constructor.name}
     } else if (type === 'legend') {
       // 图例需要的数据很特殊，是一个图层的实例，以便控制数据过滤
       dataObject = dependLayer
     }
-    return result
+    return dependLayer.scale
   })()
   // 设置图层的数据，第二个参数为比例尺，第三个参数为比例尺配置
   dataObject && layer.setData(dataObject, customScale, scale)
