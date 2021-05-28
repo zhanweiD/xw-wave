@@ -71,6 +71,8 @@ export default function Example() {
     waves.push(chart === 'line' && Parser.createWave(lineSchema.stackLine(refs[23].current, theme)))
     waves.push(chart === 'line' && Parser.createWave(lineSchema.area(refs[24].current, theme)))
     waves.push(chart === 'line' && Parser.createWave(lineSchema.stackArea(refs[25].current, theme)))
+    waves.push(chart === 'line' && Parser.createWave(lineSchema.step(refs[26].current, theme)))
+    waves.push(chart === 'line' && Parser.createWave(lineSchema.stepArea(refs[27].current, theme)))
   }, [theme, chart])
 
   return (
@@ -118,6 +120,8 @@ export default function Example() {
           {chart === 'line' && <div className={s.wave} ref={refs[23]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[24]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[25]} />}
+          {chart === 'line' && <div className={s.wave} ref={refs[26]} />}
+          {chart === 'line' && <div className={s.wave} ref={refs[27]} />}
         </div>
       </div>
     </div>

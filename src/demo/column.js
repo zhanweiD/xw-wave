@@ -141,8 +141,8 @@ const createSchema = (container, theme, layout, type, mode) => ({
       scale: {
         count: 5,
         zero: true,
-        fixedPaddingInner: 5,
-        fixedBandWidth: 30,
+        fixedPaddingInner: 10,
+        fixedBandWidth: false,
         fixedBoundary: 'start',
       },
       style: {

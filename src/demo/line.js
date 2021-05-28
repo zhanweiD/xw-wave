@@ -4,7 +4,7 @@ import createStandardLayout from '../layout/standard'
 const data = createTableListData()
 
 // 柱状图配置数据生成
-const createSchema = (container, theme, layout, mode, hasArea) => ({
+const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
   // 容器
   container,
   // 颜色主题
@@ -128,10 +128,12 @@ const createSchema = (container, theme, layout, mode, hasArea) => ({
         labelPosition: 'top',
         line: {
           strokeWidth: 2,
+          curve,
         },
         area: {
           hide: !hasArea,
           opacity: 0.2,
+          curve,
         },
         text: {
           fontSize: 10,
@@ -180,8 +182,10 @@ const createSchema = (container, theme, layout, mode, hasArea) => ({
 })
 
 export default {
-  line: (container, theme) => createSchema(container, theme, createStandardLayout, 'default', false),
-  stackLine: (container, theme) => createSchema(container, theme, createStandardLayout, 'stack', false),
-  area: (container, theme) => createSchema(container, theme, createStandardLayout, 'default', true),
-  stackArea: (container, theme) => createSchema(container, theme, createStandardLayout, 'stack', true),
+  line: (container, theme) => createSchema(container, theme, createStandardLayout, 'default', false, false),
+  stackLine: (container, theme) => createSchema(container, theme, createStandardLayout, 'stack', false, false),
+  area: (container, theme) => createSchema(container, theme, createStandardLayout, 'default', true, 'curveMonotoneX'),
+  stackArea: (container, theme) => createSchema(container, theme, createStandardLayout, 'stack', true, 'curveMonotoneX'),
+  step: (container, theme) => createSchema(container, theme, createStandardLayout, 'stack', false, 'curveStep'),
+  stepArea: (container, theme) => createSchema(container, theme, createStandardLayout, 'stack', true, 'curveStep'),
 }

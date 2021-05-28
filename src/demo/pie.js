@@ -77,6 +77,7 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
         text: {
           enableUpdateAnimation: true,
           fontSize: 8,
+          hide: mode === 'stack',
         },
       },
       animation: {

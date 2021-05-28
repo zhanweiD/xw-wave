@@ -19,7 +19,7 @@ export default function drawArea({
 }) {
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const areaGenerator = d3.area().x(d => d[0]).y0(d => d[1]).y1(d => d[2])
-  curve && areaGenerator.curve(d3.curveMonotoneX)
+  curve && areaGenerator.curve(d3[curve])
   const configuredData = position.map((data, i) => ({
     className,
     opacity,

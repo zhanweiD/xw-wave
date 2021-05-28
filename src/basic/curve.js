@@ -16,7 +16,7 @@ export default function drawCurve({
 }) {
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const lineGenerator = d3.line().x(d => d[0]).y(d => d[1])
-  curve && lineGenerator.curve(d3.curveMonotoneX)
+  curve && lineGenerator.curve(d3[curve])
   const configuredData = position.map((data, i) => ({
     fill: 'none',
     stroke: Array.isArray(stroke) ? stroke[i] : stroke,
