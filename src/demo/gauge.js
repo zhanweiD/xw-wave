@@ -16,7 +16,7 @@ const createSchema = (container, theme, layout) => ({
   // 容器高，自适应为 auto 时无效
   height: 100,
   // 主绘图图层的内边距
-  padding: [0, 50, 30, 50],
+  padding: [60, 40, 40, 40],
   // 这个 layout 应该是一个生成函数
   layout,
 

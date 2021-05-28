@@ -1,9 +1,7 @@
-/* eslint-disable no-unused-vars */
 import * as d3 from 'd3'
 import chroma from 'chroma-js'
 import standardLayout from './layout/standard'
 import ThemeConfig from './util/theme'
-import LayerBase from './layer/base'
 import TextLayer from './layer/text'
 import AxisLayer from './layer/axis'
 import RectLayer from './layer/rect'
@@ -87,7 +85,7 @@ export default class Wave {
     adjust = 'auto',
     width = 100,
     height = 100,
-    padding = [0, 50, 30, 50],
+    padding = [40, 40, 40, 40],
     theme = 'glaze',
     baseFontSize = 1,
     layout = standardLayout,
@@ -194,7 +192,7 @@ export default class Wave {
     const prevRange = new Array(layers.length).fill(null)
     // 笔刷影响图层的比例尺
     const brushed = event => {
-      layers.forEach(({id, instance}, i) => {
+      layers.forEach(({instance}, i) => {
         const {selection} = event
         const total = isHorizontal ? width : height
         const isDependentLayer = dependentLayers.find(item => item === instance.constructor.name)

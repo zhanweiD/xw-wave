@@ -1,40 +1,40 @@
 // 计算布局信息
 function getStandardLayout({containerWidth, containerHeight, padding, brush = false}) {
-  const brushHeight = brush ? containerHeight / 10 : containerHeight / 30
+  const brushHeight = brush ? containerHeight / 10 : 0
   const heightWithoutBrush = containerHeight - brushHeight
   const layout = {
     title: {
       top: 0,
-      bottom: heightWithoutBrush / 10,
+      bottom: heightWithoutBrush,
       left: 0,
-      right: containerWidth / 2,
+      right: containerWidth,
     },
     unit: {
-      top: heightWithoutBrush / 10,
-      bottom: heightWithoutBrush / 5,
+      top: 0,
+      bottom: heightWithoutBrush,
       left: 0,
-      right: containerWidth / 2,
+      right: containerWidth,
     },
     legend: {
       top: 0,
-      bottom: heightWithoutBrush / 5,
-      left: containerWidth / 2,
+      bottom: heightWithoutBrush,
+      left: 0,
       right: containerWidth,
     },
     main: {
-      top: heightWithoutBrush / 5 + padding[0],
+      top: padding[0],
       bottom: heightWithoutBrush - padding[2],
       left: padding[3],
       right: containerWidth - padding[1],
     },
     axisX: {
-      top: heightWithoutBrush / 5 + padding[0],
+      top: padding[0],
       bottom: heightWithoutBrush - padding[2],
       left: padding[3],
-      right: containerWidth - padding[1],  
+      right: containerWidth - padding[1],
     },
     axisY: {
-      top: heightWithoutBrush / 5 + padding[0],
+      top: padding[0],
       bottom: heightWithoutBrush - padding[2],
       left: 0,
       right: containerWidth,  
