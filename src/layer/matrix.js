@@ -10,7 +10,7 @@ const modeType = {
 
 // 默认样式
 const defaultStyle = {
-  circleSizeRange: ['auto', 'auto'],
+  circleSize: ['auto', 'auto'],
   circle: {},
   rect: {},
   text: {},
@@ -122,8 +122,8 @@ export default class MatrixLayer extends LayerBase {
     })))
     // 圆形的大小随数值大小变化
     if (mode === modeType.CIRCLE) {
-      const {circleSizeRange} = this.#style
-      let [min, max] = circleSizeRange
+      const {circleSize} = this.#style
+      let [min, max] = circleSize
       const [bandWidthX, bandWidthY] = [this.#scale.scaleX.bandwidth(), this.#scale.scaleY.bandwidth()]
       const ceiling = Math.min(bandWidthX, bandWidthY) / 2
       if (max === 'auto') max = ceiling

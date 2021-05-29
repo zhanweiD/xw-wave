@@ -161,6 +161,8 @@ export default class Wave {
     const context = {
       root: this.#root,
       container: this.#container,
+      containerWidth: this.#containerWidth,
+      containerHeight: this.#containerHeight,
       baseFontSize: this.baseFontSize,
       getColor: this.getColor.bind(this),
       warn: this.warn.bind(this),

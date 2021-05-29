@@ -31,7 +31,7 @@ const createSchema = (container, theme, layout, type, mode) => ({
     layout: 'brush',
     type: type === 'column' ? 'horizontal' : 'vertical',
     // 哪些图层支持笔刷
-    targets: ['rect', type === 'column' ? 'axisX' : 'axisY'],
+    targets: ['rect', 'axis'],
   },
   // 图层数据，下标顺序代表绘制顺序
   layers: [
@@ -91,41 +91,16 @@ const createSchema = (container, theme, layout, type, mode) => ({
         },
       },
     },
-    // X坐标轴图层
+    // 直角坐标组合
     {
       type: 'axis',
       options: {
-        id: 'axisX',
-        layout: 'axisX',
-        type: 'horizontal',
+        id: 'axis',
+        layout: 'main',
+        type: 'cartesian',
         bind: 'rect',
       },
       style: {
-        orient: 'bottom',
-        label: {
-          fontSize: 10,
-          enableUpdateAnimation: true,
-        },
-      },
-    },
-    // Y坐标轴图层
-    {
-      type: 'axis',
-      options: {
-        id: 'axisY',
-        layout: 'axisY',
-        type: 'vertical',
-        bind: 'rect',
-      },
-      style: {
-        orient: 'left',
-        tickLine: {
-          opacity: 0.2,
-        },
-        label: {
-          fontSize: 10,
-          enableUpdateAnimation: true,
-        },
       },
     },
     // 矩形图层

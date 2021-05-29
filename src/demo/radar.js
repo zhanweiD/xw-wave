@@ -139,7 +139,7 @@ const createSchema = (container, theme, layout, mode) => ({
         },
       },
       tooltip: {
-        mode: 'single',
+        mode: 'group',
         targets: ['circle'],
       },
       event: {

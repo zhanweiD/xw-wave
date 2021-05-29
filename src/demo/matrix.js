@@ -88,6 +88,7 @@ const createSchema = (container, theme, layout, mode) => ({
         paddingInner: 0,
       },
       style: {
+        circleSize: ['auto', 'auto'],
         rect: {
           enableUpdateAnimation: true,
         },
