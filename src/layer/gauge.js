@@ -132,7 +132,8 @@ export default class GaugeLayer extends LayerBase {
       })
       // 找分类的中心点
       const fragment = fragments.find(([min, max]) => {
-        return number === Math.round((min + max) / 2) || number === Math.round((min + max + 1) / 2)
+        const offsetNumber = (min + max) / 2 - number
+        return offsetNumber < step[0] && offsetNumber >= 0
       })
       // 分类标签数据
       const labelTextData = fragment && this.createText({
