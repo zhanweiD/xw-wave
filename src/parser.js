@@ -1,3 +1,4 @@
+import {isArray} from 'lodash'
 import Wave from './wave'
 import DataBase from './data/base'
 import TableList from './data/table-list'
@@ -30,19 +31,17 @@ const createLayer = (wave, config) => {
     }
   }
   // 特殊图层需要其他图层的比例尺
-  const customScale = isDependentLayer(type) && (() => {
-    const dependLayer = wave.layer.find(({id}) => id === options.bind).instance
-    if (type === 'axis') {
-      // 坐标轴根据不同的图层进行优化显示
-      dataObject = {className: dependLayer.constructor.name}
-    } else if (type === 'legend') {
-      // 图例需要的数据很特殊，是一个图层的实例，以便控制数据过滤
-      dataObject = dependLayer
-    }
-    return dependLayer.scale
-  })()
+  let customScale
+  // 图例需要的数据很特殊，是一个图层的实例，以便控制数据过滤
+  if (type === 'legend') {
+    dataObject = wave.layer.filter(({id}) => {
+      return isArray(options.bind) ? options.bind.find(value => value === id) : id === options.bind
+    }).map(({instance}) => instance)
+  } else if (isDependentLayer(type)) {
+    customScale = wave.layer.find(({id}) => id === options.bind).instance.scale
+  }
   // 设置图层的数据，第二个参数为比例尺，第三个参数为比例尺配置
-  dataObject && layer.setData(dataObject, customScale, scale)
+  layer.setData(dataObject, customScale, scale)
   // 设置图层的样式
   style && layer.setStyle(style)
   // 设置图层的事件

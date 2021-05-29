@@ -53,6 +53,8 @@ export default class AxisLayer extends LayerBase {
 
   #style = defaultStyle
 
+  #axisLength = {}
+
   #lineData = []
 
   #textData = []
@@ -81,6 +83,7 @@ export default class AxisLayer extends LayerBase {
     // 水平坐标轴（垂直线分割宽度）
     if (type === axisType.HORIZONTAL || type === axisType.CARTESIAN) {
       const position = getPosition(type, this.#scale.scaleX)
+      this.#axisLength.x = position.length
       this.#lineData = this.#lineData.concat(position.map(([label, value]) => ({
         value: label,
         x1: left + value,
@@ -92,6 +95,7 @@ export default class AxisLayer extends LayerBase {
     // 垂直坐标轴（水平线分割高度）
     if (type === axisType.VERTICAL || type === axisType.CARTESIAN) {
       const position = getPosition(type, this.#scale.scaleY)
+      this.#axisLength.y = position.length
       this.#lineData = this.#lineData.concat(position.map(([label, value]) => ({
         value: label,
         x1: 0,
@@ -104,6 +108,7 @@ export default class AxisLayer extends LayerBase {
     if (type === axisType.ANGLE || type === axisType.POLAR) {
       const position = getPosition(type, this.#scale.scaleAngle)
       const maxRadius = this.#scale.scaleRadius?.range()[1] || Math.max(width / 2, height / 2)
+      this.#axisLength.angle = position.length
       this.#lineData = this.#lineData.concat(position.map(([label, value]) => ({
         value: label,
         angle: value,
@@ -116,6 +121,7 @@ export default class AxisLayer extends LayerBase {
     // 半径坐标轴（半径圆环）
     if (type === axisType.RADIUS || type === axisType.POLAR) {
       const position = getPosition(type, this.#scale.scaleRadius)
+      this.#axisLength.radius = position.length
       this.#lineData = this.#lineData.concat(position.map(([label, value]) => ({
         value: label,
         cx: left + width / 2,
@@ -133,11 +139,9 @@ export default class AxisLayer extends LayerBase {
     const {fontSize = 12, format} = text
     const {type} = this.options
     this.#textData = this.#lineData.map(({value, x1, y1, x2, y2, cx, cy, rx, angle}, i) => {
-      const scaleXLength = this.#scale.scaleX?.domain().length
-      const scaleAngleLength = this.#scale.scaleAngle?.domain().length
       const basicTextData = {value, fontSize, format, offset: labelOffset}
       // X轴坐标在线的正下方
-      if (type === axisType.HORIZONTAL || (type === axisType.CARTESIAN && i < scaleXLength)) {
+      if (type === axisType.HORIZONTAL || (type === axisType.CARTESIAN && i < this.#axisLength.x)) {
         return this.createText({x: x2, y: y2, position: 'bottom', ...basicTextData})
       }
       // Y轴坐标在线的左下方
@@ -146,7 +150,7 @@ export default class AxisLayer extends LayerBase {
         return this.createText({x: x1, y: y1 + offset, ...basicTextData})
       }
       // 角度坐标在线的延伸处（和饼图外部坐标一样）
-      if (type === axisType.ANGLE || (type === axisType.POLAR && i < scaleAngleLength)) {
+      if (type === axisType.ANGLE || (type === axisType.POLAR && i < this.#axisLength.angle)) {
         const _angle = Math.abs((angle + 360) % 360)
         const [isTop, isBottom, isLeft, isRight] = [_angle === 0, _angle === 180, _angle > 180, _angle < 180]
         const position = isTop ? 'top' : isBottom ? 'bottom' : isLeft ? 'left' : isRight ? 'right' : 'default'
@@ -180,8 +184,8 @@ export default class AxisLayer extends LayerBase {
     }))
     // 澜图特色坐标轴视觉支持
     if (type === axisType.CARTESIAN) {
-      scaleX?.type !== 'linear' && lineData[0].position.splice(0, scaleX.domain().length)
-      scaleY?.type !== 'linear' && lineData[0].position.splice(scaleX.domain().length)
+      scaleX?.type !== 'linear' && lineData[0].position.splice(0, this.#axisLength.x)
+      scaleY?.type !== 'linear' && lineData[0].position.splice(this.#axisLength.x)
     } else if (type === axisType.HORIZONTAL) {
       scaleX?.type !== 'linear' && lineData[0].position.splice(0)
     } else if (type === axisType.VERTICAL) {

@@ -32,7 +32,7 @@ const defaultStyle = {
 
 // 图例图层
 export default class LegendLayer extends LayerBase {
-  #data = ['']
+  #data = []
 
   #style = defaultStyle
 
@@ -62,43 +62,44 @@ export default class LegendLayer extends LayerBase {
    * 传入图例数据
    * @param {LayerBase} layer 
    */
-  setData(layer) {
-    let textColors = null
-    const disableHeaders = []
-    const {data, options} = layer
-    this.#data = (data && data.data.slice(1).map(({header}) => header)) || this.#data
-    const colors = options.getColor(this.#data.length)
-    this.#colors = cloneDeep(colors)
+  setData(layers) {
+    // 初始化文字数据和图形颜色
+    layers = isArray(layers) ? layers : [layers]
+    layers.forEach(({data, options}) => {
+      this.#data.push(...data.data.slice(1).map(({header}) => header))
+      this.#colors.push(...options.getColor(data.data.length - 1))
+      this.#textColors.push(...new Array(data.data.length - 1).fill('white'))
+    })
+    // 状态变量，用于恢复数据
+    const originData = layers.map(layer => layer.data)
+    const colors = cloneDeep(this.#colors)
+    const counts = layers.map(({data}) => data.data.length - 1)
+    const disableColor = '#E2E3E588'
+    const disableFlag = new Array(this.#colors.length).fill(false)
     // 数据筛选
     this.event.off('click-circle')
     this.event.on('click-circle', object => {
-      // 这个数据结构是统一的
-      const legendValue = object.data.source.value
-      const headers = layer.data.data.map(({header}) => header).filter(header => header !== legendValue)
-      const colorIndex = data.data.findIndex(({header}) => header === legendValue) - 1
-      const disableIndex = disableHeaders.findIndex(header => header === legendValue)
-      // 初始化文字颜色
-      if (!isArray(this.#style.text.fill)) {
-        textColors = new Array(colors.length).fill(this.#style.text.fill || 'white')
+      const {index} = object.data.source
+      const layerIndex = counts.findIndex((v, i) => counts.slice(0, i + 1).reduce((prev, cur) => prev + cur) > index)
+      const startIndex = counts.slice(0, layerIndex).reduce((prev, cur) => prev + cur, 0)
+      const data = originData[layerIndex]
+      const layer = layers[layerIndex]
+      // 更新图例状态
+      if (disableFlag[index]) {
+        disableFlag[index] = false
+        this.#colors[index] = colors[index]
+        this.#textColors[index] = 'white'
       } else {
-        textColors = this.#style.text.fill
+        disableFlag[index] = true
+        this.#colors[index] = disableColor
+        this.#textColors[index] = disableColor
       }
-      // 恢复和备份
-      if (disableIndex !== -1) {
-        headers.push(legendValue)
-        disableHeaders.splice(disableIndex, 1)
-        this.#colors[colorIndex] = colors[colorIndex]
-        this.#textColors[colorIndex] = textColors[colorIndex]
-      } else {
-        disableHeaders.push(legendValue)
-        this.#colors[colorIndex] = '#E2E3E588'
-        this.#textColors[colorIndex] = '#E2E3E588'
-      }
-      // 更新绑定的图层
+      // 更新图层
+      const headers = data.data.filter((v, i) => (!i || !disableFlag[startIndex + i - 1])).map(({header}) => header)
       layer.setData(data.select(headers))
       layer.setStyle()
       layer.draw()
-      // 更新图例样式
+      // 更新图例
       this.setStyle()
       this.draw()
     })
@@ -170,7 +171,7 @@ export default class LegendLayer extends LayerBase {
       data: [[rx, ry]],
       position: [[cx, cy]],
       fill: this.#colors[i],
-      source: [{value: this.#data[i]}],
+      source: [{value: this.#data[i], index: i}],
       ...this.#style.circle,
     }))
     const textData = this.#textData.map(({value, x, y}, i) => ({
