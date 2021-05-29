@@ -21,6 +21,12 @@ export default class DataBase {
     return true
   }
 
+  // 构造函数，备份数据
+  constructor(data, options) {
+    this.source = data
+    this.options = options
+  }
+
   /**
    * 数据验证函数
    * @returns 是否为合法数据
@@ -58,15 +64,6 @@ export default class DataBase {
   select() {
     this.warn('数据筛选函数未重写')
     return this.clone()
-  }
-
-  /**
-   * 克隆当前实例
-   * @returns 克隆后的列表实例
-   */
-  clone() {
-    this.warn('数据复制函数未重写')
-    return new DataBase([])
   }
 
   /**

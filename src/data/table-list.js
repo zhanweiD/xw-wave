@@ -17,7 +17,7 @@ const targetType = {
 // 列表数据处理工具
 export default class TableList extends DataBase {
   constructor(tableList, options) {
-    super()
+    super(tableList, options)
     this.data = []
     this.update(tableList, options)
   }
@@ -66,14 +66,6 @@ export default class TableList extends DataBase {
     const result = new TableList([[]])
     result.data = data
     return result
-  }
-
-  /**
-   * 克隆一个列表
-   * @returns 克隆后的列表实例
-   */
-  clone() {
-    return this.select(this.data.map(({header}) => header))
   }
 
   /**

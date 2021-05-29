@@ -11,7 +11,7 @@ const targetType = {
 // 列表数据处理工具，内部 data 数据依次为行标签、列标签、数值
 export default class Table extends DataBase {
   constructor(table, options) {
-    super()
+    super(table, options)
     this.data = [[], [], []]
     this.update(table, options)
   }
@@ -37,14 +37,6 @@ export default class Table extends DataBase {
     const result = new Table([[], [], []])
     result.data = cloneDeep(data)
     return result
-  }
-
-  /**
-   * 克隆一个列表
-   * @returns 克隆后的列表实例
-   */
-  clone() {
-    return this.select(this.data[0], this.data[1])
   }
 
   /**
