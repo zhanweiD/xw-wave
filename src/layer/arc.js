@@ -3,8 +3,8 @@ import Scale from '../data/scale'
 
 // 映射的图表类型
 const waveType = {
-  PIE: 'pie', // 饼图
-  NIGHTINGALEROSE: 'nightingaleRose', // 夜莺玫瑰图
+  PIE: 'pie',
+  NIGHTINGALEROSE: 'nightingaleRose',
 }
 
 // 元素组合方式
@@ -93,14 +93,14 @@ export default class ArcLayer extends LayerBase {
     if (type === waveType.NIGHTINGALEROSE) {
       const percentages = this.#data.select(headers[1])
       percentages.data[0].list = percentages.data[0].list.map(() => 1 / percentages.data[0].list.length)
-      this.#scale = {
-        scaleAngle: scales.scaleAngle || new Scale({
+      this.#scale = this.createScale({
+        scaleAngle: new Scale({
           type: 'angle',
           domain: labels.concat(percentages),
           range: [0, 360],
           nice: this.#scale.nice,
         }),
-        scaleRadius: scales.scaleRadius || new Scale({
+        scaleRadius: new Scale({
           type: 'linear',
           domain: mode === modeType.STACK
             ? [0, this.#data.select(headers.slice(1), {mode: 'sum', target: 'row'}).range()[1]]
@@ -108,7 +108,7 @@ export default class ArcLayer extends LayerBase {
           range: [0, maxRadius],
           nice: this.#scale.nice,
         }),
-      }
+      }, this.#scale, scales)
     }
   }
 

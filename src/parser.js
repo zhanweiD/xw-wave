@@ -41,7 +41,7 @@ const createLayer = (wave, config) => {
     customScale = wave.layer.find(({id}) => id === options.bind).instance.scale
   }
   // 设置图层的数据，第二个参数为比例尺，第三个参数为比例尺配置
-  layer.setData(dataObject, customScale, scale)
+  layer.setData(dataObject, {...customScale, nice: scale})
   // 设置图层的样式
   style && layer.setStyle(style)
   // 设置图层的事件
