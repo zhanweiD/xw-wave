@@ -1,3 +1,4 @@
+import {isArray} from 'lodash'
 import LayerBase from './base'
 import Scale from '../data/scale'
 
@@ -72,27 +73,32 @@ export default class RectLayer extends LayerBase {
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
-  setData(tableList, scales = {}, nice = {}) {
+  setData(tableList, scales = {}) {
     this.#data = tableList || this.#data
     const {type = waveType.COLUMN, mode = modeType.GROUP, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
+    // 条形图比例尺对外参数和对内参数不一致
+    if (type === waveType.BAR) {
+      [this.#scale.scaleX, this.#scale.scaleY] = [this.#scale.scaleY, this.#scale.scaleX];
+      [scales.scaleX, scales.scaleY] = [scales.scaleY, scales.scaleX]
+    }
     // 初始化比例尺
-    this.#scale = {
-      scaleX: (type === waveType.BAR ? scales.scaleY : scales.scaleX) || new Scale({
+    this.#scale.nice = {zero: true, ...this.#scale.nice, ...scales.nice}
+    this.#scale = this.createScale({
+      scaleX: new Scale({
         type: 'band',
         domain: this.#data.select(headers[0]).data[0].list,
         range: type === waveType.COLUMN ? [0, layout.width] : [0, layout.height],
-        nice,
+        nice: this.#scale.nice,
       }),
-      scaleY: (type === waveType.BAR ? scales.scaleX : scales.scaleY) || new Scale({
+      scaleY: new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
         range: type === waveType.COLUMN ? [layout.height, 0] : [layout.width, 0],
-        nice: {zero: true, ...nice},
+        nice: this.#scale.nice,
       }),
-      nice: {...this.#scale.nice, ...nice},
-    }
+    }, this.#scale, scales)
     // 计算基础数据，nice 为 false 是为了确保得到相同的比例尺
     const [scaleX, scaleY] = [this.#scale.scaleX, new Scale({...this.#scale.scaleY, nice: false})]
     const barWidth = scaleX.bandwidth()
@@ -157,9 +163,8 @@ export default class RectLayer extends LayerBase {
     // 矩形到条形的数据转换，同时更新比例尺
     if (type === waveType.BAR) {
       [this.scale.scaleX, this.scale.scaleY] = [this.scale.scaleY, this.scale.scaleX]
-      this.scale.scaleX.range(this.scale.scaleX.range().reverse())
       const firstRect = this.#rectData[0][0]
-      const offset = Array.isArray(firstRect.value) ? Math.abs(scaleY(0) - scaleY(firstRect.value[0])) : 0
+      const offset = isArray(firstRect.value) ? Math.abs(scaleY(0) - scaleY(firstRect.value[0])) : 0
       const zeroY = firstRect.y + firstRect.height + offset
       this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, height, width, value, ...other}) => ({
         value, 
@@ -212,15 +217,15 @@ export default class RectLayer extends LayerBase {
     // 标签文字数据
     this.#textData = this.#rectData.map(groupData => {
       const result = []
-      const labelPositionMin = Array.isArray(labelPosition) ? labelPosition[0] : labelPosition
-      const labelPositionMax = Array.isArray(labelPosition) ? labelPosition[1] : labelPosition
+      const labelPositionMin = isArray(labelPosition) ? labelPosition[0] : labelPosition
+      const labelPositionMax = isArray(labelPosition) ? labelPosition[1] : labelPosition
       groupData.forEach(({value, ...data}) => {
         // value 为数值，对应一个标签
-        !Array.isArray(value) && result.push(
+        !isArray(value) && result.push(
           this.#getLabelData({...data, value, labelPosition: labelPositionMax})
         )
         // value 为区间，对应两个标签
-        Array.isArray(value) && result.push(
+        isArray(value) && result.push(
           this.#getLabelData({...data, value: value[0], labelPosition: labelPositionMin}),
           this.#getLabelData({...data, value: value[1], labelPosition: labelPositionMax}),
         )

@@ -50,33 +50,33 @@ export default class MatrixLayer extends LayerBase {
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
-  setData(tableList, scales = {}, nice = {}) {
+  setData(tableList, scales = {}) {
     this.#data = tableList || this.#data
     const {mode = modeType.RECT, layout} = this.options
     const {left, top, width, height} = layout
     const [rows, columns, pureTableList] = [this.#data.data[0], this.#data.data[1], this.#data.data[2]]
     const [min, max] = this.#data.range()
     // 初始化比例尺
-    this.#scale = {
-      scaleX: scales.scaleX || new Scale({
+    this.#scale.nice = {paddingInner: 0, ...this.#scale.nice, ...scales.nice}
+    this.#scale = this.createScale({
+      scaleX: new Scale({
         type: 'band',
         domain: rows,
         range: [0, width],
-        nice: {paddingInner: 0, ...nice},
+        nice: this.#scale.nice,
       }),
-      scaleY: scales.scaleY || new Scale({
+      scaleY: new Scale({
         type: 'band',
         domain: columns,
         range: [height, 0],
-        nice: {paddingInner: 0, ...nice},
+        nice: this.#scale.nice,
       }),
-      scaleColor: scales.scaleColor || new Scale({
+      scaleColor: new Scale({
         type: 'ordinal',
         domain: d3.range(0, max - min, 1),
         range: this.getColor(max - min + 1, this.#style.rect?.fill || this.#style.circle?.fill, true),
       }),
-      nice: {...this.#scale.nice, ...nice},
-    }
+    }, this.#scale, scales)
     // 计算基础数据
     const {scaleX, scaleY, scaleColor} = this.#scale
     const [bandWidthX, bandWidthY] = [scaleX.bandwidth(), scaleY.bandwidth()]

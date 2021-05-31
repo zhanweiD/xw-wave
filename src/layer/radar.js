@@ -55,7 +55,7 @@ export default class RadarLayer extends LayerBase {
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
-  setData(tableList, scales = {}, nice = {}) {
+  setData(tableList, scales = {}) {
     this.#data = tableList || this.#data
     const {mode = modeType.GROUP, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
@@ -65,23 +65,23 @@ export default class RadarLayer extends LayerBase {
     const polygonCenter = {x: left + width / 2, y: top + height / 2}
     const maxRadius = Math.min(width, height) / 2
     // 初始化比例尺
-    this.#scale = {
-      scaleAngle: scales.scaleAngle || new Scale({
+    this.#scale.nice = {paddingInner: 0, ...this.#scale.nice, ...scales.nice}
+    this.#scale = this.createScale({
+      scaleAngle: new Scale({
         type: 'band',
         domain: labels,
         range: [0, 360],
-        nice: {paddingInner: 0, ...nice},
+        nice: this.#scale.nice,
       }),
-      scaleRadius: scales.scaleRadius || new Scale({
+      scaleRadius: new Scale({
         type: 'linear',
         domain: mode === modeType.STACK
           ? [0, this.#data.select(headers.slice(1), {mode: 'sum', target: 'row'}).range()[1]]
           : [0, this.#data.select(headers.slice(1)).range()[1]],
         range: [0, maxRadius],
-        nice,
+        nice: this.#scale.nice,
       }),
-      nice: {...this.#scale.nice, ...nice},
-    }
+    }, this.#scale, scales)
     // 根据比例尺计算顶点
     const {scaleAngle, scaleRadius} = this.#scale
     this.#polygonData = pureTableList.map(([dimension, ...values]) => {

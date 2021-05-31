@@ -39,27 +39,27 @@ export default class ScatterLayer extends LayerBase {
   }
 
   // 列数据依次为：分组名称、x轴坐标值、y轴坐标值、数值（可缺省）
-  setData(data, scales = {}, nice = {}) {
+  setData(data, scales = {}) {
     this.#data = data || this.#data
     const {left, top, width, height} = this.options.layout
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     // 初始化比例尺
-    this.#scale = {
+    this.#scale.nice = {paddingInner: 0, ...this.#scale.nice, ...scales.nice}
+    this.#scale = this.createScale({
       scaleX: scales.scaleX || new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(1, 2)).range(),
         range: [0, width],
-        nice,
+        nice: this.#scale.nice,
       }),
       scaleY: scales.scaleY || new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(2, 3)).range(),
         range: [height, 0],
-        nice,
+        nice: this.#scale.nice,
       }),
-      nice: {...this.#scale.nice, ...nice},
-    }
+    }, this.#scale, scales)
     // 计算点的基础数据
     const circleData = pureTableList.map(([category, x, y, value]) => ({
       cx: left + this.#scale.scaleX(x),

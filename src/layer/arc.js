@@ -63,30 +63,31 @@ export default class ArcLayer extends LayerBase {
    * 传入列表类，第一列数据要求为纬度数据列
    * @param {TableList} tableList 列表
    */
-  setData(tableList, scales = {}, nice = {}) {
+  setData(tableList, scales = {}) {
     this.#data = tableList || this.#data
     const {mode = modeType.DEFAULT, type = waveType.PIE, layout} = this.options
     const {width, height} = layout
     const headers = this.#data.data.map(({header}) => header)
     const labels = this.#data.select(headers[0])
     const maxRadius = Math.min(width, height) / 2
+    this.#scale.nice = {paddingInner: 0, ...this.#scale.nice, ...scales.nice}
     // 饼图的比例尺
     if (type === waveType.PIE) {
       const percentages = this.#data.select(headers[1], {mode: 'percentage', target: 'column'})
-      this.#scale = {
+      this.#scale = this.createScale({
         scaleAngle: scales.scaleAngle || new Scale({
           type: 'angle',
           domain: labels.concat(percentages),
           range: [0, 360],
-          nice: {paddingInner: 0, ...nice},
+          nice: this.#scale.nice,
         }),
         scaleRadius: scales.scaleRadius || new Scale({
           type: 'quantize',
           domain: [-Infinity, Infinity],
           range: [maxRadius],
+          nice: this.#scale.nice,
         }),
-        nice: {...this.#scale.nice, ...nice},
-      }
+      }, this.#scale, scales)
     }
     // 夜莺玫瑰图的比例尺
     if (type === waveType.NIGHTINGALEROSE) {
@@ -97,7 +98,7 @@ export default class ArcLayer extends LayerBase {
           type: 'angle',
           domain: labels.concat(percentages),
           range: [0, 360],
-          nice: {paddingInner: 0, ...nice},
+          nice: this.#scale.nice,
         }),
         scaleRadius: scales.scaleRadius || new Scale({
           type: 'linear',
@@ -105,9 +106,8 @@ export default class ArcLayer extends LayerBase {
             ? [0, this.#data.select(headers.slice(1), {mode: 'sum', target: 'row'}).range()[1]]
             : [0, this.#data.select(headers.slice(1)).range()[1]],
           range: [0, maxRadius],
-          nice,
+          nice: this.#scale.nice,
         }),
-        nice: {...this.#scale.nice, ...nice},
       }
     }
   }

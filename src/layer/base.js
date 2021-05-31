@@ -49,6 +49,7 @@ const animationMapping = {
 }
 
 // 其他常量
+const scaleTypes = ['scaleX', 'scaleY', 'scaleAngle', 'scaleRadius', 'scaleColor']
 const elTypes = ['arc', 'circle', 'curve', 'line', 'polygon', 'rect', 'text', 'area']
 const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
 const tooltipEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'blur']
@@ -101,6 +102,27 @@ export default class LayerBase {
       return data.length === 2 ? new Array(data[0].list.length).fill(finalColors) : finalColors
     }
     return this.options.getColor(count, customColors || this.mainColor)
+  }
+
+  /**
+   * 返回统一处理后的比例尺
+   * @param {Object} defaultScale 默认比例尺，由数据计算而来
+   * @param {Object} currentScale 当前比例尺
+   * @param {Object} incomingStyle 传入比例尺
+   * @returns 
+   */
+  createScale(defaultScale, currentScale, incomingStyle) {
+    const nice = merge(defaultScale?.nice, currentScale?.nice, incomingStyle?.nice)
+    const scale = {nice}
+    // 比例尺的命名是固定不变的
+    scaleTypes.forEach(type => {
+      scale[type] = incomingStyle[type] || defaultScale[type] || currentScale[type]
+      // 如果两者值域不一致，则表示笔刷更改了当前比例尺的值域，这个值域需要继承
+      if (currentScale[type] && !isEqual(currentScale[type].range(), defaultScale[type].range())) {
+        scale[type].range(currentScale[type].range())
+      }
+    })
+    return scale
   }
 
   /**
