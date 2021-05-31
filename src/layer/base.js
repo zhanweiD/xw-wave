@@ -246,9 +246,17 @@ export default class LayerBase {
     this.event.fire('destroy')
   }
 
-  // 控制整个图表的显示隐藏
-  setVisible(isVisiable) {
-    this.options.root.selectAll(`.${this.className}`).style('display', isVisiable ? 'block' : 'none')
+  /**
+   * 控制整个图层的显示和隐藏
+   * @param {Boolean} isVisiable 
+   * @param {String} elType 
+   */
+  setVisible(isVisiable, elType) {
+    // 隐藏图层某种元素或整个图层
+    const targets = elTypes.find(elType)
+      ? this.options.root.selectAll(`.${this.className}-${elType}`)
+      : this.options.root.selectAll(`.${this.className}`)
+    targets.style('display', isVisiable ? 'block' : 'none')
   }
 
   /**
@@ -258,16 +266,14 @@ export default class LayerBase {
    */
   drawBasic(type, data) {
     // 顶层图层容器准备
-    let root = this.options.root.selectAll(`.${this.className}`)
-    if (root._groups[0].length === 0) {
-      root = this.options.root.append('g').attr('class', this.className)
-    }
+    const root = this.options.root.selectAll(`.${this.className}`)._groups[0].length === 0
+      ? this.options.root.append('g').attr('class', this.className)
+      : this.options.root.selectAll(`.${this.className}`)
     // 元素容器准备，没有则追加
     const containerClassName = `${this.className}-${type}`
-    let container = root.selectAll(`.${containerClassName}`)
-    if (container._groups[0].length === 0) {
-      container = root.append('g').attr('class', containerClassName)
-    }
+    const container = root.selectAll(`.${containerClassName}`)._groups[0].length === 0
+      ? root.append('g').attr('class', containerClassName)
+      : root.selectAll(`.${containerClassName}`)
     // 分组容器准备，删除上一次渲染多余的组
     for (let i = 0; i < Math.max(this.#backupData[type].length, data.length); i++) {
       const groupClassName = `${containerClassName}-${i}`
