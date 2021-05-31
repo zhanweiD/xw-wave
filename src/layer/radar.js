@@ -25,7 +25,7 @@ const defaultStyle = {
 export default class RadarLayer extends LayerBase {
   #data = null
   
-  #scale = null
+  #scale = {}
 
   #style = defaultStyle
 
@@ -80,6 +80,7 @@ export default class RadarLayer extends LayerBase {
         range: [0, maxRadius],
         nice,
       }),
+      nice: {...this.#scale.nice, ...nice},
     }
     // 根据比例尺计算顶点
     const {scaleAngle, scaleRadius} = this.#scale

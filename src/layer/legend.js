@@ -100,7 +100,7 @@ export default class LegendLayer extends LayerBase {
       const subData = data.select(subHeaders)
       data.data.slice(1).map(({header}) => header).forEach((header, i) => order[header] = i)
       subData.options.order = order
-      layer.setData(subData)
+      layer.setData(subData, {}, layer.scale.nice)
       layer.setStyle()
       layer.draw()
       // 更新图例
@@ -174,9 +174,9 @@ export default class LegendLayer extends LayerBase {
     const circleData = this.#circleData.map(({rx, ry, cx, cy}, i) => ({
       data: [[rx, ry]],
       position: [[cx, cy]],
-      fill: this.#colors[i],
       source: [{value: this.#data[i], index: i}],
       ...this.#style.circle,
+      fill: this.#colors[i],
     }))
     const textData = this.#textData.map(({value, x, y}, i) => ({
       data: [value],

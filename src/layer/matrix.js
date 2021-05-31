@@ -20,7 +20,7 @@ const defaultStyle = {
 export default class MatrixLayer extends LayerBase {
   #data = null
   
-  #scale = null
+  #scale = {}
 
   #style = defaultStyle
 
@@ -75,6 +75,7 @@ export default class MatrixLayer extends LayerBase {
         domain: d3.range(0, max - min, 1),
         range: this.getColor(max - min + 1, this.#style.rect?.fill || this.#style.circle?.fill, true),
       }),
+      nice: {...this.#scale.nice, ...nice},
     }
     // 计算基础数据
     const {scaleX, scaleY, scaleColor} = this.#scale

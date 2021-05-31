@@ -62,7 +62,7 @@ const createSchema = (container, theme, layout, type) => ({
           hide: true,
         },
         circle: {
-          fill: ['rgb(74,144,226)', '#eaeaea55'],
+          hide: 'true',
         },
         tickText: {
           hide: true,

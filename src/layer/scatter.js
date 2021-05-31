@@ -12,7 +12,7 @@ const defaultStyle = {
 export default class ScatterLayer extends LayerBase {
   #data = null
   
-  #scale = null
+  #scale = {}
 
   #style = defaultStyle
 
@@ -58,6 +58,7 @@ export default class ScatterLayer extends LayerBase {
         range: [height, 0],
         nice,
       }),
+      nice: {...this.#scale.nice, ...nice},
     }
     // 计算点的基础数据
     const circleData = pureTableList.map(([category, x, y, value]) => ({

@@ -44,7 +44,7 @@ const defaultStyle = {
 export default class RectLayer extends LayerBase {
   #data = null
   
-  #scale = null
+  #scale = {}
 
   #style = defaultStyle
 
@@ -91,8 +91,9 @@ export default class RectLayer extends LayerBase {
         range: type === waveType.COLUMN ? [layout.height, 0] : [layout.width, 0],
         nice: {zero: true, ...nice},
       }),
+      nice: {...this.#scale.nice, ...nice},
     }
-    // 计算基础数据
+    // 计算基础数据，nice 为 false 是为了确保得到相同的比例尺
     const [scaleX, scaleY] = [this.#scale.scaleX, new Scale({...this.#scale.scaleY, nice: false})]
     const barWidth = scaleX.bandwidth()
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角

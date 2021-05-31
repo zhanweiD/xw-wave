@@ -1,6 +1,5 @@
 import LayerBase from './base'
 import Scale from '../data/scale'
-import TableList from '../data/table-list'
 
 // 映射的图表类型
 const waveType = {
@@ -31,9 +30,9 @@ const defaultStyle = {
 
 // 圆弧图层
 export default class ArcLayer extends LayerBase {
-  #data = new TableList([[]])
+  #data = null
   
-  #scale = null
+  #scale = {}
 
   #style = defaultStyle
 
@@ -86,6 +85,7 @@ export default class ArcLayer extends LayerBase {
           domain: [-Infinity, Infinity],
           range: [maxRadius],
         }),
+        nice: {...this.#scale.nice, ...nice},
       }
     }
     // 夜莺玫瑰图的比例尺
@@ -107,6 +107,7 @@ export default class ArcLayer extends LayerBase {
           range: [0, maxRadius],
           nice,
         }),
+        nice: {...this.#scale.nice, ...nice},
       }
     }
   }

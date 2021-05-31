@@ -38,7 +38,7 @@ const defaultStyle = {
 export default class LineLayer extends LayerBase {
   #data = null
   
-  #scale = null
+  #scale = {}
 
   #style = defaultStyle
 
@@ -90,6 +90,7 @@ export default class LineLayer extends LayerBase {
         range: [height, 0],
         nice: {zero: true, ...nice},
       }),
+      nice: {...this.#scale.nice, ...nice},
     }
     // 计算基础数据
     const {scaleX, scaleY} = this.#scale
