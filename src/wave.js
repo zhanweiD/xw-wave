@@ -139,6 +139,7 @@ export default class Wave {
   /**
    * 根据主题获取颜色
    * @param {Number} count 数量
+   * @param {Array} customColors 自定义颜色覆盖主题色
    */
   getColor(count, customColors) {
     let colors = customColors || ThemeConfig[this.theme]?.colors || ThemeConfig.glaze.colors

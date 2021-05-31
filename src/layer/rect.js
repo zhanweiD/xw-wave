@@ -200,13 +200,12 @@ export default class RectLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {labelPosition} = this.#style
-    const {getColor} = this.options
     // 颜色跟随主题
     if (this.#rectData[0]?.length > 1) {
-      const colors = getColor(this.#rectData[0].length)
+      const colors = this.getColor(this.#rectData[0].length, this.#style.rect?.fill, true)
       this.#rectData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
     } else if (this.#rectData[0]?.length === 1) {
-      const colors = getColor(this.#rectData.length)
+      const colors = this.getColor(this.#rectData.length, this.#style.rect?.fill, true)
       this.#rectData.forEach((groupData, i) => (groupData[0].color = colors[i]))
     }
     // 标签文字数据
@@ -237,7 +236,7 @@ export default class RectLayer extends LayerBase {
       const position = groupData.map(({x, y}) => [x, y])
       const fill = groupData.map(({color}) => color)
       const transformOrigin = this.options.type === waveType.COLUMN ? 'bottom' : 'left'
-      return {data, source, position, fill, transformOrigin, ...this.#style.rect}
+      return {data, source, position, transformOrigin, ...this.#style.rect, fill}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)

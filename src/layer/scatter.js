@@ -79,7 +79,6 @@ export default class ScatterLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {getColor} = this.options
     const {circleSizeRange} = this.#style
     const {fontSize = 12, format} = this.#style.text
     const scaleSize = new Scale({
@@ -89,7 +88,7 @@ export default class ScatterLayer extends LayerBase {
       nice: null,
     })
     // 颜色跟随主题
-    const colors = getColor(this.#circleData.length)
+    const colors = this.getColor(this.#circleData.length, this.#style.circle?.fill, true)
     this.#circleData.forEach((groupData, i) => groupData.forEach(item => item.color = colors[i]))
     // 圆点大小数据
     this.#circleData = this.#circleData.map(groupData => {
@@ -113,7 +112,7 @@ export default class ScatterLayer extends LayerBase {
       const position = groupData.map(({cx, cy}) => [cx, cy])
       const source = groupData.map(({category, value, dimension}) => ({category, value, dimension}))
       const fill = groupData.map(({color}) => color)
-      return {data, source, position, fill, ...this.#style.circle}
+      return {data, source, position, ...this.#style.circle, fill}
     })
     const textData = this.#textData.map(groupData => {
       const position = groupData.map(({x, y}) => [x, y])

@@ -52,7 +52,7 @@ export default class MatrixLayer extends LayerBase {
   // 传入列表类，第一列数据要求为纬度数据列
   setData(tableList, scales = {}, nice = {}) {
     this.#data = tableList || this.#data
-    const {mode = modeType.RECT, layout, getColor} = this.options
+    const {mode = modeType.RECT, layout} = this.options
     const {left, top, width, height} = layout
     const [rows, columns, pureTableList] = [this.#data.data[0], this.#data.data[1], this.#data.data[2]]
     const [min, max] = this.#data.range()
@@ -73,7 +73,7 @@ export default class MatrixLayer extends LayerBase {
       scaleColor: scales.scaleColor || new Scale({
         type: 'ordinal',
         domain: d3.range(0, max - min, 1),
-        range: getColor(max - min + 1),
+        range: this.getColor(max - min + 1, this.#style.rect?.fill || this.#style.circle?.fill, true),
       }),
     }
     // 计算基础数据
@@ -149,14 +149,14 @@ export default class MatrixLayer extends LayerBase {
       const source = groupData.map(({dimension, value}) => ({dimension, value}))
       const position = groupData.map(({x, y}) => [x, y])
       const fill = groupData.map(({color}) => color)
-      return {data, source, position, fill, ...this.#style.rect}
+      return {data, source, position, ...this.#style.rect, fill}
     })
     const circleData = this.#circleData.map(groupData => {
       const data = groupData.map(({rx, ry}) => [rx, ry])
       const position = groupData.map(({cx, cy}) => [cx, cy])
       const source = groupData.map(({dimension, value}) => ({dimension, value}))
       const fill = groupData.map(({color}) => color)
-      return {data, source, position, fill, ...this.#style.circle}
+      return {data, source, position, ...this.#style.circle, fill}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)

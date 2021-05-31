@@ -119,12 +119,12 @@ export default class LineLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {getColor, layout, mode = modeType.DEFAULT} = this.options
+    const {layout, mode = modeType.DEFAULT} = this.options
     const {labelPosition, labelOffset = 5, pointSize = 5} = this.#style
     const {top, height} = layout
     const {fontSize = 12, format} = this.#style.text
     // 颜色跟随主题
-    const colors = getColor(this.#lineData.length)
+    const colors = this.getColor(this.#lineData.length, this.#style.line?.stroke, true)
     this.#lineData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
     // 标签文字数据
     this.#textData = this.#lineData.map(groupData => groupData.map(({value, x, y}) => {
@@ -144,11 +144,11 @@ export default class LineLayer extends LayerBase {
   draw() {
     const lineData = this.#lineData[0].map(({color}, index) => {
       const position = this.#lineData.map(item => [item[index].x, item[index].y])
-      return {position: [position], stroke: color, ...this.#style.line}
+      return {position: [position], ...this.#style.line, stroke: color}
     })
     const areaData = this.#areaData[0].map(({color}, index) => {
       const position = this.#areaData.map(item => [item[index].x, item[index].y0, item[index].y1])
-      return {position: [position], fill: color, ...this.#style.area}
+      return {position: [position], ...this.#style.area, fill: color}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)
@@ -160,7 +160,7 @@ export default class LineLayer extends LayerBase {
       const position = groupData.map(({x, y}) => [x, y])
       const stroke = groupData.map(({color}) => color)
       const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
-      return {data, position, source, stroke, ...this.#style.circle}
+      return {data, position, source, ...this.#style.circle, stroke}
     })
     this.drawBasic('area', areaData)
     this.drawBasic('curve', lineData)

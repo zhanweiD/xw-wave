@@ -136,9 +136,9 @@ export default class TableList extends DataBase {
    * @returns {TableList} 连接后新的列表示实例
    */
   concat(...tableLists) {
-    const newTableList = this.clone()
+    const newTableList = cloneDeep(this)
     tableLists.forEach(tableList => {
-      tableList.clone().data.forEach(item => {
+      cloneDeep(tableList).data.forEach(item => {
         const index = newTableList.data.findIndex(({header}) => item.header === header)
         if (index !== -1) {
           newTableList.data[index] = item

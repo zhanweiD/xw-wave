@@ -1,3 +1,5 @@
+import {merge} from 'lodash'
+
 // 数据处理基类
 export default class DataBase {
   // 是否为列表数据
@@ -24,7 +26,8 @@ export default class DataBase {
   // 构造函数，备份数据
   constructor(data, options) {
     this.source = data
-    this.options = options
+    // order 定义每组数据的优先级，可以决定颜色的选取顺序
+    this.options = merge({order: null}, options) 
   }
 
   /**

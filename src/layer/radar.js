@@ -107,11 +107,10 @@ export default class RadarLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {getColor} = this.options
     const {pointSize = 2} = this.#style
     const {fontSize = 12, format} = this.#style.text
     // 颜色跟随主题
-    const colors = getColor(this.#polygonData[0].length)
+    const colors = this.getColor(this.#polygonData[0].length, this.#style.polygon?.fill, true)
     this.#polygonData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
     // 圆点数据依赖多边形数据
     this.#pointData = this.#polygonData.map(groupData => {
@@ -136,14 +135,14 @@ export default class RadarLayer extends LayerBase {
     const polygonData = this.#polygonData[0].map(({color, center}, index) => {
       const transformOrigin = [center.x, center.y]
       const data = this.#polygonData.map(item => [item[index].x, item[index].y])
-      return {data: [data], fill: color, stroke: color, transformOrigin, ...this.#style.polygon}
+      return {data: [data], stroke: color, transformOrigin, ...this.#style.polygon, fill: color}
     }).reverse()
     const pointData = this.#pointData.map(groupData => {
       const data = groupData.map(({rx, ry}) => [rx, ry])
       const position = groupData.map(({cx, cy}) => [cx, cy])
       const fill = groupData.map(({color}) => color)
       const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
-      return {data, position, source, fill, ...this.#style.circle}
+      return {data, position, source, ...this.#style.circle, fill}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)

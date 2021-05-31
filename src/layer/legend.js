@@ -65,10 +65,10 @@ export default class LegendLayer extends LayerBase {
   setData(layers) {
     // 初始化文字数据和图形颜色
     layers = isArray(layers) ? layers : [layers]
-    layers.forEach(({data, options}) => {
-      this.#data.push(...data.data.slice(1).map(({header}) => header))
-      this.#colors.push(...options.getColor(data.data.length - 1))
-      this.#textColors.push(...new Array(data.data.length - 1).fill('white'))
+    layers.forEach(layer => {
+      this.#data.push(...layer.data.data.slice(1).map(({header}) => header))
+      this.#colors.push(...layer.getColor(layer.data.data.length - 1))
+      this.#textColors.push(...new Array(layer.data.data.length - 1).fill('white'))
     })
     // 状态变量，用于恢复数据
     const originData = layers.map(layer => layer.data)
@@ -95,8 +95,12 @@ export default class LegendLayer extends LayerBase {
         this.#textColors[index] = disableColor
       }
       // 更新图层
-      const headers = data.data.filter((v, i) => (!i || !disableFlag[startIndex + i - 1])).map(({header}) => header)
-      layer.setData(data.select(headers))
+      const order = {}
+      const subHeaders = data.data.filter((v, i) => (!i || !disableFlag[startIndex + i - 1])).map(({header}) => header)
+      const subData = data.select(subHeaders)
+      data.data.slice(1).map(({header}) => header).forEach((header, i) => order[header] = i)
+      subData.options.order = order
+      layer.setData(subData)
       layer.setStyle()
       layer.draw()
       // 更新图例

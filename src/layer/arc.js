@@ -134,7 +134,7 @@ export default class ArcLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {getColor, type = waveType.PIE, mode = modeType.DEFAULT, layout} = this.options
+    const {type = waveType.PIE, mode = modeType.DEFAULT, layout} = this.options
     const {left, top, width, height} = layout
     const {scaleAngle, scaleRadius} = this.#scale
     const {innerRadius = 0, labelPosition = labelPositionType.INNER} = this.#style
@@ -172,10 +172,10 @@ export default class ArcLayer extends LayerBase {
     }
     // 颜色跟随主题
     if (this.#arcData[0]?.length > 1) {
-      const colors = getColor(this.#arcData[0].length)
+      const colors = this.getColor(this.#arcData[0].length, this.#style.arc?.fill, true)
       this.#arcData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
     } else if (this.#arcData[0]?.length === 1) {
-      const colors = getColor(this.#arcData.length)
+      const colors = this.getColor(this.#arcData.length, this.#style.arc?.fill, true)
       this.#arcData.forEach((groupData, i) => (groupData[0].color = colors[i]))
     }
     // 标签文字数据
@@ -194,7 +194,7 @@ export default class ArcLayer extends LayerBase {
       const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
       const position = groupData.map(({x, y}) => [x, y])
       const fill = groupData.map(({color}) => color)
-      return {data, position, source, fill, ...this.#style.arc}
+      return {data, position, source, ...this.#style.arc, fill}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)

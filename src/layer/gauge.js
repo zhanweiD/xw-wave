@@ -11,6 +11,7 @@ const defaultStyle = {
   offset: 10,
   tickSize: 10,
   pointerSize: 5,
+  arc: {},
   line: {},
   rect: {},
   circle: {},
@@ -78,12 +79,11 @@ export default class GaugeLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {getColor, layout} = this.options
-    const {left, top, width, height} = layout
+    const {left, top, width, height} = this.options.layout
     const {step, arcWidth, offset, startAngle, endAngle, pointerSize, tickSize, valueText, tickText} = this.#style
     const {value, label, minValue, maxValue, fragments} = this.#data
     const maxRadius = Math.min(width, height) / 2
-    const colors = getColor(fragments.length)
+    const colors = this.getColor(fragments.length, this.#style.arc?.fill, true)
     const arcCenter = {x: left + width / 2, y: top + height / 2}
     const scaleAngle = new Scale({
       type: 'linear',
@@ -164,13 +164,13 @@ export default class GaugeLayer extends LayerBase {
     const circleData = [{
       data: [[this.#circleData.rx, this.#circleData.ry]],
       position: [[this.#circleData.cx, this.#circleData.cy]],
-      ...this.#style.rect,
+      ...this.#style.circle,
     }]
     const arcData = this.#arcData.map(item => {
       const {x, y, startAngle, endAngle, innerRadius, outerRadius, color} = item
       const data = [[startAngle, endAngle, innerRadius, outerRadius]]
       const position = [[x, y]]
-      return {data, position, fill: color, ...this.#style.arc}
+      return {data, position, ...this.#style.arc, fill: color}
     })
     const lineData = [{
       position: this.#lineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),

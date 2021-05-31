@@ -1,4 +1,4 @@
-import {isArray, isEqual, merge} from 'lodash'
+import {isEqual, merge} from 'lodash'
 import drawArc from '../basic/arc'
 import drawCircle from '../basic/circle'
 import drawCurve from '../basic/curve'
@@ -12,6 +12,7 @@ import AnimationQueue from '../animation/animation'
 import Tooltip, {globalTooltip} from './tooltip'
 import formatText from '../util/format-text'
 import getTextWidth from '../util/text-width'
+import TableList from '../data/table-list'
 
 // 文字基于坐标的方向
 const positionType = {
@@ -62,6 +63,7 @@ export default class LayerBase {
     this.animation = {}
     this.tooltip = null
     this.className = null
+    this.mainColor = null
     this.#createEvent()
     this.warn = this.options.warn
     this.event = createEvent(__filename)
@@ -74,29 +76,57 @@ export default class LayerBase {
   // 样式处理
   setStyle() { this.warn('此图层的 setStyle 函数未重写') }
 
-  // 返回统一处理后的样式
-  createStyle(defaultStyle, currentStyle, incomingStyle) {
-    const {baseFontSize, getColor} = this.options
-    const layerStyle = merge({}, defaultStyle, currentStyle, incomingStyle)
-    const keys = Object.keys(layerStyle)
-    // 统一缩放字号
-    keys.forEach(key => {
-      if (key.search(/text/i) !== -1 && layerStyle[key].fontSize) {
-        layerStyle[key].fontSize *= baseFontSize
-      }
-    })
-    // 支持自定义颜色，增强颜色函数
-    keys.forEach(key => {
-      if (isArray(layerStyle[key]?.fill)) {
-        const customColors = layerStyle[key].fill
-        this.options.getColor = count => getColor(count, customColors)
-        delete layerStyle[key].fill
-      }
-    })
-    return layerStyle
+  /**
+   * 颜色增强函数
+   * @param {Number} count 数量
+   * @param {Array} customColors 自定义颜色覆盖主题色
+   * @param {Boolean} isMainColor 覆盖自定义颜色的默认值
+   * @returns 正确的颜色
+   */
+  getColor(count, customColors, isMainColor = false) {
+    const data = this.data?.data
+    const order = this.data?.options?.order
+    const {getColor} = this.options
+    // 备份图层主色
+    if (customColors && isMainColor) {
+      this.mainColor = customColors
+    }
+    // 判断列表内有无颜色相关的属性，目前图例有用到
+    if (order && this.data instanceof TableList) {
+      const colorMapping = {}
+      const colors = getColor(Math.max(...Object.values(order)) + 1, customColors || this.mainColor)
+      Object.keys(order).forEach(key => colorMapping[key] = colors[order[key]])
+      const finalColors = data.slice(1).map(({header}) => colorMapping[header])
+      return data.length === 2 ? new Array(data[0].list.length).fill(finalColors) : finalColors
+    }
+    return this.options.getColor(count, customColors || this.mainColor)
   }
 
-  // 返回统一处理后的标签数据
+  /**
+   * 返回统一处理后的样式
+   * @param {Object} defaultStyle 默认样式
+   * @param {Object} currentStyle 当前样式
+   * @param {Object} incomingStyle 传入样式
+   * @returns 新的样式
+   */
+  createStyle(defaultStyle, currentStyle, incomingStyle) {
+    const {baseFontSize} = this.options
+    const style = merge({}, defaultStyle, currentStyle, incomingStyle)
+    const keys = Object.keys(style)
+    // 统一缩放字号
+    keys.forEach(key => {
+      if (key.search(/text/i) !== -1 && style[key].fontSize) {
+        style[key].fontSize *= baseFontSize
+      }
+    })
+    return style
+  }
+
+  /**
+   * 返回统一处理后的标签数据
+   * @param {Object} 计算文字需要的一些值
+   * @returns 文字数据，包含坐标和值
+   */
   createText({x, y, value, fontSize = 12, format = null, position = positionType.DEFAULT, offset = 0}) {
     let [positionX, positionY] = [x, y]
     const formattedText = format ? formatText(value, format) : value
