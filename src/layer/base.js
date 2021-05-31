@@ -48,6 +48,7 @@ const animationMapping = {
   area: ['zoom', 'scan', 'fade'],
 }
 
+// 其他常量
 const elTypes = ['arc', 'circle', 'curve', 'line', 'polygon', 'rect', 'text', 'area']
 const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
 const tooltipEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'blur']
@@ -59,7 +60,7 @@ export default class LayerBase {
   #backupEvent = {}
 
   constructor(layerOptions, waveOptions) {
-    this.options = {...layerOptions, ...waveOptions}
+    this.options = merge(layerOptions, waveOptions)
     this.animation = {}
     this.tooltip = null
     this.className = null

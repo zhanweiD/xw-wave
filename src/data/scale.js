@@ -1,27 +1,24 @@
-import {isNumber} from 'lodash'
+import {isFunction, isNumber} from 'lodash'
 import * as d3 from 'd3'
 
 const defaultNice = {
-  count: 5,
-  zero: false,
-  paddingInner: 0.382,
-  fixedPaddingInner: null,
-  fixedBandWidth: null,
-  fixedBoundary: 'start', // end
+  count: 5, // 优化的刻度数量
+  zero: false, // 值域是否包含 0
+  paddingInner: 0.382, // band 比例尺间距占比
+  fixedPaddingInner: null, // band 比例尺固定间距
+  fixedBandWidth: null, // band 比例尺固定带宽
+  fixedBoundary: 'start', // band 比例尺吸附边界
 }
 
 // 基于 d3 做一些比例尺的定制，方便图表操作
 export default function Scale({type, domain, range, nice = defaultNice}) {
   let scale
-  // 复制比例尺的时候会用到
-  const getData = option => (typeof option === 'function' ? option() : option)
-  // 离散到离散
-  if (type === 'ordinal') {
-    scale = d3.scaleOrdinal().domain(getData(domain)).range(getData(range))
-  }
+  // 获取正确的定义域和值域
+  const realDomain = isFunction(domain) ? domain() : domain
+  const realRange = isFunction(range) ? range() : range
   // 离散到连续
   if (type === 'band') {
-    scale = d3.scaleBand().domain(getData(domain)).range(getData(range))
+    scale = d3.scaleBand().domain(realDomain).range(realRange)
     // band 比例尺支持调整比例和固定值
     if (isNumber(nice?.fixedBandWidth) && isNumber(nice?.fixedPaddingInner)) {
       const {fixedBandWidth, fixedPaddingInner, fixedBoundary} = nice
@@ -44,17 +41,21 @@ export default function Scale({type, domain, range, nice = defaultNice}) {
   }
   // 离散到连续，bind 的变体，bandwidth 为 0
   if (type === 'point') {
-    scale = d3.scalePoint().domain(getData(domain)).range(getData(range))
+    scale = d3.scalePoint().domain(realDomain).range(realRange)
+  }
+  // 离散到离散
+  if (type === 'ordinal') {
+    scale = d3.scaleOrdinal().domain(realDomain).range(realRange)
   }
   // 连续到离散
   if (type === 'quantize') {
-    scale = d3.scaleQuantize().domain(getData(domain)).range(getData(range))
+    scale = d3.scaleQuantize().domain(realDomain).range(realRange)
     nice && nice.zero && extendZero(scale)
     nice && niceScale(scale, nice.count || defaultNice.count)
   }
   // 连续到连续
   if (type === 'linear') {
-    scale = d3.scaleLinear().domain(getData(domain)).range(getData(range))
+    scale = d3.scaleLinear().domain(realDomain).range(realRange)
     nice && nice.zero && extendZero(scale)
     nice && niceScale(scale, nice.count || defaultNice.count)
   }
@@ -125,7 +126,7 @@ const niceScale = (scale, tickCount) => {
   // 生成合适的刻度范围
   if (tickCount > 0) {
     const distance = end - start
-    const level = judgeLevel(distance / tickCount)
+    const level = 10 ** Math.round(Math.log10(Math.abs(distance / tickCount)))
     // 图表上方留白约束比例，当空白过多时考虑增加减小步长拉伸图表
     const spaceThreshold = 0
     // 保证图表不会溢出的 step，但有时候空白空间过大
@@ -150,14 +151,4 @@ const niceScale = (scale, tickCount) => {
     scale.domain(reverse ? [newEnd, newStart] : [newStart, newEnd])
   }
   return scale
-}
-
-/**
- * 判断一个实数的数量级基数
- * @param {Number} number 
- * @returns 数量级基数，如 456 的数量级基数为 100
- */
-const judgeLevel = number => {
-  const absoluteLevel = 10 ** Math.round(Math.log10(Math.abs(number)))
-  return number > 0 ? absoluteLevel : -absoluteLevel
 }
