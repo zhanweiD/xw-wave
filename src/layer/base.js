@@ -210,10 +210,10 @@ export default class LayerBase {
   setTooltip(options) {
     // 初始化 tooltip 实例
     this.tooltip = this.tooltip || new Tooltip(this.options.container)
+    this.tooltip.options = merge(this.tooltip.options, options)
     // 绑定事件，考虑到渲染延迟，推迟到下个事件循环执行
-    const {mode, targets} = options
-    this.tooltip.options.mode = mode
-    targets.forEach(elType => setTimeout(() => {
+    const {targets} = this.tooltip.options
+    targets && targets.forEach(elType => setTimeout(() => {
       const els = this.options.root.selectAll(`.${this.className} .wave-basic-${elType}`)
       tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
     }, 0))
@@ -324,5 +324,6 @@ export default class LayerBase {
     }
     // 新的元素需要重新注册事件
     this.#setEvent(type)
+    this.setTooltip()
   }
 }

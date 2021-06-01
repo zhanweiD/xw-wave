@@ -54,21 +54,21 @@ export default class MatrixLayer extends LayerBase {
     this.#data = tableList || this.#data
     const {mode = modeType.RECT, layout} = this.options
     const {left, top, width, height} = layout
-    const [rows, columns, pureTableList] = [this.#data.data[0], this.#data.data[1], this.#data.data[2]]
+    const [rows, columns, pureTable] = [this.#data.data[0], this.#data.data[1], this.#data.data[2]]
     const [min, max] = this.#data.range()
     // 初始化比例尺
     this.#scale.nice = {paddingInner: 0, ...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'band',
-        domain: rows,
+        domain: columns,
         range: [0, width],
         nice: this.#scale.nice,
       }),
       scaleY: new Scale({
         type: 'band',
-        domain: columns,
-        range: [height, 0],
+        domain: rows,
+        range: [0, height],
         nice: this.#scale.nice,
       }),
       scaleColor: new Scale({
@@ -82,33 +82,33 @@ export default class MatrixLayer extends LayerBase {
     const [bandWidthX, bandWidthY] = [scaleX.bandwidth(), scaleY.bandwidth()]
     // 根据比例尺计算原始矩形坐标和数据，原始坐标为左上角
     if (mode === modeType.RECT) {
-      this.#rectData = pureTableList.map((values, i) => values.map((value, j) => ({
+      this.#rectData = pureTable.map((values, i) => values.map((value, j) => ({
         value,
         dimension: [rows[i], columns[j]],
-        color: scaleColor(value - min),
-        x: left + scaleX(rows[i]),
-        y: top + scaleY(columns[j]),
+        color: scaleColor(Math.round(value - min)),
+        x: left + scaleX(columns[j]),
+        y: top + scaleY(rows[i]),
         width: bandWidthX,
         height: bandWidthY,
       })))
     }
     // 圆形数据
     if (mode === modeType.CIRCLE) {
-      this.#circleData = pureTableList.map((values, i) => values.map((value, j) => ({
+      this.#circleData = pureTable.map((values, i) => values.map((value, j) => ({
         value,
         dimension: [rows[i], columns[j]],
-        color: scaleColor(value - min),
-        cx: left + scaleX(rows[i]) + bandWidthX / 2,
-        cy: top + scaleY(columns[j]) + bandWidthY / 2,
+        color: scaleColor(Math.round(value - min)),
+        cx: left + scaleX(columns[j]) + bandWidthX / 2,
+        cy: top + scaleY(rows[i]) + bandWidthY / 2,
         rx: Math.min(bandWidthX, bandWidthY) / 2,
         ry: Math.min(bandWidthX, bandWidthY) / 2,
       })))
     }
     // 文字数据
-    this.#textData = pureTableList.map((values, i) => values.map((value, j) => ({
+    this.#textData = pureTable.map((values, i) => values.map((value, j) => ({
       value,
-      x: left + scaleX(rows[i]) + bandWidthX / 2,
-      y: top + scaleY(columns[j]) + bandWidthY / 2,
+      x: left + scaleX(columns[j]) + bandWidthX / 2,
+      y: top + scaleY(rows[i]) + bandWidthY / 2,
     })))
   }
 

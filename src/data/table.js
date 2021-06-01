@@ -106,4 +106,26 @@ export default class Table extends DataBase {
     const max = d3.max(this.data[2].map(row => d3.max(row)))
     return [min, max]
   }
+
+  /**
+   * 计算数值在列表内的相对大小
+   * @returns {Array}
+   */
+  sort() {
+    const result = cloneDeep(this.data[2])
+    const column = this.data[1].length
+    const data = this.data[2].reduce((prev, cur) => [...prev, ...cur], [])
+    const order = new Array(data.length).fill().map((v, i) => i)
+    for (let i = 0; i < data.length; i++) {
+      for (let j = i + 1; j < data.length; j++) {
+        if (data[i] > data[j]) {
+          [data[i], data[j]] = [data[j], data[i]];
+          [order[i], order[j]] = [order[j], order[i]]
+        }
+      }
+    }
+    // 返回二维数组形式的排序顺序
+    order.forEach((value, i) => result[Math.floor(value / column)][value % column] = i)
+    return result
+  }
 }

@@ -3,6 +3,7 @@ import Wave from './wave'
 import DataBase from './data/base'
 import TableList from './data/table-list'
 import Table from './data/table'
+import Random from './data/random'
 
 // 图层是否依赖其他图层
 const dependentLayers = ['auxiliary', 'axis', 'legend']
@@ -12,36 +13,36 @@ const createLayer = (wave, config) => {
   const {type, options, data, scale, style, animation, tooltip, event} = config
   const layer = wave.createLayer(type, {...options, layout: wave.layout[options.layout]})
   // 数据结构判断
-  let dataObject = data
-  if (DataBase.isTable(data)) {
-    dataObject = new Table(dataObject)
-  } else if (DataBase.isTableLilst(data)) {
-    dataObject = new TableList(dataObject)
+  let dataSet = data
+  if (DataBase.isTable(data) || data?.type === 'table') {
+    dataSet = new Table(DataBase.isTable(data) ? data : Random.table(data))
+  } else if (DataBase.isTableLilst(data) || data?.type === 'tableList') {
+    dataSet = new TableList(DataBase.isTableLilst(data) ? data : Random.tableList(data))
     // 某些图表需要控制列数
     if (type === 'rect' && options.mode === 'interval') {
-      dataObject = dataObject.select(dataObject.data.map(({header}) => header).slice(0, 3))
+      dataSet = dataSet.select(dataSet.data.map(({header}) => header).slice(0, 3))
     } else if (type === 'rect' && options.mode === 'waterfall') {
-      dataObject = dataObject.select(dataObject.data.map(({header}) => header).slice(0, 2))
-      // 瀑布图需要手动添加最后一列数据（待优化到图层内部）
-      dataObject.push(['总和', dataObject.select(data[0][1], {mode: 'sum', target: 'column'}).range()[1]])
+      // 瀑布图需要手动添加最后一列数据，保证不会重复添加，这一步需要在解析器完成
+      dataSet = dataSet.select(dataSet.data.map(({header}) => header).slice(0, 2))
+      dataSet.push(['总和', dataSet.select(dataSet.data[1].header, {mode: 'sum', target: 'column'}).range()[1]])
     } else if (type === 'arc' && options.mode !== 'stack') {
-      dataObject = dataObject.select(dataObject.data.map(({header}) => header).slice(0, 2))
+      dataSet = dataSet.select(dataSet.data.map(({header}) => header).slice(0, 2))
     } else if (type === 'radar' && options.mode === 'default') {
-      dataObject = dataObject.select(dataObject.data.map(({header}) => header).slice(0, 2))
+      dataSet = dataSet.select(dataSet.data.map(({header}) => header).slice(0, 2))
     }
   }
   // 特殊图层需要其他图层的比例尺
   let customScale
   // 图例需要的数据很特殊，是一个图层的实例，以便控制数据过滤
   if (type === 'legend') {
-    dataObject = wave.layer.filter(({id}) => {
+    dataSet = wave.layer.filter(({id}) => {
       return isArray(options.bind) ? options.bind.find(value => value === id) : id === options.bind
     }).map(({instance}) => instance)
   } else if (isDependentLayer(type)) {
     customScale = wave.layer.find(({id}) => id === options.bind).instance.scale
   }
   // 设置图层的数据，第二个参数为比例尺，第三个参数为比例尺配置
-  layer.setData(dataObject, {...customScale, nice: scale})
+  layer.setData(dataSet, {...customScale, nice: scale})
   // 设置图层的样式
   style && layer.setStyle(style)
   // 设置图层的事件
