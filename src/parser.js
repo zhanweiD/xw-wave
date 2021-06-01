@@ -8,6 +8,7 @@ import Random from './data/random'
 // 图层是否依赖其他图层
 const dependentLayers = ['auxiliary', 'axis', 'legend']
 const isDependentLayer = layerType => dependentLayers.find(type => type === layerType)
+
 // 根据配置创建一个图层
 const createLayer = (wave, config) => {
   const {type, options, data, scale, style, animation, tooltip, event} = config

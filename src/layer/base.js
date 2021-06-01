@@ -63,6 +63,7 @@ export default class LayerBase {
   constructor(layerOptions, waveOptions) {
     this.options = merge(layerOptions, waveOptions)
     this.animation = {}
+    this.root = null
     this.tooltip = null
     this.className = null
     this.mainColor = null
@@ -179,13 +180,19 @@ export default class LayerBase {
     this.#backupEvent = {
       common: {},
       tooltip: {
-        click: (event, data) => globalTooltip
-          .update(event, {data, backup: this.#backupData}).show().move(event, {enableAnimation: true}),
+        // 点击组合事件
+        click: (event, data) => {
+          globalTooltip.update(event, {data, backup: this.#backupData}).show()
+          globalTooltip.move(event, {enableAnimation: true})
+        },
         blur: () => globalTooltip.hide(),
-        mouseover: (event, data) => this.tooltip
-          .update(event, {data, backup: this.#backupData}).show().move(event),
-        mouseout: () => this.tooltip.hide(),
+        // 悬浮组合事件
+        mouseover: (event, data) => {
+          this.tooltip.update(event, {data, backup: this.#backupData}).show()
+          this.tooltip.move(event, {enableAnimation: false})
+        },
         mousemove: event => this.tooltip.move(event),
+        mouseout: () => this.tooltip.hide(),
       },
     }
     // 基础鼠标事件
@@ -198,15 +205,21 @@ export default class LayerBase {
     })
   }
 
-  // 配置事件，考虑到渲染延迟，推迟到下个事件循环执行
-  #setEvent = elType => {
+  /**
+   * 配置事件，考虑到渲染延迟，推迟到下个事件循环执行
+   * @param {String} elType 元素类型
+   */
+  setEvent = elType => {
     setTimeout(() => {
-      const els = this.options.root.selectAll(`.${this.className} .wave-basic-${elType}`).style('cursor', 'pointer')
+      const els = this.root.selectAll(`.wave-basic-${elType}`).style('cursor', 'pointer')
       commonEvents.forEach(eventType => els.on(`${eventType}.common`, this.#backupEvent.common[eventType][elType]))
     }, 0)
   }
 
-  // 配置 tooltip
+  /**
+   * 配置 tooltip
+   * @param {*} options 包含目标元素信息和样式信息
+   */
   setTooltip(options) {
     // 初始化 tooltip 实例
     this.tooltip = this.tooltip || new Tooltip(this.options.container)
@@ -214,14 +227,17 @@ export default class LayerBase {
     // 绑定事件，考虑到渲染延迟，推迟到下个事件循环执行
     const {targets} = this.tooltip.options
     targets && targets.forEach(elType => setTimeout(() => {
-      const els = this.options.root.selectAll(`.${this.className} .wave-basic-${elType}`)
+      const els = this.root.selectAll(`.wave-basic-${elType}`)
       tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
     }, 0))
   }
 
-  // 配置动画
+  /**
+   * 配置动画
+   * @param {*} options 以元素类型为 key 的动画描述对象
+   * @returns 启动全部动画队列的函数
+   */
   setAnimation(options) {
-    const container = this.options.root.selectAll(`.${this.className}`)
     // 配置动画前先销毁之前的动画，释放资源
     elTypes.forEach(name => {
       this.animation[name] && this.animation[name].destroy()
@@ -241,11 +257,11 @@ export default class LayerBase {
       const supportAnimations = animationMapping[name]
       // 配置入场动画
       if (enterAnimation && supportAnimations.findIndex(key => key === enterAnimation.type) !== -1) {
-        enterAnimationQueue.push(enterAnimation.type, {...enterAnimation, targets: `.wave-basic-${name}`}, container)
+        enterAnimationQueue.push(enterAnimation.type, {...enterAnimation, targets: `.wave-basic-${name}`}, this.root)
       }
       // 配置轮播动画
       if (loopAnimation && supportAnimations.findIndex(key => key === loopAnimation.type) !== -1) {
-        loopAnimationQueue.push(loopAnimation.type, {...loopAnimation, targets: `.wave-basic-${name}`}, container)
+        loopAnimationQueue.push(loopAnimation.type, {...loopAnimation, targets: `.wave-basic-${name}`}, this.root)
       }
       // 连接入场动画和轮播动画
       this.animation[name] = animationQueue.push('queue', enterAnimationQueue).push('queue', loopAnimationQueue)
@@ -264,21 +280,18 @@ export default class LayerBase {
     // tooltip 实例销毁
     this.tooltip && this.tooltip.destroy()
     // dom 元素销毁
-    this.options.root.selectAll(`.${this.className}`).remove()
+    this.root.remove()
     // 通知 wave 删除这个图层实例
     this.event.fire('destroy')
   }
 
   /**
    * 控制整个图层的显示和隐藏
-   * @param {Boolean} isVisiable 
-   * @param {String} elType 
+   * @param {Boolean} isVisiable 隐藏参数
+   * @param {String} elType 元素类型可缺省
    */
   setVisible(isVisiable, elType) {
-    // 隐藏图层某种元素或整个图层
-    const targets = elTypes.find(elType)
-      ? this.options.root.selectAll(`.${this.className}-${elType}`)
-      : this.options.root.selectAll(`.${this.className}`)
+    const targets = elTypes.find(elType) ? this.root.selectAll(`.${this.className}-${elType}`) : this.root
     targets.style('display', isVisiable ? 'block' : 'none')
   }
 
@@ -288,15 +301,14 @@ export default class LayerBase {
    * @param {Array<Object>} data 图层元素数据
    */
   drawBasic(type, data) {
-    // 顶层图层容器准备
-    const root = this.options.root.selectAll(`.${this.className}`)._groups[0].length === 0
-      ? this.options.root.append('g').attr('class', this.className)
-      : this.options.root.selectAll(`.${this.className}`)
+    // 图层容器准备
+    if (this.root === null) {
+      this.root = this.options.root.append('g').attr('class', this.className)
+      elTypes.forEach(elType => this.root.append('g').attr('class', `${this.className}-${elType}`))
+    }
     // 元素容器准备，没有则追加
     const containerClassName = `${this.className}-${type}`
-    const container = root.selectAll(`.${containerClassName}`)._groups[0].length === 0
-      ? root.append('g').attr('class', containerClassName)
-      : root.selectAll(`.${containerClassName}`)
+    const container = this.root.selectAll(`.${containerClassName}`)
     // 分组容器准备，删除上一次渲染多余的组
     for (let i = 0; i < Math.max(this.#backupData[type].length, data.length); i++) {
       const groupClassName = `${containerClassName}-${i}`
@@ -323,7 +335,7 @@ export default class LayerBase {
       }
     }
     // 新的元素需要重新注册事件
-    this.#setEvent(type)
+    this.setEvent(type)
     this.setTooltip()
   }
 }
