@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import {isEqual, isArray} from 'lodash'
+import {isEqual, isArray, merge} from 'lodash'
 import {MoveAnimation} from '../animation'
 import createLog from '../util/create-log'
 
@@ -25,14 +25,14 @@ const defaultOptions = {
 
 // tooltip 类
 export default class Tooltip {
-  constructor(container) {
+  constructor(container, options) {
     this.backup = null
     this.target = null
     this.isMoving = false
     this.isVisible = false
     this.isAvailable = false
-    this.options = defaultOptions
     this.log = createLog(__filename)
+    this.options = merge(defaultOptions, options)
     this.lastPosition = {x: -100, y: -100}
     // 根容器
     this.instance = container
@@ -60,7 +60,6 @@ export default class Tooltip {
     this.isVisible = true
     this.instance.style('display', 'block')
     d3.select(this.target).classed('tooltip-active', true)
-    return this
   }
 
   // 隐藏
@@ -68,7 +67,6 @@ export default class Tooltip {
     this.isVisible = false
     this.instance.style('display', 'none')
     d3.select(this.target).classed('tooltip-active', false)
-    return this
   }
 
   // 更新数据
@@ -145,7 +143,6 @@ export default class Tooltip {
         .text(d => d.value)
       this.backup = list
     }
-    return this
   }
 
   // 移动
@@ -176,7 +173,6 @@ export default class Tooltip {
     animation.event.on('end', () => animation.destroy())
     animation.play()
     this.lastPosition = {x, y}
-    return this
   }
 
   destroy() {

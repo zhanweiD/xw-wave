@@ -182,13 +182,15 @@ export default class LayerBase {
       tooltip: {
         // 点击组合事件
         click: (event, data) => {
-          globalTooltip.update(event, {data, backup: this.#backupData}).show()
+          globalTooltip.update(event, {data, backup: this.#backupData})
+          globalTooltip.show()
           globalTooltip.move(event, {enableAnimation: true})
         },
         blur: () => globalTooltip.hide(),
         // 悬浮组合事件
         mouseover: (event, data) => {
-          this.tooltip.update(event, {data, backup: this.#backupData}).show()
+          this.tooltip.update(event, {data, backup: this.#backupData})
+          this.tooltip.show()
           this.tooltip.move(event, {enableAnimation: false})
         },
         mousemove: event => this.tooltip.move(event),
@@ -222,14 +224,16 @@ export default class LayerBase {
    */
   setTooltip(options) {
     // 初始化 tooltip 实例
-    this.tooltip = this.tooltip || new Tooltip(this.options.container)
-    this.tooltip.options = merge(this.tooltip.options, options)
-    // 绑定事件，考虑到渲染延迟，推迟到下个事件循环执行
-    const {targets} = this.tooltip.options
-    targets && targets.forEach(elType => setTimeout(() => {
-      const els = this.root.selectAll(`.wave-basic-${elType}`)
-      tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
-    }, 0))
+    if (!options.rebind && !this.tooltip) {
+      this.tooltip = new Tooltip(this.options.container, options)
+    }
+    // 绑定事件推迟到下个事件循环执行
+    if (this.tooltip) {
+      this.tooltip.options.targets.forEach(elType => setTimeout(() => {
+        const els = this.root.selectAll(`.wave-basic-${elType}`)
+        tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
+      }, 0))
+    }
   }
 
   /**
@@ -336,6 +340,6 @@ export default class LayerBase {
     }
     // 新的元素需要重新注册事件
     this.setEvent(type)
-    this.setTooltip()
+    this.setTooltip({rebind: true})
   }
 }
