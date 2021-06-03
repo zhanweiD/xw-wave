@@ -1,7 +1,5 @@
-import {createTableData} from './mock'
 import createStandardLayout from '../layout/standard'
 
-const data = createTableData()
 const titleMapping = {
   rect: '矩形热力图',
   circle: '圆形热力图',
@@ -62,7 +60,15 @@ const createSchema = (container, theme, layout, mode) => ({
         axis: 'main',
         mode,
       },
-      data,
+      data: {
+        type: 'table',
+        mode: 'normal', 
+        row: 8,
+        column: 8,
+        mu: 1000,
+        sigma: 400,
+        decimalNumber: 1,
+      },
       scale: {
         paddingInner: 0,
       },

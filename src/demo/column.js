@@ -1,7 +1,5 @@
-import {createTableListData} from './mock'
 import {getStandardLayoutWithBrush} from '../layout/standard'
 
-const data = createTableListData()
 const titleMapping = {
   group: '分组图',
   stack: '堆叠图',
@@ -115,7 +113,15 @@ const createSchema = (container, theme, layout, type, mode) => ({
         type,
         mode,
       },
-      data,
+      data: {
+        type: 'tableList',
+        mode: 'normal', 
+        row: 6,
+        column: 3,
+        mu: 500,
+        sigma: 200,
+        decimalNumber: 1,
+      },
       scale: {
         count: 5,
         zero: true,

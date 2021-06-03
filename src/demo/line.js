@@ -1,7 +1,4 @@
-import {createTableListData} from './mock'
 import createStandardLayout from '../layout/standard'
-
-const data = createTableListData()
 
 // 柱状图配置数据生成
 const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
@@ -100,7 +97,15 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         axis: 'main',
         mode,
       },
-      data,
+      data: {
+        type: 'tableList',
+        mode: 'normal', 
+        row: 6,
+        column: 3,
+        mu: 500,
+        sigma: 200,
+        decimalNumber: 1,
+      },
       style: {
         labelPosition: 'top',
         line: {

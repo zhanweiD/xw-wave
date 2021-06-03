@@ -1,7 +1,5 @@
-import {createTableListData} from './mock'
 import standardLayout from '../layout/standard'
 
-const data = createTableListData()
 const titleMapping = {
   pie: ['饼图', '环图'],
   nightingaleRose: ['蓝丁格尔玫瑰图', '环形蓝丁格尔玫瑰图'],
@@ -81,7 +79,15 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
         type,
         mode,
       },
-      data,
+      data: {
+        type: 'tableList',
+        mode: 'normal', 
+        row: 6,
+        column: 3,
+        mu: 500,
+        sigma: 200,
+        decimalNumber: 1,
+      },
       style: {
         innerRadius: donut ? 20 : 0,
         arc: {

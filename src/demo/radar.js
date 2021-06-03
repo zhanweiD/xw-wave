@@ -1,7 +1,5 @@
-import {createTableListData} from './mock'
 import standardLayout from '../layout/standard'
 
-const data = createTableListData()
 const titleMapping = {
   default: '雷达图',
   stack: '堆叠雷达图',
@@ -87,7 +85,15 @@ const createSchema = (container, theme, layout, mode) => ({
         axis: 'main',
         mode,
       },
-      data,
+      data: {
+        type: 'tableList',
+        mode: 'normal', 
+        row: 6,
+        column: 3,
+        mu: 500,
+        sigma: 200,
+        decimalNumber: 1,
+      },
       style: {
         pointSize: 5,
         circle: {

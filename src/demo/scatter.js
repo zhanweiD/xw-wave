@@ -1,7 +1,5 @@
-import {createTableListData} from './mock'
 import {getStandardLayoutWithBrush} from '../layout/standard'
 
-const data = createTableListData()
 const titleMapping = {
   scatter: '散点图',
   bubble: '气泡图',
@@ -131,7 +129,15 @@ const createSchema = (container, theme, layout, mode) => ({
         layout: 'brush',
         type: 'horizontal',
       },
-      data,
+      data: {
+        type: 'tableList',
+        mode: 'normal', 
+        row: 20,
+        column: 3,
+        mu: 400,
+        sigma: 200,
+        decimalNumber: 1,
+      },
       scale: {
         count: 4,
         zero: true,
@@ -142,7 +148,7 @@ const createSchema = (container, theme, layout, mode) => ({
           enableUpdateAnimation: true,
         },
         text: {
-          hide: mode !== 'bubble',
+          hide: true,
           fontSize: 10,
           enableUpdateAnimation: true,
         },
