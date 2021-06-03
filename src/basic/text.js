@@ -13,7 +13,7 @@ export default function drawText({
   textShadow = '2px 2px 2px rgba(0,0,0,0)',
   opacity = 1,
   rotation = 0,
-  direction = 'horizontal', // 文字方向 enumeration ['horizontal', 'vertical']
+  writingMode = 'horizontal', // 文字方向 enumeration ['horizontal', 'vertical']
   textAnchor = 'start', // 文字锚点 enumeration ['start', 'middle', 'end']
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
@@ -36,7 +36,7 @@ export default function drawText({
     fontSize: `${fontSize}px`,
     fontWeight,
     textAnchor,
-    writingMode: directionMapping[direction],
+    writingMode: directionMapping[writingMode],
     transform: `rotate(${rotation})`,
     textShadow,
   }))

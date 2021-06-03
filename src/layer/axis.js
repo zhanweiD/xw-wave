@@ -26,19 +26,17 @@ const defaultStyle = {
   },
 }
 
-// 判定是否直角坐标系
-const isCartesian = type => {
-  return type === axisType.CARTESIAN || type === axisType.HORIZONTAL || type === axisType.VERTICAL
-}
 // 获取坐标值
 const getPosition = (type, targetScale) => {
   const position = []
-  if (targetScale.type === 'band' || targetScale.type === 'point') {
-    const needOffset = targetScale.type === 'band' && isCartesian(type)
+  if (targetScale?.type === 'band' || targetScale?.type === 'point') {
+    const needOffset = targetScale.type === 'band' && (
+      type === axisType.CARTESIAN || type === axisType.HORIZONTAL || type === axisType.VERTICAL
+    )
     targetScale.domain().forEach(label => {
       position.push([label, targetScale(label) + (needOffset ? targetScale.bandwidth() / 2 : 0)])
     })
-  } else if (targetScale.type === 'linear') {
+  } else if (targetScale?.type === 'linear') {
     const [min, max] = targetScale.domain()
     d3.range(min, max + 1, (max - min) / (targetScale.nice.count)).forEach(label => {
       position.push([label, targetScale(label)])
@@ -53,11 +51,11 @@ export default class AxisLayer extends LayerBase {
 
   #style = defaultStyle
 
-  #axisLength = {}
-
   #lineData = []
 
   #textData = []
+
+  #axisLength = {x: 0, y: 0, y2: 0}
 
   get scale() {
     return this.#scale
@@ -84,7 +82,7 @@ export default class AxisLayer extends LayerBase {
     if (type === axisType.HORIZONTAL || type === axisType.CARTESIAN) {
       const position = getPosition(type, this.#scale.scaleX)
       this.#axisLength.x = position.length
-      this.#lineData = this.#lineData.concat(position.map(([label, value]) => ({
+      this.#lineData.push(...position.map(([label, value]) => ({
         value: label,
         x1: left + value,
         x2: left + value,
@@ -94,9 +92,20 @@ export default class AxisLayer extends LayerBase {
     }
     // 垂直坐标轴（水平线分割高度）
     if (type === axisType.VERTICAL || type === axisType.CARTESIAN) {
-      const position = getPosition(type, this.#scale.scaleY)
-      this.#axisLength.y = position.length
-      this.#lineData = this.#lineData.concat(position.map(([label, value]) => ({
+      const position1 = getPosition(type, this.#scale.scaleY)
+      const position2 = getPosition(type, this.#scale.scaleY2)
+      this.#axisLength.y = position1.length
+      this.#axisLength.y2 = position2.length
+      // 主轴线的线
+      this.#lineData.push(...position1.map(([label, value]) => ({
+        value: label,
+        x1: 0,
+        x2: this.options.containerWidth,
+        y1: top + value,
+        y2: top + value,
+      })))
+      // 副轴线的线
+      this.#lineData.push(...position2.map(([label, value]) => ({
         value: label,
         x1: 0,
         x2: this.options.containerWidth,
@@ -109,7 +118,7 @@ export default class AxisLayer extends LayerBase {
       const position = getPosition(type, this.#scale.scaleAngle)
       const maxRadius = this.#scale.scaleRadius?.range()[1] || Math.max(width / 2, height / 2)
       this.#axisLength.angle = position.length
-      this.#lineData = this.#lineData.concat(position.map(([label, value]) => ({
+      this.#lineData.push(...position.map(([label, value]) => ({
         value: label,
         angle: value,
         x1: left + width / 2,
@@ -122,7 +131,7 @@ export default class AxisLayer extends LayerBase {
     if (type === axisType.RADIUS || type === axisType.POLAR) {
       const position = getPosition(type, this.#scale.scaleRadius)
       this.#axisLength.radius = position.length
-      this.#lineData = this.#lineData.concat(position.map(([label, value]) => ({
+      this.#lineData.push(...position.map(([label, value]) => ({
         value: label,
         cx: left + width / 2,
         cy: top + height / 2,
@@ -144,12 +153,14 @@ export default class AxisLayer extends LayerBase {
       if (type === axisType.HORIZONTAL || (type === axisType.CARTESIAN && i < this.#axisLength.x)) {
         return this.createText({x: x2, y: y2, position: 'bottom', ...basicTextData})
       }
-      // Y轴坐标在线的左下方
+      // Y轴主轴标签在线的左下方，副轴标签在线的右下方
       if (type === axisType.VERTICAL || type === axisType.CARTESIAN) {
-        const offset = basicTextData.offset + (this.#scale.scaleY.type === 'linear' ? fontSize : 0)
-        return this.createText({x: x1, y: y1 + offset, ...basicTextData})
+        const isLinear = this.#scale.scaleY.type === 'linear'
+        return i < this.#axisLength.x + this.#axisLength.y
+          ? this.createText({x: x1, y: y1, position: isLinear ? 'right-bottom' : 'right', ...basicTextData})
+          : this.createText({x: x2, y: y1, position: 'left-bottom', ...basicTextData})
       }
-      // 角度坐标在线的延伸处（和饼图外部坐标一样）
+      // 角度坐标在线的延伸处
       if (type === axisType.ANGLE || (type === axisType.POLAR && i < this.#axisLength.angle)) {
         const _angle = Math.abs((angle + 360) % 360)
         const [isTop, isBottom, isLeft, isRight] = [_angle === 0, _angle === 180, _angle > 180, _angle < 180]

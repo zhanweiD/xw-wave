@@ -16,12 +16,15 @@ import TableList from '../data/table-list'
 
 // 文字基于坐标的方向
 const positionType = {
-  DEFAULT: 'default',
   CENTER: 'center',
   TOP: 'top',
   RIGHT: 'right',
   BOTTOM: 'bottom',
   LEFT: 'left',
+  LEFTTOP: 'left-top',
+  LEFTBOTTOM: 'left-bottom',
+  RIGHTTOP: 'right-top',
+  RIGHTBOTTOM: 'right-bottom',
 }
 
 // 基础元素绘制函数映射
@@ -54,7 +57,7 @@ const elTypes = ['arc', 'circle', 'curve', 'line', 'polygon', 'rect', 'text', 'a
 const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
 const tooltipEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'blur']
 
-// 图层 Base，目前是一个函数架子，未来会引入更多公共方法
+// 集成图层的一些公共方法
 export default class LayerBase {
   #backupData = {}
 
@@ -151,7 +154,7 @@ export default class LayerBase {
    * @param {Object} 计算文字需要的一些值
    * @returns 文字数据，包含坐标和值
    */
-  createText({x, y, value, fontSize = 12, format = null, position = positionType.DEFAULT, offset = 0}) {
+  createText({x, y, value, fontSize = 12, format = null, position = positionType.LEFTBOTTOM, offset = 0}) {
     let [positionX, positionY] = [x, y]
     const formattedText = format ? formatText(value, format) : value
     const textWidth = getTextWidth(formattedText, fontSize)
@@ -170,13 +173,19 @@ export default class LayerBase {
     } else if (position === positionType.BOTTOM) {
       positionX -= textWidth / 2
       positionY += fontSize + offset
+    } else if (position === positionType.LEFTTOP) {
+      positionX -= textWidth
+    } else if (position === positionType.LEFTBOTTOM) {
+      positionX -= textWidth
+      positionY += fontSize
+    } else if (position === positionType.RIGHTBOTTOM) {
+      positionY += fontSize
     }
     return {x: positionX, y: positionY, value: formattedText}
   }
 
   // 初始化基础事件
   #createEvent = () => {
-    // tooltip 事件，必须先 show 然后 move
     this.#backupEvent = {
       common: {},
       tooltip: {
@@ -207,10 +216,7 @@ export default class LayerBase {
     })
   }
 
-  /**
-   * 配置事件，考虑到渲染延迟，推迟到下个事件循环执行
-   * @param {String} elType 元素类型
-   */
+  // 配置事件推迟到下个事件循环执行
   setEvent = elType => {
     setTimeout(() => {
       const els = this.root.selectAll(`.wave-basic-${elType}`).style('cursor', 'pointer')
@@ -218,22 +224,16 @@ export default class LayerBase {
     }, 0)
   }
 
-  /**
-   * 配置 tooltip
-   * @param {*} options 包含目标元素信息和样式信息
-   */
+  // 配置 tooltip 迟到下个事件循环执行
   setTooltip(options) {
     // 初始化 tooltip 实例
     if (!options.rebind && !this.tooltip) {
       this.tooltip = new Tooltip(this.options.container, options)
     }
-    // 绑定事件推迟到下个事件循环执行
-    if (this.tooltip) {
-      this.tooltip.options.targets.forEach(elType => setTimeout(() => {
-        const els = this.root.selectAll(`.wave-basic-${elType}`)
-        tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
-      }, 0))
-    }
+    this.tooltip && this.tooltip.options.targets.forEach(elType => setTimeout(() => {
+      const els = this.root.selectAll(`.wave-basic-${elType}`)
+      tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
+    }, 0))
   }
 
   /**
@@ -306,13 +306,13 @@ export default class LayerBase {
    */
   drawBasic(type, data) {
     // 图层容器准备
-    if (this.root === null) {
-      this.root = this.options.root.append('g').attr('class', this.className)
-      elTypes.forEach(elType => this.root.append('g').attr('class', `${this.className}-${elType}`))
-    }
+    this.root = this.root || this.options.root.append('g').attr('class', this.className)
     // 元素容器准备，没有则追加
     const containerClassName = `${this.className}-${type}`
-    const container = this.root.selectAll(`.${containerClassName}`)
+    let container = this.root.selectAll(`.${containerClassName}`)
+    if (container.size() === 0) {
+      container = this.root.append('g').attr('class', `${this.className}-${type}`)
+    }
     // 分组容器准备，删除上一次渲染多余的组
     for (let i = 0; i < Math.max(this.#backupData[type].length, data.length); i++) {
       const groupClassName = `${containerClassName}-${i}`
