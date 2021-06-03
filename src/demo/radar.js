@@ -23,6 +23,8 @@ const createSchema = (container, theme, layout, mode) => ({
   padding: [60, 40, 40, 40],
   // 这个 layout 应该是一个生成函数
   layout,
+  // 坐标系声明
+  coordinate: 'polar-band-linear',
 
   // 图层数据，下标顺序代表绘制顺序
   layers: [
@@ -63,10 +65,9 @@ const createSchema = (container, theme, layout, mode) => ({
     {
       type: 'axis',
       options: {
-        id: 'axisAngle',
+        id: 'angle',
         layout: 'main',
         type: 'polar',
-        bind: 'radar',
       },
       style: {
         tickLine: {
@@ -83,6 +84,7 @@ const createSchema = (container, theme, layout, mode) => ({
       options: {
         id: 'radar',
         layout: 'main',
+        axis: 'main',
         mode,
       },
       data,

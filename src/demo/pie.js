@@ -23,6 +23,8 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
   padding: [60, 40, 40, 40],
   // 这个 layout 应该是一个生成函数
   layout,
+  // 坐标系声明
+  coordinate: 'polar-band-linear',
 
   // 图层数据，下标顺序代表绘制顺序
   layers: [
@@ -38,6 +40,17 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
         text: {
           fontSize: 16,
         },
+      },
+    },
+    // 极坐标组合
+    {
+      type: 'axis',
+      options: {
+        id: 'axis',
+        layout: 'main',
+        type: 'polar',
+      },
+      style: {
       },
     },
     // 图例图层

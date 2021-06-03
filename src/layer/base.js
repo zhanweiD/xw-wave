@@ -52,10 +52,10 @@ const animationMapping = {
 }
 
 // 其他常量
-const scaleTypes = ['scaleX', 'scaleY', 'scaleAngle', 'scaleRadius', 'scaleColor']
-const elTypes = ['arc', 'circle', 'curve', 'line', 'polygon', 'rect', 'text', 'area']
-const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
-const tooltipEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'blur']
+export const scaleTypes = ['scaleX', 'scaleY', 'scaleAngle', 'scaleRadius', 'scaleColor']
+export const elTypes = ['arc', 'circle', 'curve', 'line', 'polygon', 'rect', 'text', 'area']
+export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
+export const tooltipEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'blur']
 
 // 集成图层的一些公共方法
 export default class LayerBase {
@@ -121,9 +121,10 @@ export default class LayerBase {
     // 比例尺的命名是固定不变的
     scaleTypes.forEach(type => {
       scale[type] = incomingStyle[type] || defaultScale[type] || currentScale[type]
-      // 如果两者值域不一致，则表示笔刷更改了当前比例尺的值域，这个值域需要继承
-      if (currentScale[type] && !isEqual(currentScale[type].range(), defaultScale[type].range())) {
+      // 笔刷更改了当前比例尺的值域，这个值域需要继承
+      if (currentScale[type]?.brushed) {
         scale[type].range(currentScale[type].range())
+        scale[type].brushed = currentScale[type].brushed
       }
     })
     return scale

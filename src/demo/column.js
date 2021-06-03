@@ -25,6 +25,8 @@ const createSchema = (container, theme, layout, type, mode) => ({
   padding: [60, 40, 40, 40],
   // 这个 layout 应该是一个生成函数
   layout,
+  // 声明坐标系
+  coordinate: 'cartesian-bind-linear',
 
   // 先考虑只有一个笔刷，多笔刷感觉很少会用到
   brush: {
@@ -75,7 +77,7 @@ const createSchema = (container, theme, layout, type, mode) => ({
         id: 'auxiliary',
         layout: 'main',
         type: type === 'bar' ? 'vertical' : 'horizontal',
-        bind: 'rect',
+        bind: 'axis',
       },
       data: [300, 600],
       style: {
@@ -98,7 +100,6 @@ const createSchema = (container, theme, layout, type, mode) => ({
         id: 'axis',
         layout: 'main',
         type: 'cartesian',
-        bind: 'rect',
       },
       style: {
       },
@@ -109,6 +110,8 @@ const createSchema = (container, theme, layout, type, mode) => ({
       options: {
         id: 'rect',
         layout: 'main',
+        // 声明使用主轴还是副轴，不声明则表示不画坐标轴
+        axis: 'main', // minor
         type,
         mode,
       },

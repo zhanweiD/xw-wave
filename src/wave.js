@@ -16,7 +16,7 @@ import MatrixLayer from './layer/matrix'
 import GaugeLayer from './layer/gauge'
 
 // 图表状态
-const stateMapping = {
+const stateType = {
   INITILIZE: 'initilize', // 初始化
   READY: 'ready', // 就绪
   WARN: 'warn', // 发生错误
@@ -27,6 +27,14 @@ const stateMapping = {
 const brushType = {
   HORIZONTAL: 'horizontal',
   VERTICAL: 'vertical',
+}
+
+// 坐标轴组合类型
+const coordinateType = {
+  CARTESIAN_BAND_LINEAR: 'cartesian-band-linear',
+  CARTESIAN_BAND_LINEAR_LINEAR: 'cartesian-band-linear-linear',
+  CARTESIAN_LINEAR_LINEAR: 'cartesian-linear-linear',
+  POLAR_BAND_LINEAR: 'polar-band-linear',
 }
 
 // 图表图层
@@ -76,16 +84,17 @@ export default class Wave {
 
   constructor({
     container,
-    adjust = 'auto',
     width = 100,
     height = 100,
     padding = [40, 40, 40, 40],
+    adjust = 'auto',
     theme = 'glaze',
     baseFontSize = 1,
     layout = standardLayout,
+    coordinate = coordinateType.CARTESIAN_BAND_LINEAR,
   }) {
     // 初始化状态和容器
-    this.#state = stateMapping.INITILIZE
+    this.#state = stateType.INITILIZE
     this.#container = d3.select(container)
 
     // 确定图表宽高
@@ -123,8 +132,9 @@ export default class Wave {
       padding: this.#padding,
     })
 
-    // 初始化主题颜色和基础字号
+    // 初始化其他属性
     this.theme = theme
+    this.coordinate = coordinate
     this.baseFontSize = baseFontSize
   }
 
@@ -180,6 +190,44 @@ export default class Wave {
     return layer
   }
 
+  /**
+   * 绑定坐标系，在图层数据处理之后执行
+   * @param {AxisLayer} axisLayer 坐标轴图层
+   * @param {LayerBase} layers 需要绑定坐标轴的图层
+   */
+  bindCoordinate(axisLayer, layers) {
+    // 比例尺融合
+    layers.forEach(({scale, options}) => {
+      const result = {}
+      const {axis} = options
+      // 没有指定坐标轴的默认不支持坐标轴
+      if (!axis) return
+      // 直角坐标
+      if (this.coordinate.search('cartesian') !== -1) {
+        result.scaleX = scale.scaleX
+        if (axis === 'main') {
+          result.scaleY = scale.scaleY
+        } else if (axis === 'minor') {
+          result.scaleYR = scale.scaleY
+        }
+      }
+      // 极坐标
+      if (this.coordinate.search('polar') !== -1) {
+        result.scaleAngle = scale.scaleAngle
+        result.scaleRadius = scale.scaleRadius
+      }
+      axisLayer.setData(null, result)
+      axisLayer.setStyle()
+    })
+    // 比例尺传递
+    layers.forEach(layer => {
+      const {axis} = layer.options
+      const scales = {...layer.scale, ...axisLayer.scale}
+      layer.setData(null, {...scales, scaleY: axis === 'minor' ? scales.scaleYR : scales.scaleY})
+      layer.setStyle()
+    })
+  }
+
   // 基于某个图层创建笔刷
   createBrush(options = {}) {
     const {type, layout, targets} = options
@@ -198,6 +246,7 @@ export default class Wave {
         const nextRange = [prevRange[i][0], prevRange[i][0] + (prevRange[i][1] - prevRange[i][0]) * zoomFactor]
         const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
         scale.range(nextRange.map(value => value - offset))
+        scale.brushed = true
         instance.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
         instance.setStyle()
         instance.draw()
@@ -224,7 +273,7 @@ export default class Wave {
    * @param {String} text 报错信息
    */
   warn({text, data}) {
-    this.#state = stateMapping.WARN
+    this.#state = stateType.WARN
     this.#root.html('')
     console.error(text, data)
   }
@@ -232,6 +281,6 @@ export default class Wave {
   // 销毁所有图层
   destroy() {
     this.#layer.forEach(layer => layer.instance.destroy())
-    this.#state = stateMapping.DESTROY
+    this.#state = stateType.DESTROY
   }
 }

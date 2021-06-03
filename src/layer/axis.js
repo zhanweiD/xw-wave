@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import LayerBase from './base'
+import LayerBase, {scaleTypes} from './base'
 
 // 坐标类型，单个或者组合
 const axisType = {
@@ -65,17 +65,36 @@ export default class AxisLayer extends LayerBase {
     return this.#style
   }
 
-  // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
     const {type = axisType.HORIZONTAL} = this.options
-    this.className = `wave-axis-${type}`
+    this.className = `wave-${type}-axis`
+  }
+
+  // 比例尺融合，多图层共用坐标轴
+  #mergeScale = scales => {
+    scaleTypes.forEach(type => {
+      if (!scales[type]) return
+      if (!this.#scale[type]) {
+        this.#scale[type] = scales[type]
+      } else if (this.#scale[type].type === 'linear') {
+        const [current, incoming] = [this.#scale[type].domain(), scales[type].domain()]
+        if (current[0] > current[1] !== incoming[0] > incoming[1]) {
+          this.warn({text: '图层组合错误：比例尺不匹配'})
+        } else {
+          const isReverse = current[0] > current[1]
+          const start = isReverse ? Math.max(current[0], incoming[0]) : Math.min(current[0], incoming[0])
+          const end = isReverse ? Math.min(current[1], incoming[1]) : Math.max(current[1], incoming[1])
+          this.#scale[type].domain([start, end])
+        }
+      }
+    })
   }
 
   // 传入数据数组和比例尺，辅助线需要外部的比例尺
   setData(data, scale) {
     this.#lineData = []
-    this.#scale = {...this.#scale, ...scale}
+    this.#mergeScale(scale)
     const {type = axisType.HORIZONTAL, layout} = this.options
     const {left, top, width, height} = layout
     // 水平坐标轴（垂直线分割宽度）
@@ -195,8 +214,8 @@ export default class AxisLayer extends LayerBase {
     }))
     // 澜图特色坐标轴视觉支持
     if (type === axisType.CARTESIAN) {
-      scaleX?.type !== 'linear' && lineData[0].position.splice(0, this.#axisLength.x)
       scaleY?.type !== 'linear' && lineData[0].position.splice(this.#axisLength.x)
+      scaleX?.type !== 'linear' && lineData[0].position.splice(0, this.#axisLength.x)
     } else if (type === axisType.HORIZONTAL) {
       scaleX?.type !== 'linear' && lineData[0].position.splice(0)
     } else if (type === axisType.VERTICAL) {

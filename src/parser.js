@@ -6,8 +6,10 @@ import Table from './data/table'
 import Random from './data/random'
 
 // 图层是否依赖其他图层
-const dependentLayers = ['auxiliary', 'axis', 'legend']
+const dependentLayers = ['auxiliary', 'legend']
 const isDependentLayer = layerType => dependentLayers.find(type => type === layerType)
+const isNormalLayer = layerType => !dependentLayers.find(type => type === layerType) && layerType !== 'axis'
+const isAxisLayer = layerType => layerType === 'axis'
 
 // 根据配置创建一个图层
 const createLayer = (wave, config) => {
@@ -52,22 +54,26 @@ const createLayer = (wave, config) => {
   setTimeout(() => animation && layer.setAnimation(animation)(), 0)
   // 设置图层的 Tooltip，由于渲染是异步的，tooltip 事件需要在渲染之后才能绑定 dom
   setTimeout(() => tooltip && layer.setTooltip(tooltip), 0)
+  return layer
 }
 
 // 根据配置创建一个新的图表
 function createWave(schema) {
-  const {container, adjust, width, height, padding, theme, layout, brush, layers} = schema
-  const wave = new Wave({container, adjust, width, height, padding, theme, layout})
-  // 辅助层比较特殊，需要依赖其他图层的数据或者比例尺
-  const dependentLayer = layers.filter(({type}) => isDependentLayer(type))
-  const normalLayer = layers.filter(({type}) => !isDependentLayer(type))
-  // 先创建前置图层
+  const {container, adjust, width, height, padding, theme, coordinate, layout, brush, layers} = schema
+  const wave = new Wave({container, adjust, width, height, padding, coordinate, theme, layout})
+  // 有些层比较特殊，需要依赖其他图层的数据或者比例尺
+  const normalLayerConfigs = layers.filter(({type}) => isNormalLayer(type))
+  const axisLayerConfig = layers.find(({type}) => isAxisLayer(type))
+  const dependentLayerConfigs = layers.filter(({type}) => isDependentLayer(type))
   try {
-    normalLayer.map(layer => createLayer(wave, layer))
-    dependentLayer.map(layer => createLayer(wave, layer))
-    // 根据 schema 配置的顺序进行绘制
+    const normalLayers = normalLayerConfigs.map(layer => createLayer(wave, layer))
+    const axisLayer = axisLayerConfig && createLayer(wave, axisLayerConfig)
+    // 坐标轴层会对现有图层进行比例尺融合
+    axisLayer && wave.bindCoordinate(axisLayer, normalLayers)
+    // 最后绘制依赖其他图层的图层
+    dependentLayerConfigs.map(layer => createLayer(wave, layer))
+    // 根据 schema 配置的顺序进行绘制，绘制之后添加添加笔刷，然后是动画和 tooltip
     layers.map(({options}) => wave.layer.find(({id}) => id === options.id).instance.draw())
-    // 绘制完成后添加笔刷
     brush && wave.createBrush({...brush, layout: wave.layout[brush.layout]})
   } catch (e) {
     console.error('图层配置解析错误，初始化失败', e)

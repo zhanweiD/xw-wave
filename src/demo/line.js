@@ -19,6 +19,8 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
   padding: [60, 40, 40, 40],
   // 这个 layout 应该是一个生成函数
   layout,
+  // 声明坐标系
+  coordinate: 'cartesian-point-linear',
 
   // 图层数据，下标顺序代表绘制顺序
   layers: [
@@ -62,7 +64,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         id: 'auxiliary',
         layout: 'main',
         type: 'horizontal',
-        bind: 'line',
+        bind: 'axis',
       },
       data: [300, 600],
       style: {
@@ -78,41 +80,15 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         },
       },
     },
-    // X坐标轴图层
+    // 直角坐标组合
     {
       type: 'axis',
       options: {
-        id: 'axisX',
-        layout: 'axisX',
-        type: 'horizontal',
-        bind: 'line',
+        id: 'axis',
+        layout: 'main',
+        type: 'cartesian',
       },
       style: {
-        orient: 'bottom',
-        label: {
-          fontSize: 10,
-          enableUpdateAnimation: true,
-        },
-      },
-    },
-    // Y坐标轴图层
-    {
-      type: 'axis',
-      options: {
-        id: 'axisY',
-        layout: 'axisY',
-        type: 'vertical',
-        bind: 'line',
-      },
-      style: {
-        orient: 'left',
-        tickLine: {
-          opacity: 0.2,
-        },
-        label: {
-          fontSize: 10,
-          enableUpdateAnimation: true,
-        },
       },
     },
     // 折线图层
@@ -121,6 +97,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
       options: {
         id: 'line',
         layout: 'main',
+        axis: 'main',
         mode,
       },
       data,

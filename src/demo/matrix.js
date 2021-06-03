@@ -23,6 +23,8 @@ const createSchema = (container, theme, layout, mode) => ({
   padding: [60, 40, 40, 40],
   // 这个 layout 应该是一个生成函数
   layout,
+  // 声明坐标系
+  coordinate: 'cartesian-bind-bind',
 
   // 图层数据，下标顺序代表绘制顺序
   layers: [
@@ -40,39 +42,15 @@ const createSchema = (container, theme, layout, mode) => ({
         },
       },
     },
-    // X坐标轴图层
+    // 直角坐标组合
     {
       type: 'axis',
       options: {
-        id: 'axisX',
-        layout: 'axisX',
-        type: 'horizontal',
-        bind: 'matrix',
+        id: 'axis',
+        layout: 'main',
+        type: 'cartesian',
       },
       style: {
-        label: {
-          fontSize: 10,
-          enableUpdateAnimation: true,
-        },
-      },
-    },
-    // Y坐标轴图层
-    {
-      type: 'axis',
-      options: {
-        id: 'axisY',
-        layout: 'axisY',
-        bind: 'matrix',
-        type: 'vertical',
-      },
-      style: {
-        tickLine: {
-          opacity: 0.2,
-        },
-        label: {
-          fontSize: 10,
-          enableUpdateAnimation: true,
-        },
       },
     },
     // 热力图层
@@ -81,6 +59,7 @@ const createSchema = (container, theme, layout, mode) => ({
       options: {
         id: 'matrix',
         layout: 'main',
+        axis: 'main',
         mode,
       },
       data,
