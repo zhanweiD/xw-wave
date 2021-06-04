@@ -52,7 +52,7 @@ const animationMapping = {
 }
 
 // 其他常量
-export const scaleTypes = ['scaleX', 'scaleY', 'scaleAngle', 'scaleRadius', 'scaleColor']
+export const scaleTypes = ['scaleX', 'scaleY', 'scaleYR', 'scaleAngle', 'scaleRadius', 'scaleColor']
 export const elTypes = ['arc', 'circle', 'curve', 'line', 'polygon', 'rect', 'text', 'area']
 export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
 export const tooltipEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'blur']
@@ -120,7 +120,8 @@ export default class LayerBase {
     const scale = {nice}
     // 比例尺的命名是固定不变的
     scaleTypes.forEach(type => {
-      scale[type] = incomingStyle[type] || defaultScale[type] || currentScale[type]
+      // 由于目前的比例尺策略是由坐标轴统一控制，所以图层数据计算的比例尺优先级最低
+      scale[type] = incomingStyle[type] || currentScale[type] || defaultScale[type]
       // 笔刷更改了当前比例尺的值域，这个值域需要继承
       if (currentScale[type]?.brushed) {
         scale[type].range(currentScale[type].range())

@@ -101,7 +101,6 @@ export default class RectLayer extends LayerBase {
     }, this.#scale, scales)
     // 计算基础数据，nice 为 false 是为了确保得到相同的比例尺
     const [scaleX, scaleY] = [this.#scale.scaleX, new Scale({...this.#scale.scaleY, nice: false})]
-    const barWidth = scaleX.bandwidth()
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
     this.#rectData = pureTableList.map(([dimension, ...values]) => {
       return values.map((value, i) => ({
@@ -110,7 +109,7 @@ export default class RectLayer extends LayerBase {
         category: headers[i + 1],
         x: layout.left + scaleX(dimension),
         y: layout.top + (value > 0 ? scaleY(value) : scaleY(0)),
-        width: barWidth,
+        width: scaleX.bandwidth(),
         height: Math.abs(scaleY(value) - scaleY(0)),
       }))
     })

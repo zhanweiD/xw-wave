@@ -44,6 +44,8 @@ export default function Example() {
     waves.push(chart === 'column' && Parser.createWave(columnSchema.stackColumn(refs[2].current, theme)))
     waves.push(chart === 'column' && Parser.createWave(columnSchema.intervalColumn(refs[3].current, theme)))
     waves.push(chart === 'column' && Parser.createWave(columnSchema.waterfallColumn(refs[4].current, theme)))
+    waves.push(chart === 'column' && Parser.createWave(columnSchema.groupLineColumn(refs[29].current, theme)))
+    waves.push(chart === 'column' && Parser.createWave(columnSchema.stackLineColumn(refs[30].current, theme)))
     waves.push(chart === 'bar' && Parser.createWave(columnSchema.groupBar(refs[5].current, theme)))
     waves.push(chart === 'bar' && Parser.createWave(columnSchema.stackBar(refs[6].current, theme)))
     waves.push(chart === 'bar' && Parser.createWave(columnSchema.intervalBar(refs[7].current, theme)))
@@ -100,6 +102,8 @@ export default function Example() {
           {chart === 'column' && <div className={s.wave} ref={refs[2]} />}
           {chart === 'column' && <div className={s.wave} ref={refs[3]} />}
           {chart === 'column' && <div className={s.wave} ref={refs[4]} />}
+          {chart === 'column' && <div className={s.wave} ref={refs[29]} />}
+          {chart === 'column' && <div className={s.wave} ref={refs[30]} />}
           {chart === 'bar' && <div className={s.wave} ref={refs[5]} />}
           {chart === 'bar' && <div className={s.wave} ref={refs[6]} />}
           {chart === 'bar' && <div className={s.wave} ref={refs[7]} />}

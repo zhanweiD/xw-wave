@@ -112,9 +112,8 @@ export default class AxisLayer extends LayerBase {
     // 垂直坐标轴（水平线分割高度）
     if (type === axisType.VERTICAL || type === axisType.CARTESIAN) {
       const position1 = getPosition(type, this.#scale.scaleY)
-      const position2 = getPosition(type, this.#scale.scaleY2)
+      const position2 = getPosition(type, this.#scale.scaleYR)
       this.#axisLength.y = position1.length
-      this.#axisLength.y2 = position2.length
       // 主轴线的线
       this.#lineData.push(...position1.map(([label, value]) => ({
         value: label,

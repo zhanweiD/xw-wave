@@ -80,7 +80,7 @@ export default class LineLayer extends LayerBase {
     this.#scale.nice = {zero: true, ...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
       scaleX: new Scale({
-        type: 'point',
+        type: 'band',
         domain: this.#data.select(headers[0]).data[0].list,
         range: [0, width],
         nice: this.#scale.nice,
@@ -99,7 +99,7 @@ export default class LineLayer extends LayerBase {
         value,
         dimension,
         category: headers[i + 1],
-        x: left + scaleX(dimension),
+        x: left + scaleX(dimension) + scaleX.bandwidth() / 2,
         y: top + (value > 0 ? scaleY(value) : scaleY(0)),
         height: height - scaleY(value),
       }))
