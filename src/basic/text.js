@@ -14,7 +14,6 @@ export default function drawText({
   opacity = 1,
   rotation = 0,
   writingMode = 'horizontal', // 文字方向 enumeration ['horizontal', 'vertical']
-  textAnchor = 'start', // 文字锚点 enumeration ['start', 'middle', 'end']
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -35,7 +34,6 @@ export default function drawText({
     fontFamily,
     fontSize: `${fontSize}px`,
     fontWeight,
-    textAnchor,
     writingMode: directionMapping[writingMode],
     transform: `rotate(${rotation})`,
     textShadow,
@@ -44,11 +42,11 @@ export default function drawText({
   return container.selectAll(`.${className}`)
     .data(configuredData.map(item => mapping(item)))
     .join('text')
+    .attr('class', d => d.className)
     .transition()
     .duration(enableUpdateAnimation ? updateAnimationDuration : 0)
     .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
     .text(d => d.text)
-    .attr('class', d => d.className)
     .attr('x', d => d.x)
     .attr('y', d => d.y)
     .attr('fill', d => d.fill)
@@ -56,7 +54,6 @@ export default function drawText({
     .attr('font-family', d => d.fontFamily)
     .attr('font-size', d => d.fontSize)
     .attr('font-weight', d => d.fontWeight)
-    .attr('text-anchor', d => d.textAnchor)
     .attr('writing-mode', d => d.writingMode)
     .style('transform', d => d.transform)
     .style('text-shadow', d => d.textShadow)
