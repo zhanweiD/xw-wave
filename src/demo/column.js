@@ -56,7 +56,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
         options: {
           id: 'legend',
           layout: 'legend',
-          bind: 'rect',
+          bind: ['rect', 'line'],
         },
         style: {
           align: 'end',
@@ -138,8 +138,8 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
             fill: ['red', 'green'],
             enableUpdateAnimation: true,
             mapping: elData => {
-              if (elData.source.value > 700) {
-                elData.fill = 'blue'
+              if (elData.source.value > 900) {
+                elData.fill = 'gray'
               }
               return elData
             },
@@ -158,13 +158,13 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
               mode: 'enlarge',
               direction: 'both',
             },
-            loopAnimation: {
-              type: 'scan',
-              delay: 2000,
-              duration: 3000,
-              color: 'rgba(255,255,255,0.5)',
-              direction: type === 'bar' ? 'right' : 'top',
-            },
+            // loopAnimation: {
+            //   type: 'scan',
+            //   delay: 2000,
+            //   duration: 3000,
+            //   color: 'rgba(255,255,255,0.5)',
+            //   direction: type === 'bar' ? 'right' : 'top',
+            // },
           },
           text: {
             enterAnimation: {
@@ -199,7 +199,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
       row: 6,
       column: 3,
       mu: 1000,
-      sigma: 200,
+      sigma: 300,
       decimalNumber: 1,
     },
     style: {
@@ -221,11 +221,9 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
     animation: {
       curve: {
         enterAnimation: {
-          type: 'zoom',
+          type: 'fade',
           delay: 0,
           duration: 2000,
-          mode: 'enlarge',
-          direction: 'both',
         },
         loopAnimation: {
           type: 'scan',

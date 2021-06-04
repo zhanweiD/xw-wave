@@ -89,6 +89,7 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
         decimalNumber: 1,
       },
       style: {
+        labelPosition: type === 'nightingaleRose' ? 'outer' : 'inner',
         innerRadius: donut ? 20 : 0,
         arc: {
           enableUpdateAnimation: true,

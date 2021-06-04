@@ -128,11 +128,9 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
       animation: {
         curve: {
           enterAnimation: {
-            type: 'zoom',
+            type: 'fade',
             delay: 0,
             duration: 2000,
-            mode: 'enlarge',
-            direction: 'both',
           },
           loopAnimation: {
             type: 'scan',
