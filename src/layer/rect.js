@@ -222,17 +222,17 @@ export default class RectLayer extends LayerBase {
     // 标签文字数据
     this.#textData = this.#rectData.map(groupData => {
       const result = []
-      const labelPositionMin = isArray(labelPosition) ? labelPosition[0] : labelPosition
-      const labelPositionMax = isArray(labelPosition) ? labelPosition[1] : labelPosition
+      const positionMin = isArray(labelPosition) ? labelPosition[0] : labelPosition
+      const positionMax = isArray(labelPosition) ? labelPosition[1] : labelPosition
       groupData.forEach(({value, ...data}) => {
         // value 为数值，对应一个标签
         !isArray(value) && result.push(
-          this.#getLabelData({...data, value, labelPosition: labelPositionMax})
+          this.#getLabelData({...data, value, labelPosition: value > 0 ? positionMax : positionMin})
         )
         // value 为区间，对应两个标签
         isArray(value) && result.push(
-          this.#getLabelData({...data, value: value[0], labelPosition: labelPositionMin}),
-          this.#getLabelData({...data, value: value[1], labelPosition: labelPositionMax}),
+          this.#getLabelData({...data, value: value[0], labelPosition: positionMin}),
+          this.#getLabelData({...data, value: value[1], labelPosition: positionMax}),
         )
       })
       return result

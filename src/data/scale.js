@@ -126,14 +126,14 @@ const niceScale = (scale, tickCount) => {
   // 生成合适的刻度范围
   if (tickCount > 0) {
     const distance = end - start
-    const level = 10 ** Math.round(Math.log10(Math.abs(distance / tickCount)))
+    const level = 10 ** Math.floor(Math.log10(Math.abs(distance / tickCount)))
     // 图表上方留白约束比例，当空白过多时考虑增加减小步长拉伸图表
     const spaceThreshold = 0
     // 保证图表不会溢出的 step，但有时候空白空间过大
     let step = Math.ceil(distance / (tickCount) / level) * level
     const newStart = Math.floor(start / step) * step
     let newEnd = newStart + tickCount * step
-    // 对 step 进行修正
+    // 溢出或者冗余时对 step 进行修正
     if (newEnd > end) {
       const isOverflow = () => end + (level / 2) * tickCount >= newEnd
       const isExceedThreshold = () => (newEnd - end) / (newEnd - newStart) > spaceThreshold
