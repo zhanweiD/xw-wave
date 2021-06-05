@@ -23,7 +23,7 @@ let count = 0
 const createGradient = (parentNode, direction) => {
   const targets = parentNode
     .append('clipPath')
-    .attr('id', `eraseAnimation${count++}`)
+    .attr('id', `eraseAnimation${++count}`)
     .append('rect')
     .attr('x', direction === directionType.LEFT ? '100%' : '0%')
     .attr('y', direction === directionType.TOP ? '100%' : '0%')

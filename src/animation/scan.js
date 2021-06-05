@@ -68,7 +68,7 @@ const createGradient = (parentNode, direction, color) => {
   let targets
   const attributes = getAttributes(direction)
   const isLeftOrTop = direction === directions.LEFT || direction === directions.TOP
-  count++
+  ++count
   parentNode.append('filter')
     .attr('id', `scanAnimation${count}-filter`)
     .append('feGaussianBlur')

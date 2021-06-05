@@ -82,6 +82,9 @@ export default class RectLayer extends LayerBase {
     if (type === waveType.BAR) {
       [this.#scale.scaleX, this.#scale.scaleY] = [this.#scale.scaleY, this.#scale.scaleX];
       [scales.scaleX, scales.scaleY] = [scales.scaleY, scales.scaleX]
+      if (this.#scale.scaleY?.range()[0] < this.#scale.scaleY?.range()[1]) {
+        this.#scale.scaleY.range(this.#scale.scaleY.range().reverse())
+      }
     }
     // 初始化比例尺
     this.#scale.nice = {zero: true, ...this.#scale.nice, ...scales.nice}
@@ -100,7 +103,7 @@ export default class RectLayer extends LayerBase {
       }),
     }, this.#scale, scales)
     // 计算基础数据，nice 为 false 是为了确保得到相同的比例尺
-    const [scaleX, scaleY] = [this.#scale.scaleX, new Scale({...this.#scale.scaleY, nice: false})]
+    const {scaleX, scaleY} = this.#scale
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
     this.#rectData = pureTableList.map(([dimension, ...values]) => {
       return values.map((value, i) => ({
@@ -161,7 +164,6 @@ export default class RectLayer extends LayerBase {
     }
     // 矩形到条形的数据转换，同时更新比例尺
     if (type === waveType.BAR) {
-      [this.scale.scaleX, this.scale.scaleY] = [this.scale.scaleY, this.scale.scaleX]
       const firstRect = this.#rectData[0][0]
       const offset = isArray(firstRect.value) ? Math.abs(scaleY(0) - scaleY(firstRect.value[0])) : 0
       const zeroY = firstRect.y + firstRect.height + offset
@@ -172,7 +174,11 @@ export default class RectLayer extends LayerBase {
         y: x - layout.left + layout.top, 
         x: zeroY - height - y + layout.left,
         ...other,
-      })))
+      })));
+      [this.#scale.scaleX, this.#scale.scaleY] = [this.#scale.scaleY, this.#scale.scaleX]
+      if (this.#scale.scaleX.range()[0] > this.#scale.scaleX.range()[1]) {
+        this.#scale.scaleX.range(this.#scale.scaleX.range().reverse())
+      }
     }
   }
 
