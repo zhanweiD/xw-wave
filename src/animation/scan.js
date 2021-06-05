@@ -11,7 +11,6 @@ const directions = {
   RIGHT: 'right',
   OUTER: 'outer',
   INNER: 'inner',
-  ROTATE: 'rotate',
 }
 // 渐变作用域
 const scopes = {
@@ -40,8 +39,6 @@ const getAttributes = direction => {
     attributes = ['y1', 'y2']
   } else if (direction === directions.OUTER || direction === directions.INNER) {
     attributes = ['r']
-  } else if (direction === directions.ROTATE) {
-    attributes = ['rotate']
   }
   return attributes
 }
@@ -77,25 +74,7 @@ const createGradient = (parentNode, direction, color) => {
     .append('feGaussianBlur')
     .attr('in', 'SourceGraphic')
     .attr('stdDeviation', 0)
-  if (attributes[0] === 'rotate') {
-    const gradient = parentNode.append('linearGradient')
-      .attr('id', `scanAnimation${count}`)
-      .attr('x1', '100%')
-      .attr('y1', '0%')
-      .attr('x2', '0%')
-      .attr('y2', '100%')
-    insertOffsets(gradient, color)
-    targets = parentNode.append('mask')
-      .attr('id', `scanAnimation${count}-mask`)
-      .append('rect')
-      .attr('x', '0%')
-      .attr('y', '0%')
-      .attr('width', '50%')
-      .attr('height', '50%')
-      .attr('transform-origin', '0% 0%')
-      .attr('fill', `url(#scanAnimation${count})`)
-      .attr('filter', `url(#scanAnimation${count}-filter)`)
-  } else if (attributes[0] === 'r') {
+  if (attributes[0] === 'r') {
     targets = parentNode.append('radialGradient')
       .attr('id', `scanAnimation${count}`)
       .attr(attributes[0], direction === directions.INNER ? '300%' : '0%')
@@ -109,19 +88,16 @@ const createGradient = (parentNode, direction, color) => {
       .attr(attributes[0], isLeftOrTop ? '100%' : '-100%')
       .attr(attributes[1], isLeftOrTop ? '200%' : '0%')
   }
-  return direction === directions.ROTATE ? targets : insertOffsets(targets, color)
+  return insertOffsets(targets, color)._groups[0]
 }
 
 export default class ScanAnimation extends AnimationBase {
   constructor(options, context) {
     super(defaultOptions, options, context)
-    this.isAnimationStart = false
-    this.isAnimationAvailable = true
-    this.isAnimationFirstPlay = true
     const {direction, color} = this.options
-    // 定义渐变动画
     this.extraNode = context.append('defs')
     this.targets = createGradient(this.extraNode, direction, color)
+    this.isAnimationFirstPlay = true
   }
 
   play() {
@@ -129,7 +105,7 @@ export default class ScanAnimation extends AnimationBase {
     const attributes = getAttributes(direction)
     const isLeftOrTop = direction === directions.LEFT || direction === directions.TOP
     const configs = {
-      targets: this.targets._groups[0],
+      targets: this.targets,
       duration,
       delay,
       loop,
@@ -141,30 +117,18 @@ export default class ScanAnimation extends AnimationBase {
     // 首次执行添加渐变实例
     if (this.isAnimationFirstPlay) {
       this.isAnimationFirstPlay = false
-      if (direction === directions.ROTATE) {
-        this.lights = context.selectAll(className).clone(false)
-          .attr('class', 'scanAnimation-clone')
-          .attr('filter', `url(#scanAnimation${count}-filter)`)
-          .attr('mask', direction === directions.ROTATE ? `url(#scanAnimation${count}-mask)` : '')
-          .attr('stroke', scope !== scopes.FILL ? 'white' : '')
-          .style('fill', scope !== scopes.STROKE ? 'white' : '')
-          .style('pointer-events', 'none')
-          .style('opacity', 0)
-      } else {
-        this.lights = context.selectAll(className).clone(false)
-          .attr('class', 'scanAnimation-clone')
-          .attr('filter', `url(#scanAnimation${count}-filter)`)
-          .attr('stroke', scope !== scopes.FILL ? `url(#scanAnimation${count})` : '')
-          .style('fill', scope !== scopes.STROKE ? `url(#scanAnimation${count})` : '')
-          .style('pointer-events', 'none')
-      }
+      this.lights = context.selectAll(className).clone(false)
+        .attr('class', 'scanAnimation-clone')
+        .attr('filter', `url(#scanAnimation${count}-filter)`)
+        .attr('stroke', scope !== scopes.FILL ? `url(#scanAnimation${count})` : '')
+        .style('fill', scope !== scopes.STROKE ? `url(#scanAnimation${count})` : '')
+        .style('pointer-events', 'none')
       // 监听属性变化以便于同步
       const targetNode = context.selectAll(className)._groups[0]
       const observers = targetNode.forEach((el, i) => {
-        const observer = new MutationObserver(mutationList => mutationList.forEach(({attributeName}) => {
+        return new MutationObserver(mutationList => mutationList.forEach(({attributeName}) => {
           d3.select(this.lights._groups[0][i]).attr(attributeName, d3.select(el).attr(attributeName))
         })).observe(el, {attributes: true})
-        return observer
       })
       // 销毁时取消监听
       this.event.on('destroy', () => observers.forEach(observer => observer.disconnect()))
@@ -175,18 +139,15 @@ export default class ScanAnimation extends AnimationBase {
       configs[attributes[1]] = isLeftOrTop ? ['200%', '0%'] : ['0%', '200%']
     } else if (attributes[0] === 'r') {
       configs[attributes[0]] = direction === directions.INNER ? ['300%', '0%'] : ['0%', '300%']
-    } else if (attributes[0] === 'rotate') {
-      configs[attributes[0]] = [0, 360]
-      this.lights.transition().style('opacity', 1).duration(2000)
     }
     // 开始执行
-    this.instance && anime.remove(this.targets._groups[0])
+    this.instance && anime.remove(this.targets)
     this.instance = anime(configs)
     this.event.has('play') && this.event.fire('play')
   }
 
   destroy() {
-    anime.remove(this.targets._groups[0])
+    anime.remove(this.targets)
     this.event.has('destroy') && this.event.fire('destroy')
     this.isAnimationAvailable = false
     this.lights?.remove()

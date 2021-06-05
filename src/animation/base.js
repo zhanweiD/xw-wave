@@ -5,10 +5,6 @@ import createLog from '../util/create-log'
 // 动画基类
 export default class AnimationBase {
   constructor(defaultOptions, incomingOptions, context) {
-    // 事件
-    this.event = createEvent(__filename)
-    // 日志
-    this.log = createLog(__filename)
     // 动画是否正在执行
     this.isAnimationStart = false
     // 动画是否可用，destroy 之后设为 false
@@ -26,6 +22,8 @@ export default class AnimationBase {
       merge(options, {targets: targets._groups[0]})
     }
     this.options = options
+    this.event = createEvent(__filename)
+    this.log = createLog(__filename)
   }
 
   // 生命周期钩子：控制动画执行

@@ -257,7 +257,7 @@ export default class Wave {
     const brush = (isHorizontal ? d3.brushX() : d3.brushY())
     brush.extent([[brushX1, brushY1], [brushX2, brushY2]]).on('brush', brushed)
     // 确定笔刷区域
-    const brushDOM = this.#root.append('g').attr('class', 'brush').call(brush)
+    const brushDOM = this.#root.append('g').attr('class', 'wave-brush').call(brush)
     brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
   }
 

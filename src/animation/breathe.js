@@ -40,8 +40,6 @@ export default class BreatheAnimation extends AnimationBase {
     super(defaultOptions, options, context)
     this.extraNode = context.append('defs')
     this.targets = createFilter(this.extraNode)
-    this.isAnimationStart = false
-    this.isAnimationAvailable = true
     // 给元素添加光晕滤镜
     d3.selectAll(this.options.targets).attr('filter', `url(#breatheAnimation${count})`)
   }

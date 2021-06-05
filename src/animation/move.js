@@ -13,8 +13,6 @@ const defaultOptions = {
 export default class MoveAnimation extends AnimationBase {
   constructor(options, context) {
     super(defaultOptions, options, context)
-    this.isAnimationStart = false
-    this.isAnimationAvailable = true
   }
 
   play() {

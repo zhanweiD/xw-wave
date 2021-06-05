@@ -17,8 +17,6 @@ const defaultOptions = {
 export default class FadeAnimation extends AnimationBase {
   constructor(options, context) {
     super(defaultOptions, options, context)
-    this.isAnimationStart = false
-    this.isAnimationAvailable = true
   }
 
   play() {

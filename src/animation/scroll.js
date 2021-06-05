@@ -39,8 +39,6 @@ export default class ScrollAnimation extends AnimationBase {
     }
     this.elementNumber = this.options.targets.length
     this.activeIndex = reverse ? this.elementNumber - 1 : 0
-    this.isAnimationStart = false
-    this.isAnimationAvailable = true
   }
 
   play() {

@@ -128,7 +128,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
       animation: {
         curve: {
           enterAnimation: {
-            type: 'fade',
+            type: 'erase',
             delay: 0,
             duration: 2000,
           },

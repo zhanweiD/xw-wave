@@ -40,8 +40,6 @@ export default class ZoomAnimation extends AnimationBase {
   constructor(options, context) {
     super(defaultOptions, options, context)
     this.elementNumber = this.options.targets.length
-    this.isAnimationStart = false
-    this.isAnimationAvailable = true
   }
 
   play() {

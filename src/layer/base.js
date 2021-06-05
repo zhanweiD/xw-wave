@@ -41,14 +41,14 @@ const basicMapping = {
 
 // 基础元素支持哪些动画（某些动画并非覆盖所有元素）
 const animationMapping = {
-  arc: ['zoom', 'scan', 'fade'],
-  circle: ['zoom', 'scan', 'fade', 'breathe'],
-  curve: ['zoom', 'scan', 'fade'],
-  line: ['zoom', 'scan', 'fade', 'scroll'],
-  polygon: ['zoom', 'scan', 'fade'],
-  rect: ['zoom', 'scan', 'fade', 'scroll'],
-  text: ['zoom', 'scan', 'fade'],
-  area: ['zoom', 'scan', 'fade'],
+  arc: ['zoom', 'scan', 'erase', 'fade'],
+  circle: ['zoom', 'scan', 'erase', 'fade', 'breathe'],
+  curve: ['zoom', 'scan', 'erase', 'fade'],
+  line: ['zoom', 'scan', 'erase', 'fade', 'scroll'],
+  polygon: ['zoom', 'scan', 'erase', 'fade'],
+  rect: ['zoom', 'scan', 'erase', 'fade', 'scroll'],
+  text: ['zoom', 'scan', 'erase', 'fade'],
+  area: ['zoom', 'scan', 'erase', 'fade'],
 }
 
 // 其他常量

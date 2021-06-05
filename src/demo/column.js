@@ -147,6 +147,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           text: {
             fontSize: 10,
             enableUpdateAnimation: true,
+            format: ['number', {decimalPlace: 0, isThousandth: mode === 'waterfall'}],
           },
         },
         animation: {

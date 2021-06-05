@@ -5,6 +5,7 @@ import ScrollAnimation from './scroll'
 import EmptyAnimation from './empty'
 import MoveAnimation from './move'
 import BreatheAnimation from './breathe'
+import EraseAnimation from './erase'
 
 const AnimationMap = {
   fade: FadeAnimation,
@@ -14,6 +15,7 @@ const AnimationMap = {
   empty: EmptyAnimation,
   breathe: BreatheAnimation,
   move: MoveAnimation,
+  erase: EraseAnimation,
 }
 
 export {
@@ -23,6 +25,7 @@ export {
   // 入场
   FadeAnimation,
   ZoomAnimation,
+  EraseAnimation,
 
   // 轮播
   ScanAnimation, // 扫光

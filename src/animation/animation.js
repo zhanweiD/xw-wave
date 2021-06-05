@@ -2,7 +2,6 @@ import AnimationBase from './base'
 import createUuid from '../util/uuid'
 import {AnimationMap, EmptyAnimation as Empty} from './index'
 
-// 默认参数
 const defaultOptions = {
   loop: false,
 }
@@ -11,8 +10,7 @@ const defaultOptions = {
 export default class AnimationQueue extends AnimationBase {
   constructor(options) {
     super(defaultOptions, options)
-    this.isAnimationStart = false
-    this.isAnimationAvailable = true
+    // 动画队列是否连接就绪
     this.isReady = false
     // 初始化动画队列
     const animationHead = {id: createUuid(), instance: new Empty()}
