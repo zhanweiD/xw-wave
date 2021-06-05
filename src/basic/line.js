@@ -2,7 +2,8 @@
 export default function drawLine({
   stroke = 'rgba(255,255,255,1)',
   strokeWidth = 1,
-  opacity = 0.5,
+  opacity = 1,
+  strokeOpacity = 1,
   dasharray = '0',
   enableUpdateAnimation = false,
   updateAnimationDuration = 1000,
@@ -20,6 +21,7 @@ export default function drawLine({
     className,
     strokeDasharray: dasharray,
     opacity,
+    strokeOpacity,
     x1: data[0],
     y1: data[1],
     x2: data[2],
@@ -39,6 +41,7 @@ export default function drawLine({
     .attr('stroke-width', d => d.strokeWidth)
     .attr('stroke-dasharray', d => d.strokeDasharray)
     .attr('opacity', d => d.opacity)
+    .attr('stroke-opacity', d => d.strokeOpacity)
     .attr('x1', d => d.x1)
     .attr('y1', d => d.y1)
     .attr('x2', d => d.x2)

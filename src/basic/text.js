@@ -9,10 +9,14 @@ export default function drawText({
   fontFamily = '',
   fontSize = 12,
   fontWeight = 'normal',
-  fill = 'rgba(255,255,255,1)', // 可以是数组定义渐变色
-  textShadow = '2px 2px 2px rgba(0,0,0,0)',
+  fill = 'rgba(255,255,255,1)',
+  stroke = 'rgba(255,255,255,0)',
+  strokeWidth = 0,
   opacity = 1,
+  fillOpacity = 1,
+  strokeOpacity = 1,
   rotation = 0,
+  textShadow = '2px 2px 2px rgba(0,0,0,0)',
   writingMode = 'horizontal', // 文字方向 enumeration ['horizontal', 'vertical']
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
@@ -30,10 +34,14 @@ export default function drawText({
     x: position[i][0],
     y: position[i][1] - fontSize * 0.2, // 这个数字为黑体的高度差
     fill: Array.isArray(fill) ? fill[i] : fill,
+    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
+    strokeWidth,
     opacity,
+    fillOpacity,
+    strokeOpacity,
     fontFamily,
-    fontSize: `${fontSize}px`,
     fontWeight,
+    fontSize: `${fontSize}px`,
     writingMode: directionMapping[writingMode],
     transform: `rotate(${rotation})`,
     textShadow,
@@ -50,7 +58,11 @@ export default function drawText({
     .attr('x', d => d.x)
     .attr('y', d => d.y)
     .attr('fill', d => d.fill)
+    .attr('stroke', d => d.stroke)
+    .attr('stroke-width', d => d.strokeWidth)
     .attr('opacity', d => d.opacity)
+    .attr('fill-opacity', d => d.fillOpacity)
+    .attr('stroke-opacity', d => d.strokeOpacity)
     .attr('font-family', d => d.fontFamily)
     .attr('font-size', d => d.fontSize)
     .attr('font-weight', d => d.fontWeight)

@@ -8,7 +8,7 @@ import drawRect from '../basic/rect'
 import drawText from '../basic/text'
 import drawArea from '../basic/area'
 import createEvent from '../util/create-event'
-import AnimationQueue from '../animation/animation'
+import AnimationQueue from '../animation/queue'
 import Tooltip, {globalTooltip} from './tooltip'
 import formatText from '../util/format-text'
 import getTextWidth from '../util/text-width'
@@ -257,20 +257,20 @@ export default class LayerBase {
         return
       }
       const animationQueue = new AnimationQueue({loop: false})
-      const enterAnimationQueue = new AnimationQueue({loop: false})
-      const loopAnimationQueue = new AnimationQueue({loop: true})
+      const enterQueue = new AnimationQueue({loop: false})
+      const loopQueue = new AnimationQueue({loop: true})
       const {enterAnimation, loopAnimation} = options[name]
       const supportAnimations = animationMapping[name]
       // 配置入场动画
       if (enterAnimation && supportAnimations.findIndex(key => key === enterAnimation.type) !== -1) {
-        enterAnimationQueue.push(enterAnimation.type, {...enterAnimation, targets: `.wave-basic-${name}`}, this.root)
+        enterQueue.push(enterAnimation.type, {...enterAnimation, targets: `.wave-basic-${name}`}, this.root)
       }
       // 配置轮播动画
       if (loopAnimation && supportAnimations.findIndex(key => key === loopAnimation.type) !== -1) {
-        loopAnimationQueue.push(loopAnimation.type, {...loopAnimation, targets: `.wave-basic-${name}`}, this.root)
+        loopQueue.push(loopAnimation.type, {...loopAnimation, targets: `.wave-basic-${name}`}, this.root)
       }
       // 连接入场动画和轮播动画
-      this.animation[name] = animationQueue.push('queue', enterAnimationQueue).push('queue', loopAnimationQueue)
+      this.animation[name] = animationQueue.push('queue', enterQueue).push('queue', loopQueue)
       // 动画事件注册
       this.animation[name].event.on('start', data => this.event.fire(`${name}-animation-start`, data))
       this.animation[name].event.on('process', data => this.event.fire(`${name}-animation-process`, data))

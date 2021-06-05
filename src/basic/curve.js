@@ -5,6 +5,7 @@ export default function drawCurve({
   stroke = 'rgba(255,255,255,0)',
   strokeWidth = 1,
   opacity = 1,
+  strokeOpacity = 1,
   curve = false,
   enableUpdateAnimation = true,
   updateAnimationDuration = 2000,
@@ -24,6 +25,7 @@ export default function drawCurve({
     strokeWidth,
     className,
     opacity,
+    strokeOpacity,
     d: lineGenerator(data),
     source: source.length > i ? source[i] : null,
   }))
@@ -40,4 +42,5 @@ export default function drawCurve({
     .attr('d', d => d.d)
     .attr('fill', d => d.fill)
     .attr('opacity', d => d.opacity)
+    .attr('stroke-opacity', d => d.strokeOpacity)
 }
