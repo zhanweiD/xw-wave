@@ -51,8 +51,8 @@ export default class GaugeLayer extends LayerBase {
 
   // 仪表盘的数据为对象
   setData(data = {}) {
-    this.#data.value = data.value || this.#data.value
-    this.#data.label = data.label || this.#data.label
+    this.#data.value = data.value
+    this.#data.label = data.label
     // 校验 fragments 是否合法
     if (data.fragments) {
       try {

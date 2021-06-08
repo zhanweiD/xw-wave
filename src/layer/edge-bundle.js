@@ -14,7 +14,7 @@ const defaultStyle = {
 }
 
 // 矩形图层
-export default class SankeyLayer extends LayerBase {
+export default class EdgeBundleLayer extends LayerBase {
   #data = null
   
   #scale = {}
