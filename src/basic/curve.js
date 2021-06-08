@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 
 // 绘制一组曲线
 export default function drawCurve({
-  stroke = 'rgba(255,255,255,0)',
+  stroke = 'rgba(255,255,255,1)',
   strokeWidth = 1,
   opacity = 1,
   strokeOpacity = 1,

@@ -156,7 +156,7 @@ export default class LayerBase {
    * @param {Object} 计算文字需要的一些值
    * @returns 文字数据，包含坐标和值
    */
-  createText({x, y, value, fontSize = 12, format = null, position = positionType.LEFTBOTTOM, offset = 0}) {
+  createText({x, y, value, fontSize = 12, format = null, position = positionType.RIGHTTOP, offset = 0}) {
     let [positionX, positionY] = [x, y]
     const formattedText = format ? formatText(value, format) : value
     const textWidth = getTextWidth(formattedText, fontSize)
@@ -232,6 +232,7 @@ export default class LayerBase {
     if (!options.rebind && !this.tooltip) {
       this.tooltip = new Tooltip(this.options.container, options)
     }
+    // 为元素绑定 tooltip 事件
     this.tooltip && this.tooltip.options.targets.forEach(elType => setTimeout(() => {
       const els = this.root.selectAll(`.wave-basic-${elType}`)
       tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))

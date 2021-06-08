@@ -4,6 +4,7 @@ import DataBase from './data/base'
 import TableList from './data/table-list'
 import Table from './data/table'
 import Random from './data/random'
+import Relation from './data/relation'
 
 // 图层是否依赖其他图层
 const dependentLayers = ['auxiliary', 'legend']
@@ -17,10 +18,12 @@ const createLayer = (wave, config) => {
   const layer = wave.createLayer(type, {...options, layout: wave.layout[options.layout]})
   // 数据结构判断
   let dataSet = data
-  if (DataBase.isTable(data) || data?.type === 'table') {
+  if (isArray(data) && data.length === 2 && DataBase.isRelation(data[0], data[1])) {
+    dataSet = new Relation(data[0], data[1])
+  } else if (DataBase.isTable(data) || data?.type === 'table') {
     dataSet = new Table(DataBase.isTable(data) ? data : Random.table(data))
-  } else if (DataBase.isTableLilst(data) || data?.type === 'tableList') {
-    dataSet = new TableList(DataBase.isTableLilst(data) ? data : Random.tableList(data))
+  } else if (DataBase.isTableList(data) || data?.type === 'tableList') {
+    dataSet = new TableList(DataBase.isTableList(data) ? data : Random.tableList(data))
     // 某些图表需要控制列数
     if (type === 'rect' && options.mode === 'interval') {
       dataSet = dataSet.select(dataSet.data.map(({header}) => header).slice(0, 3))

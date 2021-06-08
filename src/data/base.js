@@ -1,9 +1,12 @@
 import {merge} from 'lodash'
+import createLog from '../util/create-log'
 
 // 数据处理基类
 export default class DataBase {
+  #storage = {}
+
   // 是否为列表数据
-  static isTableLilst = tableList => {
+  static isTableList = tableList => {
     if (!Array.isArray(tableList) 
       || tableList.length === 0 
       || tableList.findIndex(item => !Array.isArray(item)) !== -1) {
@@ -17,28 +20,39 @@ export default class DataBase {
     if (!Array.isArray(table) 
       || table.length < 3 
       || table.findIndex(item => !Array.isArray(item)) !== -1
-      || !DataBase.isTableLilst(table[2])) {
+      || !DataBase.isTableList(table[2])) {
       return false
     }
     return true
   }
 
-  // 构造函数，备份数据
-  constructor(data, options) {
-    this.source = data
-    // order 定义每组数据的优先级，可以决定颜色的选取顺序
-    this.options = merge({order: null}, options) 
+  // 是否为关系型数据
+  static isRelation = (nodeTableList, linkTableList) => {
+    if (!DataBase.isTableList(nodeTableList) || !DataBase.isTableList(linkTableList)) {
+      return false
+    }
+    return true
+  }
+
+  // 初始化数据，order 定义每组数据的优先级，可以决定颜色的选取顺序
+  constructor(options) {
+    this.options = merge({order: null}, options)
+    this.log = createLog(__filename)
   }
 
   /**
    * 数据验证函数
    * @returns 是否为合法数据
    */
-  isLegalData(type, data) {
+  isLegalData(type, ...data) {
     if (type === 'list') {
-      return DataBase.isTableLilst(data)
-    } if (type === 'table') {
-      return DataBase.isTable(data)
+      return DataBase.isTableList(...data)
+    } 
+    if (type === 'table') {
+      return DataBase.isTable(...data)
+    } 
+    if (type === 'relation') {
+      return DataBase.isRelation(...data)
     }
     return false
   }
@@ -58,6 +72,24 @@ export default class DataBase {
       newTableList.push(tableList.map(item => item[i]))
     }
     return newTableList
+  }
+
+  /**
+   * 挂载一些额外的数据到实例上
+   * @param {String} key 键
+   * @param {any} value 值
+   */
+  set(key, value) {
+    this.#storage[key] = value
+  }
+
+  /**
+   * 获取实例上的额外数据
+   * @param {String} key 键
+   * @returns 存储的值
+   */
+  get(key) {
+    return this.#storage[key]
   }
 
   /**
@@ -110,6 +142,6 @@ export default class DataBase {
    * @param {String} text 报错文字
    */
   warn(text, data) {
-    console.error(text, data)
+    this.log.error(text, data)
   }
 }

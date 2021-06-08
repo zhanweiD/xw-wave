@@ -50,8 +50,8 @@ export default class MatrixLayer extends LayerBase {
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
-  setData(tableList, scales = {}) {
-    this.#data = tableList || this.#data
+  setData(table, scales = {}) {
+    this.#data = table || this.#data
     const {mode = modeType.RECT, layout} = this.options
     const {left, top, width, height} = layout
     const [rows, columns, pureTable] = [this.#data.data[0], this.#data.data[1], this.#data.data[2]]

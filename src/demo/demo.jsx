@@ -9,6 +9,7 @@ import scatterSchema from './scatter'
 import matrixSchema from './matrix'
 import gaugeSchema from './gauge'
 import lineSchema from './line'
+import chordSchema from './chord'
 import Parser from '../parser'
 import s from './demo.module.css'
 
@@ -29,11 +30,12 @@ const chartMapping = {
   scatter: '点图',
   matrix: '矩阵图',
   gauge: '仪表盘',
+  chord: '关系图',
 }
 
 export default function Example() {
   const [theme, setTheme] = useState('fairyLand')
-  const [chart, setChart] = useState('column')
+  const [chart, setChart] = useState('chord')
   const containerStyle = {background: ThemeConfig[theme].background}
   const refs = range(1, 100, 1).map(() => useRef(null))
 
@@ -76,6 +78,8 @@ export default function Example() {
     waves.push(chart === 'line' && Parser.createWave(lineSchema.stackArea(refs[25].current, theme)))
     waves.push(chart === 'line' && Parser.createWave(lineSchema.step(refs[26].current, theme)))
     waves.push(chart === 'line' && Parser.createWave(lineSchema.stepArea(refs[27].current, theme)))
+    // 关系图类
+    waves.push(chart === 'chord' && Parser.createWave(chordSchema.chord(refs[31].current, theme)))
   }, [theme, chart])
 
   return (
@@ -128,6 +132,7 @@ export default function Example() {
           {chart === 'line' && <div className={s.wave} ref={refs[25]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[26]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[27]} />}
+          {chart === 'chord' && <div className={s.wave} ref={refs[31]} />}
         </div>
       </div>
     </div>

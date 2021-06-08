@@ -11,7 +11,7 @@ const targetType = {
 // 列表数据处理工具，内部 data 数据依次为行标签、列标签、数值
 export default class Table extends DataBase {
   constructor(table, options) {
-    super(table, options)
+    super(options)
     this.data = [[], [], []]
     this.update(table, options)
   }

@@ -222,7 +222,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
     animation: {
       curve: {
         enterAnimation: {
-          type: 'fade',
+          type: 'erase',
           delay: 0,
           duration: 2000,
         },

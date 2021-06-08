@@ -63,7 +63,7 @@ const createSchema = (container, theme, layout, mode) => ({
     {
       type: 'auxiliary',
       options: {
-        id: 'auxiliary',
+        id: 'auxiliary1',
         layout: 'main',
         type: 'horizontal',
         bind: 'axis',
@@ -86,7 +86,7 @@ const createSchema = (container, theme, layout, mode) => ({
     {
       type: 'auxiliary',
       options: {
-        id: 'auxiliary',
+        id: 'auxiliary2',
         layout: 'main',
         type: 'vertical',
         bind: 'axis',

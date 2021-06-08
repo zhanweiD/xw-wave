@@ -17,7 +17,7 @@ const targetType = {
 // 列表数据处理工具
 export default class TableList extends DataBase {
   constructor(tableList, options) {
-    super(tableList, options)
+    super(options)
     this.data = []
     this.update(tableList, options)
   }
