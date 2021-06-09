@@ -22,6 +22,18 @@ function translate(schema) {
     children.forEach(({tabId, option, text, graph}) => {
       style[option] = tabId === 'text' ? text : tabId === 'graph' ? graph : {}
     })
+    // 没有数据临时用随机数据
+    if (!data && type !== 'text') {
+      data = {
+        type: 'tableList',
+        mode: 'normal', 
+        row: 6,
+        column: 3,
+        mu: 500,
+        sigma: 200,
+        decimalNumber: 1,
+      }
+    }
     // 符合解析器的配置结构
     return {type, data, options, style}
   })

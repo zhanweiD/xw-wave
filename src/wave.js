@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
 import chroma from 'chroma-js'
 import standardLayout from './layout/standard'
-import ThemeConfig from './util/theme'
 import TextLayer from './layer/text'
 import AxisLayer from './layer/axis'
 import RectLayer from './layer/rect'
@@ -15,6 +14,7 @@ import ScatterLayer from './layer/scatter'
 import MatrixLayer from './layer/matrix'
 import GaugeLayer from './layer/gauge'
 import EdgeBundleLayer from './layer/edge-bundle'
+import createEvent from './util/create-event'
 
 // 图表状态
 const stateType = {
@@ -90,7 +90,7 @@ export default class Wave {
     height = 100,
     padding = [40, 40, 40, 40],
     adjust = 'auto',
-    theme = 'glaze',
+    theme = ['white', 'black'],
     baseFontSize = 1,
     layout = standardLayout,
     coordinate = coordinateType.CARTESIAN_BAND_LINEAR,
@@ -138,6 +138,7 @@ export default class Wave {
     this.theme = theme
     this.coordinate = coordinate
     this.baseFontSize = baseFontSize
+    this.event = createEvent(__filename)
   }
 
   /**
@@ -154,7 +155,7 @@ export default class Wave {
    * @param {Array} customColors 自定义颜色覆盖主题色
    */
   getColor(count, customColors) {
-    let colors = customColors || ThemeConfig[this.theme]?.colors || ThemeConfig.glaze.colors
+    let colors = customColors || this.theme
     // 主题色的取色逻辑
     if (colors.length > 2 && !customColors) {
       colors.length > 2 && count <= 3 && (colors = colors.slice(2, 7))
