@@ -10,7 +10,7 @@ import matrixSchema from './matrix'
 import gaugeSchema from './gauge'
 import lineSchema from './line'
 import chordSchema from './chord'
-import Parser from '../parser'
+import {createWave} from '../parser'
 import s from './demo.module.css'
 
 const themeMapping = {
@@ -42,44 +42,44 @@ export default function Example() {
   useEffect(() => {
     const waves = []
     // 柱状图和条形图
-    waves.push(chart === 'column' && Parser.createWave(columnSchema.groupColumn(refs[1].current, theme)))
-    waves.push(chart === 'column' && Parser.createWave(columnSchema.stackColumn(refs[2].current, theme)))
-    waves.push(chart === 'column' && Parser.createWave(columnSchema.intervalColumn(refs[3].current, theme)))
-    waves.push(chart === 'column' && Parser.createWave(columnSchema.waterfallColumn(refs[4].current, theme)))
-    waves.push(chart === 'column' && Parser.createWave(columnSchema.groupLineColumn(refs[29].current, theme)))
-    waves.push(chart === 'column' && Parser.createWave(columnSchema.stackLineColumn(refs[30].current, theme)))
-    waves.push(chart === 'bar' && Parser.createWave(columnSchema.groupBar(refs[5].current, theme)))
-    waves.push(chart === 'bar' && Parser.createWave(columnSchema.stackBar(refs[6].current, theme)))
-    waves.push(chart === 'bar' && Parser.createWave(columnSchema.intervalBar(refs[7].current, theme)))
-    waves.push(chart === 'bar' && Parser.createWave(columnSchema.waterfallBar(refs[8].current, theme)))
+    waves.push(chart === 'column' && createWave(columnSchema.groupColumn(refs[1].current, theme)))
+    waves.push(chart === 'column' && createWave(columnSchema.stackColumn(refs[2].current, theme)))
+    waves.push(chart === 'column' && createWave(columnSchema.intervalColumn(refs[3].current, theme)))
+    waves.push(chart === 'column' && createWave(columnSchema.waterfallColumn(refs[4].current, theme)))
+    waves.push(chart === 'column' && createWave(columnSchema.groupLineColumn(refs[29].current, theme)))
+    waves.push(chart === 'column' && createWave(columnSchema.stackLineColumn(refs[30].current, theme)))
+    waves.push(chart === 'bar' && createWave(columnSchema.groupBar(refs[5].current, theme)))
+    waves.push(chart === 'bar' && createWave(columnSchema.stackBar(refs[6].current, theme)))
+    waves.push(chart === 'bar' && createWave(columnSchema.intervalBar(refs[7].current, theme)))
+    waves.push(chart === 'bar' && createWave(columnSchema.waterfallBar(refs[8].current, theme)))
     // 饼图类
-    waves.push(chart === 'pie' && Parser.createWave(pieSchema.pie(refs[9].current, theme)))
-    waves.push(chart === 'pie' && Parser.createWave(pieSchema.donut(refs[10].current, theme)))
-    waves.push(chart === 'pie' && Parser.createWave(pieSchema.nightingaleRose(refs[11].current, theme)))
-    waves.push(chart === 'pie' && Parser.createWave(pieSchema.donutNightingaleRose(refs[12].current, theme)))
-    waves.push(chart === 'pie' && Parser.createWave(pieSchema.stackNightingaleRose(refs[13].current, theme)))
-    waves.push(chart === 'pie' && Parser.createWave(pieSchema.stackDonutNightingaleRose(refs[14].current, theme)))
+    waves.push(chart === 'pie' && createWave(pieSchema.pie(refs[9].current, theme)))
+    waves.push(chart === 'pie' && createWave(pieSchema.donut(refs[10].current, theme)))
+    waves.push(chart === 'pie' && createWave(pieSchema.nightingaleRose(refs[11].current, theme)))
+    waves.push(chart === 'pie' && createWave(pieSchema.donutNightingaleRose(refs[12].current, theme)))
+    waves.push(chart === 'pie' && createWave(pieSchema.stackNightingaleRose(refs[13].current, theme)))
+    waves.push(chart === 'pie' && createWave(pieSchema.stackDonutNightingaleRose(refs[14].current, theme)))
     // 雷达图类
-    waves.push(chart === 'radar' && Parser.createWave(radarSchema.radar(refs[15].current, theme)))
-    waves.push(chart === 'radar' && Parser.createWave(radarSchema.stackRadar(refs[16].current, theme)))
+    waves.push(chart === 'radar' && createWave(radarSchema.radar(refs[15].current, theme)))
+    waves.push(chart === 'radar' && createWave(radarSchema.stackRadar(refs[16].current, theme)))
     // 点图类
-    waves.push(chart === 'scatter' && Parser.createWave(scatterSchema.scatter(refs[17].current, theme)))
-    waves.push(chart === 'scatter' && Parser.createWave(scatterSchema.bubble(refs[18].current, theme)))
+    waves.push(chart === 'scatter' && createWave(scatterSchema.scatter(refs[17].current, theme)))
+    waves.push(chart === 'scatter' && createWave(scatterSchema.bubble(refs[18].current, theme)))
     // 热力图类
-    waves.push(chart === 'matrix' && Parser.createWave(matrixSchema.rectHeatmap(refs[19].current, theme)))
-    waves.push(chart === 'matrix' && Parser.createWave(matrixSchema.circleHeatmap(refs[20].current, theme)))
+    waves.push(chart === 'matrix' && createWave(matrixSchema.rectHeatmap(refs[19].current, theme)))
+    waves.push(chart === 'matrix' && createWave(matrixSchema.circleHeatmap(refs[20].current, theme)))
     // 仪表盘
-    waves.push(chart === 'gauge' && Parser.createWave(gaugeSchema.gauge(refs[21].current, theme)))
-    waves.push(chart === 'gauge' && Parser.createWave(gaugeSchema.indicator(refs[28].current, theme)))
+    waves.push(chart === 'gauge' && createWave(gaugeSchema.gauge(refs[21].current, theme)))
+    waves.push(chart === 'gauge' && createWave(gaugeSchema.indicator(refs[28].current, theme)))
     // 折线类
-    waves.push(chart === 'line' && Parser.createWave(lineSchema.line(refs[22].current, theme)))
-    waves.push(chart === 'line' && Parser.createWave(lineSchema.stackLine(refs[23].current, theme)))
-    waves.push(chart === 'line' && Parser.createWave(lineSchema.area(refs[24].current, theme)))
-    waves.push(chart === 'line' && Parser.createWave(lineSchema.stackArea(refs[25].current, theme)))
-    waves.push(chart === 'line' && Parser.createWave(lineSchema.step(refs[26].current, theme)))
-    waves.push(chart === 'line' && Parser.createWave(lineSchema.stepArea(refs[27].current, theme)))
+    waves.push(chart === 'line' && createWave(lineSchema.line(refs[22].current, theme)))
+    waves.push(chart === 'line' && createWave(lineSchema.stackLine(refs[23].current, theme)))
+    waves.push(chart === 'line' && createWave(lineSchema.area(refs[24].current, theme)))
+    waves.push(chart === 'line' && createWave(lineSchema.stackArea(refs[25].current, theme)))
+    waves.push(chart === 'line' && createWave(lineSchema.step(refs[26].current, theme)))
+    waves.push(chart === 'line' && createWave(lineSchema.stepArea(refs[27].current, theme)))
     // 关系图类
-    waves.push(chart === 'chord' && Parser.createWave(chordSchema.chord(refs[31].current, theme)))
+    waves.push(chart === 'chord' && createWave(chordSchema.chord(refs[31].current, theme)))
   }, [theme, chart])
 
   return (

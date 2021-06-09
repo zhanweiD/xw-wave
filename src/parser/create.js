@@ -1,10 +1,10 @@
 import {isArray} from 'lodash'
-import Wave from './wave'
-import DataBase from './data/base'
-import TableList from './data/table-list'
-import Table from './data/table'
-import Random from './data/random'
-import Relation from './data/relation'
+import Wave from '../wave'
+import DataBase from '../data/base'
+import TableList from '../data/table-list'
+import Table from '../data/table'
+import Random from '../data/random'
+import Relation from '../data/relation'
 
 // 图层是否依赖其他图层
 const dependentLayers = ['auxiliary', 'legend']
@@ -84,12 +84,4 @@ function createWave(schema) {
   return wave
 }
 
-// 根据配置更新原有的图表，通常情况下改动只有一个
-function updateWave(wave, schema) {
-  console.log(wave, schema)
-}
-
-export default {
-  createWave,
-  updateWave,
-}
+export default createWave
