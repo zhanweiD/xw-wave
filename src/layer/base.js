@@ -183,7 +183,7 @@ export default class LayerBase {
     } else if (position === positionType.RIGHTBOTTOM) {
       positionY += fontSize
     }
-    return {x: positionX, y: positionY, value: formattedText}
+    return {x: positionX, y: positionY, value: formattedText, transformOrigin: `${x} ${y}`}
   }
 
   // 初始化基础事件

@@ -141,7 +141,8 @@ export default class EdgeBundleLayer extends LayerBase {
       const position = groupData.map(({x, y}) => [x, y])
       const rotation = groupData.map(({angle}) => angle)
       const textAnchor = groupData.map(item => item.textAnchor)
-      return {data, position, textAnchor, rotation, ...this.#style.text}
+      const transformOrigin = groupData.map(item => item.transformOrigin)
+      return {data, position, textAnchor, transformOrigin, rotation, ...this.#style.text}
     })
     this.drawBasic('curve', lineData)
     this.drawBasic('circle', circleData)

@@ -19,6 +19,7 @@ export default function drawText({
   textShadow = '2px 2px 2px rgba(0,0,0,0)',
   writingMode = 'horizontal', // 文字方向 enumeration ['horizontal', 'vertical']
   textAnchor = 'start', // 文字锚点 enumeration ['start', 'middle', 'end']
+  transformOrigin = null, // 影响动画和旋转
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -45,7 +46,7 @@ export default function drawText({
     fontSize: `${fontSize}px`,
     writingMode: directionMapping[writingMode],
     transform: `rotate(${Array.isArray(rotation) ? rotation[i] : rotation}deg)`,
-    transformOrigin: `${position[i][0]} ${position[i][1] - fontSize * 0.2}`,
+    transformOrigin: Array.isArray(transformOrigin) ? transformOrigin[i] : transformOrigin,
     textAnchor: Array.isArray(textAnchor) ? textAnchor[i] : textAnchor,
     textShadow,
   }))
