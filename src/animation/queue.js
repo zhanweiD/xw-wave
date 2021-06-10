@@ -89,7 +89,7 @@ export default class AnimationQueue extends AnimationBase {
    * @param {上下文环境} context
    */
   push(type, options, context) {
-    // 创建一个可以序列化的动画对象（带ID）
+    // 创建一个可以序列化的动画对象（带Id）
     const createQueueableAnimation = animation => this.animationQueue.push({
       id: options.id || createUuid(),
       instance: animation,
@@ -114,7 +114,7 @@ export default class AnimationQueue extends AnimationBase {
 
   /**
    * 移除序列中已有的一个动画
-   * @param {动画ID} id
+   * @param {动画Id} id
    */
   remove(id) {
     const index = this.animationQueue.findIndex(item => item.id === id)

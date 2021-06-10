@@ -183,11 +183,11 @@ export default class Wave {
     }
     // 根据类型创建图层
     const layer = new LayerMapping[type](options, context)
-    const layerID = options.id || createUuid()
-    this.#layer.push({id: layerID, instance: layer})
+    const layerId = options.id || createUuid()
+    this.#layer.push({id: layerId, instance: layer})
     // 销毁 layer 的时候同步删除 wave 中的实例
     layer.event.on('destroy', () => {
-      const index = this.#layer.findIndex(({id}) => id === layerID)
+      const index = this.#layer.findIndex(({id}) => id === layerId)
       this.#layer.splice(index, 1)
     })
     return layer

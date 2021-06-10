@@ -8,7 +8,7 @@ const defaultOptions = {
   duration: 2000,
   loop: false,
 }
-// 动画生成ID
+// 动画生成Id
 let count = 0
 
 // 光晕滤镜

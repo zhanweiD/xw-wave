@@ -16,7 +16,7 @@ const defaultOptions = {
   direction: directionType.RIGHT,
   loop: false,
 }
-// 动画生成ID
+// 动画生成Id
 let count = 0
 
 // 创建擦除动画所需的元素

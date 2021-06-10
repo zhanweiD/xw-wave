@@ -27,7 +27,7 @@ const defaultOptions = {
   color: 'rgba(255,255,255,0.4)',
   loop: true,
 }
-// 动画生成ID
+// 动画生成Id
 let count = 0
 
 // 根据方向确定要变换的 svg 属性
