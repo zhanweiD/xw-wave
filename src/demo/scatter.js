@@ -46,7 +46,6 @@ const createSchema = (container, theme, layout, mode) => ({
       options: {
         id: 'legend',
         layout: 'legend',
-        bind: 'scatter',
       },
       style: {
         align: 'end',

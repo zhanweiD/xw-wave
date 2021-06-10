@@ -57,7 +57,6 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
       options: {
         id: 'legend',
         layout: 'legend',
-        bind: 'arc',
       },
       style: {
         align: 'end',

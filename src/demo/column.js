@@ -56,7 +56,6 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
         options: {
           id: 'legend',
           layout: 'legend',
-          bind: ['rect', 'line'],
         },
         style: {
           align: 'end',

@@ -41,9 +41,7 @@ const createLayer = (wave, config) => {
   let customScale
   // 图例需要的数据很特殊，是一个图层的实例，以便控制数据过滤
   if (type === 'legend') {
-    dataSet = wave.layer.filter(({id}) => {
-      return isArray(options.bind) ? options.bind.find(value => value === id) : id === options.bind
-    }).map(({instance}) => instance)
+    dataSet = wave.layer.filter(({instance}) => instance.data instanceof TableList).map(({instance}) => instance)
   } else if (isDependentLayer(type)) {
     customScale = wave.layer.find(({id}) => id === options.bind).instance.scale
   }
