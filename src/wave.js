@@ -155,7 +155,7 @@ export default class Wave {
    * @param {Array} customColors 自定义颜色覆盖主题色
    */
   getColor(count, customColors) {
-    let colors = customColors || this.theme
+    let colors = (Array.isArray(customColors) ? customColors : [customColors]) || this.theme
     // 主题色的取色逻辑
     if (colors.length > 2 && !customColors) {
       colors.length > 2 && count <= 3 && (colors = colors.slice(2, 7))
