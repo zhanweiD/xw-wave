@@ -42,7 +42,7 @@ export default class EdgeBundleLayer extends LayerBase {
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
-    this.className = 'wave-sankey'
+    this.className = 'wave-edge-bundle'
   }
 
   // 传入列表类，三列分别为起点终点和数值

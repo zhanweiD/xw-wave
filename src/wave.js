@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import chroma from 'chroma-js'
+import createEvent from './util/create-event'
 import standardLayout from './layout/standard'
 import TextLayer from './layer/text'
 import AxisLayer from './layer/axis'
@@ -14,7 +15,6 @@ import ScatterLayer from './layer/scatter'
 import MatrixLayer from './layer/matrix'
 import GaugeLayer from './layer/gauge'
 import EdgeBundleLayer from './layer/edge-bundle'
-import createEvent from './util/create-event'
 
 // 图表状态
 const stateType = {
@@ -89,7 +89,7 @@ export default class Wave {
     width = 100,
     height = 100,
     padding = [40, 40, 40, 40],
-    adjust = 'auto',
+    adjust = true,
     theme = ['white', 'black'],
     baseFontSize = 1,
     layout = standardLayout,
@@ -100,13 +100,13 @@ export default class Wave {
     this.#container = d3.select(container)
 
     // 确定图表宽高
-    if (adjust === 'auto') {
+    if (adjust) {
       const rect = this.#container._groups[0][0].getBoundingClientRect()
       this.#containerWidth = rect.width
       this.#containerHeight = rect.height
     } else {
       this.#containerWidth = width
-      this.#containerWidth = height
+      this.#containerHeight = height
     }
 
     // 确定主绘图区域的内边距
