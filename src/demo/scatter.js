@@ -135,7 +135,7 @@ const createSchema = (container, theme, layout, mode) => ({
         column: 3,
         mu: 400,
         sigma: 200,
-        decimalNumber: 1,
+        decimalPlace: 1,
       },
       scale: {
         count: 4,

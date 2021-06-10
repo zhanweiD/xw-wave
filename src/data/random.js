@@ -14,9 +14,9 @@ const toFixed = (number, decimal) => {
 
 // 列表类数据
 const tableList = options => {
-  const {mode, row, column, decimalNumber} = options
+  const {mode, row, column, decimalPlace} = options
   const getNumber = mapping[mode](options)
-  const numbers = new Array(row * column).fill().map(() => toFixed(getNumber(), decimalNumber))
+  const numbers = new Array(row * column).fill().map(() => toFixed(getNumber(), decimalPlace))
   const headers = ['维度'].concat(new Array(column).fill().map((v, i) => `第${i + 1}类`))
   const lists = new Array(row).fill().map((v, i) => [`第${i + 1}项`].concat(numbers.slice(i * column, (i + 1) * column)))
   return [headers, ...lists]
@@ -24,9 +24,9 @@ const tableList = options => {
 
 // 表格数据
 const table = options => {
-  const {mode, row, column, decimalNumber} = options
+  const {mode, row, column, decimalPlace} = options
   const getNumber = mapping[mode](options)
-  const numbers = new Array(row).fill().map(() => new Array(column).fill().map(() => toFixed(getNumber(), decimalNumber)))
+  const numbers = new Array(row).fill().map(() => new Array(column).fill().map(() => toFixed(getNumber(), decimalPlace)))
   const rows = new Array(row).fill().map((v, i) => `第${i + 1}行`)
   const columns = new Array(column).fill().map((v, i) => `第${i + 1}列`)
   return [rows, columns, numbers]

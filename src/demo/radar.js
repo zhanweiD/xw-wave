@@ -91,7 +91,7 @@ const createSchema = (container, theme, layout, mode) => ({
         column: 3,
         mu: 500,
         sigma: 200,
-        decimalNumber: 1,
+        decimalPlace: 1,
       },
       style: {
         pointSize: 5,

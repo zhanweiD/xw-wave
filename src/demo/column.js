@@ -120,7 +120,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           column: 3,
           mu: 500,
           sigma: 200,
-          decimalNumber: 1,
+          decimalPlace: 1,
         },
         scale: {
           count: 5,
@@ -200,7 +200,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
       column: 3,
       mu: 1000,
       sigma: 300,
-      decimalNumber: 1,
+      decimalPlace: 1,
     },
     style: {
       labelPosition: 'top',

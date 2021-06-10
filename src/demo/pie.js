@@ -85,7 +85,7 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
         column: 3,
         mu: 500,
         sigma: 200,
-        decimalNumber: 1,
+        decimalPlace: 1,
       },
       style: {
         labelPosition: type === 'nightingaleRose' ? 'outer' : 'inner',

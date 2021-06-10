@@ -103,7 +103,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         column: 3,
         mu: 500,
         sigma: 200,
-        decimalNumber: 1,
+        decimalPlace: 1,
       },
       style: {
         labelPosition: 'top',

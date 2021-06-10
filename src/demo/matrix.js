@@ -67,7 +67,7 @@ const createSchema = (container, theme, layout, mode) => ({
         column: 8,
         mu: 1000,
         sigma: 400,
-        decimalNumber: 1,
+        decimalPlace: 1,
       },
       scale: {
         paddingInner: 0,
