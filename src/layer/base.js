@@ -7,6 +7,7 @@ import drawPolygon from '../basic/polygon'
 import drawRect from '../basic/rect'
 import drawText from '../basic/text'
 import drawArea from '../basic/area'
+import drawRibbon from '../basic/ribbon'
 import createEvent from '../util/create-event'
 import AnimationQueue from '../animation/queue'
 import Tooltip, {globalTooltip} from './tooltip'
@@ -37,6 +38,7 @@ const basicMapping = {
   rect: drawRect,
   text: drawText,
   area: drawArea,
+  ribbon: drawRibbon,
 }
 
 // 基础元素支持哪些动画（某些动画并非覆盖所有元素）
@@ -53,7 +55,7 @@ const animationMapping = {
 
 // 其他常量
 export const scaleTypes = ['scaleX', 'scaleY', 'scaleYR', 'scaleAngle', 'scaleRadius', 'scaleColor']
-export const elTypes = ['arc', 'circle', 'curve', 'line', 'polygon', 'rect', 'text', 'area']
+export const elTypes = ['arc', 'circle', 'curve', 'line', 'polygon', 'rect', 'text', 'area', 'ribbon']
 export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
 export const tooltipEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'blur']
 

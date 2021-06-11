@@ -15,6 +15,7 @@ import ScatterLayer from './layer/scatter'
 import MatrixLayer from './layer/matrix'
 import GaugeLayer from './layer/gauge'
 import EdgeBundleLayer from './layer/edge-bundle'
+import ChordLayer from './layer/chord'
 
 // 图表状态
 const stateType = {
@@ -52,6 +53,7 @@ const LayerMapping = {
   matrix: MatrixLayer, // 矩阵
   gauge: GaugeLayer, // 仪表盘
   edgeBundle: EdgeBundleLayer, // 边缘捆图
+  chord: ChordLayer, // 和弦图
 }
 
 // 图表类主要用于管理图层

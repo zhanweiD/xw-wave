@@ -80,7 +80,8 @@ export default function Example() {
     waves.push(chart === 'line' && createWave(lineSchema.step(refs[26].current, themeColors)))
     waves.push(chart === 'line' && createWave(lineSchema.stepArea(refs[27].current, themeColors)))
     // 关系图类
-    waves.push(chart === 'chord' && createWave(chordSchema.chord(refs[31].current, themeColors)))
+    waves.push(chart === 'chord' && createWave(chordSchema.edgeBundle(refs[31].current, themeColors)))
+    waves.push(chart === 'chord' && createWave(chordSchema.chord(refs[32].current, themeColors)))
   }, [theme, chart])
 
   return (
@@ -134,6 +135,7 @@ export default function Example() {
           {chart === 'line' && <div className={s.wave} ref={refs[26]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[27]} />}
           {chart === 'chord' && <div className={s.wave} ref={refs[31]} />}
+          {chart === 'chord' && <div className={s.wave} ref={refs[32]} />}
         </div>
       </div>
     </div>

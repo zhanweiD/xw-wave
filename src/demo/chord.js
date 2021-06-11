@@ -1,7 +1,12 @@
 import {getStandardLayoutWithBrush} from '../layout/standard'
 
+const titleMapping = {
+  chord: '和弦图',
+  edgeBundle: '边缘捆图',
+}
+
 // 柱状图配置数据生成
-const createSchema = (container, theme, layout) => {
+const createSchema = (container, theme, layout, type) => {
   const schema = {
     // 容器
     container,
@@ -29,7 +34,7 @@ const createSchema = (container, theme, layout) => {
           id: 'title',
           layout: 'title',
         },
-        data: '弦图',
+        data: titleMapping[type],
         style: {
           text: {
             fontSize: 16,
@@ -37,12 +42,21 @@ const createSchema = (container, theme, layout) => {
         },
       },
       {
-        type: 'edgeBundle',
+        type,
         options: {
-          id: 'edgeBundle',
+          id: type,
           layout: 'main',
         },
-        data: [nodes, links],
+        data: type === 'edgeBundle' ? [nodes, links] : {
+          type: 'table',
+          mode: 'poisson', 
+          row: 10,
+          column: 10,
+          lambda: 40,
+          mu: 1000,
+          sigma: 400,
+          decimalPlace: 1,
+        },
         style: {
           text: {
             fontSize: 12,
@@ -53,7 +67,7 @@ const createSchema = (container, theme, layout) => {
         },
         tooltip: {
           mode: 'single',
-          targets: ['circle'],
+          targets: ['circle', 'arc'],
         },
       },
     ],
@@ -62,7 +76,8 @@ const createSchema = (container, theme, layout) => {
 }
 
 export default {
-  chord: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush),
+  edgeBundle: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'edgeBundle'),
+  chord: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'chord'),
 }
 
 export const nodes = [
