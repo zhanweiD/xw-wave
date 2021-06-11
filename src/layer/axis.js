@@ -17,11 +17,10 @@ const defaultStyle = {
   line: {
     stroke: 'white',
     strokeWidth: 1,
-    fillOpacity: 0,
-    opacity: 0.2,
+    strokeOpacity: 0.2,
   },
   text: {
-    opacity: 0.8,
+    fillOpacity: 0.8,
     fontSize: 8,
   },
 }

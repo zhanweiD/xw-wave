@@ -4,7 +4,6 @@ import LayerBase from './base'
 // 默认样式
 const defaultStyle = {
   arcWidth: 10,
-  circleSize: [5, 20],
   labelOffset: 5,
   ribbon: {
     fillOpacity: 0.7,

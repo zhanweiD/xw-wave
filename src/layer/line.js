@@ -30,7 +30,7 @@ const defaultStyle = {
   },
   area: {
     hide: true,
-    opacity: 0.2,
+    fillOpacity: 0.2,
   },
 }
 
