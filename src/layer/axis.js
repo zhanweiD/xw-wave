@@ -18,6 +18,7 @@ const defaultStyle = {
     stroke: 'white',
     strokeWidth: 1,
     strokeOpacity: 0.2,
+    fillOpacity: 0,
   },
   text: {
     fillOpacity: 0.8,
@@ -66,7 +67,7 @@ export default class AxisLayer extends LayerBase {
 
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
-    const {type = axisType.HORIZONTAL} = this.options
+    const {type = axisType.CARTESIAN} = this.options
     this.className = `wave-${type}-axis`
   }
 
@@ -94,7 +95,7 @@ export default class AxisLayer extends LayerBase {
   setData(data, scale) {
     this.#lineData = []
     this.#mergeScale(scale)
-    const {type = axisType.HORIZONTAL, layout} = this.options
+    const {type = axisType.CARTESIAN, layout} = this.options
     const {left, top, width, height} = layout
     // 水平坐标轴（垂直线分割宽度）
     if (type === axisType.HORIZONTAL || type === axisType.CARTESIAN) {
@@ -163,7 +164,7 @@ export default class AxisLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {labelOffset, text} = this.#style
     const {fontSize = 12, format} = text
-    const {type} = this.options
+    const {type = axisType.CARTESIAN} = this.options
     this.#textData = this.#lineData.map(({value, x1, y1, x2, y2, cx, cy, rx, angle}, i) => {
       const basicTextData = {value, fontSize, format, offset: labelOffset}
       // X轴坐标在线的正下方
@@ -194,7 +195,7 @@ export default class AxisLayer extends LayerBase {
 
   // 绘制
   draw() {
-    const {type} = this.options
+    const {type = axisType.CARTESIAN} = this.options
     const {scaleX, scaleY} = this.#scale
     const lineData = [{
       position: this.#lineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
