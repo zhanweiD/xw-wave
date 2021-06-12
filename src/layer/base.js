@@ -86,8 +86,6 @@ export default class LayerBase {
     this.tooltip && this.tooltip.destroy()
     // dom 元素销毁
     this.root.remove()
-    // 通知 wave 删除这个图层实例
-    this.event.fire('destroy')
   }
 
   /**

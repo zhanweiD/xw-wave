@@ -175,6 +175,21 @@ export default class Wave {
   }
 
   /**
+   * 给图层注册生命周期函数事件
+   * @param {LayerBase} layer 
+   */
+  registerLifeCircle(layer) {
+    const lifeCircles = ['setData', 'setStyle', 'draw', 'destory']
+    lifeCircles.forEach(name => {
+      const fn = layer[name]
+      layer[name] = (...parameter) => {
+        layer.event.fire(name, {...parameter})
+        fn.call(layer, ...parameter)
+      }
+    })
+  }
+
+  /**
    * 创建一个图层
    * @param {String} type 图层类型
    * @param {Object} options 图层配置参数
@@ -195,6 +210,7 @@ export default class Wave {
     const layer = new LayerMapping[type](options, context)
     const layerId = options.id || createUuid()
     this.#layer.push({id: layerId, instance: layer})
+    this.registerLifeCircle(layer)
     // 销毁 layer 的时候同步删除 wave 中的实例
     layer.event.on('destroy', () => {
       const index = this.#layer.findIndex(({id}) => id === layerId)

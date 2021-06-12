@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 
 const defaultNice = {
   count: 5, // 优化的刻度数量
-  zero: false, // 值域是否包含 0
+  zero: false, // 定义域是否包含 0
   paddingInner: 0.382, // band 比例尺间距占比
   fixedPaddingInner: null, // band 比例尺固定间距
   fixedBandWidth: null, // band 比例尺固定带宽
@@ -104,7 +104,6 @@ const extendZero = scale => {
  * d3 的 nice 通常不是图表想要的，自定义 nice 函数
  * @param {Scale} scale 比例尺
  * @param {Number} tickCount 刻度线数量
- * @returns 优化后的比例尺
  */
 const niceScale = (scale, tickCount) => {
   // 数据同质判断
@@ -150,5 +149,4 @@ const niceScale = (scale, tickCount) => {
     // 优化定义域
     scale.domain(reverse ? [newEnd, newStart] : [newStart, newEnd])
   }
-  return scale
 }
