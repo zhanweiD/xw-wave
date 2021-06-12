@@ -226,11 +226,10 @@ export default class Wave {
    */
   bindCoordinate(axisLayer, layers) {
     // 比例尺融合
+    layers = layers.filter(layer => layer.scale && layer.options.axis)
     layers.forEach(({scale, options}) => {
       const result = {}
       const {axis} = options
-      // 没有指定坐标轴的默认不支持坐标轴
-      if (!axis) return
       // 直角坐标
       if (this.coordinate.search('cartesian') !== -1) {
         result.scaleX = scale.scaleX
