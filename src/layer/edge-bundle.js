@@ -8,7 +8,7 @@ const defaultStyle = {
   labelOffset: 5,
   text: {},
   line: {
-    strokeWidth: 0.5,
+    strokeWidth: 1,
   },
   circle: {},
 }

@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import chroma from 'chroma-js'
 import createEvent from './util/create-event'
+import createLog from './util/create-log'
 import standardLayout from './layout/standard'
 import TextLayer from './layer/text'
 import AxisLayer from './layer/axis'
@@ -141,6 +142,7 @@ export default class Wave {
     this.coordinate = coordinate
     this.baseFontSize = baseFontSize
     this.event = createEvent(__filename)
+    this.log = createLog(__filename)
   }
 
   /**
@@ -283,10 +285,10 @@ export default class Wave {
    * 图表报错生命周期
    * @param {String} text 报错信息
    */
-  warn({text, data}) {
-    this.#state = stateType.WARN
+  warn(text, data) {
     this.#root.html('')
-    console.error(text, data)
+    this.#state = stateType.WARN
+    this.log.error(text, data)
   }
 
   // 销毁所有图层

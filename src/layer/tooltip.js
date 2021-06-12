@@ -84,8 +84,8 @@ export default class Tooltip {
         const groupData = backup[elType].filter(({source}) => isEqual(source[0].dimension, data.source.dimension))[0]
         const {source, fill, stroke} = groupData
         list = source.map((item, i) => ({...item, pointColor: isArray(fill) ? fill[i] : stroke[i]}))
-      } catch (e) {
-        this.log.warn('此图表不支持分组 Tooltip 展示', e)
+      } catch (error) {
+        this.log.warn('此图表不支持分组展示数据', error)
       }
     }
     // 当且仅当数据变化时进行渲染

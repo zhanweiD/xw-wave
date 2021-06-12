@@ -76,8 +76,8 @@ function createWave(schema) {
     // 根据 schema 配置的顺序进行绘制，绘制之后添加添加笔刷，然后是动画和 tooltip
     layers.map(({options}) => wave.layer.find(({id}) => id === options.id).instance.draw())
     brush && wave.createBrush({...brush, layout: wave.layout[brush.layout]})
-  } catch (e) {
-    console.error('图层配置解析错误，初始化失败', e)
+  } catch (error) {
+    console.error('图层配置解析错误，初始化失败', error)
   }
   return wave
 }

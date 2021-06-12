@@ -35,7 +35,7 @@ const chartMapping = {
 
 export default function Example() {
   const [theme, setTheme] = useState('fairyLand')
-  const [chart, setChart] = useState('chord')
+  const [chart, setChart] = useState('column')
   const containerStyle = {background: ThemeConfig[theme].background}
   const refs = range(1, 100, 1).map(() => useRef(null))
 

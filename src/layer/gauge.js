@@ -70,8 +70,8 @@ export default class GaugeLayer extends LayerBase {
           minValue: data.fragments[0][0], 
           maxValue: data.fragments[data.fragments.length - 1][1],
         }
-      } catch (e) {
-        this.warn(e.message, data)
+      } catch (error) {
+        this.warn(error.message, data)
       }
     }
   }

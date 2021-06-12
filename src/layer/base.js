@@ -54,8 +54,8 @@ const animationMapping = {
 }
 
 // 其他常量
+export const elTypes = Object.keys(basicMapping)
 export const scaleTypes = ['scaleX', 'scaleY', 'scaleYR', 'scaleAngle', 'scaleRadius', 'scaleColor']
-export const elTypes = ['arc', 'circle', 'curve', 'line', 'polygon', 'rect', 'text', 'area', 'ribbon']
 export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
 export const tooltipEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'blur']
 
@@ -73,16 +73,22 @@ export default class LayerBase {
     this.className = null
     this.mainColor = null
     this.#createEvent()
-    this.warn = this.options.warn
+    this.warn = (text, data) => this.options.warn(text, data)
     this.event = createEvent(__filename)
     elTypes.forEach(name => this.#backupData[name] = [])
   }
 
-  // 数据处理
-  setData() { this.warn('此图层的 setData 函数未重写') }
-
-  // 样式处理
-  setStyle() { this.warn('此图层的 setStyle 函数未重写') }
+  // 销毁图层
+  destroy() {
+    // 动画资源销毁
+    elTypes.forEach(name => this.animation[name]?.destroy())
+    // tooltip 实例销毁
+    this.tooltip && this.tooltip.destroy()
+    // dom 元素销毁
+    this.root.remove()
+    // 通知 wave 删除这个图层实例
+    this.event.fire('destroy')
+  }
 
   /**
    * 颜色增强函数
@@ -220,7 +226,7 @@ export default class LayerBase {
     })
   }
 
-  // 配置事件推迟到下个事件循环执行
+  // 元素渲染后进行配置
   setEvent = elType => {
     setTimeout(() => {
       const els = this.root.selectAll(`.wave-basic-${elType}`).style('cursor', 'pointer')
@@ -228,17 +234,27 @@ export default class LayerBase {
     }, 0)
   }
 
-  // 配置 tooltip 迟到下个事件循环执行
+  // 元素渲染后进行配置
   setTooltip(options) {
-    // 初始化 tooltip 实例
+    // 初始化实例对象
     if (!options.rebind && !this.tooltip) {
       this.tooltip = new Tooltip(this.options.container, options)
     }
-    // 为元素绑定 tooltip 事件
+    // 为元素绑定事件
     this.tooltip && this.tooltip.options.targets.forEach(elType => setTimeout(() => {
       const els = this.root.selectAll(`.wave-basic-${elType}`)
       tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
     }, 0))
+  }
+
+  /**
+   * 控制整个图层的显示和隐藏
+   * @param {Boolean} isVisiable 隐藏参数
+   * @param {String} elType 元素类型可缺省
+   */
+  setVisible(isVisiable, elType) {
+    const targets = elTypes.find(elType) ? this.root.selectAll(`.${this.className}-${elType}`) : this.root
+    targets.style('display', isVisiable ? 'block' : 'none')
   }
 
   /**
@@ -280,28 +296,6 @@ export default class LayerBase {
       this.animation[name].event.on('end', data => this.event.fire(`${name}-animation-end`, data))
     })
     return () => elTypes.forEach(type => this.animation[type] && this.animation[type].play())
-  }
-
-  // 销毁图层
-  destroy() {
-    // 动画资源销毁
-    elTypes.forEach(name => this.animation[name]?.destroy())
-    // tooltip 实例销毁
-    this.tooltip && this.tooltip.destroy()
-    // dom 元素销毁
-    this.root.remove()
-    // 通知 wave 删除这个图层实例
-    this.event.fire('destroy')
-  }
-
-  /**
-   * 控制整个图层的显示和隐藏
-   * @param {Boolean} isVisiable 隐藏参数
-   * @param {String} elType 元素类型可缺省
-   */
-  setVisible(isVisiable, elType) {
-    const targets = elTypes.find(elType) ? this.root.selectAll(`.${this.className}-${elType}`) : this.root
-    targets.style('display', isVisiable ? 'block' : 'none')
   }
 
   /**

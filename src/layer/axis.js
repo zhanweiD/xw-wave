@@ -80,7 +80,7 @@ export default class AxisLayer extends LayerBase {
       } else if (this.#scale[type].type === 'linear') {
         const [current, incoming] = [this.#scale[type].domain(), scales[type].domain()]
         if (current[0] > current[1] !== incoming[0] > incoming[1]) {
-          this.warn({text: '图层组合错误：比例尺不匹配'})
+          this.warn('图层比例尺不匹配', {current, incoming})
         } else {
           const isReverse = current[0] > current[1]
           const start = isReverse ? Math.max(current[0], incoming[0]) : Math.min(current[0], incoming[0])

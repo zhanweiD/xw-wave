@@ -100,9 +100,13 @@ export default class LegendLayer extends LayerBase {
       const subData = data.select(subHeaders)
       data.data.slice(1).map(({header}) => header).forEach((header, i) => order[header] = i)
       subData.options.order = order
-      layer.setData(subData)
-      layer.setStyle()
-      layer.draw()
+      try {
+        layer.setData(subData)
+        layer.setStyle()
+        layer.draw()
+      } catch (error) {
+        this.warn('图例数据过滤错误', {error, data: subData})
+      }
       // 更新图例
       this.setStyle()
       this.draw()
