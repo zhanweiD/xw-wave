@@ -14,7 +14,7 @@ const toFixed = (number, decimal) => {
 
 // 列表类数据
 const tableList = options => {
-  const {mode, row, column, decimalPlace} = options
+  const {mode, row, column, decimalPlace = 0} = options
   const getNumber = mapping[mode](options)
   const numbers = new Array(row * column).fill().map(() => toFixed(getNumber(), decimalPlace))
   const headers = ['维度'].concat(new Array(column).fill().map((v, i) => `第${i + 1}类`))

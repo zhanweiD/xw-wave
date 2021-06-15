@@ -73,6 +73,8 @@ export default class Wave {
 
   #root = null
 
+  #schedule = null
+
   #layer = []
 
   get state() {
@@ -287,6 +289,35 @@ export default class Wave {
     // 确定笔刷区域
     const brushDOM = this.#root.append('g').attr('class', 'wave-brush').call(brush)
     brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
+  }
+
+  /**
+   * 图表许多函数有前后依赖的调用关系，提供一个函数方便统一管理
+   * @param {String} type // 函数类型
+   * @param {Function} action // 动作函数
+   * @param {Boolean} fire // 是否触发
+   */
+  schedule(type, action, fire = false) {
+    const types = {
+      sync: ['setData', 'setStyle', 'draw'],
+      async: ['setEvent', 'setTooltip', 'crateBrush'],
+    }
+    // 初始化图层生命周期集合
+    if (!this.#schedule) {
+      this.#schedule = {}
+      types.sync.forEach(name => this.#schedule[name] === [])
+      types.async.forEach(name => this.#schedule[name] === [])
+    }
+    // 添加一个新的动作
+    if (this.#schedule[type]) {
+      this.#schedule[type].push(action)
+    }
+    // 触发注册的动作并删除
+    if (fire) {
+      types.sync.forEach(name => this.#schedule[name].forEach(fn => fn()))
+      types.async.forEach(name => this.#schedule[name].forEach(fn => setTimeout(fn, 0)))
+      this.#schedule = null
+    }
   }
 
   // 重绘制所有图层
