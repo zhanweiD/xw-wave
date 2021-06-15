@@ -293,14 +293,14 @@ export default class Wave {
 
   /**
    * 图表许多函数有前后依赖的调用关系，提供一个函数方便统一管理
-   * @param {String} type // 函数类型
-   * @param {Function} action // 动作函数
-   * @param {Boolean} fire // 是否触发
+   * @param {String} type 函数类型
+   * @param {Function} action 动作函数
+   * @param {Boolean} fire 是否触发
    */
   schedule(type, action, fire = false) {
     const types = {
-      sync: ['setData', 'setStyle', 'draw'],
-      async: ['setEvent', 'setTooltip', 'crateBrush'],
+      sync: ['data', 'style', 'draw'],
+      async: ['event', 'tooltip', 'animation', 'brush'],
     }
     // 初始化图层生命周期集合
     if (!this.#schedule) {
