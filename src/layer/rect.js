@@ -102,9 +102,8 @@ export default class RectLayer extends LayerBase {
         nice: this.#scale.nice,
       }),
     }, this.#scale, scales)
-    // 计算基础数据，nice 为 false 是为了确保得到相同的比例尺
-    const {scaleX, scaleY} = this.#scale
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
+    const {scaleX, scaleY} = this.#scale
     this.#rectData = pureTableList.map(([dimension, ...values]) => {
       return values.map((value, i) => ({
         value,

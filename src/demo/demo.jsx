@@ -10,6 +10,7 @@ import matrixSchema from './matrix'
 import gaugeSchema from './gauge'
 import lineSchema from './line'
 import chordSchema from './chord'
+import sankeySchema from './sankey'
 import {createWave} from '../parser'
 import s from './demo.module.css'
 
@@ -30,7 +31,7 @@ const chartMapping = {
   scatter: '点图',
   matrix: '矩阵图',
   gauge: '仪表盘',
-  chord: '关系图',
+  relation: '关系图',
 }
 
 export default function Example() {
@@ -80,8 +81,9 @@ export default function Example() {
     waves.push(chart === 'line' && createWave(lineSchema.step(refs[26].current, themeColors)))
     waves.push(chart === 'line' && createWave(lineSchema.stepArea(refs[27].current, themeColors)))
     // 关系图类
-    waves.push(chart === 'chord' && createWave(chordSchema.edgeBundle(refs[31].current, themeColors)))
-    waves.push(chart === 'chord' && createWave(chordSchema.chord(refs[32].current, themeColors)))
+    waves.push(chart === 'relation' && createWave(chordSchema.edgeBundle(refs[31].current, themeColors)))
+    waves.push(chart === 'relation' && createWave(chordSchema.chord(refs[32].current, themeColors)))
+    waves.push(chart === 'relation' && createWave(sankeySchema.sankey(refs[33].current, themeColors)))
   }, [theme, chart])
 
   return (
@@ -134,8 +136,9 @@ export default function Example() {
           {chart === 'line' && <div className={s.wave} ref={refs[25]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[26]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[27]} />}
-          {chart === 'chord' && <div className={s.wave} ref={refs[31]} />}
-          {chart === 'chord' && <div className={s.wave} ref={refs[32]} />}
+          {chart === 'relation' && <div className={s.wave} ref={refs[31]} />}
+          {chart === 'relation' && <div className={s.wave} ref={refs[32]} />}
+          {chart === 'relation' && <div className={s.wave} ref={refs[33]} />}
         </div>
       </div>
     </div>

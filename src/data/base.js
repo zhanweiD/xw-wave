@@ -5,6 +5,8 @@ import createLog from '../util/create-log'
 export default class DataBase {
   #storage = {}
 
+  #log = createLog(__filename)
+
   // 是否为列表数据
   static isTableList = tableList => {
     if (!Array.isArray(tableList) 
@@ -37,7 +39,6 @@ export default class DataBase {
   // 初始化数据，order 定义每组数据的优先级，可以决定颜色的选取顺序
   constructor(options) {
     this.options = merge({order: null}, options)
-    this.log = createLog(__filename)
   }
 
   /**
@@ -142,6 +143,6 @@ export default class DataBase {
    * @param {String} text 报错文字
    */
   warn(text, data) {
-    this.log.error(text, data)
+    this.#log.error(text, data)
   }
 }

@@ -1,4 +1,4 @@
-import {getStandardLayoutWithBrush} from '../layout/standard'
+import standardLayout from '../layout/standard'
 
 const titleMapping = {
   chord: '和弦图',
@@ -19,7 +19,7 @@ const createSchema = (container, theme, layout, type) => {
     // 容器高，自适应为 auto 时无效
     height: 100,
     // 主绘图图层的内边距
-    padding: [60, 40, 40, 40],
+    padding: [80, 80, 80, 80],
     // 这个 layout 应该是一个生成函数
     layout,
     // 声明坐标系
@@ -76,8 +76,8 @@ const createSchema = (container, theme, layout, type) => {
 }
 
 export default {
-  edgeBundle: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'edgeBundle'),
-  chord: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'chord'),
+  edgeBundle: (container, theme) => createSchema(container, theme, standardLayout, 'edgeBundle'),
+  chord: (container, theme) => createSchema(container, theme, standardLayout, 'chord'),
 }
 
 export const nodes = [

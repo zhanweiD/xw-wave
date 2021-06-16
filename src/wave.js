@@ -17,6 +17,7 @@ import MatrixLayer from './layer/matrix'
 import GaugeLayer from './layer/gauge'
 import EdgeBundleLayer from './layer/edge-bundle'
 import ChordLayer from './layer/chord'
+import SankeyLayer from './layer/sankey'
 
 // 图表状态
 const stateType = {
@@ -55,6 +56,7 @@ const LayerMapping = {
   gauge: GaugeLayer, // 仪表盘
   edgeBundle: EdgeBundleLayer, // 边缘捆图
   chord: ChordLayer, // 和弦图
+  sankey: SankeyLayer, // 桑基图
 }
 
 // 图表类主要用于管理图层

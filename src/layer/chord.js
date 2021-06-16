@@ -45,8 +45,8 @@ export default class ChordLayer extends LayerBase {
   }
 
   // 传入表格关系型数据
-  setData(relation) {
-    this.#data = relation || this.#data
+  setData(table) {
+    this.#data = table || this.#data
     const [categorys, matrix] = [this.#data.data[0], this.#data.data[2]]
     const chordData = d3.chord().padAngle(Math.PI / 10 / categorys.length)(matrix)
     this.#ribbonData = chordData
@@ -122,7 +122,7 @@ export default class ChordLayer extends LayerBase {
       const position = groupData.map(item => item.position)
       const data = groupData.map(item => item.data)
       const fill = groupData.map(({color}) => color)
-      return {data, position, ...this.#style.ribbon, fill}
+      return {type: 'chord', data, position, ...this.#style.ribbon, fill}
     })
     const textData = [{
       data: this.#textData.map(({value}) => value),

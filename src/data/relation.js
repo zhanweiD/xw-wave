@@ -1,6 +1,7 @@
+import * as d3 from 'd3'
 import DataBase from './base'
 
-// 列表数据处理工具，内部 data 数据依次为行标签、列标签、数值
+// 关系型数据处理工具
 export default class Relation extends DataBase {
   constructor(nodeTableList, linkTableList, options) {
     super(options)
@@ -19,10 +20,12 @@ export default class Relation extends DataBase {
       this.warn('数据结构错误', {nodeTableList, linkTableList})
     } else {
       // 节点数据
+      const nodeIdIndex = nodeTableList[0].findIndex(value => value === 'id')
       const nodeNameIndex = nodeTableList[0].findIndex(value => value === 'name')
       const nodeValueIndex = nodeTableList[0].findIndex(value => value === 'value')
       const nodeCategoryIndex = nodeTableList[0].findIndex(value => value === 'category')
       this.data.nodes = nodeTableList.slice(1).map(item => ({
+        id: item[nodeIdIndex] || item[nodeNameIndex],
         name: item[nodeNameIndex],
         value: item[nodeValueIndex],
         category: item[nodeCategoryIndex],
@@ -32,11 +35,66 @@ export default class Relation extends DataBase {
       const linkToIndex = linkTableList[0].findIndex(value => value === 'to')
       const linkValueIndex = linkTableList[0].findIndex(value => value === 'value')
       this.data.links = linkTableList.slice(1).map(item => ({
+        value: item[linkValueIndex],
         from: item[linkFromIndex],
         to: item[linkToIndex],
-        value: item[linkValueIndex],
       }))
+      // 如果节点自己没有自己定义数据，则从边中找
+      if (nodeValueIndex === -1 && linkValueIndex !== -1) {
+        this.data.nodes.forEach(node => {
+          const froms = this.data.links.filter(({from}) => from === node.id).map(({value}) => value)
+          const tos = this.data.links.filter(({to}) => to === node.id).map(({value}) => value)
+          node.value = d3.max([d3.sum(froms), d3.sum(tos)])
+        })
+      }
+      // 衍生数据
+      this.#computeLevel()
     }
     return this
+  }
+
+  /**
+   * 根据 from 和 to 的值获取节点的前后依赖关系
+   * @returns 层级描述对象
+   */
+  #computeLevel = () => {
+    const roots = []
+    const level = {}
+    const comeleted = {}
+    this.data.nodes.forEach(({id}) => comeleted[id] = false)
+    this.data.nodes.forEach(({id}) => level[id] = -1)
+    // 寻找当前节点的根节点
+    const findRoot = id => {
+      const prevIds = this.data.links.filter(({to}) => to === id).map(({from}) => from)
+      if (prevIds.length === 0) {
+        !comeleted[id] && roots.push(id)
+      } else {
+        prevIds.forEach(prevId => !comeleted[prevId] && findRoot(prevId))
+      }
+      comeleted[id] = true
+    }
+    // 层级计算函数
+    const updateLevel = (id, parents) => {
+      const nextIds = this.data.links.filter(({from}) => from === id).map(({to}) => to)
+      // 初始化当前根节点
+      if (level[id] === -1) {
+        parents.push(id)
+        level[id] = 0
+      }
+      // 根据链路更新层级
+      nextIds.length && nextIds.forEach(nextId => {
+        if (level[nextId] === -1) {
+          level[nextId] = level[id] + 1
+        } else if (level[nextId] - level[id] !== 1) {
+          // 如果子节点和当前节点的层级不是上下级关系，则更新子节点的所有祖先节点
+          parents.map(prevId => level[prevId] += level[nextId] - level[id] - 1)
+        }
+        // 递归计算节点层级
+        updateLevel(nextId, parents)
+      })
+    }
+    this.data.links.forEach(({from}) => findRoot(from))
+    roots.forEach(root => updateLevel(root, []))
+    this.data.nodes.map(node => node.level = level[node.id])
   }
 }
