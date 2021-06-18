@@ -109,7 +109,6 @@ export default class RadarLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {pointSize = 2} = this.#style
-    const {fontSize = 12, format} = this.#style.text
     // 颜色跟随主题
     const colors = this.getColor(this.#polygonData[0].length, this.#style.polygon?.fill, true)
     this.#polygonData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
@@ -127,7 +126,7 @@ export default class RadarLayer extends LayerBase {
     // 标签文字数据
     this.#textData = this.#polygonData.map(groupData => groupData.map(({value, x, y, angle}) => {
       const isRight = Math.abs(angle % (2 * Math.PI)) < Math.PI
-      return this.createText({value, x, y, fontSize, format, position: isRight ? 'right' : 'left'})
+      return this.createText({value, x, y, style: this.#style.text, position: isRight ? 'right' : 'left'})
     }))
   }
 

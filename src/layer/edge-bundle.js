@@ -91,7 +91,6 @@ export default class EdgeBundleLayer extends LayerBase {
     const {left, top, width, height} = this.options.layout
     const [centerX, centerY] = [left + width / 2, top + height / 2]
     const {circleSize, labelOffset, text} = this.#style
-    const {fontSize, format} = text
     const sizeScale = new Scale({
       type: 'linear',
       domain: [this.#data.get('minValue'), this.#data.get('maxValue')],
@@ -117,7 +116,7 @@ export default class EdgeBundleLayer extends LayerBase {
       const totalRadius = r + radius + labelOffset
       const textAnchor = angle > Math.PI ? 'end' : 'start'
       const [x, y] = [Math.sin(angle) * totalRadius + centerX, centerY - Math.cos(angle) * totalRadius]
-      const data = this.createText({x, y, value: source.name, position: 'right', fontSize, format})
+      const data = this.createText({x, y, value: source.name, position: 'right', style: text})
       return {...data, textAnchor, angle: ((angle / Math.PI) * 180 - (angle > Math.PI ? 270 : 90))}
     }))
   }

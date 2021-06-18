@@ -132,7 +132,6 @@ export default class SankeyLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {labelOffset, text} = this.#style
-    const {fontSize, format} = text
     // 每一组的颜色取决于这一组的节点数量
     this.#rectData.forEach(groupData => {
       const colors = this.getColor(groupData.length, this.#style.rect?.fill)
@@ -144,12 +143,11 @@ export default class SankeyLayer extends LayerBase {
     this.#textData = this.#rectData.map((groupData, i) => {
       const isLast = i === this.#rectData.length - 1
       return groupData.map(({name, value, x, y, width, height}) => this.createText({
-        format,
-        fontSize,
         x: isLast ? x - labelOffset : x + width + labelOffset,
         y: y + height / 2,
         value: `${name}(${value})`,
         position: isLast ? 'left' : 'right',
+        style: text,
       }))
     })
   }

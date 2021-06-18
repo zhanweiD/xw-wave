@@ -1,22 +1,14 @@
 import {isEqual, merge} from 'lodash'
-import drawArc from '../basic/arc'
-import drawCircle from '../basic/circle'
-import drawCurve from '../basic/curve'
-import drawLine from '../basic/line'
-import drawPolygon from '../basic/polygon'
-import drawRect from '../basic/rect'
-import drawText from '../basic/text'
-import drawArea from '../basic/area'
-import drawRibbon from '../basic/ribbon'
 import createEvent from '../util/create-event'
 import AnimationQueue from '../animation/queue'
 import Tooltip, {globalTooltip} from './tooltip'
 import formatText from '../util/format-text'
 import getTextWidth from '../util/text-width'
 import TableList from '../data/table-list'
+import * as basicMapping from '../basic'
 
 // 文字基于坐标的方向
-const positionType = {
+export const positionType = {
   CENTER: 'center',
   TOP: 'top',
   RIGHT: 'right',
@@ -26,31 +18,6 @@ const positionType = {
   LEFTBOTTOM: 'left-bottom',
   RIGHTTOP: 'right-top',
   RIGHTBOTTOM: 'right-bottom',
-}
-
-// 基础元素绘制函数映射
-const basicMapping = {
-  arc: drawArc,
-  circle: drawCircle,
-  curve: drawCurve,
-  line: drawLine,
-  polygon: drawPolygon,
-  rect: drawRect,
-  text: drawText,
-  area: drawArea,
-  ribbon: drawRibbon,
-}
-
-// 基础元素支持哪些动画（某些动画并非覆盖所有元素）
-const animationMapping = {
-  arc: ['zoom', 'scan', 'erase', 'fade'],
-  circle: ['zoom', 'scan', 'erase', 'fade', 'breathe'],
-  curve: ['zoom', 'scan', 'erase', 'fade'],
-  line: ['zoom', 'scan', 'erase', 'fade', 'scroll'],
-  polygon: ['zoom', 'scan', 'erase', 'fade'],
-  rect: ['zoom', 'scan', 'erase', 'fade', 'scroll'],
-  text: ['zoom', 'scan', 'erase', 'fade'],
-  area: ['zoom', 'scan', 'erase', 'fade'],
 }
 
 // 其他常量
@@ -76,16 +43,6 @@ export default class LayerBase {
     this.warn = (text, data) => this.options.warn(text, data)
     this.event = createEvent(__filename)
     elTypes.forEach(name => this.#backupData[name] = [])
-  }
-
-  // 销毁图层
-  destroy() {
-    // 动画资源销毁
-    elTypes.forEach(name => this.animation[name]?.destroy())
-    // tooltip 实例销毁
-    this.tooltip && this.tooltip.destroy()
-    // dom 元素销毁
-    this.root.remove()
   }
 
   /**
@@ -162,8 +119,9 @@ export default class LayerBase {
    * @param {Object} 计算文字需要的一些值
    * @returns 文字数据，包含坐标和值
    */
-  createText({x, y, value, fontSize = 12, format = null, position = positionType.RIGHTTOP, offset = 0}) {
+  createText({x, y, value, style, position = positionType.RIGHTTOP, offset = 0}) {
     let [positionX, positionY] = [x, y]
+    const {fontSize = 12, writingMode, format = null} = style
     const formattedText = format ? formatText(value, format) : value
     const textWidth = getTextWidth(formattedText, fontSize)
     if (position === positionType.CENTER) {
@@ -188,6 +146,11 @@ export default class LayerBase {
       positionY += fontSize
     } else if (position === positionType.RIGHTBOTTOM) {
       positionY += fontSize
+    }
+    // 根据文字书写方向重定向位置
+    if (writingMode === 'vertical') {
+      positionX += textWidth / 2
+      positionY -= fontSize
     }
     return {x: positionX, y: positionY, value: formattedText, transformOrigin: `${x} ${y}`}
   }
@@ -245,6 +208,16 @@ export default class LayerBase {
     }, 0))
   }
 
+  // 销毁图层
+  destroy() {
+    // 动画资源销毁
+    elTypes.forEach(name => this.animation[name]?.destroy())
+    // tooltip 实例销毁
+    this.tooltip && this.tooltip.destroy()
+    // dom 元素销毁
+    this.root.remove()
+  }
+
   /**
    * 控制整个图层的显示和隐藏
    * @param {Boolean} isVisiable 隐藏参数
@@ -277,16 +250,10 @@ export default class LayerBase {
       const enterQueue = new AnimationQueue({loop: false})
       const loopQueue = new AnimationQueue({loop: true})
       const {enterAnimation, loopAnimation} = options[name]
-      const supportAnimations = animationMapping[name]
-      // 配置入场动画
-      if (enterAnimation && supportAnimations.findIndex(key => key === enterAnimation.type) !== -1) {
-        enterQueue.push(enterAnimation.type, {...enterAnimation, targets: `.wave-basic-${name}`}, this.root)
-      }
-      // 配置轮播动画
-      if (loopAnimation && supportAnimations.findIndex(key => key === loopAnimation.type) !== -1) {
-        loopQueue.push(loopAnimation.type, {...loopAnimation, targets: `.wave-basic-${name}`}, this.root)
-      }
-      // 连接入场动画和轮播动画
+      const targets = `.wave-basic-${name}`
+      // 配置入场动画和轮播动画并连接
+      enterAnimation && enterQueue.push(enterAnimation.type, {...enterAnimation, targets}, this.root)
+      loopAnimation && loopQueue.push(loopAnimation.type, {...loopAnimation, targets}, this.root)
       this.animation[name] = animationQueue.push('queue', enterQueue).push('queue', loopQueue)
       // 动画事件注册
       this.animation[name].event.on('start', data => this.event.fire(`${name}-animation-start`, data))

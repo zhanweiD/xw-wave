@@ -80,8 +80,7 @@ export default class ScatterLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {circleSizeRange} = this.#style
-    const {fontSize = 12, format} = this.#style.text
+    const {circleSizeRange, text} = this.#style
     const scaleSize = new Scale({
       type: 'linear',
       domain: this.#data.data.length >= 4 ? this.#data.select(this.#data.data[3].header).range() : [],
@@ -102,7 +101,7 @@ export default class ScatterLayer extends LayerBase {
     })
     // 标签文字数据
     this.#textData = this.#circleData.map(groupData => groupData.map(({cx, cy, value}) => {
-      return this.createText({x: cx, y: cy, value, fontSize, format, position: 'center'})
+      return this.createText({x: cx, y: cy, value, style: text, position: 'center'})
     }))
   }
 

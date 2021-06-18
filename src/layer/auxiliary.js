@@ -72,8 +72,7 @@ export default class AuxiliaryLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition = labelPositionType.RIGHT, labelOffset = 5} = this.#style
-    const {fontSize = 12, format} = this.#style.text
+    const {labelPosition = labelPositionType.RIGHT, labelOffset = 5, text} = this.#style
     const [isTop, isBottom, isLeft, isRight] = [
       labelPosition === labelPositionType.TOP,
       labelPosition === labelPositionType.BOTTOM,
@@ -82,13 +81,12 @@ export default class AuxiliaryLayer extends LayerBase {
     ]
     // 标签文字数据
     this.#textData = this.#lineData.map(({value, x1, y1, x2, y2}) => this.createText({
+      value,
       x: isLeft ? x1 : isRight ? x2 : (x1 + x2) / 2, 
       y: isTop ? y1 : isBottom ? y2 : (y1 + y2) / 2,
-      value, 
-      format,
-      fontSize,
       position: labelPosition,
       offset: labelOffset,
+      style: text,
     }))
   }
 

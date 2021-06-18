@@ -66,7 +66,6 @@ export default class ChordLayer extends LayerBase {
     const maxRadius = Math.min(width, height) / 2
     const [centerX, centerY] = [left + width / 2, top + height / 2]
     const {arcWidth, labelOffset, text} = this.#style
-    const {fontSize, format} = text
     const innerRadius = maxRadius - arcWidth
     // 补充圆弧数据
     const arcColors = this.getColor(this.#arcData.length, this.#style.arc?.fill, true)
@@ -102,7 +101,7 @@ export default class ChordLayer extends LayerBase {
       const totalRadius = outerRadius + labelOffset
       const textAnchor = angle > Math.PI ? 'end' : 'start'
       const [x, y] = [Math.sin(angle) * totalRadius + centerX, centerY - Math.cos(angle) * totalRadius]
-      const data = this.createText({x, y, value: category, position: 'right', fontSize, format})
+      const data = this.createText({x, y, value: category, position: 'right', style: text})
       return {...data, textAnchor, angle: ((angle / Math.PI) * 180 - (angle > Math.PI ? 270 : 90))}
     })
   }

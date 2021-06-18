@@ -19,9 +19,9 @@ const defaultStyle = {
 export default class TextLayer extends LayerBase {
   #data = null
 
-  #style = defaultStyle
+  #textData = null
 
-  #position = []
+  #style = defaultStyle
 
   get data() {
     return this.#data
@@ -44,31 +44,34 @@ export default class TextLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {align, verticalAlign, text = {}} = this.#style
+    const {align, verticalAlign, text} = this.#style
     const {left, top, width, height} = this.options.layout
     const {fontSize = 12} = text
+    let [x, y] = [0, 0]
     // 水平位置
     if (align === alignType.START) {
-      this.#position[0] = left
+      x = left
     } else if (align === alignType.MIDDLE) {
-      this.#position[0] = left + (width - getTextWidth(this.#data, fontSize)) / 2
+      x = left + (width - getTextWidth(this.#data, fontSize)) / 2
     } else if (align === alignType.END) {
-      this.#position[0] = left + width - getTextWidth(this.#data, fontSize)
+      x = left + width - getTextWidth(this.#data, fontSize)
     }
     // 垂直位置
     if (verticalAlign === alignType.START) {
-      this.#position[1] = top + fontSize
+      y = top + fontSize
     } else if (verticalAlign === alignType.MIDDLE) {
-      this.#position[1] = top + (height + fontSize) / 2
+      y = top + (height + fontSize) / 2
     } else if (verticalAlign === alignType.END) {
-      this.#position[1] = top + height
+      y = top + height
     }
+    // 文字数据
+    this.#textData = this.createText({x, y, value: this.#data, style: text})
   }
 
   draw() {
     const textData = [{
-      data: [this.#data],
-      position: [this.#position],
+      data: [this.#textData.value],
+      position: [[this.#textData.x, this.#textData.y]],
       ...this.#style.text,
     }]
     this.drawBasic('text', textData)

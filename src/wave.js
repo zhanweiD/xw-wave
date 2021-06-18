@@ -332,6 +332,7 @@ export default class Wave {
   /**
    * 图表报错生命周期
    * @param {String} text 报错信息
+   * @param {any} data 关联数据
    */
   warn(text, data) {
     this.#root.html('')

@@ -116,10 +116,9 @@ export default class MatrixLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {mode = modeType.RECT} = this.options
-    const {fontSize = 12, format} = this.#style.text
     // 标签文字数据
     this.#textData = this.#textData.map(groupData => groupData.map(item => this.createText({
-      ...item, format, fontSize, position: 'center',
+      ...item, style: this.#style.text, position: 'center',
     })))
     // 圆形的大小随数值大小变化
     if (mode === modeType.CIRCLE) {

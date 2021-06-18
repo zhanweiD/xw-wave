@@ -163,10 +163,9 @@ export default class AxisLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {labelOffset, text} = this.#style
-    const {fontSize = 12, format} = text
     const {type = axisType.CARTESIAN} = this.options
     this.#textData = this.#lineData.map(({value, x1, y1, x2, y2, cx, cy, rx, angle}, i) => {
-      const basicTextData = {value, fontSize, format, offset: labelOffset}
+      const basicTextData = {value, offset: labelOffset, style: text}
       // X轴坐标在线的正下方
       if (type === axisType.HORIZONTAL || (type === axisType.CARTESIAN && i < this.#axisLength.x)) {
         return this.createText({x: x2, y: y2, position: 'bottom', ...basicTextData})

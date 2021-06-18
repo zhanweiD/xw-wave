@@ -80,10 +80,11 @@ export default class GaugeLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {left, top, width, height} = this.options.layout
-    const {step, arcWidth, offset, startAngle, endAngle, pointerSize, tickSize, valueText, tickText} = this.#style
+    const {step, arcWidth, offset, startAngle, endAngle, pointerSize, tickSize} = this.#style
+    const {valueText, tickText, labelText, arc} = this.#style
     const {value, label, minValue, maxValue, fragments} = this.#data
     const maxRadius = Math.min(width, height) / 2
-    const colors = this.getColor(fragments.length, this.#style.arc?.fill, true)
+    const colors = this.getColor(fragments.length, arc?.fill, true)
     const arcCenter = {x: left + width / 2, y: top + height / 2}
     const scaleAngle = new Scale({
       type: 'linear',
@@ -128,7 +129,7 @@ export default class GaugeLayer extends LayerBase {
         y: computeY(innerRadius - tickSize),
         value: number,
         position: 'center',
-        ...this.#style.tickText,
+        style: tickText,
       })
       // 找分类的中心点
       const fragment = fragments.find(([min, max]) => {
@@ -137,19 +138,19 @@ export default class GaugeLayer extends LayerBase {
       })
       // 分类标签数据
       const labelTextData = fragment && this.createText({
-        x: computeX(maxRadius + (this.#style.labelText?.fontSize || 12)),
-        y: computeY(maxRadius + (this.#style.labelText?.fontSize || 12)),
+        x: computeX(maxRadius + (labelText?.fontSize || 12)),
+        y: computeY(maxRadius + (labelText?.fontSize || 12)),
         value: fragment[2],
         position: isLeft ? 'left' : isRight ? 'right' : 'center',
-        ...this.#style.labelText,
+        style: labelText,
       })
       return {number, x1, y1, x2, y2, labelTextData, tickTextData}
     })
     // 数值文字数据
     const titleOffset = offset + (valueText.fontSize || 12) + 5
     this.#valueTextData = [
-      this.createText({value, position: 'bottom', offset, ...arcCenter, ...valueText}),
-      this.createText({value: label, position: 'bottom', offset: titleOffset, ...arcCenter, ...valueText}),
+      this.createText({value, position: 'bottom', offset, ...arcCenter, style: valueText}),
+      this.createText({value: label, position: 'bottom', offset: titleOffset, ...arcCenter, style: valueText}),
     ]
   }
 
