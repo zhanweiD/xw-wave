@@ -22,6 +22,7 @@ const defaultStyle = {
   align: alignType.END,
   verticalAlign: alignType.START,
   direction: directionType.HORIZONTAL,
+  offset: [0, 0],
   gap: [0, 0],
   pointSize: 12,
   text: {
@@ -116,7 +117,7 @@ export default class LegendLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {align, verticalAlign, direction, pointSize} = this.#style
+    const {align, verticalAlign, direction, pointSize, offset} = this.#style
     const {left, top, width, height} = this.options.layout
     const {fontSize = 12, format} = this.#style.text
     const [inner, outer] = this.#style.gap
@@ -164,13 +165,13 @@ export default class LegendLayer extends LayerBase {
     const [isVerticalMiddle, isVerticalEnd] = [verticalAlign === alignType.MIDDLE, verticalAlign === alignType.END]
     this.#circleData = this.#circleData.map(({cx, cy, ...size}) => ({
       ...size,
-      cx: cx + (isHorizontalMiddle ? offsetX / 2 : isHorizontalEnd ? offsetX : 0),
-      cy: cy + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0), 
+      cx: cx + offset[0] + (isHorizontalMiddle ? offsetX / 2 : isHorizontalEnd ? offsetX : 0),
+      cy: cy + offset[1] + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0), 
     }))
     this.#textData = this.#textData.map(({x, y, value}) => ({
       value,
-      x: x + (isHorizontalMiddle ? offsetX / 2 : isHorizontalEnd ? offsetX : 0),
-      y: y + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0),
+      x: x + offset[0] + (isHorizontalMiddle ? offsetX / 2 : isHorizontalEnd ? offsetX : 0),
+      y: y + offset[1] + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0),
     }))
   }
 

@@ -162,8 +162,8 @@ export default class AxisLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelOffset, text} = this.#style
     const {type = axisType.CARTESIAN} = this.options
+    const {labelOffset, text} = this.#style
     this.#textData = this.#lineData.map(({value, x1, y1, x2, y2, cx, cy, rx, angle}, i) => {
       const basicTextData = {value, offset: labelOffset, style: text}
       // X轴坐标在线的正下方

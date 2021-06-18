@@ -183,7 +183,7 @@ export default class RectLayer extends LayerBase {
 
   // 获取标签坐标
   #getLabelData = ({x, y, width, height, value, labelPosition}) => {
-    const {labelOffset = 5, text} = this.#style
+    const {labelOffset, text} = this.#style
     // 计算标签的水平位置
     let [position, positionX, positionY] = ['default', null, null]
     if (labelPosition === labelPositionType.LEFTOUTER || labelPosition === labelPositionType.LEFTINNER) {

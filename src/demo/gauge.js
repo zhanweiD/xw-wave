@@ -43,6 +43,7 @@ const createSchema = (container, theme, layout, type) => ({
       },
       data: createGaugeData(type),
       style: type === 'gauge' ? {
+        offset: [0, 15],
         tickSize: 10,
         valueText: {
           fontSize: 15,
@@ -52,7 +53,7 @@ const createSchema = (container, theme, layout, type) => ({
         startAngle: 0,
         endAngle: 360,
         arcWidth: 15,
-        offset: -15,
+        offset: [0, 0],
         tickSize: 10,
         pointerSize: 5,
         line: {

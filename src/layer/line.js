@@ -19,6 +19,7 @@ const labelPositionType = {
 // 默认样式
 const defaultStyle = {
   pointSize: 5,
+  labelOffset: [0, -5],
   labelPosition: labelPositionType.TOP,
   text: {},
   line: {
@@ -34,7 +35,7 @@ const defaultStyle = {
   },
 }
 
-// 矩形图层
+// 折线图层
 export default class LineLayer extends LayerBase {
   #data = null
   
@@ -121,7 +122,7 @@ export default class LineLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {layout, mode = modeType.DEFAULT} = this.options
-    const {labelPosition, labelOffset = 5, pointSize = 5, text} = this.#style
+    const {labelPosition, labelOffset, pointSize, text} = this.#style
     const {top, height} = layout
     // 颜色跟随主题
     const colors = this.getColor(this.#lineData.length, this.#style.line?.stroke, true)

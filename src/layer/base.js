@@ -1,4 +1,4 @@
-import {isEqual, merge} from 'lodash'
+import {isArray, isEqual, merge} from 'lodash'
 import createEvent from '../util/create-event'
 import AnimationQueue from '../animation/queue'
 import Tooltip, {globalTooltip} from './tooltip'
@@ -124,21 +124,22 @@ export default class LayerBase {
     const {fontSize = 12, writingMode, format = null} = style
     const formattedText = format ? formatText(value, format) : value
     const textWidth = getTextWidth(formattedText, fontSize)
+    const autoOffset = isArray(offset) ? 0 : offset
     if (position === positionType.CENTER) {
       positionX -= textWidth / 2
       positionY += fontSize / 2
     } else if (position === positionType.LEFT) {
-      positionX -= textWidth + offset
+      positionX -= textWidth + autoOffset
       positionY += fontSize / 2
     } else if (position === positionType.RIGHT) {
-      positionX += offset
+      positionX += autoOffset
       positionY += fontSize / 2
     } else if (position === positionType.TOP) {
       positionX -= textWidth / 2
-      positionY -= offset
+      positionY -= autoOffset
     } else if (position === positionType.BOTTOM) {
       positionX -= textWidth / 2
-      positionY += fontSize + offset
+      positionY += fontSize + autoOffset
     } else if (position === positionType.LEFTTOP) {
       positionX -= textWidth
     } else if (position === positionType.LEFTBOTTOM) {
@@ -151,6 +152,11 @@ export default class LayerBase {
     if (writingMode === 'vertical') {
       positionX += textWidth / 2
       positionY -= fontSize
+    }
+    // 偏移控制
+    if (isArray(offset)) {
+      positionX += offset[0]
+      positionY += offset[1]
     }
     return {x: positionX, y: positionY, value: formattedText, transformOrigin: `${x} ${y}`}
   }

@@ -72,7 +72,7 @@ export default class AuxiliaryLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition = labelPositionType.RIGHT, labelOffset = 5, text} = this.#style
+    const {labelPosition = labelPositionType.RIGHT, labelOffset, text} = this.#style
     const [isTop, isBottom, isLeft, isRight] = [
       labelPosition === labelPositionType.TOP,
       labelPosition === labelPositionType.BOTTOM,

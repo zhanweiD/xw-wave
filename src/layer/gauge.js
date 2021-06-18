@@ -5,10 +5,10 @@ import Scale from '../data/scale'
 // 默认样式
 const defaultStyle = {
   step: [2, 10],
+  offset: [0, 15],
   startAngle: -120,
   endAngle: 120,
   arcWidth: 5,
-  offset: 10,
   tickSize: 10,
   pointerSize: 5,
   arc: {},
@@ -147,10 +147,10 @@ export default class GaugeLayer extends LayerBase {
       return {number, x1, y1, x2, y2, labelTextData, tickTextData}
     })
     // 数值文字数据
-    const titleOffset = offset + (valueText.fontSize || 12) + 5
+    const titleOffset = [offset[0], offset[1] + valueText.fontSize / 0.618]
     this.#valueTextData = [
-      this.createText({value, position: 'bottom', offset, ...arcCenter, style: valueText}),
-      this.createText({value: label, position: 'bottom', offset: titleOffset, ...arcCenter, style: valueText}),
+      this.createText({value, position: 'center', offset, ...arcCenter, style: valueText}),
+      this.createText({value: label, position: 'center', offset: titleOffset, ...arcCenter, style: valueText}),
     ]
   }
 

@@ -12,6 +12,7 @@ const alignType = {
 const defaultStyle = {
   align: alignType.START,
   verticalAlign: alignType.START,
+  offset: [0, 0],
   text: {},
 }
 
@@ -44,7 +45,7 @@ export default class TextLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {align, verticalAlign, text} = this.#style
+    const {align, verticalAlign, offset, text} = this.#style
     const {left, top, width, height} = this.options.layout
     const {fontSize = 12} = text
     let [x, y] = [0, 0]
@@ -65,7 +66,7 @@ export default class TextLayer extends LayerBase {
       y = top + height
     }
     // 文字数据
-    this.#textData = this.createText({x, y, value: this.#data, style: text})
+    this.#textData = this.createText({x, y, value: this.#data, style: text, offset})
   }
 
   draw() {

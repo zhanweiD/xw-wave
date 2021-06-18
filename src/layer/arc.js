@@ -23,6 +23,7 @@ const labelPositionType = {
 
 // 默认样式
 const defaultStyle = {
+  labelOffset: 5,
   labelPosition: labelPositionType.INNER,
   arc: {},
   text: {},
@@ -113,23 +114,22 @@ export default class ArcLayer extends LayerBase {
   }
 
   // 获取标签坐标
-  #getLabelData = ({value, x, y, innerRadius, outerRadius, startAngle, endAngle, labelPosition, style}) => {
-    let result = null
+  #getLabelData = ({value, x, y, innerRadius, outerRadius, startAngle, endAngle}) => {
+    const {text, labelPosition, labelOffset} = this.#style
+    // 计算圆弧中心点，svg 是从 90 度开始顺时针画的，需要匹配 Math 的计算逻辑
     if (labelPosition === labelPositionType.INNER) {
-      // 计算圆弧中心点，svg 是从 90 度开始顺时针画的，需要匹配 Math 的计算逻辑
       const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, (innerRadius + outerRadius) / 2]
       const [centerX, centerY] = [x + Math.sin(angle) * r, y - Math.cos(angle) * r]
-      // 基于中心点计算文字坐标
-      result = this.createText({x: centerX, y: centerY, value, style, position: 'center'})
-    } else if (labelPosition === labelPositionType.OUTER) {
-      // 计算文字相对坐标
-      const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, outerRadius + 5]
+      return this.createText({x: centerX, y: centerY, value, style: text, position: 'center'})
+    } 
+    // 计算文字相对坐标
+    if (labelPosition === labelPositionType.OUTER) {
+      const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, outerRadius + labelOffset]
       const [relativeX, relativeY] = [x + Math.sin(angle) * r, y - Math.cos(angle) * r]
       const position = Math.abs(angle % (2 * Math.PI)) < Math.PI ? 'right' : 'left'
-      // 基于相对点计算文字坐标
-      result = this.createText({x: relativeX, y: relativeY, value, style, position})
+      return this.createText({x: relativeX, y: relativeY, value, style: text, position})
     }
-    return result
+    return null
   }
 
   // 覆盖默认图层样式
@@ -138,7 +138,7 @@ export default class ArcLayer extends LayerBase {
     const {type = waveType.PIE, mode = modeType.DEFAULT, layout} = this.options
     const {left, top, width, height} = layout
     const {scaleAngle, scaleRadius} = this.#scale
-    const {innerRadius = 0, labelPosition = labelPositionType.INNER, text, arc} = this.#style
+    const {innerRadius, arc} = this.#style
     const headers = this.#data.data.map(({header}) => header)
     const tableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const arcCenter = {x: left + width / 2, y: top + height / 2}
@@ -180,9 +180,7 @@ export default class ArcLayer extends LayerBase {
     }
     // 标签文字数据
     this.#textData = this.#arcData.map(groupData => {
-      return groupData.map(data => ({
-        ...this.#getLabelData({...data, labelPosition, style: text}),
-      }))
+      return groupData.map(data => this.#getLabelData({...data}))
     })
   }
 
