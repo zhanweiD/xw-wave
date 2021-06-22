@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 
 // 绘制一组丝带边
 export default function drawRibbon({
-  type = 'cucustomize',
+  type = 'chord',
   fill = 'rgba(255,255,255,1)',
   stroke = 'rgba(255,255,255,0)',
   strokeWidth = 1,
@@ -57,14 +57,23 @@ const getPath = (type, data) => {
     const sourceRibbon = {startAngle: sourceStartAngle, endAngle: sourceEndAngle, radius: sourceRadius}
     const targetRibbon = {startAngle: targetStartAngle, endAngle: targetEndAngle, radius: targetRadius}
     return d3.ribbon()({source: sourceRibbon, target: targetRibbon})
-  }
-  if (type === 'customize') {
+  } 
+  if (type === 'sankey-horizontal') {
     const [x1, y1, x2, y2, x3, y3, x4, y4] = data
     return [
       `M ${x1},${y1}`,
-      `C ${(x1 + x3) / 2},${y1} ${(x1 + x3) / 2},${y3} ${x3},${y3}`,
-      `L ${x4},${y4}`,
-      `C ${(x4 + x2) / 2},${y4} ${(x4 + x2) / 2},${y2} ${x2},${y2} Z`,
+      `C ${(x1 + x2) / 2},${y1} ${(x1 + x2) / 2},${y2} ${x2},${y2}`,
+      `L ${x3},${y3}`,
+      `C ${(x3 + x4) / 2},${y3} ${(x3 + x4) / 2},${y4} ${x4},${y4} Z`,
+    ].join(' ')
+  }
+  if (type === 'sankey-vertical') {
+    const [x1, y1, x2, y2, x3, y3, x4, y4] = data
+    return [
+      `M ${x1},${y1}`,
+      `C ${x1},${(y1 + y2) / 2} ${x2},${(y1 + y2) / 2} ${x2},${y2}`,
+      `L ${x3},${y3}`,
+      `C ${x3},${(y3 + y4) / 2} ${x4},${(y3 + y4) / 2} ${x4},${y4} Z`,
     ].join(' ')
   }
   return null

@@ -119,7 +119,7 @@ export default class LayerBase {
    * @param {Object} 计算文字需要的一些值
    * @returns 文字数据，包含坐标和值
    */
-  createText({x, y, value, style, position = positionType.RIGHTTOP, offset = 0}) {
+  createText({x, y, value, style, position = positionType.RIGHTTOP, offset = 0, textAnchor = 'start'}) {
     let [positionX, positionY] = [x, y]
     const {fontSize = 12, writingMode, format = null} = style
     const formattedText = format ? formatText(value, format) : value
@@ -148,17 +148,17 @@ export default class LayerBase {
     } else if (position === positionType.RIGHTBOTTOM) {
       positionY += fontSize
     }
-    // 根据文字书写方向重定向位置
+    // 根据文字书写方向重定向位置，仍然有字体高度问题
     if (writingMode === 'vertical') {
       positionX += textWidth / 2
-      positionY -= fontSize
+      positionY += textAnchor === 'end' ? fontSize : -fontSize
     }
     // 偏移控制
     if (isArray(offset)) {
       positionX += offset[0]
       positionY += offset[1]
     }
-    return {x: positionX, y: positionY, value: formattedText, transformOrigin: `${x} ${y}`}
+    return {x: positionX, y: positionY, textAnchor, value: formattedText, transformOrigin: `${x} ${y}`}
   }
 
   // 初始化基础事件
