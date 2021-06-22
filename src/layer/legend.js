@@ -65,7 +65,7 @@ export default class LegendLayer extends LayerBase {
    */
   setData(layers) {
     // 初始化文字数据和图形颜色
-    layers = isArray(layers) ? layers : [layers]
+    layers = isArray(layers) ? layers : layers ? [layers] : []
     layers.forEach(layer => {
       this.#data.push(...layer.data.data.slice(1).map(({header}) => header))
       this.#colors.push(...layer.getColor(layer.data.data.length - 1))
@@ -117,10 +117,10 @@ export default class LegendLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {align, verticalAlign, direction, pointSize, offset} = this.#style
+    const {align, verticalAlign, direction, pointSize, offset, gap} = this.#style
     const {left, top, width, height} = this.options.layout
     const {fontSize = 12, format} = this.#style.text
-    const [inner, outer] = this.#style.gap
+    const [inner, outer] = gap
     const maxHeight = max([pointSize, fontSize])
     // 格式化图例数据
     const data = format ? this.#data.map(value => formatText(value, format)) : this.#data

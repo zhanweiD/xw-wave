@@ -203,7 +203,7 @@ export default class Wave {
    * @param {Object} options 图层配置参数
    * @returns {LayerBase}
    */
-  createLayer(type, options = {}) {
+  createLayer(type, options = {}, existedId) {
     // 暴露给图层的上下文环境
     const context = {
       root: this.#root,
@@ -217,7 +217,12 @@ export default class Wave {
     // 根据类型创建图层
     const layer = new LayerMapping[type](options, context)
     const layerId = options.id || createUuid()
-    this.#layer.push({type, id: layerId, instance: layer})
+    // 替换或者新增一个图层
+    if (existedId) {
+      this.#layer.find(({id}) => id === existedId).instance = layer
+    } else {
+      this.#layer.push({type, id: layerId, instance: layer})
+    }
     this.registerLifeCircle(layer)
     // 销毁 layer 的时候同步删除 wave 中的实例
     layer.event.on('destroy', () => {
@@ -339,7 +344,6 @@ export default class Wave {
    * @param {any} data 关联数据
    */
   warn(text, data) {
-    this.#root.html('')
     this.#state = stateType.WARN
     this.log.error(text, data)
   }
