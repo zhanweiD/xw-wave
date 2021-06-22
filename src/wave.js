@@ -188,7 +188,11 @@ export default class Wave {
       const fn = layer[name]
       layer[name] = (...parameter) => {
         layer.event.fire(name, {...parameter})
-        fn.call(layer, ...parameter)
+        try {
+          fn.call(layer, ...parameter)
+        } catch (error) {
+          this.warn('图层生命周期调用失败', error)
+        }
       }
     })
   }
@@ -213,7 +217,7 @@ export default class Wave {
     // 根据类型创建图层
     const layer = new LayerMapping[type](options, context)
     const layerId = options.id || createUuid()
-    this.#layer.push({id: layerId, instance: layer})
+    this.#layer.push({type, id: layerId, instance: layer})
     this.registerLifeCircle(layer)
     // 销毁 layer 的时候同步删除 wave 中的实例
     layer.event.on('destroy', () => {
