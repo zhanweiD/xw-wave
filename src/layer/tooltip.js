@@ -33,7 +33,7 @@ export default class Tooltip {
     this.isAvailable = false
     this.log = createLog(__filename)
     this.options = merge(defaultOptions, options)
-    this.lastPosition = {x: -100, y: -100}
+    this.lastPosition = {offsetX: -100, offsetY: -100}
     // 根容器
     this.instance = container
       .append('div')
@@ -80,8 +80,9 @@ export default class Tooltip {
       list = [data].map(({fill, stroke, source}) => ({pointColor: fill || stroke, ...source}))
     } else if (mode === modeType.GOURP) {
       try {
+        const {dimension} = data.source
         const elType = data.className.split('-')[2]
-        const groupData = backup[elType].filter(({source}) => isEqual(source[0].dimension, data.source.dimension))[0]
+        const groupData = backup[elType].filter(({source}) => isEqual(source[0].dimension, dimension))[0]
         const {source, fill, stroke} = groupData
         list = source.map((item, i) => ({...item, pointColor: isArray(fill) ? fill[i] : stroke[i]}))
       } catch (error) {
@@ -146,33 +147,33 @@ export default class Tooltip {
   }
 
   // 移动
-  move({x, y}, options = {}) {
+  move({offsetX, offsetY}, options = {}) {
     const {enableAnimation, animationDuration, animationDelay} = {...defaultOptions, ...options}
     const drift = 10
     // 边界判断
     const rect = this.instance._groups[0][0].getBoundingClientRect()
-    if (x + rect.width > document.body.clientWidth) {
-      x -= rect.width + drift
+    if (offsetX + rect.width > document.body.clientWidth) {
+      offsetX -= rect.width + drift
     } else {
-      x += drift
+      offsetX += drift
     }
-    if (y + rect.height > document.body.clientHeight) {
-      y -= rect.height + drift
+    if (offsetY + rect.height > document.body.clientHeight) {
+      offsetY -= rect.height + drift
     } else {
-      y += drift
+      offsetY += drift
     }
     // 移动距离过大时采用动画过渡
     const animation = new MoveAnimation({
       delay: enableAnimation ? animationDelay : 0,
       targets: this.instance._groups[0][0],
       duration: enableAnimation ? animationDuration : 0,
-      position: [[this.lastPosition.x || 0, x], [this.lastPosition.y || 0, y]],
+      position: [[this.lastPosition.offsetX || 0, offsetX], [this.lastPosition.offsetY || 0, offsetY]],
       easing: 'easeOutQuart',
     })
     // 一次性动画，结束时销毁
     animation.event.on('end', () => animation.destroy())
     animation.play()
-    this.lastPosition = {x, y}
+    this.lastPosition = {offsetX, offsetY}
   }
 
   destroy() {
@@ -182,6 +183,3 @@ export default class Tooltip {
     this.instance.remove()
   }
 }
-
-// 用于点击的唯一的 tooltip 实例，实现互斥
-export const globalTooltip = new Tooltip(d3.select(document.body))

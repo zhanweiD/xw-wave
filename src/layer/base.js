@@ -1,11 +1,11 @@
 import {isArray, isEqual, merge} from 'lodash'
 import createEvent from '../util/create-event'
 import AnimationQueue from '../animation/queue'
-import Tooltip, {globalTooltip} from './tooltip'
 import formatText from '../util/format-text'
 import getTextWidth from '../util/text-width'
 import TableList from '../data/table-list'
 import * as basicMapping from '../basic'
+import Tooltip from './tooltip'
 
 // 文字基于坐标的方向
 export const positionType = {
@@ -83,7 +83,7 @@ export default class LayerBase {
     const scale = {nice}
     // 比例尺的命名是固定不变的
     scaleTypes.forEach(type => {
-      // 由于目前的比例尺策略是由坐标轴统一控制，所以上一次计算的比例尺优先级最低
+      // 由于目前的比例尺策略是由坐标轴统一控制，所以图层数据计算的比例尺优先级最低
       scale[type] = incomingStyle[type] || defaultScale[type] || currentScale[type]
       // 笔刷更改了当前比例尺的值域，这个值域需要继承
       if (currentScale[type]?.brushed) {
@@ -168,11 +168,11 @@ export default class LayerBase {
       tooltip: {
         // 点击组合事件
         click: (event, data) => {
-          globalTooltip.update(event, {data, backup: this.#backupData})
-          globalTooltip.show()
-          globalTooltip.move(event, {enableAnimation: true})
+          this.tooltip.update(event, {data, backup: this.#backupData})
+          this.tooltip.show()
+          this.tooltip.move(event, {enableAnimation: true})
         },
-        blur: () => globalTooltip.hide(),
+        blur: () => this.tooltip.hide(),
         // 悬浮组合事件
         mouseover: (event, data) => {
           this.tooltip.update(event, {data, backup: this.#backupData})
