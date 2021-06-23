@@ -57,7 +57,7 @@ export default class LayerBase {
     const order = this.data?.options?.order
     const {getColor} = this.options
     // 备份图层主色
-    if (customColors && isMainColor) {
+    if (customColors !== undefined && isMainColor) {
       this.mainColor = customColors
     }
     // 判断列表内有无颜色相关的属性，目前图例有用到
@@ -83,8 +83,8 @@ export default class LayerBase {
     const scale = {nice}
     // 比例尺的命名是固定不变的
     scaleTypes.forEach(type => {
-      // 由于目前的比例尺策略是由坐标轴统一控制，所以图层数据计算的比例尺优先级最低
-      scale[type] = incomingStyle[type] || currentScale[type] || defaultScale[type]
+      // 由于目前的比例尺策略是由坐标轴统一控制，所以上一次计算的比例尺优先级最低
+      scale[type] = incomingStyle[type] || defaultScale[type] || currentScale[type]
       // 笔刷更改了当前比例尺的值域，这个值域需要继承
       if (currentScale[type]?.brushed) {
         scale[type].range(currentScale[type].range())
@@ -222,6 +222,8 @@ export default class LayerBase {
     this.tooltip && this.tooltip.destroy()
     // dom 元素销毁
     this.root.remove()
+    // 通知 wave 删除这个图层实例
+    this.event.fire('destroy')
   }
 
   /**
