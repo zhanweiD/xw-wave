@@ -24,11 +24,11 @@ const defaultStyle = {
   direction: directionType.HORIZONTAL,
   offset: [0, 0],
   gap: [0, 0],
-  pointSize: 12,
+  circleSize: 12,
   text: {
     fill: 'white',
   },
-  point: {},
+  circle: {},
 }
 
 // 图例图层
@@ -55,7 +55,7 @@ export default class LegendLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+    super(layerOptions, waveOptions, ['text', 'circle'])
     this.className = 'wave-legend'
   }
 
@@ -117,11 +117,11 @@ export default class LegendLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {align, verticalAlign, direction, pointSize, offset, gap} = this.#style
+    const {align, verticalAlign, direction, circleSize, offset, gap} = this.#style
     const {left, top, width, height} = this.options.layout
     const {fontSize = 12, format} = this.#style.text
     const [inner, outer] = gap
-    const maxHeight = max([pointSize, fontSize])
+    const maxHeight = max([circleSize, fontSize])
     // 格式化图例数据
     const data = format ? this.#data.map(value => formatText(value, format)) : this.#data
     // 确定圆的数据
@@ -129,24 +129,24 @@ export default class LegendLayer extends LayerBase {
       this.#circleData = data.map((item, i) => {
         const textWidth = sum(data.slice(0, i).map(value => getTextWidth(value, fontSize)))
         return {
-          cx: left + pointSize / 2 + (i ? (inner + outer + pointSize) * i + textWidth : 0),
+          cx: left + circleSize / 2 + (i ? (inner + outer + circleSize) * i + textWidth : 0),
           cy: top + maxHeight / 2,
-          rx: pointSize / 2,
-          ry: pointSize / 2,
+          rx: circleSize / 2,
+          ry: circleSize / 2,
         }
       })
     } else if (direction === directionType.VERTICAL) {
       this.#circleData = data.map((item, i) => ({
-        cx: left + pointSize / 2,
-        cy: top + maxHeight / 2 + (i ? (outer + fontSize + pointSize) * i : 0),
-        rx: pointSize / 2,
-        ry: pointSize / 2,
+        cx: left + circleSize / 2,
+        cy: top + maxHeight / 2 + (i ? (outer + fontSize + circleSize) * i : 0),
+        rx: circleSize / 2,
+        ry: circleSize / 2,
       }))
     }
     // 根据圆的数据确定文字的数据
     this.#textData = this.#circleData.map(({cx, cy}, i) => ({
       value: data[i],
-      x: cx + pointSize / 2 + inner,
+      x: cx + circleSize / 2 + inner,
       y: cy + fontSize / 2,
     }))
     // 最后根据 align 整体移动，默认都是 start
@@ -157,7 +157,7 @@ export default class LegendLayer extends LayerBase {
       totalHeight = maxHeight
     } else if (direction === directionType.VERTICAL) {
       const {y} = this.#textData[this.#textData.length - 1]
-      totalWidth = pointSize + inner + max(data.map(value => getTextWidth(value, fontSize)))
+      totalWidth = circleSize + inner + max(data.map(value => getTextWidth(value, fontSize)))
       totalHeight = y - top + maxHeight
     }
     const [offsetX, offsetY] = [width - totalWidth, height - totalHeight]

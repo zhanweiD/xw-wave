@@ -67,7 +67,7 @@ export default class RectLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+    super(layerOptions, waveOptions, ['rect', 'text'])
     const {type = waveType.COLUMN, mode = modeType.GROUP} = this.options
     this.className = `wave-${mode}-${type}`
   }

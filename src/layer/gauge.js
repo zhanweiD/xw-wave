@@ -45,7 +45,8 @@ export default class GaugeLayer extends LayerBase {
   }
 
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+    const subLayers = ['arc', 'line', 'rect', 'circle', 'tickText', 'labelText', 'valueText']
+    super(layerOptions, waveOptions, subLayers)
     this.className = 'wave-gauge'
   }
 
@@ -196,6 +197,8 @@ export default class GaugeLayer extends LayerBase {
     this.drawBasic('rect', rectData)
     this.drawBasic('arc', arcData)
     this.drawBasic('line', lineData)
-    this.drawBasic('text', labelText.concat(tickText, valueText))
+    this.drawBasic('text', tickText, 'tickText')
+    this.drawBasic('text', labelText, 'labelText')
+    this.drawBasic('text', valueText, 'valueText')
   }
 }

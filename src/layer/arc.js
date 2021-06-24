@@ -55,7 +55,7 @@ export default class ArcLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+    super(layerOptions, waveOptions, ['arc', 'text'])
     const {type = waveType.PIE, mode = modeType.GROUP} = this.options
     this.className = `wave-${mode}-${type}`
   }

@@ -40,7 +40,7 @@ export default class ChordLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+    super(layerOptions, waveOptions, ['ribbon', 'arc', 'text'])
     this.className = 'wave-chord'
   }
 

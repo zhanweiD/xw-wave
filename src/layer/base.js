@@ -21,28 +21,27 @@ export const positionType = {
 }
 
 // 其他常量
-export const elTypes = Object.keys(basicMapping)
 export const scaleTypes = ['scaleX', 'scaleY', 'scaleYR', 'scaleAngle', 'scaleRadius', 'scaleColor']
 export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
 export const tooltipEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'blur']
 
-// 集成图层的一些公共方法
 export default class LayerBase {
   #backupData = {}
 
   #backupEvent = {}
 
-  constructor(layerOptions, waveOptions) {
+  constructor(layerOptions, waveOptions, subLayers) {
     this.options = merge(layerOptions, waveOptions)
-    this.animation = {}
+    this.subLayers = subLayers || []
     this.root = null
     this.tooltip = null
     this.className = null
     this.mainColor = null
+    this.animation = {}
     this.#createEvent()
     this.warn = (text, data) => this.options.warn(text, data)
     this.event = createEvent(__filename)
-    elTypes.forEach(name => this.#backupData[name] = [])
+    this.subLayers.forEach(name => this.#backupData[name] = [])
   }
 
   /**
@@ -187,17 +186,17 @@ export default class LayerBase {
     commonEvents.forEach(eventType => {
       this.#backupEvent.common[eventType] = {}
       const events = this.#backupEvent.common[eventType]
-      elTypes.forEach(elType => {
-        events[elType] = (event, data) => this.event.fire(`${eventType}-${elType}`, {event, data})
+      this.subLayers.forEach(subLayer => {
+        events[subLayer] = (event, data) => this.event.fire(`${eventType}-${subLayer}`, {event, data})
       })
     })
   }
 
   // 元素渲染后进行配置
-  setEvent = elType => {
+  setEvent = subLayer => {
     setTimeout(() => {
-      const els = this.root.selectAll(`.wave-basic-${elType}`).style('cursor', 'pointer')
-      commonEvents.forEach(eventType => els.on(`${eventType}.common`, this.#backupEvent.common[eventType][elType]))
+      const els = this.root.selectAll(`.wave-basic-${subLayer}`).style('cursor', 'pointer')
+      commonEvents.forEach(eventType => els.on(`${eventType}.common`, this.#backupEvent.common[eventType][subLayer]))
     }, 0)
   }
 
@@ -208,8 +207,8 @@ export default class LayerBase {
       this.tooltip = new Tooltip(this.options.container, options)
     }
     // 为元素绑定事件
-    this.tooltip && this.tooltip.options.targets.forEach(elType => setTimeout(() => {
-      const els = this.root.selectAll(`.wave-basic-${elType}`)
+    this.tooltip && this.tooltip.options.targets.forEach(subLayer => setTimeout(() => {
+      const els = this.root.selectAll(`.wave-basic-${subLayer}`)
       tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
     }, 0))
   }
@@ -217,7 +216,7 @@ export default class LayerBase {
   // 销毁图层
   destroy() {
     // 动画资源销毁
-    elTypes.forEach(name => this.animation[name]?.destroy())
+    this.subLayers.forEach(name => this.animation[name]?.destroy())
     // tooltip 实例销毁
     this.tooltip && this.tooltip.destroy()
     // dom 元素销毁
@@ -229,10 +228,10 @@ export default class LayerBase {
   /**
    * 控制整个图层的显示和隐藏
    * @param {Boolean} isVisiable 隐藏参数
-   * @param {String} elType 元素类型可缺省
+   * @param {String} subLayer 元素类型可缺省
    */
-  setVisible(isVisiable, elType) {
-    const targets = elTypes.find(elType) ? this.root.selectAll(`.${this.className}-${elType}`) : this.root
+  setVisible(isVisiable, subLayer) {
+    const targets = subLayer ? this.root.selectAll(`.${this.className}-${subLayer}`) : this.root
     targets.style('display', isVisiable ? 'block' : 'none')
   }
 
@@ -243,12 +242,12 @@ export default class LayerBase {
    */
   setAnimation(options) {
     // 配置动画前先销毁之前的动画，释放资源
-    elTypes.forEach(name => {
+    this.subLayers.forEach(name => {
       this.animation[name] && this.animation[name].destroy()
       this.animation[name] = null
     })
     // 为每种元素支持的每种动画配置
-    elTypes.forEach(name => {
+    this.subLayers.forEach(name => {
       // 没有数据，不需要配置动画
       if (this.#backupData[name].length === 0 || !options[name]) {
         this.animation[name] = null
@@ -268,25 +267,26 @@ export default class LayerBase {
       this.animation[name].event.on('process', data => this.event.fire(`${name}-animation-process`, data))
       this.animation[name].event.on('end', data => this.event.fire(`${name}-animation-end`, data))
     })
-    return () => elTypes.forEach(type => this.animation[type] && this.animation[type].play())
+    return () => this.subLayers.forEach(type => this.animation[type] && this.animation[type].play())
   }
 
   /**
    * 统一的 draw 函数
    * @param {String} type 元素类型
    * @param {Array<Object>} data 图层元素数据
+   * @param {String} subLayer 元素对应的 option 字段
    */
-  drawBasic(type, data) {
+  drawBasic(type, data, subLayer = type) {
     // 图层容器准备
     this.root = this.root || this.options.root.append('g').attr('class', this.className)
     // 元素容器准备，没有则追加
-    const containerClassName = `${this.className}-${type}`
+    const containerClassName = `${this.className}-${subLayer}`
     let container = this.root.selectAll(`.${containerClassName}`)
     if (container.size() === 0) {
-      container = this.root.append('g').attr('class', `${this.className}-${type}`)
+      container = this.root.append('g').attr('class', `${this.className}-${subLayer}`)
     }
     // 分组容器准备，删除上一次渲染多余的组
-    for (let i = 0; i < Math.max(this.#backupData[type].length, data.length); i++) {
+    for (let i = 0; i < Math.max(this.#backupData[subLayer].length, data.length); i++) {
       const groupClassName = `${containerClassName}-${i}`
       const els = container.selectAll(`.${groupClassName}`)
       if (i < data.length && els._groups[0].length === 0) {
@@ -297,21 +297,21 @@ export default class LayerBase {
     }
     // 根据对应列表数据绘制最终的元素
     for (let i = 0; i < data.length; i++) {
-      this.#backupData[type].length = data.length
-      if (!isEqual(this.#backupData[type][i], data[i])) {
+      this.#backupData[subLayer].length = data.length
+      if (!isEqual(this.#backupData[subLayer][i], data[i])) {
         const groupClassName = `${containerClassName}-${i}`
         const elContainer = container.selectAll(`.${groupClassName}`)
-        const options = {...data[i], className: `wave-basic-${type}`, container: elContainer}
+        const options = {...data[i], className: `wave-basic-${subLayer}`, container: elContainer}
         // 首次渲染不启用数据更新动画
-        options.enableUpdateAnimation = this.#backupData[type][i] ? data[i].enableUpdateAnimation : false
+        options.enableUpdateAnimation = this.#backupData[subLayer][i] ? data[i].enableUpdateAnimation : false
         // 调用基础元素绘制函数进行绘制
         !options.hide && basicMapping[type](options)
         // 备份数据以便支持其他功能
-        this.#backupData[type][i] = data[i]
+        this.#backupData[subLayer][i] = data[i]
       }
     }
     // 新的元素需要重新注册事件
-    this.setEvent(type)
+    this.setEvent(subLayer)
     this.setTooltip({rebind: true})
   }
 }

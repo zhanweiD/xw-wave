@@ -7,7 +7,7 @@ const defaultStyle = {
   circleSize: [5, 20],
   labelOffset: 5,
   text: {},
-  line: {
+  curve: {
     strokeWidth: 1,
   },
   circle: {},
@@ -19,7 +19,7 @@ export default class EdgeBundleLayer extends LayerBase {
   
   #scale = {}
 
-  #lineData = {}
+  #curveData = {}
 
   #circleData = {}
 
@@ -41,7 +41,7 @@ export default class EdgeBundleLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+    super(layerOptions, waveOptions, ['circle', 'curve', 'text'])
     this.className = 'wave-edge-bundle'
   }
 
@@ -59,7 +59,7 @@ export default class EdgeBundleLayer extends LayerBase {
       return v1 > v2 ? v1 : v2
     })(d3.hierarchy(root)).leaves()
     // 边数据
-    this.#lineData = this.#data.data.links.map(({from, to}) => {
+    this.#curveData = this.#data.data.links.map(({from, to}) => {
       const source = nodes.find(({data}) => data.name === from)
       const target = nodes.find(({data}) => data.name === to)
       const [angle1, angle2] = [(source.x / 180) * Math.PI, (target.x / 180) * Math.PI]
@@ -107,9 +107,9 @@ export default class EdgeBundleLayer extends LayerBase {
     this.#circleData.forEach(groupData => groupData.forEach((item => {
       item.color = circleColors[categorys.findIndex(value => value === item.source.category)]
     })))
-    const lineColors = this.getColor(categorys.length, this.#style.line?.fill, false)
-    this.#lineData.forEach(item => {
-      item.color = lineColors[categorys.findIndex(value => value === item.category)]
+    const curveColors = this.getColor(categorys.length, this.#style.curve?.fill, false)
+    this.#curveData.forEach(item => {
+      item.color = curveColors[categorys.findIndex(value => value === item.category)]
     })
     // 标签数据
     this.#textData = this.#circleData.map(groupData => groupData.map(({r, source, angle, radius}) => {
@@ -130,9 +130,9 @@ export default class EdgeBundleLayer extends LayerBase {
       const fill = groupData.map(({color}) => color)
       return {data, position, source, ...this.#style.circle, fill}
     })
-    const lineData = this.#lineData.map(({x1, y1, x2, y2, curveX, curveY, color}) => ({
+    const curveData = this.#curveData.map(({x1, y1, x2, y2, curveX, curveY, color}) => ({
       position: [[[x1, y1], [curveX, curveY], [x2, y2]]],
-      ...this.#style.line,
+      ...this.#style.curve,
       stroke: color,
     }))
     const textData = this.#textData.map(groupData => {
@@ -143,7 +143,7 @@ export default class EdgeBundleLayer extends LayerBase {
       const transformOrigin = groupData.map(item => item.transformOrigin)
       return {data, position, textAnchor, transformOrigin, rotation, ...this.#style.text}
     })
-    this.drawBasic('curve', lineData)
+    this.drawBasic('curve', curveData)
     this.drawBasic('circle', circleData)
     this.drawBasic('text', textData)
   }

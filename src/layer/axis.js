@@ -14,6 +14,7 @@ const axisType = {
 // 默认样式
 const defaultStyle = {
   labelOffset: 5,
+  circle: {},
   line: {
     stroke: 'white',
     strokeWidth: 1,
@@ -66,7 +67,7 @@ export default class AxisLayer extends LayerBase {
   }
 
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+    super(layerOptions, waveOptions, ['circle', 'line', 'text'])
     const {type = axisType.CARTESIAN} = this.options
     this.className = `wave-${type}-axis`
   }

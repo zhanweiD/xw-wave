@@ -11,7 +11,8 @@ const modeType = {
 
 // 默认样式
 const defaultStyle = {
-  pointSize: 4,
+  circleSize: 4,
+  circle: {},
   polygon: {
     strokeWidth: 2,
     fillOpacity: 0.4,
@@ -33,7 +34,7 @@ export default class RadarLayer extends LayerBase {
 
   #textData = []
 
-  #pointData = []
+  #circleData = []
 
   get data() {
     return this.#data
@@ -49,7 +50,7 @@ export default class RadarLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+    super(layerOptions, waveOptions, ['polygon', 'circle', 'text'])
     const {mode = modeType.GROUP} = this.options
     this.className = `wave-${mode}`
   }
@@ -108,18 +109,18 @@ export default class RadarLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {pointSize = 2} = this.#style
+    const {circleSize = 2} = this.#style
     // 颜色跟随主题
     const colors = this.getColor(this.#polygonData[0].length, this.#style.polygon?.fill, true)
     this.#polygonData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
     // 圆点数据依赖多边形数据
-    this.#pointData = this.#polygonData.map(groupData => {
+    this.#circleData = this.#polygonData.map(groupData => {
       return groupData.map(({x, y, color, ...others}) => ({
         ...others,
         cx: x,
         cy: y,
-        rx: pointSize / 2,
-        ry: pointSize / 2,
+        rx: circleSize / 2,
+        ry: circleSize / 2,
         color,
       }))
     })
@@ -137,7 +138,7 @@ export default class RadarLayer extends LayerBase {
       const data = this.#polygonData.map(item => [item[index].x, item[index].y])
       return {data: [data], stroke: color, transformOrigin, ...this.#style.polygon, fill: color}
     }).reverse()
-    const pointData = this.#pointData.map(groupData => {
+    const circleData = this.#circleData.map(groupData => {
       const data = groupData.map(({rx, ry}) => [rx, ry])
       const position = groupData.map(({cx, cy}) => [cx, cy])
       const fill = groupData.map(({color}) => color)
@@ -150,7 +151,7 @@ export default class RadarLayer extends LayerBase {
       return {data, position, ...this.#style.text}
     })
     this.drawBasic('polygon', polygonData)
-    this.drawBasic('circle', pointData)
+    this.drawBasic('circle', circleData)
     this.drawBasic('text', textData)
   }
 }

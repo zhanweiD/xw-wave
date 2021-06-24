@@ -44,7 +44,7 @@ export default class MatrixLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+    super(layerOptions, waveOptions, ['rect', 'circle', 'text'])
     const {mode = modeType.RECT} = this.options
     this.className = `wave-${mode}-matrix`
   }

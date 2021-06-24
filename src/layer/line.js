@@ -22,7 +22,7 @@ const defaultStyle = {
   labelOffset: [0, -5],
   labelPosition: labelPositionType.TOP,
   text: {},
-  line: {
+  curve: {
     strokeWidth: 2,
   },
   circle: {
@@ -43,7 +43,7 @@ export default class LineLayer extends LayerBase {
 
   #style = defaultStyle
 
-  #lineData = []
+  #curveData = []
 
   #textData = []
 
@@ -65,9 +65,9 @@ export default class LineLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+    super(layerOptions, waveOptions, ['curve', 'circle', 'area', 'text'])
     const {mode = modeType.DEFAULT} = this.options
-    this.className = `wave-${mode}-line`
+    this.className = `wave-${mode}-curve`
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
@@ -95,7 +95,7 @@ export default class LineLayer extends LayerBase {
     }, this.#scale, scales)
     // 计算基础数据
     const {scaleX, scaleY} = this.#scale
-    this.#lineData = pureTableList.map(([dimension, ...values]) => {
+    this.#curveData = pureTableList.map(([dimension, ...values]) => {
       return values.map((value, i) => ({
         value,
         dimension,
@@ -107,7 +107,7 @@ export default class LineLayer extends LayerBase {
     })
     // 堆叠柱状数据变更
     if (mode === modeType.STACK) {
-      this.#lineData = this.#lineData.map(groupData => {
+      this.#curveData = this.#curveData.map(groupData => {
         return groupData.reduce((prev, cur, index) => {
           return [...prev, {
             ...cur, 
@@ -125,27 +125,27 @@ export default class LineLayer extends LayerBase {
     const {labelPosition, labelOffset, pointSize, text} = this.#style
     const {top, height} = layout
     // 颜色跟随主题
-    const colors = this.getColor(this.#lineData.length, this.#style.line?.stroke, true)
-    this.#lineData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
+    const colors = this.getColor(this.#curveData.length, this.#style.curve?.stroke, true)
+    this.#curveData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
     // 标签文字数据
-    this.#textData = this.#lineData.map(groupData => groupData.map(({value, x, y}) => {
+    this.#textData = this.#curveData.map(groupData => groupData.map(({value, x, y}) => {
       return this.createText({x, y, value, position: labelPosition, offset: labelOffset, style: text})
     }))
     // 圆点数据
-    this.#circleData = this.#lineData.map(groupData => groupData.map(item => ({...item, r: pointSize / 2})))
+    this.#circleData = this.#curveData.map(groupData => groupData.map(item => ({...item, r: pointSize / 2})))
     // 面积数据
-    this.#areaData = this.#lineData.map((groupData, i) => groupData.map(({y, ...item}, j) => ({
+    this.#areaData = this.#curveData.map((groupData, i) => groupData.map(({y, ...item}, j) => ({
       y0: y,
-      y1: mode === modeType.STACK && j !== 0 ? this.#lineData[i][j - 1].y : height + top,
+      y1: mode === modeType.STACK && j !== 0 ? this.#curveData[i][j - 1].y : height + top,
       ...item,
     })))
   }
 
   // 绘制
   draw() {
-    const lineData = this.#lineData[0].map(({color}, index) => {
-      const position = this.#lineData.map(item => [item[index].x, item[index].y])
-      return {position: [position], ...this.#style.line, stroke: color}
+    const curveData = this.#curveData[0].map(({color}, index) => {
+      const position = this.#curveData.map(item => [item[index].x, item[index].y])
+      return {position: [position], ...this.#style.curve, stroke: color}
     })
     const areaData = this.#areaData[0].map(({color}, index) => {
       const position = this.#areaData.map(item => [item[index].x, item[index].y0, item[index].y1])
@@ -164,7 +164,7 @@ export default class LineLayer extends LayerBase {
       return {data, position, source, ...this.#style.circle, stroke}
     })
     this.drawBasic('area', areaData)
-    this.drawBasic('curve', lineData)
+    this.drawBasic('curve', curveData)
     this.drawBasic('circle', circleData)
     this.drawBasic('text', textData)
   }

@@ -58,7 +58,7 @@ export default class SankeyLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+    super(layerOptions, waveOptions, ['rect', 'ribbon', 'text'])
     const {direction = directionType.HORIZONTAL} = this.options
     this.className = `wave-${direction}-sankey`
   }

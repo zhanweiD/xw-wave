@@ -33,7 +33,7 @@ export default class TextLayer extends LayerBase {
   }
 
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+    super(layerOptions, waveOptions, ['text'])
     this.className = 'wave-text'
   }
 
