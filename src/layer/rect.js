@@ -35,6 +35,7 @@ const labelPositionType = {
 
 // 默认样式
 const defaultStyle = {
+  paddingInner: 0,
   labelPosition: labelPositionType.CENTER,
   labelOffset: 5,
   rect: {},
@@ -208,7 +209,8 @@ export default class RectLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition} = this.#style
+    const {labelPosition, paddingInner} = this.#style
+    const {type = waveType.COLUMN} = this.options
     // 颜色跟随主题
     if (this.#rectData[0]?.length > 1) {
       const colors = this.getColor(this.#rectData[0].length, this.#style.rect?.fill, true)
@@ -217,6 +219,17 @@ export default class RectLayer extends LayerBase {
       const colors = this.getColor(this.#rectData.length, this.#style.rect?.fill, true)
       this.#rectData.forEach((groupData, i) => (groupData[0].color = colors[i]))
     }
+    // 计算柱子占整个 bandWidth 的比值
+    this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, width, height, ...other}) => {
+      const totalPadding = paddingInner * (type === waveType.COLUMN ? width : height)
+      return {
+        x: type === waveType.COLUMN ? x + totalPadding / 2 : x,
+        y: type === waveType.BAR ? y + totalPadding / 2 : y,
+        width: type === waveType.COLUMN ? width - totalPadding : width,
+        height: type === waveType.BAR ? height - totalPadding : height,
+        ...other,
+      }
+    }))
     // 标签文字数据
     this.#textData = this.#rectData.map(groupData => {
       const result = []
