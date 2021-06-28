@@ -24,7 +24,8 @@ const defaultOptions = {
   duration: 3000, 
   direction: directions.BOTTOM,
   scope: scopes.FILL,
-  color: 'rgba(255,255,255,0.4)',
+  color: 'rgb(255,255,255)',
+  opacity: 0.4,
   loop: true,
 }
 // 动画生成Id
@@ -44,8 +45,8 @@ const getAttributes = direction => {
 }
 
 // 渐变效果
-const insertOffsets = (gradient, color) => {
-  const {r, g, b, a} = rgba2obj(color, 1)
+const insertOffsets = (gradient, {color, opacity}) => {
+  const {r, g, b, a} = rgba2obj(color, opacity)
   const minColor = `rgba(${r},${g},${b},0)`
   const maxColor = `rgba(${r},${g},${b},${a})`
   gradient.append('stop')
@@ -64,7 +65,7 @@ const insertOffsets = (gradient, color) => {
 }
 
 // 创建横向渐变或者径向渐变，以及模糊效果
-const createGradient = (parentNode, direction, color) => {
+const createGradient = (parentNode, {direction, color, opacity}) => {
   let targets
   const attributes = getAttributes(direction)
   const isLeftOrTop = direction === directions.LEFT || direction === directions.TOP
@@ -88,15 +89,15 @@ const createGradient = (parentNode, direction, color) => {
       .attr(attributes[0], isLeftOrTop ? '100%' : '-100%')
       .attr(attributes[1], isLeftOrTop ? '200%' : '0%')
   }
-  return insertOffsets(targets, color)._groups[0]
+  return insertOffsets(targets, {color, opacity})._groups[0]
 }
 
 export default class ScanAnimation extends AnimationBase {
   constructor(options, context) {
     super(defaultOptions, options, context)
-    const {direction, color} = this.options
+    const {direction, color, opacity} = this.options
     this.extraNode = context.append('defs')
-    this.targets = createGradient(this.extraNode, direction, color)
+    this.targets = createGradient(this.extraNode, {direction, color, opacity})
     this.isAnimationFirstPlay = true
   }
 

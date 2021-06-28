@@ -59,9 +59,9 @@ const createLayer = (wave, config) => {
 }
 
 // 根据配置创建一个新的图表
-function createWave(schema) {
+function createWave(schema, existedWave) {
   const {container, adjust, width, height, padding, theme, coordinate, layout, brush, layers} = schema
-  const wave = new Wave({container, adjust, width, height, padding, coordinate, theme, layout})
+  const wave = existedWave || new Wave({container, adjust, width, height, padding, coordinate, theme, layout})
   // 有些层比较特殊，需要依赖其他图层的数据或者比例尺
   const normalLayerConfigs = layers.filter(({type}) => isNormalLayer(type))
   const axisLayerConfig = layers.find(({type}) => isAxisLayer(type))

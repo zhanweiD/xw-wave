@@ -21,14 +21,16 @@ let count = 0
 
 // 创建擦除动画所需的元素
 const createGradient = (parentNode, direction) => {
+  const isHorizontal = direction === directionType.LEFT || direction === directionType.RIGHT
+  const isVertical = direction === directionType.TOP || direction === directionType.BOTTOM
   const targets = parentNode
     .append('clipPath')
     .attr('id', `eraseAnimation${++count}`)
     .append('rect')
     .attr('x', direction === directionType.LEFT ? '100%' : '0%')
     .attr('y', direction === directionType.TOP ? '100%' : '0%')
-    .attr('width', direction === directionType.LEFT || direction === directionType.RIGHT ? '0%' : '100%')
-    .attr('height', direction === directionType.TOP || direction === directionType.BOTTOM ? '0%' : '100%')
+    .attr('width', isHorizontal ? '0%' : '100%')
+    .attr('height', isVertical ? '0%' : '100%')
   return targets._groups[0]
 }
 
@@ -45,8 +47,8 @@ export default class EraseAnimation extends AnimationBase {
 
   play() {
     const {delay, duration, loop, direction} = this.options
-    const isLeftOrRight = direction === directionType.LEFT || direction === directionType.RIGHT
-    const isTopOrBottom = direction === directionType.TOP || direction === directionType.BOTTOM
+    const isHorizontal = direction === directionType.LEFT || direction === directionType.RIGHT
+    const isVertical = direction === directionType.TOP || direction === directionType.BOTTOM
     anime({
       targets: this.targets,
       duration,
@@ -57,8 +59,8 @@ export default class EraseAnimation extends AnimationBase {
       loopComplete: this.end.bind(this),
       x: direction === directionType.LEFT ? ['100%', '0%'] : '0%',
       y: direction === directionType.TOP ? ['100%', '0%'] : '0%',
-      width: isLeftOrRight ? ['0%', '100%'] : '100%',
-      height: isTopOrBottom ? ['0%', '100%'] : '100%',
+      width: isHorizontal ? ['0%', '100%'] : '100%',
+      height: isVertical ? ['0%', '100%'] : '100%',
       easing: 'linear',
     })
     this.event.has('play') && this.event.fire('play')

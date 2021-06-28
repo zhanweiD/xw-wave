@@ -1,5 +1,5 @@
 import {Children, useRef, useEffect, useState} from 'react'
-import c from 'classname'
+import c from 'classnames'
 import {range} from 'd3'
 import ThemeConfig from '../util/theme'
 import columnSchema from './column'
