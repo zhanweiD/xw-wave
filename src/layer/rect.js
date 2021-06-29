@@ -102,7 +102,7 @@ export default class RectLayer extends LayerBase {
         range: type === waveType.COLUMN ? [layout.height, 0] : [layout.width, 0],
         nice: this.#scale.nice,
       }),
-    }, this.#scale, scales)
+    }, this.#scale, {...scales, scaleY: null})
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
     const {scaleX, scaleY} = this.#scale
     this.#rectData = pureTableList.map(([dimension, ...values]) => {

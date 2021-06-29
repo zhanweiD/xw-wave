@@ -1,5 +1,5 @@
 import {sum, max} from 'd3'
-import {cloneDeep, isArray} from 'lodash'
+import {cloneDeep} from 'lodash'
 import LayerBase from './base'
 import getTextWidth from '../util/text-width'
 import formatText from '../util/format-text'
@@ -35,8 +35,6 @@ const defaultStyle = {
 export default class LegendLayer extends LayerBase {
   #data = []
 
-  #style = defaultStyle
-
   #textData = []
 
   #circleData = []
@@ -44,6 +42,12 @@ export default class LegendLayer extends LayerBase {
   #colors = []
 
   #textColors = []
+
+  #layers = null
+
+  #isFiltering = false
+
+  #style = defaultStyle
 
   get data() {
     return this.#data
@@ -59,24 +63,14 @@ export default class LegendLayer extends LayerBase {
     this.className = 'wave-legend'
   }
 
-  /**
-   * 传入图例数据
-   * @param {LayerBase} layer 
-   */
-  setData(layers) {
-    // 初始化文字数据和图形颜色
-    layers = isArray(layers) ? layers : layers ? [layers] : []
-    layers.forEach(layer => {
-      this.#data.push(...layer.data.data.slice(1).map(({header}) => header))
-      this.#colors.push(...layer.getColor(layer.data.data.length - 1))
-      this.#textColors.push(...new Array(layer.data.data.length - 1).fill('white'))
-    })
-    // 状态变量，用于恢复数据
-    const originData = layers.map(layer => layer.data)
+  // 图例过滤逻辑
+  #filter = () => {
+    // 备份用于恢复数据
+    const originData = this.#layers.map(layer => layer.data)
     const colors = cloneDeep(this.#colors)
-    const counts = layers.map(({data}) => data.data.length - 1)
-    const disableColor = '#E2E3E588'
+    const counts = this.#layers.map(({data}) => data.data.length - 1)
     const disableFlag = new Array(this.#colors.length).fill(false)
+    const disableColor = '#E2E3E588'
     // 数据筛选
     this.event.off('click-circle')
     this.event.on('click-circle', object => {
@@ -84,7 +78,7 @@ export default class LegendLayer extends LayerBase {
       const layerIndex = counts.findIndex((v, i) => counts.slice(0, i + 1).reduce((prev, cur) => prev + cur) > index)
       const startIndex = counts.slice(0, layerIndex).reduce((prev, cur) => prev + cur, 0)
       const data = originData[layerIndex]
-      const layer = layers[layerIndex]
+      const layer = this.#layers[layerIndex]
       // 更新图例状态
       if (disableFlag[index]) {
         disableFlag[index] = false
@@ -102,6 +96,8 @@ export default class LegendLayer extends LayerBase {
       data.data.slice(1).map(({header}) => header).forEach((header, i) => order[header] = i)
       subData.options.order = order
       try {
+        // 表示当前图层重绘制来自于图例过滤
+        this.#isFiltering = true
         layer.setData(subData)
         layer.setStyle()
         layer.draw()
@@ -112,6 +108,35 @@ export default class LegendLayer extends LayerBase {
       this.setStyle()
       this.draw()
     })
+  }
+
+  /**
+   * 传入图例数据
+   * @param {Array<LayerBase>} layers 图层数组 
+   */
+  setData(layers) {
+    this.#isFiltering = false
+    this.#layers = layers || this.#layers
+    // 初始化文字数据和图形颜色
+    this.#layers.forEach(layer => {
+      this.#data.push(...layer.data.data.slice(1).map(({header}) => header))
+      this.#colors.push(...layer.getColor(layer.data.data.length - 1))
+      this.#textColors.push(...new Array(layer.data.data.length - 1).fill('white'))
+    })
+    // 生命周期绑定
+    if (layers) {
+      this.#filter()
+      this.#layers.forEach(layer => layer.event.on('draw', () => {
+        if (!this.#isFiltering) {
+          this.#data = []
+          this.#colors = []
+          this.#textColors = []
+          this.setData()
+          this.setStyle()
+          this.draw()
+        }
+      }))
+    }
   }
 
   // 覆盖默认图层样式

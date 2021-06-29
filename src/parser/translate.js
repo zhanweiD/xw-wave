@@ -31,7 +31,7 @@ function translate(schema) {
   } = schema
 
   // 处理图层数据
-  const layerConfig = layers.map(({type, id, data, axis, children, other, tooltip}) => {
+  const layerConfig = layers.reverse().map(({type, id, data, axis, children, other, tooltip}) => {
     // 图层的初始化配置
     const options = {id, axis, layout: layoutMapping(type)}
     // 比例尺配置
@@ -49,7 +49,7 @@ function translate(schema) {
       // 图形配置面板
       if (tabId === 'graph') {
         const result = graphMapping(graph)
-        Object.assign(scale, {[option]: result.scale})
+        Object.assign(scale, result.scale)
         Object.assign(style, {[option]: result.style})
       }
       // 文字配置面板
@@ -73,7 +73,7 @@ function translate(schema) {
     if (tooltip && tooltip.useTooltip) {
       Object.assign(_tooltip, {...tooltip, targets: children.map(({option}) => option)})
     }
-    return {type, data, options, style, tooltip: _tooltip, animation: _animation}
+    return {type, data, scale, options, style, tooltip: _tooltip, animation: _animation}
   })
   
   return {

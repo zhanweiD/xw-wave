@@ -187,9 +187,9 @@ export default class Wave {
     lifeCircles.forEach(name => {
       const fn = layer[name]
       layer[name] = (...parameter) => {
-        layer.event.fire(name, {...parameter})
         try {
           fn.call(layer, ...parameter)
+          layer.event.fire(name, {...parameter})
         } catch (error) {
           this.warn('图层生命周期调用失败', error)
         }
