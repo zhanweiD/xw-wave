@@ -118,25 +118,23 @@ export default class LegendLayer extends LayerBase {
     this.#isFiltering = false
     this.#layers = layers || this.#layers
     // 初始化文字数据和图形颜色
+    this.#data = []
+    this.#colors = []
+    this.#textColors = []
     this.#layers.forEach(layer => {
       this.#data.push(...layer.data.data.slice(1).map(({header}) => header))
       this.#colors.push(...layer.getColor(layer.data.data.length - 1))
       this.#textColors.push(...new Array(layer.data.data.length - 1).fill('white'))
     })
     // 生命周期绑定
-    if (layers) {
-      this.#filter()
-      this.#layers.forEach(layer => layer.event.on('draw', () => {
-        if (!this.#isFiltering) {
-          this.#data = []
-          this.#colors = []
-          this.#textColors = []
-          this.setData()
-          this.setStyle()
-          this.draw()
-        }
-      }))
-    }
+    layers && this.#filter()
+    layers && this.#layers.forEach(layer => layer.event.on('draw', () => {
+      if (!this.#isFiltering) {
+        this.setData()
+        this.setStyle()
+        this.draw()
+      }
+    }))
   }
 
   // 覆盖默认图层样式

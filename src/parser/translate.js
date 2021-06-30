@@ -31,7 +31,7 @@ function translate(schema) {
   } = schema
 
   // 处理图层数据
-  const layerConfig = layers.reverse().map(({type, id, data, axis, children, other, tooltip}) => {
+  const layerConfig = layers.map(({type, id, data, axis, children, other, tooltip}) => {
     // 图层的初始化配置
     const options = {id, axis, layout: layoutMapping(type)}
     // 比例尺配置
@@ -84,7 +84,7 @@ function translate(schema) {
     coordinate,
     baseFontSize,
     theme: themeColors,
-    layers: layerConfig,
+    layers: layerConfig.reverse(),
     adjust: false,
   }
 }
