@@ -1,3 +1,6 @@
+import chroma from 'chroma-js'
+import {isArray, merge} from 'lodash'
+
 // 工具布局到图表布局
 const layoutMapping = type => {
   switch (type) {
@@ -36,17 +39,27 @@ const alignMapping = align => {
   }
 }
 
+// 删除无效值，因为无效值有特殊含义（采用默认值）
+const filterInvalid = object => {
+  Object.keys(object).forEach(key => {
+    if (object[key] === undefined) {
+      delete object[key]
+    }
+  })
+  return object
+}
+
 // 多色二维数组到一维数组的转换
 const getColor = fillColor => {
-  if (Array.isArray(fillColor)) {
-    let lastOffset = -0.01
-    let colors = []
-    fillColor.forEach(([color, offset]) => {
-      const fixedOffset = Number(offset).toFixed(2)
-      colors = colors.concat(new Array((fixedOffset - lastOffset) / 0.01).fill(color))
-      lastOffset = fixedOffset
+  if (isArray(fillColor)) {
+    const result = []
+    const format = number => Number(number).toFixed(2)
+    fillColor.reduce(([prevColor, prevOffset], [curColor, curOffset]) => {
+      const colors = chroma.scale([prevColor, curColor]).mode('lch').colors(format((curOffset - prevOffset) / 0.01))
+      result.push(...colors)
+      return [curColor, curOffset]
     })
-    return colors
+    return result
   }
   return fillColor
 }
@@ -61,25 +74,14 @@ const graphMapping = graph => {
     strokeWidth, // 描边宽度
     strokeColor, // 描边色
     strokeOpacity, // 描边透明度
-    useFixedWidth, // 启用固定宽度
-    fixedWidth, // 固定宽度
-    useFixedPaddingInner, // 启用固定间距
-    fixedPaddingInner, // 固定间距
   } = graph
-  return {
-    style: {
-      fill: useFill ? getColor(fillColor) : null,
-      fillOpacity: useFill ? fillOpacity : null,
-      strokeWidth: useStroke ? strokeWidth : null,
-      stroke: useStroke ? strokeColor : null,
-      strokeOpacity: useStroke ? strokeOpacity : null,
-    },
-    scale: {
-      fixedBandWidth: useFixedWidth ? fixedWidth : null,
-      fixedPaddingInner: useFixedPaddingInner ? fixedPaddingInner : null,
-      fixedBoundary: 'start',
-    },
-  }
+  return filterInvalid({
+    fill: useFill ? getColor(fillColor) : null,
+    stroke: useStroke ? strokeColor : undefined,
+    fillOpacity: useFill ? fillOpacity : undefined,
+    strokeWidth: useStroke ? strokeWidth : undefined,
+    strokeOpacity: useStroke ? strokeOpacity : undefined,
+  })
 }
   
 // 文字面板配置映射
@@ -103,7 +105,7 @@ const textMapping = text => {
   } = text
   const [x, y, blur] = shadowConfig
   const color = shadowColor.replace('rgb', 'rgba').replace(')', `,${shadowOpacity})`)
-  return {
+  return filterInvalid({
     fontFamily,
     fontSize,
     fontWeight,
@@ -111,34 +113,58 @@ const textMapping = text => {
     fillOpacity,
     rotation,
     writingMode,
-    textShadow: useShadow ? `${x}px ${y}px ${blur}px ${color}` : null,
+    textShadow: useShadow ? `${x}px ${y}px ${blur}px ${color}` : undefined,
     format: {
       type: useFormat ? 'number' : 'plainText',
       decimalPlace,
       isPercentage: usePercentage,
       isThousandth: useThousandth,
     },
-  }
+  })
 }
 
 // 其他面板的配置映射，每个图层都不同
-const otherMapping = (type, other) => {
-  const [options, style] = [{}, {...other}]
-  if ((type === 'text' || type === 'legend') && other.alignment) {
+const otherMapping = (layer, other) => {
+  const scale = {}
+  const options = {}
+  const style = {...other}
+  // 各个图层的数据处理
+  if ((layer === 'text' || layer === 'legend') && other.alignment) {
     [style.align, style.verticalAlign] = alignMapping(other.alignment)
-  } else if (type === 'rect') {
-    options.type = other.type
-    options.mode = other.mode
-  }
-  // 删除所有未定义的内容，因为无效值在图表内有特殊含义（采用默认值）
-  [options, style].forEach(object => {
-    Object.keys(object).forEach(key => {
-      if (object[key] === undefined) {
-        delete object[key]
-      }
+  } else if (layer === 'axis') {
+    merge(options, {type: other.type})
+  } else if (layer === 'radar') {
+    merge(options, {mode: other.mode})
+  } else if (layer === 'auxiliary') {
+    const {
+      type, // 水平线或垂直线
+      dasharray, // 辅助线虚线参数
+    } = other
+    merge(style, {line: {dasharray: `${dasharray[0]} ${dasharray[1]}`}})
+    merge(options, {type})
+  } else if (layer === 'rect') {
+    const {
+      type, // 柱状图或者折线图
+      mode, // 数据组合方式
+      axis, // 坐标轴类型
+      useFixedWidth, // 启用固定宽度
+      fixedBandWidth, // 固定宽度
+      useFixedPaddingInner, // 启用固定间距
+      fixedPaddingInner, // 固定间距
+      labelPositionMax,
+      labelPositionMin,
+    } = other
+    merge(options, {type, mode, axis})
+    merge(style, {labelPosition: [labelPositionMin, labelPositionMax]})
+    merge(scale, {
+      fixedBandWidth: useFixedWidth ? fixedBandWidth : null,
+      fixedPaddingInner: useFixedPaddingInner ? fixedPaddingInner : null,
+      fixedBoundary: 'start',
     })
-  })
-  return {options, style}
+  }
+  filterInvalid(options)
+  filterInvalid(style)
+  return {options, scale, style}
 }
 
 // 动画面板映射

@@ -173,7 +173,7 @@ export default class AxisLayer extends LayerBase {
       }
       // Y轴主轴标签在线的左下方，副轴标签在线的右下方
       if (type === axisType.VERTICAL || type === axisType.CARTESIAN) {
-        const isLinear = this.#scale.scaleY.type === 'linear'
+        const isLinear = this.#scale.scaleY?.type === 'linear'
         return i < this.#axisLength.x + this.#axisLength.y
           ? this.createText({x: x1, y: y1, position: isLinear ? 'right-bottom' : 'right', ...basicTextData})
           : this.createText({x: x2, y: y1, position: 'left-bottom', ...basicTextData})
@@ -213,12 +213,12 @@ export default class AxisLayer extends LayerBase {
     }))
     // 澜图特色坐标轴视觉支持
     if (type === axisType.CARTESIAN) {
-      scaleY?.type !== 'linear' && lineData[0].position.splice(this.#axisLength.x)
-      scaleX?.type !== 'linear' && lineData[0].position.splice(0, this.#axisLength.x)
+      scaleY && scaleY.type !== 'linear' && lineData[0].position.splice(this.#axisLength.x)
+      scaleX && scaleX.type !== 'linear' && lineData[0].position.splice(0, this.#axisLength.x)
     } else if (type === axisType.HORIZONTAL) {
-      scaleX?.type !== 'linear' && lineData[0].position.splice(0)
+      scaleX && scaleX.type !== 'linear' && lineData[0].position.splice(0)
     } else if (type === axisType.VERTICAL) {
-      scaleY?.type !== 'linear' && lineData[0].position.splice(0)
+      scaleY && scaleY.type !== 'linear' && lineData[0].position.splice(0)
     }
     this.drawBasic('circle', circleData)
     this.drawBasic('line', lineData)

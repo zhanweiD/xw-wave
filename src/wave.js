@@ -180,7 +180,7 @@ export default class Wave {
 
   /**
    * 给图层注册生命周期函数事件
-   * @param {LayerBase} layer 
+   * @param {LayerBase} layer 目标图层
    */
   registerLifeCircle(layer) {
     const lifeCircles = ['setData', 'setStyle', 'draw', 'destory']
@@ -235,7 +235,7 @@ export default class Wave {
    */
   bindCoordinate(axisLayer, layers) {
     // 比例尺融合
-    layers = layers.filter(layer => layer.scale && layer.options.axis)
+    layers = layers.filter(layer => layer.scale)
     layers.forEach(({scale, options}) => {
       const result = {}
       const {axis} = options

@@ -3,7 +3,7 @@ import Scale from '../data/scale'
 
 // 默认样式
 const defaultStyle = {
-  circleSizeRange: [5, 5],
+  circleSize: [5, 5],
   circle: {},
   text: {},
 }
@@ -80,11 +80,11 @@ export default class ScatterLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {circleSizeRange, text} = this.#style
+    const {circleSize, text} = this.#style
     const scaleSize = new Scale({
       type: 'linear',
       domain: this.#data.data.length >= 4 ? this.#data.select(this.#data.data[3].header).range() : [],
-      range: circleSizeRange.map(value => value / 2),
+      range: circleSize.map(value => value / 2),
       nice: null,
     })
     // 颜色跟随主题
@@ -95,8 +95,8 @@ export default class ScatterLayer extends LayerBase {
       return groupData.map(({value, ...others}) => ({
         value,
         ...others,
-        rx: value !== undefined ? scaleSize(value) : circleSizeRange[0] / 2,
-        ry: value !== undefined ? scaleSize(value) : circleSizeRange[0] / 2,
+        rx: value !== undefined ? scaleSize(value) : circleSize[0] / 2,
+        ry: value !== undefined ? scaleSize(value) : circleSize[0] / 2,
       }))
     })
     // 标签文字数据

@@ -1,19 +1,22 @@
-import {
-  layoutMapping,
-  graphMapping, 
-  textMapping,
-  otherMapping,
-  animationMapping,
-} from './mapping'
+import {merge} from 'lodash'
+import {layoutMapping, graphMapping, textMapping, otherMapping, animationMapping} from './mapping'
 
-const mockTableList = {
-  type: 'tableList',
-  mode: 'normal', 
-  row: 6,
-  column: 2,
-  mu: 500,
-  sigma: 200,
-  decimalPlace: 1,
+const getMockData = type => {
+  if (type === 'text') {
+    return '图表标题'
+  }
+  if (type === 'auxiliary') {
+    return [400, 2000]
+  }
+  return {
+    type: 'tableList',
+    mode: 'normal', 
+    row: 6,
+    column: 3,
+    mu: 500,
+    sigma: 200,
+    decimalPlace: 1,
+  }
 }
 
 // 工具配置到图表配置的映射函数
@@ -43,35 +46,26 @@ function translate(schema) {
     // 动画配置
     const _animation = {}
     // 没有数据临时用随机数据
-    data = type === 'text' ? '图表标题' : mockTableList
+    data = getMockData(type)
     // 图层配置映射
     children.forEach(({tabId, option, text, graph, animation}) => {
       // 图形配置面板
-      if (tabId === 'graph') {
-        const result = graphMapping(graph)
-        Object.assign(scale, result.scale)
-        Object.assign(style, {[option]: result.style})
-      }
+      tabId === 'graph' && merge(style, {[option]: graphMapping(graph)})
       // 文字配置面板
-      if (tabId === 'text') {
-        const result = textMapping(text)
-        Object.assign(style, {[option]: result})
-      }
+      tabId === 'text' && merge(style, {[option]: textMapping(text)})
       // 动画配置面板
-      if (isPreview) {
-        const result = animationMapping(animation)
-        Object.assign(_animation, {[option]: result})
-      }
+      isPreview && merge(_animation, {[option]: animationMapping(animation)})
     })
     // 其他自定义配置
     if (other) {
       const otherResult = otherMapping(type, other)
-      Object.assign(options, otherResult.options)
-      Object.assign(style, otherResult.style)
+      merge(options, otherResult.options)
+      merge(scale, otherResult.scale)
+      merge(style, otherResult.style)
     }
     // tooltip 配置
     if (tooltip && tooltip.useTooltip) {
-      Object.assign(_tooltip, {...tooltip, targets: children.map(({option}) => option)})
+      merge(_tooltip, {...tooltip, targets: children.map(({option}) => option)})
     }
     return {type, data, scale, options, style, tooltip: _tooltip, animation: _animation}
   })

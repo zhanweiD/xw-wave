@@ -33,8 +33,6 @@ const createLayer = (wave, config) => {
       dataSet.push(['总和', dataSet.select(dataSet.data[1].header, {mode: 'sum', target: 'column'}).range()[1]])
     } else if (type === 'arc' && options.mode !== 'stack') {
       dataSet = dataSet.select(dataSet.data.map(({header}) => header).slice(0, 2))
-    } else if (type === 'radar' && options.mode === 'default') {
-      dataSet = dataSet.select(dataSet.data.map(({header}) => header).slice(0, 2))
     }
   }
   // 特殊图层需要其他图层的比例尺
@@ -43,7 +41,7 @@ const createLayer = (wave, config) => {
   if (type === 'legend') {
     dataSet = wave.layer.filter(({instance}) => instance.data instanceof TableList).map(({instance}) => instance)
   } else if (isDependentLayer(type)) {
-    customScale = wave.layer.find(({id}) => id === options.bind).instance.scale
+    customScale = wave.layer.find(item => item.type === 'axis').instance.scale
   }
   // 设置图层的数据，第二个参数为比例尺，第三个参数为比例尺配置
   layer.setData(dataSet, {...customScale, nice: scale})
