@@ -23,6 +23,7 @@ const labelPositionType = {
 
 // 默认样式
 const defaultStyle = {
+  innerRadius: 0,
   labelOffset: 5,
   labelPosition: labelPositionType.INNER,
   arc: {},

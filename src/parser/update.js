@@ -31,5 +31,5 @@ function updateWave({tabId, layerId, option, value, schema, instance}) {
     console.error('图层配置解析错误，更新失败', error)
   }
 }
-  
+
 export default updateWave

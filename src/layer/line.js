@@ -19,9 +19,10 @@ const labelPositionType = {
 // 默认样式
 const defaultStyle = {
   pointSize: 5,
-  labelOffset: [0, -5],
   labelPosition: labelPositionType.TOP,
-  text: {},
+  text: {
+    offset: [0, 5],
+  },
   curve: {
     strokeWidth: 2,
   },
@@ -122,14 +123,14 @@ export default class LineLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {layout, mode = modeType.DEFAULT} = this.options
-    const {labelPosition, labelOffset, pointSize, text} = this.#style
+    const {labelPosition, pointSize, text} = this.#style
     const {top, height} = layout
     // 颜色跟随主题
     const colors = this.getColor(this.#curveData.length, this.#style.curve?.stroke, true)
     this.#curveData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
     // 标签文字数据
     this.#textData = this.#curveData.map(groupData => groupData.map(({value, x, y}) => {
-      return this.createText({x, y, value, position: labelPosition, offset: labelOffset, style: text})
+      return this.createText({x, y, value, position: labelPosition, style: text})
     }))
     // 圆点数据
     this.#circleData = this.#curveData.map(groupData => groupData.map(item => ({...item, r: pointSize / 2})))

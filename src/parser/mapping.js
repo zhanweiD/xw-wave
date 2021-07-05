@@ -67,20 +67,22 @@ const getColor = fillColor => {
 // 图形面板配置映射
 const graphMapping = graph => {
   const {
-    useFill, // 启用填充
-    fillColor, // 填充色
+    fillType, // 填充色类型
+    fillSolidColor, // 单色填充色
+    fillGradientColor, // 渐变填充色
     fillOpacity, // 填充透明度
-    useStroke, // 启用描边
     strokeWidth, // 描边宽度
-    strokeColor, // 描边色
+    strokeType, // 描边色类型
+    strokeSolidColor, // 单色描边色
+    strokeGradientColor, // 渐变描边色
     strokeOpacity, // 描边透明度
   } = graph
   return filterInvalid({
-    fill: useFill ? getColor(fillColor) : null,
-    stroke: useStroke ? strokeColor : undefined,
-    fillOpacity: useFill ? fillOpacity : undefined,
-    strokeWidth: useStroke ? strokeWidth : undefined,
-    strokeOpacity: useStroke ? strokeOpacity : undefined,
+    fill: fillType === 'solid' ? fillSolidColor : fillType === 'gradient' ? getColor(fillGradientColor) : undefined,
+    stroke: strokeType === 'solid' ? strokeSolidColor : strokeType === 'gradient' ? getColor(strokeGradientColor) : undefined,
+    fillOpacity: fillOpacity || undefined,
+    strokeWidth: strokeWidth || undefined,
+    strokeOpacity: strokeOpacity || undefined,
   })
 }
   
@@ -101,6 +103,7 @@ const textMapping = text => {
     usePercentage, // 是否格式化为百分数
     decimalPlace, // 是否格式化为小数点后N位
     rotation, // 文字旋转角度
+    offset, // 文字偏移 [x, y]
     writingMode, // 文字书写方向
   } = text
   const [x, y, blur] = shadowConfig
@@ -113,6 +116,7 @@ const textMapping = text => {
     fillOpacity,
     rotation,
     writingMode,
+    offset,
     textShadow: useShadow ? `${x}px ${y}px ${blur}px ${color}` : undefined,
     format: {
       type: useFormat ? 'number' : 'plainText',
@@ -135,6 +139,14 @@ const otherMapping = (layer, other) => {
     merge(options, {type: other.type})
   } else if (layer === 'radar') {
     merge(options, {mode: other.mode})
+  } else if (layer === 'line') {
+    merge(options, {mode: other.mode})
+  } else if (layer === 'arc') {
+    const {
+      type, // 饼图或蓝丁格尔玫瑰图
+      mode, // 数据组合方式
+    } = other
+    merge(options, {type, mode})
   } else if (layer === 'auxiliary') {
     const {
       type, // 水平线或垂直线

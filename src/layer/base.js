@@ -23,7 +23,7 @@ export const positionType = {
 // 其他常量
 export const scaleTypes = ['scaleX', 'scaleY', 'scaleYR', 'scaleAngle', 'scaleRadius', 'scaleColor']
 export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
-export const tooltipEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'blur']
+export const tooltipEvents = ['mouseover', 'mouseout', 'mousemove']
 
 export default class LayerBase {
   #backupData = {}
@@ -153,9 +153,9 @@ export default class LayerBase {
       positionY += textAnchor === 'end' ? fontSize : -fontSize
     }
     // 偏移控制
-    if (isArray(offset)) {
-      positionX += offset[0]
-      positionY += offset[1]
+    if (isArray(style.offset)) {
+      positionX += style.offset[0]
+      positionY -= style.offset[1]
     }
     return {x: positionX, y: positionY, textAnchor, value: formattedText, transformOrigin: `${x} ${y}`}
   }
@@ -165,13 +165,6 @@ export default class LayerBase {
     this.#backupEvent = {
       common: {},
       tooltip: {
-        // 点击组合事件
-        click: (event, data) => {
-          this.tooltip.update(event, {data, backup: this.#backupData})
-          this.tooltip.show()
-          this.tooltip.move(event, {enableAnimation: true})
-        },
-        blur: () => this.tooltip.hide(),
         // 悬浮组合事件
         mouseover: (event, data) => {
           this.tooltip.update(event, {data, backup: this.#backupData})
