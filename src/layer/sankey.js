@@ -59,8 +59,8 @@ export default class SankeyLayer extends LayerBase {
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions, ['rect', 'ribbon', 'text'])
-    const {direction = directionType.HORIZONTAL} = this.options
-    this.className = `wave-${direction}-sankey`
+    const {type = directionType.HORIZONTAL} = this.options
+    this.className = `wave-${type}-sankey`
   }
 
   // 传入表格关系型数据
@@ -68,20 +68,20 @@ export default class SankeyLayer extends LayerBase {
     this.#data = relation || this.#data
     const {nodes} = this.#data.data
     const {width, height} = this.options.layout
-    const {direction = directionType.HORIZONTAL} = this.options
+    const {type = directionType.HORIZONTAL} = this.options
     const levels = d3.range(0, d3.max(nodes.map(({level}) => level)) + 1)
     this.#scale.nice = {fixedBandWidth: 5, ...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'band',
         domain: levels,
-        range: direction === directionType.HORIZONTAL ? [0, width] : [0, height],
+        range: type === directionType.HORIZONTAL ? [0, width] : [0, height],
         nice: this.#scale.nice,
       }),
       scaleY: new Scale({
         type: 'linear',
         domain: [0, 1],
-        range: direction === directionType.HORIZONTAL ? [0, height] : [0, width],
+        range: type === directionType.HORIZONTAL ? [0, height] : [0, width],
         nice: null,
       }),
     }, this.#scale, scales)
@@ -95,8 +95,8 @@ export default class SankeyLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {links} = this.#data.data
     const {labelOffset, nodeGap, ribbonGap, align, text} = this.#style
-    const {direction = directionType.HORIZONTAL, layout} = this.options
-    const isHorizontal = direction === directionType.HORIZONTAL
+    const {type = directionType.HORIZONTAL, layout} = this.options
+    const isHorizontal = type === directionType.HORIZONTAL
     const [levels, groups] = [this.#data.get('levels'), this.#data.get('groups')]
     // 计算包括间隙在内的理论最大数值
     const maxNumbers = levels.map(level => {
@@ -133,11 +133,11 @@ export default class SankeyLayer extends LayerBase {
     // 对齐调整节点的位置
     this.#rectData.forEach(groupData => {
       const tailNode = groupData[groupData.length - 1]
-      if (direction === directionType.HORIZONTAL) {
+      if (type === directionType.HORIZONTAL) {
         const offset = layout.top + layout.height - tailNode.y - tailNode.height
         const moveY = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
         groupData.forEach(item => item.y += moveY)
-      } else if (direction === directionType.VERTICAL) {
+      } else if (type === directionType.VERTICAL) {
         const offset = layout.left + layout.width - tailNode.y - tailNode.height
         const moveX = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
         groupData.forEach(item => item.y += moveX)
@@ -167,7 +167,7 @@ export default class SankeyLayer extends LayerBase {
     // 丝带暂时用开始节点的颜色
     this.#ribbonData.forEach(ribbon => ribbon.color = ribbon.from.color)
     // 横竖坐标转换
-    if (direction === directionType.VERTICAL) {
+    if (type === directionType.VERTICAL) {
       this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, height, width, ...other}) => ({
         width: height, 
         height: width,
@@ -190,7 +190,7 @@ export default class SankeyLayer extends LayerBase {
     // 标签文字数据
     this.#textData = this.#rectData.map((groupData, i) => {
       const isLast = i === this.#rectData.length - 1
-      if (direction === directionType.HORIZONTAL) {
+      if (type === directionType.HORIZONTAL) {
         return groupData.map(({x, y, width, height, name, value}) => this.createText({
           x: isLast ? x - labelOffset : x + width + labelOffset,
           y: y + height / 2,
@@ -199,7 +199,7 @@ export default class SankeyLayer extends LayerBase {
           style: text,
         }))
       }
-      if (direction === directionType.VERTICAL) {
+      if (type === directionType.VERTICAL) {
         return groupData.map(({x, y, width, height, name, value}) => this.createText({
           x: x + width / 2,
           y: isLast ? y - labelOffset : y + height + labelOffset,
@@ -215,7 +215,7 @@ export default class SankeyLayer extends LayerBase {
 
   // 绘制
   draw() {
-    const {direction = directionType.HORIZONTAL} = this.options
+    const {type = directionType.HORIZONTAL} = this.options
     const rectData = this.#rectData.map(groupData => {
       const data = groupData.map(({width, height}) => [width, height])
       const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
@@ -226,7 +226,7 @@ export default class SankeyLayer extends LayerBase {
     })
     const ribbonData = this.#ribbonData.map(({x1, y1, x2, y2, x3, y3, x4, y4, color}) => {
       const data = [[x1, y1, x3, y3, x4, y4, x2, y2]]
-      return {type: `sankey-${direction}`, data, ...this.#style.ribbon, fill: color}
+      return {type: `sankey-${type}`, data, ...this.#style.ribbon, fill: color}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)

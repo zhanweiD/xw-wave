@@ -111,17 +111,20 @@ export default class RadarLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {circleSize = 2} = this.#style
     // 颜色跟随主题
-    const colors = this.getColor(this.#polygonData[0].length, this.#style.polygon?.fill, true)
-    this.#polygonData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
+    const fillColors = this.getColor(this.#polygonData[0].length, this.#style.polygon?.fill, true)
+    const strokeColors = this.getColor(this.#polygonData[0].length, this.#style.polygon?.stroke, false)
+    this.#polygonData.forEach(groupData => groupData.forEach((item, i) => {
+      item.fillColor = fillColors[i]
+      item.strokeColor = strokeColors[i]
+    }))
     // 圆点数据依赖多边形数据
     this.#circleData = this.#polygonData.map(groupData => {
-      return groupData.map(({x, y, color, ...others}) => ({
+      return groupData.map(({x, y, ...others}) => ({
         ...others,
         cx: x,
         cy: y,
         rx: circleSize / 2,
         ry: circleSize / 2,
-        color,
       }))
     })
     // 标签文字数据
@@ -133,15 +136,15 @@ export default class RadarLayer extends LayerBase {
 
   // 绘制
   draw() {
-    const polygonData = this.#polygonData[0].map(({color, center}, index) => {
+    const polygonData = this.#polygonData[0].map(({fillColor, strokeColor, center}, index) => {
       const transformOrigin = [center.x, center.y]
       const data = this.#polygonData.map(item => [item[index].x, item[index].y])
-      return {data: [data], stroke: color, transformOrigin, ...this.#style.polygon, fill: color}
+      return {data: [data], transformOrigin, ...this.#style.polygon, fill: fillColor, stroke: strokeColor}
     }).reverse()
     const circleData = this.#circleData.map(groupData => {
       const data = groupData.map(({rx, ry}) => [rx, ry])
       const position = groupData.map(({cx, cy}) => [cx, cy])
-      const fill = groupData.map(({color}) => color)
+      const fill = groupData.map(({fillColor}) => fillColor)
       const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
       return {data, position, source, ...this.#style.circle, fill}
     })

@@ -21,7 +21,7 @@ export const positionType = {
 }
 
 // 其他常量
-export const scaleTypes = ['scaleX', 'scaleY', 'scaleYR', 'scaleAngle', 'scaleRadius', 'scaleColor']
+export const scaleTypes = ['scaleX', 'scaleY', 'scaleYR', 'scaleAngle', 'scaleRadius']
 export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
 export const tooltipEvents = ['mouseover', 'mouseout', 'mousemove']
 
@@ -157,7 +157,13 @@ export default class LayerBase {
       positionX += style.offset[0]
       positionY -= style.offset[1]
     }
-    return {x: positionX, y: positionY, textAnchor, value: formattedText, transformOrigin: `${x} ${y}`}
+    return {
+      textAnchor,
+      x: positionX,
+      y: positionY,
+      value: formattedText, 
+      transformOrigin: `${positionX} ${positionY}`,
+    }
   }
 
   // 初始化基础事件

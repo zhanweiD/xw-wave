@@ -73,9 +73,25 @@ export default class RectLayer extends LayerBase {
     this.className = `wave-${mode}-${type}`
   }
 
+  // 过滤数据
+  #filter = data => {
+    const {mode} = this.options
+    // 区间图固定列数3列
+    if (mode === modeType.INTERVAL) {
+      return data.select(data.data.map(({header}) => header).slice(0, 3))
+    }
+    // 瀑布图固定列数2列，且需要添加总合行
+    if (mode === modeType.WATERFALL) {
+      const result = data.select(data.data.map(({header}) => header).slice(0, 2))
+      result.push(['总和', result.select(result.data[1].header, {mode: 'sum', target: 'column'}).range()[1]])
+      return result
+    }
+    return data
+  }
+
   // 传入列表类，第一列数据要求为纬度数据列
   setData(tableList, scales = {}) {
-    this.#data = tableList || this.#data
+    this.#data = (tableList && this.#filter(tableList)) || this.#data
     const {type = waveType.COLUMN, mode = modeType.GROUP, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)

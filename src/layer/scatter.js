@@ -69,11 +69,11 @@ export default class ScatterLayer extends LayerBase {
       value,
     }))
     // 数据根据第一列的名称分组
-    const categorys = []
-    this.#circleData = []
+    const categorys = Array.from(new Set(circleData.map(({category}) => category)))
+    this.#circleData = new Array(categorys.length).fill(null).map(() => [])
     circleData.forEach(uncategorizedData => {
       const index = categorys.findIndex(category => category === uncategorizedData.category)
-      index === -1 ? this.#circleData.push([uncategorizedData]) : this.#circleData[index].push(uncategorizedData)
+      this.#circleData[index].push(uncategorizedData)
     })
   }
 
@@ -101,7 +101,7 @@ export default class ScatterLayer extends LayerBase {
     })
     // 标签文字数据
     this.#textData = this.#circleData.map(groupData => groupData.map(({cx, cy, value}) => {
-      return this.createText({x: cx, y: cy, value, style: text, position: 'center'})
+      return this.createText({x: cx, y: cy, value: value || '', style: text, position: 'center'})
     }))
   }
 

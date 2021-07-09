@@ -61,12 +61,21 @@ export default class ArcLayer extends LayerBase {
     this.className = `wave-${mode}-${type}`
   }
   
+  // 非堆叠夜莺玫瑰图固定列数为2列
+  #filterData = data => {
+    const {type, mode} = this.options
+    if (type === waveType.PIE || mode === modeType.DEFAULT) {
+      return data.select(data.data.map(({header}) => header).slice(0, 2))
+    }
+    return data
+  }
+
   /**
    * 传入列表类，第一列数据要求为纬度数据列
    * @param {TableList} tableList 列表
    */
   setData(tableList, scales = {}) {
-    this.#data = tableList || this.#data
+    this.#data = (tableList && this.#filterData(tableList)) || this.#data
     const {mode = modeType.DEFAULT, type = waveType.PIE, layout} = this.options
     const {width, height} = layout
     const headers = this.#data.data.map(({header}) => header)

@@ -9,6 +9,7 @@ const defaultStyle = {
   text: {},
   curve: {
     strokeWidth: 1,
+    curve: 'curveBasis',
   },
   circle: {},
 }
@@ -141,7 +142,7 @@ export default class EdgeBundleLayer extends LayerBase {
       const rotation = groupData.map(({angle}) => angle)
       const textAnchor = groupData.map(item => item.textAnchor)
       const transformOrigin = groupData.map(item => item.transformOrigin)
-      return {data, position, textAnchor, transformOrigin, rotation, ...this.#style.text}
+      return {data, position, textAnchor, transformOrigin, ...this.#style.text, rotation}
     })
     this.drawBasic('curve', curveData)
     this.drawBasic('circle', circleData)

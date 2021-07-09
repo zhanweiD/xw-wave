@@ -24,15 +24,9 @@ const createLayer = (wave, config) => {
     dataSet = new Table(DataBase.isTable(data) ? data : Random.table(data))
   } else if (DataBase.isTableList(data) || data?.type === 'tableList') {
     dataSet = new TableList(DataBase.isTableList(data) ? data : Random.tableList(data))
-    // 某些图表需要控制列数
-    if (type === 'rect' && options.mode === 'interval') {
-      dataSet = dataSet.select(dataSet.data.map(({header}) => header).slice(0, 3))
-    } else if (type === 'rect' && options.mode === 'waterfall') {
-      // 瀑布图需要手动添加最后一列数据，保证不会重复添加，这一步需要在解析器完成
-      dataSet = dataSet.select(dataSet.data.map(({header}) => header).slice(0, 2))
-      dataSet.push(['总和', dataSet.select(dataSet.data[1].header, {mode: 'sum', target: 'column'}).range()[1]])
-    } else if (type === 'arc' && options.mode !== 'stack') {
-      dataSet = dataSet.select(dataSet.data.map(({header}) => header).slice(0, 2))
+    // 列表到表格的转换
+    if (type === 'matrix' || type === 'chord') {
+      dataSet = new Table(DataBase.tableListToTable(DataBase.isTableList(data) ? data : Random.tableList(data)))
     }
   }
   // 特殊图层需要其他图层的比例尺

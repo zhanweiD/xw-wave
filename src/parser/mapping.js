@@ -53,9 +53,9 @@ const filterInvalid = object => {
 const getColor = fillColor => {
   if (isArray(fillColor)) {
     const result = []
-    const format = number => Number(number).toFixed(2)
     fillColor.reduce(([prevColor, prevOffset], [curColor, curOffset]) => {
-      const colors = chroma.scale([prevColor, curColor]).mode('lch').colors(format((curOffset - prevOffset) / 0.01))
+      const number = Number((curOffset - prevOffset) / 0.01).toFixed(2)
+      const colors = chroma.scale([prevColor, curColor]).mode('lch').colors(number)
       result.push(...colors)
       return [curColor, curOffset]
     })
@@ -78,11 +78,15 @@ const graphMapping = graph => {
     strokeOpacity, // 描边透明度
   } = graph
   return filterInvalid({
-    fill: fillType === 'solid' ? fillSolidColor : fillType === 'gradient' ? getColor(fillGradientColor) : undefined,
-    stroke: strokeType === 'solid' ? strokeSolidColor : strokeType === 'gradient' ? getColor(strokeGradientColor) : undefined,
-    fillOpacity: fillOpacity || undefined,
-    strokeWidth: strokeWidth || undefined,
-    strokeOpacity: strokeOpacity || undefined,
+    fill: fillType === 'solid' 
+      ? fillSolidColor : fillType === 'gradient' 
+        ? getColor(fillGradientColor) : null,
+    stroke: strokeType === 'solid' 
+      ? strokeSolidColor : strokeType === 'gradient' 
+        ? getColor(strokeGradientColor) : null,
+    fillOpacity,
+    strokeWidth,
+    strokeOpacity,
   })
 }
   
@@ -108,16 +112,17 @@ const textMapping = text => {
   } = text
   const [x, y, blur] = shadowConfig
   const color = shadowColor.replace('rgb', 'rgba').replace(')', `,${shadowOpacity})`)
+  const textShadow = useShadow ? `${x}px ${y}px ${blur}px ${color}` : null
   return filterInvalid({
     fontFamily,
     fontSize,
     fontWeight,
     fill: fillColor,
     fillOpacity,
-    rotation,
     writingMode,
+    textShadow,
+    rotation,
     offset,
-    textShadow: useShadow ? `${x}px ${y}px ${blur}px ${color}` : undefined,
     format: {
       type: useFormat ? 'number' : 'plainText',
       decimalPlace,
@@ -129,32 +134,61 @@ const textMapping = text => {
 
 // 其他面板的配置映射，每个图层都不同
 const otherMapping = (layer, other) => {
+  let data = null
   const scale = {}
   const options = {}
   const style = {...other}
-  // 各个图层的数据处理
-  if ((layer === 'text' || layer === 'legend') && other.alignment) {
-    [style.align, style.verticalAlign] = alignMapping(other.alignment)
-  } else if (layer === 'axis') {
-    merge(options, {type: other.type})
-  } else if (layer === 'radar') {
-    merge(options, {mode: other.mode})
-  } else if (layer === 'line') {
-    merge(options, {mode: other.mode})
-  } else if (layer === 'arc') {
-    const {
-      type, // 饼图或蓝丁格尔玫瑰图
-      mode, // 数据组合方式
-    } = other
+  // 文本层
+  if (layer === 'text') {
+    const {content} = other
+    const [align, verticalAlign] = alignMapping(other.alignment)
+    merge(style, {align, verticalAlign})
+    data = content
+  }
+  // 图例层
+  if (layer === 'legend') {
+    const [align, verticalAlign] = alignMapping(other.alignment)
+    merge(style, {align, verticalAlign}) 
+  }
+  // 坐标轴层
+  if (layer === 'axis') {
+    const {type} = other
+    merge(options, {type})
+  }
+  // 雷达层
+  if (layer === 'radar') {
+    const {mode} = other
+    merge(options, {mode})
+  }
+  // 折线层
+  if (layer === 'line') {
+    const {curve, mode} = other
+    merge(style, {curve: {curve}, area: {curve}})
+    merge(options, {mode})
+  }
+  // 圆弧层
+  if (layer === 'arc') {
+    const {type, mode} = other
     merge(options, {type, mode})
-  } else if (layer === 'auxiliary') {
-    const {
-      type, // 水平线或垂直线
-      dasharray, // 辅助线虚线参数
-    } = other
+  }
+  // 辅助线层
+  if (layer === 'auxiliary') {
+    const {type, dasharray} = other
     merge(style, {line: {dasharray: `${dasharray[0]} ${dasharray[1]}`}})
     merge(options, {type})
-  } else if (layer === 'rect') {
+  }
+  // 矩阵热力层
+  if (layer === 'matrix') {
+    const {shape} = other
+    merge(options, {shape})
+  }
+  // 桑基图层
+  if (layer === 'sankey') {
+    const {type} = other
+    merge(options, {type})
+  }
+  // 矩形层
+  if (layer === 'rect') {
     const {
       type, // 柱状图或者折线图
       mode, // 数据组合方式
@@ -176,7 +210,7 @@ const otherMapping = (layer, other) => {
   }
   filterInvalid(options)
   filterInvalid(style)
-  return {options, scale, style}
+  return {options, data, scale, style}
 }
 
 // 动画面板映射

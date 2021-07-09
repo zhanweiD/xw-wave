@@ -49,7 +49,7 @@ export default class ChordLayer extends LayerBase {
     this.#data = table || this.#data
     const [categorys, matrix] = [this.#data.data[0], this.#data.data[2]]
     const chordData = d3.chord().padAngle(Math.PI / 10 / categorys.length)(matrix)
-    this.#ribbonData = chordData
+    this.#data.set('chordData', chordData)
     // 弧度制转换成角度值
     this.#arcData = chordData.groups.map(({startAngle, endAngle, ...other}, i) => ({
       category: categorys[i],
@@ -78,7 +78,7 @@ export default class ChordLayer extends LayerBase {
     }))
     // 补充边数据
     const ribbonColors = this.getColor(this.#arcData.length, this.#style.ribbon?.fill, true)
-    this.#ribbonData = this.#ribbonData.map(({source, target}) => ({
+    this.#ribbonData = this.#data.get('chordData').map(({source, target}) => ({
       index: target.index,
       position: [centerX, centerY],
       data: [source.startAngle, source.endAngle, innerRadius, target.startAngle, target.endAngle, innerRadius],
@@ -126,10 +126,10 @@ export default class ChordLayer extends LayerBase {
     const textData = [{
       data: this.#textData.map(({value}) => value),
       position: this.#textData.map(({x, y}) => [x, y]),
-      rotation: this.#textData.map(({angle}) => angle),
       textAnchor: this.#textData.map(item => item.textAnchor),
       transformOrigin: this.#textData.map(item => item.transformOrigin),
       ...this.#style.text,
+      rotation: this.#textData.map(({angle}) => angle),
     }]
     this.drawBasic('arc', arcData)
     this.drawBasic('ribbon', ribbonData)

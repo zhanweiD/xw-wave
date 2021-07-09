@@ -199,18 +199,21 @@ export default class LegendLayer extends LayerBase {
   }
 
   draw() {
+    // 只有一个图例的时候强制不显示
     const circleData = this.#circleData.map(({rx, ry, cx, cy}, i) => ({
       data: [[rx, ry]],
       position: [[cx, cy]],
       source: [{value: this.#data[i], index: i}],
       ...this.#style.circle,
       fill: this.#colors[i],
+      hide: this.#data.length < 2,
     }))
     const textData = this.#textData.map(({value, x, y}, i) => ({
       data: [value],
       position: [[x, y]],
       ...this.#style.text,
       fill: this.#textColors[i],
+      hide: this.#data.length < 2,
     }))
     this.drawBasic('circle', circleData)
     this.drawBasic('text', textData)

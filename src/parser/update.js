@@ -40,7 +40,7 @@ const updateStyle = ({tabId, layerId, option, value, schema, instance}) => {
       reinitializeWave(instance, schema)
       return
     }
-    layer.setData(null, {nice: result.scale})
+    layer.setData(result.data, {nice: result.scale})
     layer.setStyle(result.style)
   }
   // 由于覆盖问题所有图层都需要重新渲染

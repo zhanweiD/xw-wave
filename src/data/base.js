@@ -36,6 +36,19 @@ export default class DataBase {
     return true
   }
 
+  // 列表转表格
+  static tableListToTable = tableList => {
+    if (!DataBase.isTableList(tableList) || tableList[0].length !== 3) {
+      return false
+    }
+    const rows = Array.from(new Set(tableList.slice(1).map(item => item[0])))
+    const columns = Array.from(new Set(tableList.slice(1).map(item => item[1])))
+    const table = [rows, columns, rows.map(row => columns.map(column => {
+      return tableList.find(item => item[0] === row && item[1] === column)[2] || NaN
+    }))]
+    return table
+  }
+
   // 初始化数据，order 定义每组数据的优先级，可以决定颜色的选取顺序
   constructor(options) {
     this.options = merge({order: null}, options)

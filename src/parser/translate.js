@@ -2,15 +2,19 @@
 import hJSON from 'hanson'
 import {merge} from 'lodash'
 import {layoutMapping, graphMapping, textMapping, otherMapping, animationMapping} from './mapping'
+import {createSankeyData, createEdgeBundleData} from './mock'
 
 const getMockData = type => {
-  if (type === 'text') {
-    return '图表标题'
+  switch (type) {
+    case 'auxiliary':
+      return [400, 2000]
+    case 'sankey':
+      return createSankeyData()
+    case 'edgeBundle':
+      return createEdgeBundleData()
+    default:
+      return null
   }
-  if (type === 'auxiliary') {
-    return [400, 2000]
-  }
-  return null
 }
 
 const getRealData = (dataSource, mappingValues) => {
@@ -48,7 +52,7 @@ function translate(schema) {
     // 图层的初始化配置
     const options = {id, axis, layout: layoutMapping(type)}
     // 比例尺配置
-    const scale = {}
+    const scale = {count: 5}
     // 图层的样式配置
     const style = {}
     // tooltip 配置
@@ -56,7 +60,7 @@ function translate(schema) {
     // 动画配置
     const _animation = {}
     // 没有数据临时用随机数据
-    const _data = getMockData(type) || getRealData(dataSource, data)
+    let _data = getMockData(type) || getRealData(dataSource, data)
     // 图层配置映射
     children.forEach(({tabId, option, text, graph, animation}) => {
       // 图形配置面板
@@ -69,6 +73,7 @@ function translate(schema) {
     // 其他自定义配置
     if (other) {
       const otherResult = otherMapping(type, other)
+      _data = _data || otherResult.data
       merge(options, otherResult.options)
       merge(scale, otherResult.scale)
       merge(style, otherResult.style)
