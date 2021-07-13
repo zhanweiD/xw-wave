@@ -32,7 +32,7 @@ export default class Tooltip {
     this.isVisible = false
     this.isAvailable = false
     this.log = createLog(__filename)
-    this.options = merge(defaultOptions, options)
+    this.options = merge({}, defaultOptions, options)
     this.lastPosition = {offsetX: -100, offsetY: -100}
     // 根容器
     this.instance = container

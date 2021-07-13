@@ -47,4 +47,5 @@ export default function drawArea({
     .attr('opacity', d => d.opacity)
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
+    .style('pointer-events', 'none')
 }

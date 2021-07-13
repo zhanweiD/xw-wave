@@ -6,8 +6,6 @@ import {createSankeyData, createEdgeBundleData} from './mock'
 
 const getMockData = type => {
   switch (type) {
-    case 'auxiliary':
-      return [400, 2000]
     case 'sankey':
       return createSankeyData()
     case 'edgeBundle':

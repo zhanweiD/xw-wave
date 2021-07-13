@@ -173,9 +173,10 @@ const otherMapping = (layer, other) => {
   }
   // 辅助线层
   if (layer === 'auxiliary') {
-    const {type, dasharray} = other
+    const {type, value, dasharray} = other
     merge(style, {line: {dasharray: `${dasharray[0]} ${dasharray[1]}`}})
     merge(options, {type})
+    data = [value]
   }
   // 矩阵热力层
   if (layer === 'matrix') {
