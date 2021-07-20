@@ -1,7 +1,8 @@
 {
-  "name": "wave",
+  "name": "@waveview/wave",
   "version": "0.1.0",
-  "private": true,
+  "author": "shuzhiwen",
+  "description": "数澜科技可视化团队版权所有",
   "dependencies": {
     "@babel/core": "7.12.3",
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.3",
