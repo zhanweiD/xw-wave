@@ -78,6 +78,12 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
         type,
         mode,
       },
+      scale: {
+        count: 5,
+        // fixedPaddingInner: 10,
+        // fixedBandWidth: 30,
+        fixedBoundary: 'start',
+      },
       data: {
         type: 'tableList',
         mode: 'normal', 

@@ -53,7 +53,7 @@ export default class AuxiliaryLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, layerOptions}, waveOptions, ['line', 'text'])
+    super({...defaultOptions, ...layerOptions}, waveOptions, ['line', 'text'])
     const {type} = this.options
     this.className = `wave-${type}-auxiliary`
   }

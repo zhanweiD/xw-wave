@@ -36,7 +36,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
     },
     // 图层数据，下标顺序代表绘制顺序
     layers: [
-    // 标题文字图层
+      // 标题文字图层
       {
         type: 'text',
         options: {
@@ -192,6 +192,12 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
       layout: 'main',
       axis: mode === 'stack' ? 'minor' : 'main',
       mode,
+    },
+    scale: {
+      count: 5,
+      // fixedPaddingInner: 10,
+      // fixedBandWidth: 30,
+      fixedBoundary: 'start',
     },
     data: {
       type: 'tableList',

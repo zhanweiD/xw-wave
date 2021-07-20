@@ -42,10 +42,11 @@ const createSchema = (container, theme, layout) => {
         options: {
           id: 'sankey',
           layout: 'main',
-          direction: 'vertical',
+          type: 'vertical',
         },
         data: createSankeyData(),
         style: {
+          labelOffset: 10,
           text: {
             fontSize: 12,
             writingMode: 'vertical',

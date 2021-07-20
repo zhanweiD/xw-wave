@@ -102,7 +102,7 @@ export default class AxisLayer extends LayerBase {
   constructor(layerOptions, waveOptions) {
     const lineKey = ['lineX', 'lineXT', 'lineY', 'lineYR', 'lineAngle', 'lineRadius']
     const textKey = ['textX', 'textXT', 'textY', 'textYR', 'textAngle', 'textRadius']
-    super({...defaultOptions, layerOptions}, waveOptions, [...lineKey, ...textKey])
+    super({...defaultOptions, ...layerOptions}, waveOptions, [...lineKey, ...textKey])
     const {type} = this.options
     this.className = `wave-${type}-axis`
   }

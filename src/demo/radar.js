@@ -84,6 +84,12 @@ const createSchema = (container, theme, layout, mode) => ({
         axis: 'main',
         mode,
       },
+      scale: {
+        count: 5,
+        // fixedPaddingInner: 10,
+        // fixedBandWidth: 30,
+        fixedBoundary: 'start',
+      },
       data: {
         type: 'tableList',
         mode: 'normal', 

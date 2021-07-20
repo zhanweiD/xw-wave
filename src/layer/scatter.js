@@ -49,19 +49,19 @@ export default class ScatterLayer extends LayerBase {
     this.#scale = this.createScale({
       scaleX: scales.scaleX || new Scale({
         type: 'linear',
-        domain: this.#data.select(headers.slice(1, 2)).range(),
+        domain: this.#data.select(headers.slice(0, 1)).range(),
         range: [0, width],
         nice: this.#scale.nice,
       }),
       scaleY: scales.scaleY || new Scale({
         type: 'linear',
-        domain: this.#data.select(headers.slice(2, 3)).range(),
+        domain: this.#data.select(headers.slice(1, 2)).range(),
         range: [height, 0],
         nice: this.#scale.nice,
       }),
     }, this.#scale, scales)
     // 计算点的基础数据
-    const circleData = pureTableList.map(([category, x, y, value]) => ({
+    const circleData = pureTableList.map(([x, y, category, value]) => ({
       cx: left + this.#scale.scaleX(x),
       cy: top + this.#scale.scaleY(y),
       dimension: [x, y],

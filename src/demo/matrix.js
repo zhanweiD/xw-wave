@@ -6,7 +6,7 @@ const titleMapping = {
 }
 
 // 矩阵配置数据生成
-const createSchema = (container, theme, layout, mode) => ({
+const createSchema = (container, theme, layout, shape) => ({
   // 容器
   container,
   // 颜色主题
@@ -33,7 +33,7 @@ const createSchema = (container, theme, layout, mode) => ({
         id: 'title',
         layout: 'title',
       },
-      data: titleMapping[mode],
+      data: titleMapping[shape],
       style: {
         text: {
           fontSize: 16,
@@ -58,7 +58,7 @@ const createSchema = (container, theme, layout, mode) => ({
         id: 'matrix',
         layout: 'main',
         axis: 'main',
-        mode,
+        shape,
       },
       data: {
         type: 'table',

@@ -5,7 +5,7 @@ import Scale from '../data/scale'
 // 默认样式
 const defaultStyle = {
   step: [2, 10],
-  offset: [0, 15],
+  valueGap: 10,
   startAngle: -120,
   endAngle: 120,
   arcWidth: 5,
@@ -17,7 +17,9 @@ const defaultStyle = {
   circle: {},
   tickText: {},
   labelText: {},
-  valueText: {},
+  valueText: {
+    offset: [0, -20],
+  },
 }
 
 // 仪表盘层
@@ -81,7 +83,7 @@ export default class GaugeLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {left, top, width, height} = this.options.layout
-    const {step, arcWidth, offset, startAngle, endAngle, pointerSize, tickSize} = this.#style
+    const {step, arcWidth, valueGap, startAngle, endAngle, pointerSize, tickSize} = this.#style
     const {valueText, tickText, labelText, arc} = this.#style
     const {value, label, minValue, maxValue, fragments} = this.#data
     const maxRadius = Math.min(width, height) / 2
@@ -148,10 +150,10 @@ export default class GaugeLayer extends LayerBase {
       return {number, x1, y1, x2, y2, labelTextData, tickTextData}
     })
     // 数值文字数据
-    const titleOffset = [offset[0], offset[1] + valueText.fontSize / 0.618]
+    const [x, y] = [arcCenter.x, arcCenter.y + valueGap + valueText.fontSize]
     this.#valueTextData = [
-      this.createText({value, position: 'center', offset, ...arcCenter, style: valueText}),
-      this.createText({value: label, position: 'center', offset: titleOffset, ...arcCenter, style: valueText}),
+      this.createText({value, position: 'center', ...arcCenter, style: valueText}),
+      this.createText({value: label, position: 'center', x, y, style: valueText}),
     ]
   }
 

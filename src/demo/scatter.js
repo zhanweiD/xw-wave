@@ -1,4 +1,5 @@
 import {getStandardLayoutWithBrush} from '../layout/standard'
+import {createTableListData} from './mock'
 
 const titleMapping = {
   scatter: '散点图',
@@ -124,25 +125,15 @@ const createSchema = (container, theme, layout, mode) => ({
         axis: 'main',
         mode,
       },
-      brush: {
-        layout: 'brush',
-        type: 'horizontal',
-      },
-      data: {
-        type: 'tableList',
-        mode: 'normal', 
-        row: 20,
-        column: 3,
-        mu: 400,
-        sigma: 200,
-        decimalPlace: 1,
-      },
+      data: createTableListData().map(item => [item[1], item[2], item[0], item[3]]),
       scale: {
-        count: 4,
-        zero: true,
+        count: 5,
+        // fixedPaddingInner: 10,
+        // fixedBandWidth: 30,
+        fixedBoundary: 'start',
       },
       style: {
-        circleSizeRange: mode === 'bubble' ? [10, 30] : [5, 5],
+        circleSize: mode === 'bubble' ? [10, 30] : [5, 5],
         circle: {
           enableUpdateAnimation: true,
         },

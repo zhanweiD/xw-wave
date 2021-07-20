@@ -58,6 +58,7 @@ const createSchema = (container, theme, layout, type) => {
           decimalPlace: 1,
         },
         style: {
+          labelOffset: 10,
           text: {
             fontSize: 12,
           },
