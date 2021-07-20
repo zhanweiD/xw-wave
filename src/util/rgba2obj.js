@@ -1,5 +1,4 @@
 import hex2obj from './hex2rgb'
-import isDef from './is-def'
 
 // rgb字符串转换为rgb序列对象
 export default (rgb, opacityMax) => {
@@ -10,6 +9,6 @@ export default (rgb, opacityMax) => {
     r: inspectColor[0],
     g: inspectColor[1],
     b: inspectColor[2],
-    a: isDef(inspectColor[3]) ? inspectColor[3] * opacityMax : opacityMax,
+    a: inspectColor[3] ? inspectColor[3] * opacityMax : opacityMax,
   }
 }

@@ -17,7 +17,6 @@ export default {
   },
   // 琉璃盏
   glaze: {
-    // colors: ['#FD926D', '#FFBD6D', '#FFEA92', '#B5E4AA', '#6CDDC3', '#3EBFDA', '#119BFF', '#0B78FF', '#2A43FF'],
     colors: ['#2A43FF', '#0B78FF', '#119BFF', '#3EBFDA', '#6CDDC3', '#B5E4AA', '#FFEA92', '#FFBD6D', '#FD926D'],
     background: '-webkit-radial-gradient(#0f2aaf, #000a3c 80%)',
   },
@@ -26,15 +25,11 @@ export default {
     colors: ['#46D4FF', '#569EFF', '#686EFF', '#9D6DFF', '#FF61D2', '#FF849E', '#FF6A59', '#FF9456', '#FFBD68'],
     background: '-webkit-radial-gradient(#0f2aaf, #000a3c 80%)',
   },
-
   // 临时过渡
   blue: {
-    // colors: ['#FD926D', '#FFBD6D', '#FFEA92', '#B5E4AA', '#6CDDC3', '#3EBFDA', '#119BFF', '#0B78FF', '#2A43FF'],
     colors: ['#2A43FF', '#0B78FF', '#119BFF', '#3EBFDA', '#6CDDC3', '#B5E4AA', '#FFEA92', '#FFBD6D', '#FD926D'],
     background: '-webkit-radial-gradient(#0f2aaf, #000a3c 80%)',
   },
-
-  // 绿城图表主题色过渡
   // 蓝绿
   blueGreen: {
     colors: ['#133575', '#295987', '#3f7d99', '#54a0aa', '#6ac4bc', '#8dd2c8', '#afe0d5', '#d2eee1', '#f4fced'],
