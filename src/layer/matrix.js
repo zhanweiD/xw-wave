@@ -8,6 +8,11 @@ const shapeType = {
   CIRCLE: 'circle', // 圆形
 }
 
+// 默认选项
+const defaultOptions = {
+  shape: shapeType.DEFAULT,
+}
+
 // 默认样式
 const defaultStyle = {
   circleSize: ['auto', 'auto'],
@@ -44,15 +49,15 @@ export default class MatrixLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['rect', 'circle', 'text'])
-    const {shape = shapeType.RECT} = this.options
+    super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'circle', 'text'])
+    const {shape} = this.options
     this.className = `wave-${shape}-matrix`
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
   setData(table, scales = {}) {
     this.#data = table || this.#data
-    const {shape = shapeType.RECT, layout} = this.options
+    const {shape, layout} = this.options
     const {left, top, width, height} = layout
     const [rows, columns, pureTable] = [this.#data.data[0], this.#data.data[1], this.#data.data[2]]
     // 初始化比例尺
@@ -107,7 +112,7 @@ export default class MatrixLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {shape = shapeType.RECT} = this.options
+    const {shape} = this.options
     const [minValue, maxValue] = this.#data.range()
     const {circleSize, rect, circle, text} = this.#style
     // 颜色和数值有关
@@ -153,7 +158,7 @@ export default class MatrixLayer extends LayerBase {
 
   // 绘制
   draw() {
-    const {shape = shapeType.RECT} = this.options
+    const {shape} = this.options
     const rectData = this.#rectData.map(groupData => {
       const data = groupData.map(({width, height}) => [width, height])
       const source = groupData.map(({dimension, value}) => ({dimension, value}))

@@ -15,6 +15,11 @@ const directionType = {
   VERTICAL: 'vertical',
 }
 
+// 默认选项
+const defaultOptions = {
+  type: directionType.HORIZONTAL,
+}
+
 // 默认样式
 const defaultStyle = {
   nodeGap: 5,
@@ -58,8 +63,8 @@ export default class SankeyLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['rect', 'ribbon', 'text'])
-    const {type = directionType.HORIZONTAL} = this.options
+    super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'ribbon', 'text'])
+    const {type} = this.options
     this.className = `wave-${type}-sankey`
   }
 
@@ -67,8 +72,8 @@ export default class SankeyLayer extends LayerBase {
   setData(relation, scales) {
     this.#data = relation || this.#data
     const {nodes} = this.#data.data
-    const {width, height} = this.options.layout
-    const {type = directionType.HORIZONTAL} = this.options
+    const {type, layout} = this.options
+    const {width, height} = layout
     const levels = d3.range(0, d3.max(nodes.map(({level}) => level)) + 1)
     this.#scale.nice = {fixedBandWidth: 5, ...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
@@ -95,7 +100,7 @@ export default class SankeyLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {links} = this.#data.data
     const {labelOffset, nodeGap, ribbonGap, align, text} = this.#style
-    const {type = directionType.HORIZONTAL, layout} = this.options
+    const {type, layout} = this.options
     const isHorizontal = type === directionType.HORIZONTAL
     const [levels, groups] = [this.#data.get('levels'), this.#data.get('groups')]
     // 计算包括间隙在内的理论最大数值
@@ -215,7 +220,7 @@ export default class SankeyLayer extends LayerBase {
 
   // 绘制
   draw() {
-    const {type = directionType.HORIZONTAL} = this.options
+    const {type} = this.options
     const rectData = this.#rectData.map(groupData => {
       const data = groupData.map(({width, height}) => [width, height])
       const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))

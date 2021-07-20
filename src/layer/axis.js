@@ -3,14 +3,20 @@ import LayerBase, {scaleTypes} from './base'
 
 // 坐标类型，单个或者组合
 const axisType = {
-  CARTESIAN: 'cartesian',
-  HORIZONTAL: 'horizontal',
-  VERTICAL: 'vertical',
-  POLAR: 'polar',
-  RADIUS: 'radius',
-  ANGLE: 'angle',
+  CARTESIAN: 'cartesian', // 直角坐标系
+  HORIZONTAL: 'horizontal', // 水平单轴
+  VERTICAL: 'vertical', // 垂直单轴
+  POLAR: 'polar', // 极坐标系
+  RADIUS: 'radius', // 半径单轴
+  ANGLE: 'angle', // 角度单轴
 }
 
+// 默认选项
+const defaultOptions = {
+  type: axisType.CARTESIAN,
+}
+
+// 刻度线的默认样式
 const defaultLine = {
   stroke: 'white',
   strokeWidth: 1,
@@ -18,6 +24,7 @@ const defaultLine = {
   fillOpacity: 0,
 }
 
+// 文字的默认样式
 const defaultText = {
   fillOpacity: 0.8,
   fontSize: 8,
@@ -95,8 +102,8 @@ export default class AxisLayer extends LayerBase {
   constructor(layerOptions, waveOptions) {
     const lineKey = ['lineX', 'lineXT', 'lineY', 'lineYR', 'lineAngle', 'lineRadius']
     const textKey = ['textX', 'textXT', 'textY', 'textYR', 'textAngle', 'textRadius']
-    super(layerOptions, waveOptions, [...lineKey, ...textKey])
-    const {type = axisType.CARTESIAN} = this.options
+    super({...defaultOptions, layerOptions}, waveOptions, [...lineKey, ...textKey])
+    const {type} = this.options
     this.className = `wave-${type}-axis`
   }
 
@@ -123,7 +130,7 @@ export default class AxisLayer extends LayerBase {
   // 传入数据数组和比例尺，辅助线需要外部的比例尺
   setData(data, scale) {
     this.#mergeScale(scale)
-    const {type = axisType.CARTESIAN, layout} = this.options
+    const {type, layout, containerWidth} = this.options
     const {left, top, width, height} = layout
     // 清空数据
     Object.keys(this.#lineData).map(key => this.#lineData[key] = [])
@@ -149,7 +156,7 @@ export default class AxisLayer extends LayerBase {
       const mapping = ([label, value]) => ({
         value: label,
         x1: 0,
-        x2: this.options.containerWidth,
+        x2: containerWidth,
         y1: top + value,
         y2: top + value,
       })

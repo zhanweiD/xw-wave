@@ -3,8 +3,13 @@ import Scale from '../data/scale'
 
 // 元素组合方式
 const modeType = {
-  DEFAULT: 'default',
-  STACK: 'stack',
+  DEFAULT: 'default', // 覆盖
+  STACK: 'stack', // 堆叠
+}
+
+// 默认选项
+const defaultOptions = {
+  mode: modeType.DEFAULT,
 }
 
 // 文字方向
@@ -65,15 +70,15 @@ export default class LineLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['curve', 'circle', 'area', 'text'])
-    const {mode = modeType.DEFAULT} = this.options
+    super({...defaultOptions, ...layerOptions}, waveOptions, ['curve', 'circle', 'area', 'text'])
+    const {mode} = this.options
     this.className = `wave-${mode}-curve`
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
   setData(tableList, scales = {}) {
     this.#data = tableList || this.#data
-    const {mode = modeType.DEFAULT, layout} = this.options
+    const {mode, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     const {width, height, top, left} = layout
@@ -121,7 +126,7 @@ export default class LineLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {layout, mode = modeType.DEFAULT} = this.options
+    const {layout, mode} = this.options
     const {labelPosition, circleSize, text} = this.#style
     const {top, height} = layout
     // 颜色跟随主题

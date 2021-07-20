@@ -2,8 +2,8 @@ import LayerBase from './base'
 
 // 辅助线方向
 const directionType = {
-  HORIZONTAL: 'horizontal',
-  VERTICAL: 'vertical',
+  HORIZONTAL: 'horizontal', // 水平线
+  VERTICAL: 'vertical', // 垂直线
 }
 
 // 标签位置
@@ -12,6 +12,11 @@ const labelPositionType = {
   RIGHT: 'right',
   BOTTOM: 'bottom',
   LEFT: 'left',
+}
+
+// 默认选项
+const defaultOptions = {
+  type: directionType.HORIZONTAL,
 }
 
 // 默认样式
@@ -48,8 +53,8 @@ export default class AuxiliaryLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['line', 'text'])
-    const {type = directionType.HORIZONTAL} = this.options
+    super({...defaultOptions, layerOptions}, waveOptions, ['line', 'text'])
+    const {type} = this.options
     this.className = `wave-${type}-auxiliary`
   }
 
@@ -57,7 +62,7 @@ export default class AuxiliaryLayer extends LayerBase {
   setData(data, scale) {
     this.#data = data || this.#data
     this.#scale = scale || this.#scale
-    const {type = directionType.HORIZONTAL, layout} = this.options
+    const {type, layout} = this.options
     const {left, top, width, height} = layout
     // 根据比例尺计算原始坐标
     this.#lineData = this.#data.map(value => ({

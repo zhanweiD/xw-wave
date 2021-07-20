@@ -3,22 +3,26 @@ import Scale from '../data/scale'
 
 // 映射的图表类型
 const waveType = {
-  PIE: 'pie',
-  NIGHTINGALEROSE: 'nightingaleRose',
+  PIE: 'pie', // 饼
+  NIGHTINGALEROSE: 'nightingaleRose', // 南丁格尔玫瑰
 }
 
 // 元素组合方式
 const modeType = {
-  // 不组合
-  DEFAULT: 'default',
-  // 组内组合
-  STACK: 'stack',
+  DEFAULT: 'default', // 覆盖
+  STACK: 'stack', // 堆叠
 }
 
 // 数值标签位置
 const labelPositionType = {
   INNER: 'inner',
   OUTER: 'outer',
+}
+
+// 默认选项
+const defaultOptions = {
+  type: waveType.PIE,
+  mode: modeType.DEFAULT,
 }
 
 // 默认样式
@@ -56,8 +60,8 @@ export default class ArcLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['arc', 'text'])
-    const {type = waveType.PIE, mode = modeType.GROUP} = this.options
+    super({...defaultOptions, ...layerOptions}, waveOptions, ['arc', 'text'])
+    const {type, mode} = this.options
     this.className = `wave-${mode}-${type}`
   }
   
@@ -76,7 +80,7 @@ export default class ArcLayer extends LayerBase {
    */
   setData(tableList, scales = {}) {
     this.#data = (tableList && this.#filterData(tableList)) || this.#data
-    const {mode = modeType.DEFAULT, type = waveType.PIE, layout} = this.options
+    const {type, mode, layout} = this.options
     const {width, height} = layout
     const headers = this.#data.data.map(({header}) => header)
     const labels = this.#data.select(headers[0])
@@ -145,7 +149,7 @@ export default class ArcLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {type = waveType.PIE, mode = modeType.DEFAULT, layout} = this.options
+    const {type, mode, layout} = this.options
     const {left, top, width, height} = layout
     const {scaleAngle, scaleRadius} = this.#scale
     const {innerRadius, arc} = this.#style

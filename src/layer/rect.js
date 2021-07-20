@@ -10,14 +10,17 @@ const waveType = {
 
 // 元素组合方式
 const modeType = {
-  // 不组合
-  DEFAULT: 'default',
-  // 组内组合
-  GROUP: 'group',
-  STACK: 'stack',
-  INTERVAL: 'interval',
-  // 组间组合
-  WATERFALL: 'waterfall',
+  DEFAULT: 'default', // 覆盖
+  GROUP: 'group', // 分组
+  STACK: 'stack', // 堆叠
+  INTERVAL: 'interval', // 区间
+  WATERFALL: 'waterfall', // 瀑布
+}
+
+// 默认选项
+const defaultOptions = {
+  type: waveType.COLUMN,
+  mode: modeType.DEFAULT,
 }
 
 // 标签是显示在矩形外部还是矩形内部
@@ -68,8 +71,8 @@ export default class RectLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['rect', 'text'])
-    const {type = waveType.COLUMN, mode = modeType.GROUP} = this.options
+    super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'text'])
+    const {type, mode} = this.options
     this.className = `wave-${mode}-${type}`
   }
 
@@ -92,7 +95,7 @@ export default class RectLayer extends LayerBase {
   // 传入列表类，第一列数据要求为纬度数据列
   setData(tableList, scales = {}) {
     this.#data = (tableList && this.#filter(tableList)) || this.#data
-    const {type = waveType.COLUMN, mode = modeType.GROUP, layout} = this.options
+    const {type, mode, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     // 条形图比例尺对外参数和对内参数不一致
@@ -134,27 +137,19 @@ export default class RectLayer extends LayerBase {
     })
     // 堆叠柱状数据变更
     if (mode === modeType.STACK) {
-      this.#rectData = this.#rectData.map(groupData => {
-        return groupData.reduce((prev, cur, index) => {
-          return [...prev, {
-            ...cur, 
-            y: prev[index].y - cur.height,
-          }]
-        }, [{y: groupData[0].y + groupData[0].height}]).slice(1)
-      })
+      this.#rectData = this.#rectData.map(groupData => groupData.reduce((prev, cur, index) => {
+        return [...prev, {...cur, y: prev[index].y - cur.height}]
+      }, [{y: groupData[0].y + groupData[0].height}]).slice(1))
     }
     // 分组柱状数据变更
     if (mode === modeType.GROUP) {
       const columnNumber = this.#rectData[0].length
-      this.#rectData = this.#rectData.map(groupData => {
-        return groupData.reduce((prev, cur, index) => {
-          return [...prev, {
-            ...cur, 
-            x: prev[index].x + cur.width / columnNumber, 
-            width: cur.width / columnNumber,
-          }]
-        }, [{x: groupData[0].x - groupData[0].width / columnNumber}]).slice(1)
-      })
+      this.#rectData = this.#rectData.map(groupData => groupData.reduce((prev, cur, index) => {
+        return [...prev, {...cur, 
+          x: prev[index].x + cur.width / columnNumber, 
+          width: cur.width / columnNumber,
+        }]
+      }, [{x: groupData[0].x - groupData[0].width / columnNumber}]).slice(1))
     }
     // 区间柱状数据变更
     if (mode === modeType.INTERVAL) {
@@ -170,11 +165,9 @@ export default class RectLayer extends LayerBase {
     // 瀑布柱状数据变更，最后一列为总值
     if (mode === modeType.WATERFALL) {
       this.#rectData = this.#rectData.reduce((prev, cur) => {
-        return [...prev, [{
-          ...cur[0],
-          y: prev[prev.length - 1][0].y - cur[0].height,
-        }]]
+        return [...prev, [{...cur[0], y: prev[prev.length - 1][0].y - cur[0].height}]]
       }, [[{y: this.#rectData[0][0].y + this.#rectData[0][0].height}]]).slice(1)
+      // 最后一个柱子需要特殊处理
       const {y, height} = this.#rectData[this.#rectData.length - 1][0]
       this.#rectData[this.#rectData.length - 1][0].y = y + height
     }
@@ -226,7 +219,7 @@ export default class RectLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {labelPosition, paddingInner} = this.#style
-    const {type = waveType.COLUMN} = this.options
+    const {type} = this.options
     // 颜色跟随主题
     if (this.#rectData[0]?.length > 1) {
       const colors = this.getColor(this.#rectData[0].length, this.#style.rect?.fill, true)
@@ -268,12 +261,13 @@ export default class RectLayer extends LayerBase {
 
   // 绘制
   draw() {
+    const {type} = this.options
     const rectData = this.#rectData.map(groupData => {
       const data = groupData.map(({width, height}) => [width, height])
       const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
       const position = groupData.map(({x, y}) => [x, y])
       const fill = groupData.map(({color}) => color)
-      const transformOrigin = this.options.type === waveType.COLUMN ? 'bottom' : 'left'
+      const transformOrigin = type === waveType.COLUMN ? 'bottom' : 'left'
       return {data, source, position, transformOrigin, ...this.#style.rect, fill}
     })
     const textData = this.#textData.map(groupData => {
