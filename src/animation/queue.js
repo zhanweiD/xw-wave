@@ -1,6 +1,24 @@
 import AnimationBase from './base'
+import FadeAnimation from './fade'
+import ZoomAnimation from './zoom'
+import ScanAnimation from './scan'
+import ScrollAnimation from './scroll'
+import EmptyAnimation from './empty'
+import MoveAnimation from './move'
+import BreatheAnimation from './breathe'
+import EraseAnimation from './erase'
 import createUuid from '../util/uuid'
-import {AnimationMap, EmptyAnimation as Empty} from './index'
+
+const mapping = {
+  fade: FadeAnimation,
+  zoom: ZoomAnimation,
+  scan: ScanAnimation,
+  scroll: ScrollAnimation,
+  empty: EmptyAnimation,
+  breathe: BreatheAnimation,
+  move: MoveAnimation,
+  erase: EraseAnimation,
+}
 
 const defaultOptions = {
   loop: false,
@@ -13,7 +31,7 @@ export default class AnimationQueue extends AnimationBase {
     // 动画队列是否连接就绪
     this.isReady = false
     // 初始化动画队列
-    const animationHead = {id: createUuid(), instance: new Empty()}
+    const animationHead = {id: createUuid(), instance: new EmptyAnimation()}
     // 第一个元素绑定动画序列的 start 生命周期
     animationHead.instance.event.on('process', () => this.start())
     this.animationQueue = [animationHead]
@@ -96,13 +114,13 @@ export default class AnimationQueue extends AnimationBase {
     })
     // 根据类型创建动画
     if (type === 'function') {
-      const animation = new Empty()
+      const animation = new EmptyAnimation()
       animation.event.on('process', options)
       createQueueableAnimation(animation)
     } else if (type === 'queue') {
       createQueueableAnimation(options)
-    } else if (AnimationMap[type]) {
-      createQueueableAnimation(new AnimationMap[type]({...options, loop: false}, context))
+    } else if (mapping[type]) {
+      createQueueableAnimation(new mapping[type]({...options, loop: false}, context))
     } else {
       this.log.error('Animation Type Error', type)
       return null

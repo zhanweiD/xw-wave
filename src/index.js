@@ -4,6 +4,8 @@ import {BrowserRouter as Router, Route} from 'react-router-dom'
 import Demo from './demo'
 import './index.css'
 
+import * as Animation from './animation'
+
 ReactDOM.render(
   <React.StrictMode>
     <Router>
@@ -12,3 +14,7 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 )
+
+export {
+  Animation,
+}

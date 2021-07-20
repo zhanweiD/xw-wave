@@ -6,21 +6,11 @@ import EmptyAnimation from './empty'
 import MoveAnimation from './move'
 import BreatheAnimation from './breathe'
 import EraseAnimation from './erase'
-
-const AnimationMap = {
-  fade: FadeAnimation,
-  zoom: ZoomAnimation,
-  scan: ScanAnimation,
-  scroll: ScrollAnimation,
-  empty: EmptyAnimation,
-  breathe: BreatheAnimation,
-  move: MoveAnimation,
-  erase: EraseAnimation,
-}
+import AnimationQueue from './queue'
 
 export {
-  // 动画映射
-  AnimationMap,
+  // 动画队列
+  AnimationQueue,
 
   // 入场
   FadeAnimation,
@@ -35,4 +25,4 @@ export {
   // 其他
   EmptyAnimation,
   MoveAnimation,
-}
+}  

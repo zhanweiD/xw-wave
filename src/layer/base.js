@@ -1,6 +1,6 @@
 import {isArray, isEqual, merge} from 'lodash'
 import createEvent from '../util/create-event'
-import AnimationQueue from '../animation/queue'
+import {AnimationQueue} from '../animation'
 import formatText from '../util/format-text'
 import getTextWidth from '../util/text-width'
 import TableList from '../data/table-list'
