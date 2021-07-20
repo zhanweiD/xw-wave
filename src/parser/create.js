@@ -52,13 +52,13 @@ const createLayer = (wave, config) => {
 
 // 根据配置创建一个新的图表
 function createWave(schema, existedWave) {
-  const {container, adjust, width, height, padding, theme, coordinate, layout, brush, layers} = schema
-  const wave = existedWave || new Wave({container, adjust, width, height, padding, coordinate, theme, layout})
-  // 有些层比较特殊，需要依赖其他图层的数据或者比例尺
-  const normalLayerConfigs = layers.filter(({type}) => isNormalLayer(type))
-  const axisLayerConfig = layers.find(({type}) => isAxisLayer(type))
-  const dependentLayerConfigs = layers.filter(({type}) => isDependentLayer(type))
   try {
+    const {container, adjust, width, height, padding, theme, coordinate, layout, brush, layers} = schema
+    const wave = existedWave || new Wave({container, adjust, width, height, padding, coordinate, theme, layout})
+    // 有些层比较特殊，需要依赖其他图层的数据或者比例尺
+    const normalLayerConfigs = layers.filter(({type}) => isNormalLayer(type))
+    const axisLayerConfig = layers.find(({type}) => isAxisLayer(type))
+    const dependentLayerConfigs = layers.filter(({type}) => isDependentLayer(type))
     const normalLayers = normalLayerConfigs.map(layer => createLayer(wave, layer))
     const axisLayer = axisLayerConfig && createLayer(wave, axisLayerConfig)
     // 坐标轴层会对现有图层进行比例尺融合
@@ -68,10 +68,11 @@ function createWave(schema, existedWave) {
     // 根据 schema 配置的顺序进行绘制，绘制之后添加添加笔刷，然后是动画和 tooltip
     layers.map(({options}) => wave.layer.find(({id}) => id === options.id).instance.draw())
     brush && wave.createBrush({...brush, layout: wave.layout[brush.layout]})
+    return wave
   } catch (error) {
-    console.error('图层配置解析错误，初始化失败', error)
+    console.error('初始化失败', error)
+    return null
   }
-  return wave
 }
 
 export default createWave
