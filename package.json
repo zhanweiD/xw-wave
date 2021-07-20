@@ -1,17 +1,12 @@
 {
   "name": "@waveview/wave",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "shuzhiwen",
   "description": "数澜科技可视化团队版权所有",
   "dependencies": {
     "@babel/core": "7.12.3",
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.3",
     "@svgr/webpack": "5.5.0",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
-    "@typescript-eslint/eslint-plugin": "^4.5.0",
-    "@typescript-eslint/parser": "^4.5.0",
     "animejs": "^3.2.1",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.0",
