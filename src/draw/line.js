@@ -9,6 +9,8 @@ export default function drawLine({
   updateAnimationDuration = 1000,
   updateAnimationDelay = 0,
   mapping = item => item, // 高级数据过滤函数
+  mask = null, // 遮罩
+  filter = null, // 滤镜
   source = [], // 原始数据
   position = [], // 位置 [[x1,y1,x2,y2], ...]
   container,
@@ -27,6 +29,8 @@ export default function drawLine({
     x2: data[2],
     y2: data[3],
     source: source.length > i ? source[i] : null,
+    mask: Array.isArray(mask) ? mask[i] : mask,
+    filter: Array.isArray(filter) ? filter[i] : filter,
   }))
 
   // 画线
@@ -46,5 +50,7 @@ export default function drawLine({
     .attr('y1', d => d.y1)
     .attr('x2', d => d.x2)
     .attr('y2', d => d.y2)
+    .attr('mask', d => d.mask)
+    .attr('filter', d => d.filter)
     .style('pointer-events', 'none')
 }

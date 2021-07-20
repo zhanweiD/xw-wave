@@ -13,6 +13,8 @@ export default function drawRibbon({
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   mapping = item => item, // 高级数据过滤函数
+  mask = null, // 遮罩
+  filter = null, // 滤镜
   data = [], // 边出入角和内外半径数据
   position = [], // 圆心位置
   source = [], // 原始数据
@@ -27,6 +29,8 @@ export default function drawRibbon({
     strokeOpacity,
     fill: Array.isArray(fill) ? fill[i] : fill,
     stroke: Array.isArray(stroke) ? stroke[i] : stroke,
+    mask: Array.isArray(mask) ? mask[i] : mask,
+    filter: Array.isArray(filter) ? filter[i] : filter,
     strokeWidth,
     d: getPath(type, item),
     transform: type === 'chord' ? `translate(${position[i][0]}px, ${position[i][1]}px)` : null,
@@ -47,6 +51,8 @@ export default function drawRibbon({
     .attr('opacity', d => d.opacity)
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
+    .attr('mask', d => d.mask)
+    .attr('filter', d => d.filter)
     .style('transform', d => d.transform)
     .style('outline', 'none')
 }

@@ -135,7 +135,7 @@ export default class Wave {
     if (Array.isArray(customColors)) {
       colors = customColors
     } else if (customColors) {
-      colors = [customColors]
+      return new Array(count).fill(customColors)
     }
     // 主题色的取色逻辑
     if (colors.length > 2 && !customColors) {

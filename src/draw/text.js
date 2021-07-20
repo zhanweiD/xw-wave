@@ -24,6 +24,8 @@ export default function drawText({
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   mapping = item => item, // 高级数据过滤函数
+  mask = null, // 遮罩
+  filter = null, // 滤镜
   data = [], // 文字数据
   position = [], // 直角坐标系坐标数据
   container, // 容器父节点
@@ -48,6 +50,8 @@ export default function drawText({
     transform: `rotate(${Array.isArray(rotation) ? rotation[i] : rotation}deg)`,
     transformOrigin: Array.isArray(transformOrigin) ? transformOrigin[i] : transformOrigin,
     textAnchor: Array.isArray(textAnchor) ? textAnchor[i] : textAnchor,
+    mask: Array.isArray(mask) ? mask[i] : mask,
+    filter: Array.isArray(filter) ? filter[i] : filter,
     textShadow,
   }))
 
@@ -72,6 +76,8 @@ export default function drawText({
     .attr('font-weight', d => d.fontWeight)
     .attr('writing-mode', d => d.writingMode)
     .attr('transform-origin', d => d.transformOrigin)
+    .attr('mask', d => d.mask)
+    .attr('filter', d => d.filter)
     .style('transform', d => d.transform)
     .style('text-shadow', d => d.textShadow)
     .style('text-anchor', d => d.textAnchor)

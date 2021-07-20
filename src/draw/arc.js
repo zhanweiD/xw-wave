@@ -12,6 +12,8 @@ export default function drawArc({
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   mapping = item => item, // 高级数据过滤函数
+  mask = null, // 遮罩
+  filter = null, // 滤镜
   source = [], // 原始数据
   data = [], // 圆弧出入角和内外半径数据
   position = [], // 圆心位置
@@ -28,9 +30,11 @@ export default function drawArc({
       opacity,
       fillOpacity,
       strokeOpacity,
+      strokeWidth,
       fill: Array.isArray(fill) ? fill[i] : fill,
       stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-      strokeWidth,
+      mask: Array.isArray(mask) ? mask[i] : mask,
+      filter: Array.isArray(filter) ? filter[i] : filter,
       d: arc({startAngle: Math.PI * (startAngle / 180), endAngle: Math.PI * (endAngle / 180)}),
       transform: `translate(${x}px, ${y}px)`,
       source: source.length > i ? source[i] : null,
@@ -51,6 +55,8 @@ export default function drawArc({
     .attr('fill', d => d.fill)
     .attr('stroke', d => d.stroke)
     .attr('stroke-width', d => d.strokeWidth)
+    .attr('mask', d => d.mask)
+    .attr('filter', d => d.filter)
     .style('transform', d => d.transform)
     .style('outline', 'none')
 }

@@ -11,6 +11,8 @@ export default function drawCurve({
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   mapping = item => item, // 高级数据过滤函数
+  mask = null, // 遮罩
+  filter = null, // 滤镜
   source = [], // 原始数据
   position = [], // 位置 [[[x,y], ...], ...]
   container,
@@ -22,6 +24,8 @@ export default function drawCurve({
   const configuredData = position.map((data, i) => ({
     fill: 'none',
     stroke: Array.isArray(stroke) ? stroke[i] : stroke,
+    mask: Array.isArray(mask) ? mask[i] : mask,
+    filter: Array.isArray(filter) ? filter[i] : filter,
     strokeWidth,
     className,
     opacity,
@@ -43,4 +47,7 @@ export default function drawCurve({
     .attr('fill', d => d.fill)
     .attr('opacity', d => d.opacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
+    .attr('mask', d => d.mask)
+    .attr('filter', d => d.filter)
+    .attr('stroke-linecap', 'round')
 }

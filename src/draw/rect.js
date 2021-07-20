@@ -12,6 +12,8 @@ export default function drawText({
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   mapping = item => item, // 高级数据过滤函数
+  mask = null, // 遮罩
+  filter = null, // 滤镜
   source = [], // 原始数据
   data = [], // 矩形宽高数据
   position = [], // 直角坐标系坐标数据
@@ -33,6 +35,8 @@ export default function drawText({
       strokeOpacity,
       fill: Array.isArray(fill) ? fill[i] : fill,
       stroke: Array.isArray(stroke) ? stroke[i] : stroke,
+      mask: Array.isArray(mask) ? mask[i] : mask,
+      filter: Array.isArray(filter) ? filter[i] : filter,
       strokeWidth,
       source: source.length > i ? source[i] : null,
       rotate,
@@ -58,6 +62,8 @@ export default function drawText({
     .attr('stroke-opacity', d => d.strokeOpacity)
     .attr('transform', d => `rotate(${d.rotate})`)
     .attr('transform-origin', d => d.transformOrigin)
+    .attr('mask', d => d.mask)
+    .attr('filter', d => d.filter)
 }
 
 const getTransformOrigin = ({x, y, height, width, transformOrigin}) => {

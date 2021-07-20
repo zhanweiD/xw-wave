@@ -13,6 +13,8 @@ export default function drawArea({
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   mapping = item => item, // 高级数据过滤函数
+  mask = null, // 遮罩
+  filter = null, // 滤镜
   source = [], // 原始数据
   position = [], // 位置 [[[x,y0,y1], ...], ...]
   container,
@@ -26,9 +28,11 @@ export default function drawArea({
     opacity,
     fillOpacity,
     strokeOpacity,
+    strokeWidth,
     fill: Array.isArray(fill) ? fill[i] : fill,
     stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-    strokeWidth,
+    mask: Array.isArray(mask) ? mask[i] : mask,
+    filter: Array.isArray(filter) ? filter[i] : filter,
     d: areaGenerator(data),
     source: source.length > i ? source[i] : null,
   }))
@@ -47,5 +51,7 @@ export default function drawArea({
     .attr('opacity', d => d.opacity)
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
+    .attr('mask', d => d.mask)
+    .attr('filter', d => d.filter)
     .style('pointer-events', 'none')
 }

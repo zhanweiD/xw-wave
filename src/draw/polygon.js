@@ -11,6 +11,8 @@ export default function drawPolygon({
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   mapping = item => item, // 高级数据过滤函数
+  mask = null, // 遮罩
+  filter = null, // 滤镜
   source = [], // 原始数据
   data = [], // 多边形二维坐标点
   container, // 容器父节点
@@ -22,6 +24,8 @@ export default function drawPolygon({
     points: points.reduce((prev, cur) => `${prev} ${cur[0]},${cur[1]}`, ''),
     fill: Array.isArray(fill) ? fill[i] : fill,
     stroke: Array.isArray(stroke) ? stroke[i] : stroke,
+    mask: Array.isArray(mask) ? mask[i] : mask,
+    filter: Array.isArray(filter) ? filter[i] : filter,
     strokeWidth,
     opacity,
     fillOpacity,
@@ -45,4 +49,6 @@ export default function drawPolygon({
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
     .attr('transform-origin', d => d.transformOrigin)
+    .attr('mask', d => d.mask)
+    .attr('filter', d => d.filter)
 }
