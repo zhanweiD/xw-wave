@@ -4,6 +4,7 @@ import createEvent from './util/create-event'
 import createLog from './util/create-log'
 import standardLayout from './layout/standard'
 import createUuid from './util/uuid'
+import createDefs from './util/define'
 import {layerMapping} from './layer'
 
 // 图表状态
@@ -44,6 +45,8 @@ export default class Wave {
 
   #root = null
 
+  #defs = null
+
   #schedule = null
 
   #layer = []
@@ -66,6 +69,7 @@ export default class Wave {
     height = 100,
     padding = [40, 40, 40, 40],
     adjust = true,
+    define = {},
     theme = ['white', 'black'],
     baseFontSize = 1,
     layout = standardLayout,
@@ -102,6 +106,7 @@ export default class Wave {
       .append('svg')
       .attr('width', this.#containerWidth)
       .attr('height', this.#containerHeight)
+    this.#defs = this.#root.append('defs')
 
     // 初始化布局信息
     this.#layout = ((typeof layout === 'function' && layout) || standardLayout)({
@@ -116,14 +121,7 @@ export default class Wave {
     this.baseFontSize = baseFontSize
     this.event = createEvent(__filename)
     this.log = createLog(__filename)
-  }
-
-  /**
-   * 控制整个图表的显示隐藏
-   * @param {Boolean} isVisiable 是否可见
-   */
-  setVisible(isVisiable) {
-    this.#layer.forEach(layer => layer.setVisible(isVisiable))
+    createDefs({schema: define, container: this.#defs})
   }
 
   /**
@@ -182,14 +180,15 @@ export default class Wave {
       baseFontSize: this.baseFontSize,
       getColor: this.getColor.bind(this),
       warn: this.warn.bind(this),
+      defs: this.#defs,
     }
     // 根据类型创建图层
     const layer = new layerMapping[type](options, context)
     const layerId = options.id || createUuid()
-    // 新增一个图层
+    // 新增对应的图层
     this.#layer.push({type, id: layerId, instance: layer})
     this.registerLifeCircle(layer)
-    // 销毁 layer 的时候同步删除 wave 中的实例
+    // 注册销毁事件
     layer.event.on('destroy', () => {
       const index = this.#layer.findIndex(({id}) => id === layerId)
       this.#layer.splice(index, 1)
