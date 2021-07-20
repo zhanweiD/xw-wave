@@ -8,7 +8,7 @@ import text from './text'
 import area from './area'
 import ribbon from './ribbon'
 
-export {
+export default {
   arc, // 圆弧
   area, // 面积
   circle, // 椭圆

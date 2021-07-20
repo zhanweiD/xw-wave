@@ -8,7 +8,7 @@ import Breathe from './breathe'
 import Erase from './erase'
 import Queue from './queue'
 
-export {
+export default {
   // 动画队列
   Queue,
 

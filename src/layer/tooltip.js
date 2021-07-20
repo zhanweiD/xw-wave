@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 import {isEqual, isArray, merge} from 'lodash'
 import createLog from '../util/create-log'
-import {Move} from '../animation'
+import Animation from '../animation'
 
 // 展示类型
 const modeType = {
@@ -163,7 +163,7 @@ export default class Tooltip {
       offsetY += drift
     }
     // 移动距离过大时采用动画过渡
-    const animation = new Move({
+    const animation = new Animation.Move({
       delay: enableAnimation ? animationDelay : 0,
       targets: this.instance._groups[0][0],
       duration: enableAnimation ? animationDuration : 0,

@@ -1,10 +1,10 @@
 import {isArray, isEqual, merge} from 'lodash'
 import createEvent from '../util/create-event'
-import {Queue} from '../animation'
+import Animation from '../animation'
 import formatText from '../util/format-text'
 import getTextWidth from '../util/text-width'
 import TableList from '../data/table-list'
-import * as basicMapping from '../draw'
+import basicMapping from '../draw'
 import Tooltip from './tooltip'
 
 // 文字基于坐标的方向
@@ -252,9 +252,9 @@ export default class LayerBase {
         this.animation[name] = null
         return
       }
-      const animationQueue = new Queue({loop: false})
-      const enterQueue = new Queue({loop: false})
-      const loopQueue = new Queue({loop: true})
+      const animationQueue = new Animation.Queue({loop: false})
+      const enterQueue = new Animation.Queue({loop: false})
+      const loopQueue = new Animation.Queue({loop: true})
       const {enterAnimation, loopAnimation} = options[name]
       const targets = `.wave-basic-${name}`
       // 配置入场动画和轮播动画并连接

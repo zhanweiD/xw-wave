@@ -4,9 +4,11 @@ import {BrowserRouter as Router, Route} from 'react-router-dom'
 import Demo from './demo'
 import './index.css'
 
-import * as Animation from './animation'
-import * as Layout from './layout'
-import * as Draw from './draw'
+import Wave from './wave'
+import Layer from './layer'
+import Animation from './animation'
+import layout from './layout'
+import draw from './draw'
 
 ReactDOM.render(
   <React.StrictMode>
@@ -17,8 +19,5 @@ ReactDOM.render(
   document.getElementById('root')
 )
 
-export {
-  Animation,
-  Layout,
-  Draw,
-}
+export default Wave
+export {Layer, Animation, layout, draw}

@@ -1,5 +1,5 @@
 import standard from './standard'
 
-export {
+export default {
   standard,
 }

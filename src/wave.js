@@ -3,21 +3,8 @@ import chroma from 'chroma-js'
 import createEvent from './util/create-event'
 import createLog from './util/create-log'
 import standardLayout from './layout/standard'
-import TextLayer from './layer/text'
-import AxisLayer from './layer/axis'
-import RectLayer from './layer/rect'
-import LegendLayer from './layer/legend'
-import ArcLayer from './layer/arc'
-import LineLayer from './layer/line'
-import RadarLayer from './layer/radar'
 import createUuid from './util/uuid'
-import AuxiliaryLayer from './layer/auxiliary'
-import ScatterLayer from './layer/scatter'
-import MatrixLayer from './layer/matrix'
-import GaugeLayer from './layer/gauge'
-import EdgeBundleLayer from './layer/edge-bundle'
-import ChordLayer from './layer/chord'
-import SankeyLayer from './layer/sankey'
+import {layerMapping} from './layer'
 
 // 图表状态
 const stateType = {
@@ -39,24 +26,6 @@ const coordinateType = {
   CARTESIAN_BAND_LINEAR_LINEAR: 'cartesian-band-linear-linear',
   CARTESIAN_LINEAR_LINEAR: 'cartesian-linear-linear',
   POLAR_BAND_LINEAR: 'polar-band-linear',
-}
-
-// 图表图层
-const LayerMapping = {
-  axis: AxisLayer, // 坐标轴
-  legend: LegendLayer, // 图例
-  text: TextLayer, // 文本
-  rect: RectLayer, // 矩形
-  arc: ArcLayer, // 圆弧
-  radar: RadarLayer, // 雷达多边形
-  line: LineLayer, // 折线
-  auxiliary: AuxiliaryLayer, // 辅助直线
-  scatter: ScatterLayer, // 辅助直线
-  matrix: MatrixLayer, // 矩阵
-  gauge: GaugeLayer, // 仪表盘
-  edgeBundle: EdgeBundleLayer, // 边缘捆图
-  chord: ChordLayer, // 和弦图
-  sankey: SankeyLayer, // 桑基图
 }
 
 // 图表类主要用于管理图层
@@ -215,7 +184,7 @@ export default class Wave {
       warn: this.warn.bind(this),
     }
     // 根据类型创建图层
-    const layer = new LayerMapping[type](options, context)
+    const layer = new layerMapping[type](options, context)
     const layerId = options.id || createUuid()
     // 新增一个图层
     this.#layer.push({type, id: layerId, instance: layer})
