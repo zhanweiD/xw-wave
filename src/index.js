@@ -5,6 +5,8 @@ import Demo from './demo'
 import './index.css'
 
 import * as Animation from './animation'
+import * as Layout from './layout'
+import * as Draw from './draw'
 
 ReactDOM.render(
   <React.StrictMode>
@@ -17,4 +19,6 @@ ReactDOM.render(
 
 export {
   Animation,
+  Layout,
+  Draw,
 }

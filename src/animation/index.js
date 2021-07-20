@@ -1,28 +1,28 @@
-import FadeAnimation from './fade'
-import ZoomAnimation from './zoom'
-import ScanAnimation from './scan'
-import ScrollAnimation from './scroll'
-import EmptyAnimation from './empty'
-import MoveAnimation from './move'
-import BreatheAnimation from './breathe'
-import EraseAnimation from './erase'
-import AnimationQueue from './queue'
+import Fade from './fade'
+import Zoom from './zoom'
+import Scan from './scan'
+import Scroll from './scroll'
+import Empty from './empty'
+import Move from './move'
+import Breathe from './breathe'
+import Erase from './erase'
+import Queue from './queue'
 
 export {
   // 动画队列
-  AnimationQueue,
+  Queue,
 
   // 入场
-  FadeAnimation,
-  ZoomAnimation,
-  EraseAnimation,
+  Fade, // 淡入淡出
+  Zoom, // 缩放
+  Erase, // 擦除
 
   // 轮播
-  ScanAnimation, // 扫光
-  ScrollAnimation, // 滚动
-  BreatheAnimation, // 呼吸
+  Scan, // 扫光
+  Scroll, // 滚动
+  Breathe, // 呼吸
 
   // 其他
-  EmptyAnimation,
-  MoveAnimation,
+  Empty, // 函数或计时器
+  Move, // 移动
 }  
