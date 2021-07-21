@@ -99,8 +99,8 @@ export default class SankeyLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {links} = this.#data.data
-    const {labelOffset, nodeGap, ribbonGap, align, text} = this.#style
     const {type, layout} = this.options
+    const {labelOffset, nodeGap, ribbonGap, align, text, rect} = this.#style
     const isHorizontal = type === directionType.HORIZONTAL
     const [levels, groups] = [this.#data.get('levels'), this.#data.get('groups')]
     // 计算包括间隙在内的理论最大数值
@@ -115,7 +115,7 @@ export default class SankeyLayer extends LayerBase {
     const {scaleX, scaleY} = this.#scale
     // 基础矩形数据
     this.#rectData = groups.map(groupedNodes => {
-      const colors = this.getColor(groupedNodes.length, this.#style.rect?.fill)
+      const colors = this.getColor(groupedNodes.length, rect.fill)
       return groupedNodes.map((item, i) => ({
         y: layout.top,
         x: layout.left + scaleX(item.level),

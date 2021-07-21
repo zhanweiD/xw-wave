@@ -7,7 +7,7 @@ import Random from '../data/random'
 import Relation from '../data/relation'
 
 // 图层是否依赖其他图层
-const dependentLayers = ['auxiliary', 'legend']
+const dependentLayers = ['legend']
 const isDependentLayer = layerType => dependentLayers.find(type => type === layerType)
 const isNormalLayer = layerType => !dependentLayers.find(type => type === layerType) && layerType !== 'axis'
 const isAxisLayer = layerType => layerType === 'axis'
@@ -44,7 +44,7 @@ const createLayer = (wave, config) => {
   // 设置图层的事件
   event && Object.keys(event).forEach(eventName => layer.event.on(eventName, event[eventName]))
   // 设置图层的动画，由于渲染是异步的，动画需要在渲染之后才能配置
-  setTimeout(() => animation && layer.setAnimation(animation)(), 0)
+  // setTimeout(() => animation && layer.setAnimation(animation)(), 0)
   // 设置图层的 Tooltip，由于渲染是异步的，tooltip 事件需要在渲染之后才能绑定 dom
   setTimeout(() => tooltip && layer.setTooltip(tooltip), 0)
   return layer

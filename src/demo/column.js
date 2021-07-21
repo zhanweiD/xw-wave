@@ -77,7 +77,11 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           type: type === 'bar' ? 'vertical' : 'horizontal',
           bind: 'axis',
         },
-        data: [300, 600],
+        data: [
+          ['标签', '数值'],
+          ['最大值', 300],
+          ['最小值', 600],
+        ],
         style: {
           labelPosition: type === 'bar' ? 'top' : 'right',
           line: {

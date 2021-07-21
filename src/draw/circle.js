@@ -29,10 +29,10 @@ export default function drawCircle({
     stroke: Array.isArray(stroke) ? stroke[i] : stroke,
     mask: Array.isArray(mask) ? mask[i] : mask,
     filter: Array.isArray(filter) ? filter[i] : filter,
+    strokeWidth: Array.isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
     opacity,
     fillOpacity,
     strokeOpacity,
-    strokeWidth,
     source: source.length > i ? source[i] : null,
     transformOrigin: `${position[i][0]} ${position[i][1]}`,
   }))

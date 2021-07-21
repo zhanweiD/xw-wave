@@ -97,25 +97,22 @@ export default class RadarLayer extends LayerBase {
     })
     // 堆叠雷达图数据变更
     if (mode === modeType.STACK) {
-      this.#polygonData = this.#polygonData.map(groupData => {
-        return groupData.reduce((prev, cur, index) => {
-          return [...prev, {
-            ...cur, 
-            x: prev[index].x + cur.x - polygonCenter.x,
-            y: prev[index].y + cur.y - polygonCenter.y,
-          }]
-        }, [{x: polygonCenter.x, y: polygonCenter.y}]).slice(1)
-      })
+      this.#polygonData = this.#polygonData.map(groupData => groupData.reduce((prev, cur, index) => {
+        return [...prev, {...cur, 
+          x: prev[index].x + cur.x - polygonCenter.x,
+          y: prev[index].y + cur.y - polygonCenter.y,
+        }]
+      }, [{x: polygonCenter.x, y: polygonCenter.y}]).slice(1))
     }
   }
 
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {circleSize = 2} = this.#style
+    const {circleSize, polygon} = this.#style
     // 颜色跟随主题
-    const fillColors = this.getColor(this.#polygonData[0].length, this.#style.polygon?.fill, true)
-    const strokeColors = this.getColor(this.#polygonData[0].length, this.#style.polygon?.stroke, false)
+    const fillColors = this.getColor(this.#polygonData[0].length, polygon.fill)
+    const strokeColors = this.getColor(this.#polygonData[0].length, polygon.stroke)
     this.#polygonData.forEach(groupData => groupData.forEach((item, i) => {
       item.fillColor = fillColors[i]
       item.strokeColor = strokeColors[i]
@@ -135,6 +132,12 @@ export default class RadarLayer extends LayerBase {
       const isRight = Math.abs(angle % (2 * Math.PI)) < Math.PI
       return this.createText({value, x, y, style: this.#style.text, position: isRight ? 'right' : 'left'})
     }))
+    // 图层自定义图例数据
+    this.#data.set('legendData', {
+      list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: fillColors[i]})),
+      shape: 'broken-line',
+      canFilter: true,
+    })
   }
 
   // 绘制

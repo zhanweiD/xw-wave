@@ -80,7 +80,7 @@ export default class ScatterLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {circleSize, text} = this.#style
+    const {circleSize, text, circle} = this.#style
     const scaleSize = new Scale({
       type: 'linear',
       domain: this.#data.data.length >= 4 ? this.#data.select(this.#data.data[3].header).range() : [],
@@ -88,7 +88,7 @@ export default class ScatterLayer extends LayerBase {
       nice: null,
     })
     // 颜色跟随主题
-    const colors = this.getColor(this.#circleData.length, this.#style.circle?.fill, true)
+    const colors = this.getColor(this.#circleData.length, circle.fill)
     this.#circleData.forEach((groupData, i) => groupData.forEach(item => item.color = colors[i]))
     // 圆点大小数据
     this.#circleData = this.#circleData.map(groupData => {
@@ -103,6 +103,12 @@ export default class ScatterLayer extends LayerBase {
     this.#textData = this.#circleData.map(groupData => groupData.map(({cx, cy, value}) => {
       return this.createText({x: cx, y: cy, value: value || '', style: text, position: 'center'})
     }))
+    // 图层自定义图例数据
+    this.#data.set('legendData', {
+      list: this.#circleData.map((item, i) => ({label: item[0].category, color: colors[i]})),
+      canFilter: false,
+      shape: 'circle',
+    })
   }
 
   // 绘制

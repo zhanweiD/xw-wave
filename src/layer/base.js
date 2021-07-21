@@ -36,7 +36,6 @@ export default class LayerBase {
     this.root = null
     this.tooltip = null
     this.className = null
-    this.mainColor = null
     this.animation = {}
     this.#createEvent()
     this.warn = (text, data) => this.options.warn(text, data)
@@ -51,23 +50,19 @@ export default class LayerBase {
    * @param {Boolean} isMainColor 覆盖自定义颜色的默认值
    * @returns 正确的颜色
    */
-  getColor(count, customColors, isMainColor = false) {
+  getColor(count, customColors) {
     const data = this.data?.data
     const order = this.data?.options?.order
     const {getColor} = this.options
-    // 备份图层主色
-    if (customColors !== undefined && isMainColor) {
-      this.mainColor = customColors
-    }
     // 判断列表内有无颜色相关的属性，目前图例有用到
     if (order && this.data instanceof TableList) {
       const colorMapping = {}
-      const colors = getColor(Math.max(...Object.values(order)) + 1, customColors || this.mainColor)
+      const colors = getColor(Math.max(...Object.values(order)) + 1, customColors)
       Object.keys(order).forEach(key => colorMapping[key] = colors[order[key]])
       const finalColors = data.slice(1).map(({header}) => colorMapping[header])
       return data.length === 2 ? new Array(data[0].list.length).fill(finalColors) : finalColors
     }
-    return this.options.getColor(count, customColors || this.mainColor)
+    return this.options.getColor(count, customColors)
   }
 
   /**

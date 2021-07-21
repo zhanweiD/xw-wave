@@ -87,7 +87,7 @@ export default class GaugeLayer extends LayerBase {
     const {valueText, tickText, labelText, arc} = this.#style
     const {value, label, minValue, maxValue, fragments} = this.#data
     const maxRadius = Math.min(width, height) / 2
-    const colors = this.getColor(fragments.length, arc?.fill, true)
+    const colors = this.getColor(fragments.length, arc.fill)
     const arcCenter = {x: left + width / 2, y: top + height / 2}
     const scaleAngle = new Scale({
       type: 'linear',

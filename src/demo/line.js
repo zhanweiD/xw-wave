@@ -62,7 +62,11 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         type: 'horizontal',
         bind: 'axis',
       },
-      data: [300, 600],
+      data: [
+        ['标签', '数值'],
+        ['最大值', 300],
+        ['最小值', 600],
+      ],
       style: {
         labelPosition: 'right',
         line: {

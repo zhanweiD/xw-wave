@@ -13,8 +13,16 @@ const alignType = {
 
 // 排列方向
 const directionType = {
-  HORIZONTAL: 'horizontal',
-  VERTICAL: 'vertical',
+  HORIZONTAL: 'horizontal', // 水平排列
+  VERTICAL: 'vertical', // 垂直排列
+}
+
+// 图例形状
+const shapeType = {
+  RECT: 'rect', // 矩形
+  CIRCLE: 'circle', // 圆形
+  BROKENLINE: 'broken-line', // 折线
+  DOTTEDLINE: 'dotted-line', // 虚线
 }
 
 // 默认样式
@@ -24,24 +32,30 @@ const defaultStyle = {
   direction: directionType.HORIZONTAL,
   offset: [0, 0],
   gap: [0, 0],
-  circleSize: 12,
+  shapeSize: 12,
+  shape: {},
   text: {
     fill: 'white',
+    fontSize: 12,
   },
-  circle: {},
 }
 
 // 图例图层
 export default class LegendLayer extends LayerBase {
-  #data = []
-
-  #textData = []
-
-  #circleData = []
-
-  #colors = []
-
-  #textColors = []
+  #data = {
+    // 原始数据
+    text: [],
+    shape: [],
+    textColors: [],
+    shapeColors: [],
+    // 绘制数据
+    textData: [],
+    rectData: [],
+    circleData: [],
+    lineData: [],
+    // 交互遮罩
+    interactiveData: [],
+  } 
 
   #layers = null
 
@@ -59,35 +73,37 @@ export default class LegendLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['text', 'circle'])
+    super(layerOptions, waveOptions, ['text', 'circle', 'rect', 'interactive', 'line'])
     this.className = 'wave-legend'
   }
 
   // 图例过滤逻辑
   #filter = () => {
     // 备份用于恢复数据
-    const originData = this.#layers.map(layer => layer.data)
-    const colors = cloneDeep(this.#colors)
-    const counts = this.#layers.map(({data}) => data.data.length - 1)
-    const disableFlag = new Array(this.#colors.length).fill(false)
+    const colors = cloneDeep(this.#data.shapeColors)
+    const originData = cloneDeep(this.#layers.map(layer => layer.data))
+    const counts = this.#layers.map(({data}) => data.get('legendData')?.list.length)
+    const disableFlag = new Array(this.#data.shapeColors.length).fill(false)
     const disableColor = '#E2E3E588'
     // 数据筛选
-    this.event.off('click-circle')
-    this.event.on('click-circle', object => {
+    this.event.off('click-interactive')
+    this.event.on('click-interactive', object => {
       const {index} = object.data.source
       const layerIndex = counts.findIndex((v, i) => counts.slice(0, i + 1).reduce((prev, cur) => prev + cur) > index)
       const startIndex = counts.slice(0, layerIndex).reduce((prev, cur) => prev + cur, 0)
       const data = originData[layerIndex]
       const layer = this.#layers[layerIndex]
+      // 图层需要手动开启过滤支持
+      if (!layer.data.get('legendData')?.canFilter) return
       // 更新图例状态
       if (disableFlag[index]) {
         disableFlag[index] = false
-        this.#colors[index] = colors[index]
-        this.#textColors[index] = 'white'
+        this.#data.shapeColors[index] = colors[index]
+        this.#data.textColors[index] = 'white'
       } else {
         disableFlag[index] = true
-        this.#colors[index] = disableColor
-        this.#textColors[index] = disableColor
+        this.#data.shapeColors[index] = disableColor
+        this.#data.textColors[index] = disableColor
       }
       // 更新图层
       const order = {}
@@ -118,13 +134,19 @@ export default class LegendLayer extends LayerBase {
     this.#isFiltering = false
     this.#layers = layers || this.#layers
     // 初始化文字数据和图形颜色
-    this.#data = []
-    this.#colors = []
-    this.#textColors = []
+    this.#data.text = []
+    this.#data.shape = []
+    this.#data.textColors = []
+    this.#data.shapeColors = []
+    // 图例数据一般由图层自己控制
     this.#layers.forEach(layer => {
-      this.#data.push(...layer.data.data.slice(1).map(({header}) => header))
-      this.#colors.push(...layer.getColor(layer.data.data.length - 1))
-      this.#textColors.push(...new Array(layer.data.data.length - 1).fill('white'))
+      if (layer.data.get('legendData')) {
+        const {shape, list} = layer.data.get('legendData')
+        this.#data.shape.push(...new Array(list.length).fill(shape))
+        this.#data.text.push(...list.map(({label}) => label))
+        this.#data.shapeColors.push(...list.map(({color}) => color))
+        this.#data.textColors.push(...new Array(list.length).fill('white'))
+      } 
     })
     // 生命周期绑定
     layers && this.#filter()
@@ -137,85 +159,174 @@ export default class LegendLayer extends LayerBase {
     }))
   }
 
+  // 坐标为文字左侧中点
+  #createShape = ({shape, x, y, size, color}) => {
+    if (shape === shapeType.RECT) {
+      this.#data.rectData.push({
+        x: x - size * 2,
+        y: y - size / 2,
+        width: size * 2,
+        height: size,
+        fill: color,
+      })
+    } else if (shape === shapeType.CIRCLE) {
+      this.#data.circleData.push({
+        cx: x - size / 2,
+        cy: y,
+        rx: size / 2,
+        ry: size / 2,
+        fill: color,
+      })
+    } else if (shape === shapeType.BROKENLINE) {
+      this.#data.lineData.push({
+        x1: x - size * 2,
+        x2: x - (size / 2) * 3,
+        y1: y,
+        y2: y,
+        strokeWidth: size / 5,
+        stroke: color,
+      }, {
+        x1: x - size / 2,
+        x2: x,
+        y1: y,
+        y2: y,
+        strokeWidth: size / 5,
+        stroke: color,
+      })
+      this.#data.circleData.push({
+        cx: x - size,
+        cy: y,
+        rx: size / 3,
+        ry: size / 3,
+        strokeWidth: size / 5,
+        stroke: color,
+        fill: 'none',
+      })
+    } else if (shape === shapeType.DOTTEDLINE) {
+      this.#data.lineData.push({
+        x1: x - size * 2,
+        x2: x,
+        y1: y,
+        y2: y,
+        stroke: color,
+        strokeWidth: size / 5,
+        dasharray: `${size / 4} ${size / 4}`,
+      })
+    }
+  }
+
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {align, verticalAlign, direction, circleSize, offset, gap} = this.#style
+    const {align, verticalAlign, direction, shapeSize, offset, gap} = this.#style
     const {left, top, width, height} = this.options.layout
-    const {fontSize = 12, format} = this.#style.text
+    const {fontSize, format} = this.#style.text
     const [inner, outer] = gap
-    const maxHeight = max([circleSize, fontSize])
-    // 格式化图例数据
-    const data = format ? this.#data.map(value => formatText(value, format)) : this.#data
-    // 确定圆的数据
+    const maxHeight = max([shapeSize, fontSize])
+    const shapeWidth = maxHeight * 2
+    // 清空衍生数据
+    this.#data.rectData = []
+    this.#data.circleData = []
+    this.#data.lineData = []
+    this.#data.textData = []
+    // 先确定文字数据
+    const textData = this.#data.text.map(value => formatText(value, format))
+    const textWidths = textData.map(value => getTextWidth(value, fontSize))
     if (direction === directionType.HORIZONTAL) {
-      this.#circleData = data.map((item, i) => {
-        const textWidth = sum(data.slice(0, i).map(value => getTextWidth(value, fontSize)))
-        return {
-          cx: left + circleSize / 2 + (i ? (inner + outer + circleSize) * i + textWidth : 0),
-          cy: top + maxHeight / 2,
-          rx: circleSize / 2,
-          ry: circleSize / 2,
-        }
-      })
+      this.#data.textData = textData.map((value, i) => this.createText({
+        x: left + (shapeWidth + inner) * (i + 1) + outer * i + sum(textWidths.slice(0, i)),
+        y: top + maxHeight / 2,
+        style: this.#style.text,
+        position: 'right',
+        value,
+      }))
     } else if (direction === directionType.VERTICAL) {
-      this.#circleData = data.map((item, i) => ({
-        cx: left + circleSize / 2,
-        cy: top + maxHeight / 2 + (i ? (outer + fontSize + circleSize) * i : 0),
-        rx: circleSize / 2,
-        ry: circleSize / 2,
+      this.#data.textData = textData.map((value, i) => this.createText({
+        x: left + shapeWidth + inner,
+        y: top + maxHeight / 2 + maxHeight * i + outer * i,
+        style: this.#style.text,
+        position: 'right',
+        value,
       }))
     }
-    // 根据圆的数据确定文字的数据
-    this.#textData = this.#circleData.map(({cx, cy}, i) => ({
-      value: data[i],
-      x: cx + circleSize / 2 + inner,
-      y: cy + fontSize / 2,
-    }))
-    // 最后根据 align 整体移动，默认都是 start
+    // 根据 align 整体移动文字
     let [totalWidth, totalHeight] = [0, 0]
     if (direction === directionType.HORIZONTAL) {
-      const {x, value} = this.#textData[this.#textData.length - 1]
+      const {x, value} = this.#data.textData[this.#data.textData.length - 1]
       totalWidth = x - left + getTextWidth(value, fontSize)
       totalHeight = maxHeight
     } else if (direction === directionType.VERTICAL) {
-      const {y} = this.#textData[this.#textData.length - 1]
-      totalWidth = circleSize + inner + max(data.map(value => getTextWidth(value, fontSize)))
+      const {y} = this.#data.textData[this.#data.textData.length - 1]
+      totalWidth = shapeSize + inner + max(textData.map(value => getTextWidth(value, fontSize)))
       totalHeight = y - top + maxHeight
     }
     const [offsetX, offsetY] = [width - totalWidth, height - totalHeight]
     const [isHorizontalMiddle, isHorizontalEnd] = [align === alignType.MIDDLE, align === alignType.END]
     const [isVerticalMiddle, isVerticalEnd] = [verticalAlign === alignType.MIDDLE, verticalAlign === alignType.END]
-    this.#circleData = this.#circleData.map(({cx, cy, ...size}) => ({
-      ...size,
-      cx: cx + offset[0] + (isHorizontalMiddle ? offsetX / 2 : isHorizontalEnd ? offsetX : 0),
-      cy: cy + offset[1] + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0), 
-    }))
-    this.#textData = this.#textData.map(({x, y, value}) => ({
-      value,
+    this.#data.textData = this.#data.textData.map(({x, y, value}) => ({
       x: x + offset[0] + (isHorizontalMiddle ? offsetX / 2 : isHorizontalEnd ? offsetX : 0),
       y: y + offset[1] + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0),
+      value,
+    }))
+    // 图形固定在文字左侧
+    this.#data.shape.forEach((value, i) => this.#createShape({
+      shape: value,
+      size: shapeSize,
+      x: this.#data.textData[i].x,
+      y: this.#data.textData[i].y - fontSize / 2,
+      color: this.#data.shapeColors[i],
+    }))
+    // 确定点击区域
+    this.#data.interactiveData = this.#data.textData.map(({x, y, value}, i) => ({
+      x: x - shapeWidth - inner,
+      y: y - fontSize / 2 - maxHeight / 2,
+      width: shapeWidth + inner + textWidths[i],
+      height: maxHeight,
+      source: {value, index: i},
     }))
   }
 
   draw() {
-    // 只有一个图例的时候强制不显示
-    const circleData = this.#circleData.map(({rx, ry, cx, cy}, i) => ({
-      data: [[rx, ry]],
-      position: [[cx, cy]],
-      source: [{value: this.#data[i], index: i}],
-      ...this.#style.circle,
-      fill: this.#colors[i],
-      hide: this.#data.length < 2,
-    }))
-    const textData = this.#textData.map(({value, x, y}, i) => ({
+    const rectData = [{
+      data: this.#data.rectData.map(({width, height}) => [width, height]),
+      position: this.#data.rectData.map(({x, y}) => [x, y]),
+      source: this.#data.rectData.map(({source}) => source),
+      ...this.#style.shape,
+      fill: this.#data.rectData.map(({fill}) => fill),
+    }]
+    const interactiveData = [{
+      data: this.#data.interactiveData.map(({width, height}) => [width, height]),
+      position: this.#data.interactiveData.map(({x, y}) => [x, y]),
+      source: this.#data.interactiveData.map(({source}) => source),
+      fillOpacity: 0,
+    }]
+    const circleData = [{
+      data: this.#data.circleData.map(({rx, ry}) => [rx, ry]),
+      position: this.#data.circleData.map(({cx, cy}) => [cx, cy]),
+      strokeWidth: this.#data.circleData.map(({strokeWidth}) => strokeWidth),
+      source: this.#data.circleData.map(({source}) => source),
+      ...this.#style.shape,
+      fill: this.#data.circleData.map(({fill}) => fill),
+      stroke: this.#data.circleData.map(({stroke}) => stroke),
+    }]
+    const lineData = [{
+      position: this.#data.lineData.map(({x1, x2, y1, y2}) => [x1, y1, x2, y2]),
+      strokeWidth: this.#data.lineData.map(({strokeWidth}) => strokeWidth),
+      source: this.#data.lineData.map(({source}) => source),
+      dasharray: this.#data.lineData.map(({dasharray}) => dasharray),
+      ...this.#style.shape,
+      stroke: this.#data.lineData.map(({stroke}) => stroke),
+    }]
+    const textData = this.#data.textData.map(({value, x, y}, i) => ({
       data: [value],
       position: [[x, y]],
       ...this.#style.text,
-      fill: this.#textColors[i],
-      hide: this.#data.length < 2,
+      fill: this.#data.textColors[i],
     }))
+    this.drawBasic('rect', rectData)
     this.drawBasic('circle', circleData)
+    this.drawBasic('line', lineData)
     this.drawBasic('text', textData)
+    this.drawBasic('rect', interactiveData, 'interactive')
   }
 }

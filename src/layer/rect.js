@@ -218,14 +218,14 @@ export default class RectLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition, paddingInner} = this.#style
-    const {type} = this.options
+    const {labelPosition, paddingInner, rect} = this.#style
+    const {type, mode} = this.options
     // 颜色跟随主题
     if (this.#rectData[0]?.length > 1) {
-      const colors = this.getColor(this.#rectData[0].length, this.#style.rect?.fill, true)
+      const colors = this.getColor(this.#rectData[0].length, rect.fill)
       this.#rectData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
     } else if (this.#rectData[0]?.length === 1) {
-      const colors = this.getColor(this.#rectData.length, this.#style.rect?.fill, true)
+      const colors = this.getColor(this.#rectData.length, rect.fill)
       this.#rectData.forEach((groupData, i) => (groupData[0].color = colors[i]))
     }
     // 计算柱子占整个 bandWidth 的比值
@@ -245,11 +245,11 @@ export default class RectLayer extends LayerBase {
       const positionMin = isArray(labelPosition) ? labelPosition[0] : labelPosition
       const positionMax = isArray(labelPosition) ? labelPosition[1] : labelPosition
       groupData.forEach(({value, ...data}) => {
-        // value 为数值，对应一个标签
+        // 单值标签
         !isArray(value) && result.push(
           this.#getLabelData({...data, value, labelPosition: value > 0 ? positionMax : positionMin})
         )
-        // value 为区间，对应两个标签
+        // 多值标签
         isArray(value) && result.push(
           this.#getLabelData({...data, value: value[0], labelPosition: positionMin}),
           this.#getLabelData({...data, value: value[1], labelPosition: positionMax}),
@@ -257,6 +257,13 @@ export default class RectLayer extends LayerBase {
       })
       return result
     })
+    // 图层自定义图例数据
+    const colors = this.getColor(this.#rectData[0].length, rect.fill)
+    this.#data.set('legendData', mode !== modeType.INTERVAL && mode !== modeType.WATERFALL ? {
+      list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
+      canFilter: true,
+      shape: 'rect',
+    } : null)
   }
 
   // 绘制

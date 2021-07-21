@@ -31,7 +31,7 @@ const defaultStyle = {
 export default class AuxiliaryLayer extends LayerBase {
   #data = null
   
-  #scale = null
+  #scale = {}
 
   #style = defaultStyle
 
@@ -59,19 +59,25 @@ export default class AuxiliaryLayer extends LayerBase {
   }
 
   // 传入数据数组和比例尺，辅助线需要外部的比例尺
-  setData(data, scale) {
+  setData(data, scales) {
     this.#data = data || this.#data
-    this.#scale = scale || this.#scale
+    this.#scale = this.createScale({}, this.#scale, scales)
     const {type, layout} = this.options
     const {left, top, width, height} = layout
-    // 根据比例尺计算原始坐标
-    this.#lineData = this.#data.map(value => ({
-      value,
-      x1: left + (type === directionType.HORIZONTAL ? 0 : this.#scale.scaleX(value)),
-      y1: top + (type === directionType.HORIZONTAL ? this.#scale.scaleY(value) : 0),
-      x2: left + (type === directionType.HORIZONTAL ? width : this.#scale.scaleX(value)),
-      y2: top + (type === directionType.HORIZONTAL ? this.#scale.scaleY(value) : height),
-    }))
+    const isHorizontal = type === directionType.HORIZONTAL
+    const isVertical = type === directionType.VERTICAL
+    const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
+    // 如没有比例尺不进行计算
+    if ((isHorizontal && this.#scale.scaleX) || (isVertical && this.#scale.scaleY)) {
+      this.#lineData = pureTableList.map(([label, value]) => ({
+        label,
+        value,
+        x1: left + (isHorizontal ? 0 : this.#scale.scaleX(value)),
+        y1: top + (isHorizontal ? this.#scale.scaleY(value) : 0),
+        x2: left + (isHorizontal ? width : this.#scale.scaleX(value)),
+        y2: top + (isHorizontal ? this.#scale.scaleY(value) : height),
+      }))
+    }
   }
 
   // 覆盖默认图层样式
@@ -93,6 +99,14 @@ export default class AuxiliaryLayer extends LayerBase {
       offset: labelOffset,
       style: text,
     }))
+    // 图层自定义图例数据
+    const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
+    const colors = this.getColor(pureTableList.length, this.#style.line.stroke)
+    this.#data.set('legendData', {
+      list: pureTableList.map(([label], i) => ({label, color: colors[i]})),
+      shape: 'dotted-line',
+      canFilter: false,
+    })
   }
 
   // 绘制

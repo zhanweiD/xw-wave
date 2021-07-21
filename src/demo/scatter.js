@@ -68,7 +68,11 @@ const createSchema = (container, theme, layout, mode) => ({
         type: 'horizontal',
         bind: 'axis',
       },
-      data: [100, 200],
+      data: [
+        ['标签', '数值'],
+        ['最大值', 150],
+        ['最小值', 100],
+      ],
       style: {
         labelPosition: 'right',
         line: {
@@ -91,7 +95,10 @@ const createSchema = (container, theme, layout, mode) => ({
         type: 'vertical',
         bind: 'axis',
       },
-      data: [400],
+      data: [
+        ['标签', '数值'],
+        ['阈值', 400],
+      ],
       style: {
         labelPosition: 'top',
         line: {

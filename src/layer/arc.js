@@ -154,14 +154,14 @@ export default class ArcLayer extends LayerBase {
     const {scaleAngle, scaleRadius} = this.#scale
     const {innerRadius, arc} = this.#style
     const headers = this.#data.data.map(({header}) => header)
-    const tableList = this.#data.transpose(this.#data.data.map(({list}) => list))
+    const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const arcCenter = {x: left + width / 2, y: top + height / 2}
     // 根据内半径重制半径比例尺值域
     if (type === waveType.NIGHTINGALEROSE) {
       scaleRadius.range([innerRadius, scaleRadius.range()[1]])
     }
     // 圆弧基础数据
-    this.#arcData = tableList.map(([dimension, ...values]) => {
+    this.#arcData = pureTableList.map(([dimension, ...values]) => {
       return values.map((value, i) => ({
         value,
         dimension,
@@ -176,8 +176,7 @@ export default class ArcLayer extends LayerBase {
     if (mode === modeType.STACK) {
       this.#arcData = this.#arcData.map(groupData => {
         return groupData.reduce((prev, cur, index) => {
-          return [...prev, {
-            ...cur, 
+          return [...prev, {...cur, 
             innerRadius: prev[index].outerRadius,
             outerRadius: prev[index].outerRadius + cur.outerRadius - innerRadius,
           }]
@@ -186,11 +185,21 @@ export default class ArcLayer extends LayerBase {
     }
     // 颜色跟随主题
     if (this.#arcData[0]?.length > 1) {
-      const colors = this.getColor(this.#arcData[0].length, arc?.fill, true)
+      const colors = this.getColor(this.#arcData[0].length, arc.fill)
       this.#arcData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
+      this.#data.set('legendData', {
+        list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
+        canFilter: true,
+        shape: 'rect',
+      })
     } else if (this.#arcData[0]?.length === 1) {
-      const colors = this.getColor(this.#arcData.length, arc?.fill, true)
+      const colors = this.getColor(this.#arcData.length, arc.fill)
       this.#arcData.forEach((groupData, i) => (groupData[0].color = colors[i]))
+      this.#data.set('legendData', {
+        list: pureTableList.map((item, i) => ({label: item[0], color: colors[i]})),
+        canFilter: false,
+        shape: 'rect',
+      })
     }
     // 标签文字数据
     this.#textData = this.#arcData.map(groupData => {

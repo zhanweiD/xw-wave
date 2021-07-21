@@ -91,7 +91,7 @@ export default class EdgeBundleLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {left, top, width, height} = this.options.layout
     const [centerX, centerY] = [left + width / 2, top + height / 2]
-    const {circleSize, labelOffset, text} = this.#style
+    const {circleSize, labelOffset, text, circle, curve} = this.#style
     const sizeScale = new Scale({
       type: 'linear',
       domain: [this.#data.get('minValue'), this.#data.get('maxValue')],
@@ -104,11 +104,11 @@ export default class EdgeBundleLayer extends LayerBase {
     }))
     // 节点和边的颜色数据
     const categorys = this.#data.get('categorys')
-    const circleColors = this.getColor(categorys.length, this.#style.cirle?.fill, true)
+    const circleColors = this.getColor(categorys.length, circle.fill)
     this.#circleData.forEach(groupData => groupData.forEach((item => {
       item.color = circleColors[categorys.findIndex(value => value === item.source.category)]
     })))
-    const curveColors = this.getColor(categorys.length, this.#style.curve?.fill, false)
+    const curveColors = this.getColor(categorys.length, curve.fill)
     this.#curveData.forEach(item => {
       item.color = curveColors[categorys.findIndex(value => value === item.category)]
     })

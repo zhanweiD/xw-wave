@@ -18,10 +18,7 @@ export default function drawLine({
 }) {
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = position.map((data, i) => ({
-    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-    strokeWidth,
     className,
-    strokeDasharray: dasharray,
     opacity,
     strokeOpacity,
     x1: data[0],
@@ -29,6 +26,9 @@ export default function drawLine({
     x2: data[2],
     y2: data[3],
     source: source.length > i ? source[i] : null,
+    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
+    strokeWidth: Array.isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
+    strokeDasharray: Array.isArray(dasharray) ? dasharray[i] : dasharray,
     mask: Array.isArray(mask) ? mask[i] : mask,
     filter: Array.isArray(filter) ? filter[i] : filter,
   }))

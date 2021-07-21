@@ -65,10 +65,10 @@ export default class ChordLayer extends LayerBase {
     const {left, top, width, height} = this.options.layout
     const maxRadius = Math.min(width, height) / 2
     const [centerX, centerY] = [left + width / 2, top + height / 2]
-    const {arcWidth, labelOffset, text} = this.#style
+    const {arcWidth, labelOffset, text, arc, ribbon} = this.#style
     const innerRadius = maxRadius - arcWidth
     // 补充圆弧数据
-    const arcColors = this.getColor(this.#arcData.length, this.#style.arc?.fill, true)
+    const arcColors = this.getColor(this.#arcData.length, arc.fill)
     this.#arcData = this.#arcData.map((item, i) => ({
       ...item,
       innerRadius,
@@ -77,7 +77,7 @@ export default class ChordLayer extends LayerBase {
       position: [centerX, centerY],
     }))
     // 补充边数据
-    const ribbonColors = this.getColor(this.#arcData.length, this.#style.ribbon?.fill, true)
+    const ribbonColors = this.getColor(this.#arcData.length, ribbon.fill)
     this.#ribbonData = this.#data.get('chordData').map(({source, target}) => ({
       index: target.index,
       position: [centerX, centerY],

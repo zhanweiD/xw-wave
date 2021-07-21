@@ -112,14 +112,9 @@ export default class LineLayer extends LayerBase {
     })
     // 堆叠柱状数据变更
     if (mode === modeType.STACK) {
-      this.#curveData = this.#curveData.map(groupData => {
-        return groupData.reduce((prev, cur, index) => {
-          return [...prev, {
-            ...cur, 
-            y: prev[index].y - cur.height,
-          }]
-        }, [{y: groupData[0].y + groupData[0].height}]).slice(1)
-      })
+      this.#curveData = this.#curveData.map(groupData => groupData.reduce((prev, cur, index) => {
+        return [...prev, {...cur, y: prev[index].y - cur.height}]
+      }, [{y: groupData[0].y + groupData[0].height}]).slice(1))
     }
   }
 
@@ -127,10 +122,10 @@ export default class LineLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {layout, mode} = this.options
-    const {labelPosition, circleSize, text} = this.#style
+    const {labelPosition, circleSize, text, curve} = this.#style
     const {top, height} = layout
     // 颜色跟随主题
-    const colors = this.getColor(this.#curveData[0].length, this.#style.curve?.stroke, true)
+    const colors = this.getColor(this.#curveData[0].length, curve.stroke)
     this.#curveData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
     // 标签文字数据
     this.#textData = this.#curveData.map(groupData => groupData.map(({value, x, y}) => {
@@ -144,6 +139,12 @@ export default class LineLayer extends LayerBase {
       y1: mode === modeType.STACK && j !== 0 ? this.#curveData[i][j - 1].y : height + top,
       ...item,
     })))
+    // 图层自定义图例数据
+    this.#data.set('legendData', {
+      list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
+      shape: 'broken-line',
+      canFilter: true,
+    })
   }
 
   // 绘制

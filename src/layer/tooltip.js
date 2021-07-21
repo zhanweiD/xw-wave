@@ -33,7 +33,7 @@ export default class Tooltip {
     this.isAvailable = false
     this.log = createLog(__filename)
     this.options = merge({}, defaultOptions, options)
-    this.lastPosition = {offsetX: -100, offsetY: -100}
+    this.lastPosition = {x: -100, y: -100}
     // 根容器
     this.instance = container
       .append('div')
@@ -147,33 +147,33 @@ export default class Tooltip {
   }
 
   // 移动
-  move({offsetX, offsetY}, options = {}) {
+  move({x, y}, options = {}) {
     const {enableAnimation, animationDuration, animationDelay} = {...defaultOptions, ...options}
     const drift = 10
     // 边界判断
     const rect = this.instance._groups[0][0].getBoundingClientRect()
-    if (offsetX + rect.width > document.body.clientWidth) {
-      offsetX -= rect.width + drift
+    if (x + rect.width > document.body.clientWidth) {
+      x -= rect.width + drift
     } else {
-      offsetX += drift
+      x += drift
     }
-    if (offsetY + rect.height > document.body.clientHeight) {
-      offsetY -= rect.height + drift
+    if (y + rect.height > document.body.clientHeight) {
+      y -= rect.height + drift
     } else {
-      offsetY += drift
+      y += drift
     }
     // 移动距离过大时采用动画过渡
     const animation = new Animation.Move({
       delay: enableAnimation ? animationDelay : 0,
       targets: this.instance._groups[0][0],
       duration: enableAnimation ? animationDuration : 0,
-      position: [[this.lastPosition.offsetX || 0, offsetX], [this.lastPosition.offsetY || 0, offsetY]],
+      position: [[this.lastPosition.x || 0, x], [this.lastPosition.y || 0, y]],
       easing: 'easeOutQuart',
     })
     // 一次性动画，结束时销毁
     animation.event.on('end', () => animation.destroy())
     animation.play()
-    this.lastPosition = {offsetX, offsetY}
+    this.lastPosition = {x, y}
   }
 
   destroy() {
