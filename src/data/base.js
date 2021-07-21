@@ -11,7 +11,8 @@ export default class DataBase {
   static isTableList = tableList => {
     if (!Array.isArray(tableList) 
       || tableList.length === 0 
-      || tableList.findIndex(item => !Array.isArray(item)) !== -1) {
+      || tableList.findIndex(item => !Array.isArray(item)) !== -1
+      || new Set(tableList.map(item => item.length)).size !== 1) {
       return false
     }
     return true
@@ -78,7 +79,7 @@ export default class DataBase {
    */
   transpose(tableList) {
     if (!this.isLegalData('list', tableList)) {
-      this.warn('列表数据结构错误')
+      this.warn('列表数据结构错误', tableList)
       return false
     }
     const newTableList = []

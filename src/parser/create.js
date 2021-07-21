@@ -7,10 +7,9 @@ import Random from '../data/random'
 import Relation from '../data/relation'
 
 // 图层是否依赖其他图层
-const dependentLayers = ['legend']
-const isDependentLayer = layerType => dependentLayers.find(type => type === layerType)
-const isNormalLayer = layerType => !dependentLayers.find(type => type === layerType) && layerType !== 'axis'
 const isAxisLayer = layerType => layerType === 'axis'
+const isLegendLayer = layerType => layerType === 'legend'
+const isNormalLayer = layerType => !isAxisLayer(layerType) && !isLegendLayer(layerType)
 
 // 根据配置创建一个图层
 const createLayer = (wave, config) => {
@@ -24,29 +23,21 @@ const createLayer = (wave, config) => {
     dataSet = new Table(DataBase.isTable(data) ? data : Random.table(data))
   } else if (DataBase.isTableList(data) || data?.type === 'tableList') {
     dataSet = new TableList(DataBase.isTableList(data) ? data : Random.tableList(data))
-    // 列表到表格的转换
-    if (type === 'matrix' || type === 'chord') {
-      dataSet = new Table(DataBase.tableListToTable(DataBase.isTableList(data) ? data : Random.tableList(data)))
-    }
   }
-  // 特殊图层需要其他图层的比例尺
-  let customScale
-  // 图例需要的数据很特殊，是一个图层的实例，以便控制数据过滤
+  // 图例需要的数据是图层实例
   if (type === 'legend') {
     dataSet = wave.layer.filter(({instance}) => instance.data instanceof TableList).map(({instance}) => instance)
-  } else if (isDependentLayer(type)) {
-    customScale = wave.layer.find(item => item.type === 'axis').instance.scale
   }
-  // 设置图层的数据，第二个参数为比例尺，第三个参数为比例尺配置
-  layer.setData(dataSet, {...customScale, nice: scale})
+  // 设置图层的数据，第二个参数为比例尺配置
+  layer.setData(dataSet, {nice: scale})
   // 设置图层的样式
   style && layer.setStyle(style)
   // 设置图层的事件
   event && Object.keys(event).forEach(eventName => layer.event.on(eventName, event[eventName]))
-  // 设置图层的动画，由于渲染是异步的，动画需要在渲染之后才能配置
-  // setTimeout(() => animation && layer.setAnimation(animation)(), 0)
-  // 设置图层的 Tooltip，由于渲染是异步的，tooltip 事件需要在渲染之后才能绑定 dom
-  setTimeout(() => tooltip && layer.setTooltip(tooltip), 0)
+  // 设置图层的动画（异步函数）
+  layer.setAnimation(animation)
+  // 设置图层的 tooltip（异步函数）
+  layer.setTooltip(tooltip)
   return layer
 }
 
@@ -58,16 +49,20 @@ function createWave(schema, existedWave) {
     // 有些层比较特殊，需要依赖其他图层的数据或者比例尺
     const normalLayerConfigs = layers.filter(({type}) => isNormalLayer(type))
     const axisLayerConfig = layers.find(({type}) => isAxisLayer(type))
-    const dependentLayerConfigs = layers.filter(({type}) => isDependentLayer(type))
+    const legendLayerConfig = layers.find(({type}) => isLegendLayer(type))
+    // 图层实例
     const normalLayers = normalLayerConfigs.map(layer => createLayer(wave, layer))
     const axisLayer = axisLayerConfig && createLayer(wave, axisLayerConfig)
     // 坐标轴层会对现有图层进行比例尺融合
-    axisLayer && wave.bindCoordinate(axisLayer, normalLayers)
-    // 最后绘制依赖其他图层的图层
-    dependentLayerConfigs.map(layer => createLayer(wave, layer))
-    // 根据 schema 配置的顺序进行绘制，绘制之后添加添加笔刷，然后是动画和 tooltip
+    axisLayerConfig && wave.bindCoordinate(axisLayer, normalLayers)
+    // 最后绘制依赖其他图层的图例图层
+    legendLayerConfig && createLayer(wave, legendLayerConfig)
+    // 根据 schema 配置的顺序进行绘制
     layers.map(({options}) => wave.layer.find(({id}) => id === options.id).instance.draw())
+    // 绘制之后添加添加笔刷，然后是动画和 tooltip
     brush && wave.createBrush({...brush, layout: wave.layout[brush.layout]})
+    // 默认开启动画，后面改成由 wave 统一管理
+    setTimeout(() => wave.layer.map(({instance}) => instance.playAnimation()))
     return wave
   } catch (error) {
     console.error('初始化失败', error)

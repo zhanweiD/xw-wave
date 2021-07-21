@@ -41,6 +41,7 @@ export default class LayerBase {
     this.warn = (text, data) => this.options.warn(text, data)
     this.event = createEvent(__filename)
     this.subLayers.forEach(name => this.#backupData[name] = [])
+    this.playAnimation = () => this.subLayers.forEach(type => this.animation[type]?.play())
   }
 
   /**
@@ -197,7 +198,7 @@ export default class LayerBase {
   // 元素渲染后进行配置
   setTooltip(options) {
     // 初始化实例对象
-    if (!options.rebind && !this.tooltip) {
+    if (options && !options.rebind && !this.tooltip) {
       this.tooltip = new Tooltip(this.options.container, options)
     }
     // 为元素绑定事件
@@ -235,33 +236,34 @@ export default class LayerBase {
    * @returns 启动全部动画队列的函数
    */
   setAnimation(options) {
-    // 配置动画前先销毁之前的动画，释放资源
-    this.subLayers.forEach(name => {
-      this.animation[name] && this.animation[name].destroy()
-      this.animation[name] = null
-    })
-    // 为每种元素支持的每种动画配置
-    this.subLayers.forEach(name => {
-      // 没有数据，不需要配置动画
-      if (this.#backupData[name].length === 0 || !options[name]) {
+    setTimeout(() => {
+      // 配置动画前先销毁之前的动画，释放资源
+      this.subLayers.forEach(name => {
+        this.animation[name] && this.animation[name].destroy()
         this.animation[name] = null
-        return
-      }
-      const animationQueue = new Animation.Queue({loop: false})
-      const enterQueue = new Animation.Queue({loop: false})
-      const loopQueue = new Animation.Queue({loop: true})
-      const {enterAnimation, loopAnimation} = options[name]
-      const targets = `.wave-basic-${name}`
-      // 配置入场动画和轮播动画并连接
-      enterAnimation && enterQueue.push(enterAnimation.type, {...enterAnimation, targets}, this.root)
-      loopAnimation && loopQueue.push(loopAnimation.type, {...loopAnimation, targets}, this.root)
-      this.animation[name] = animationQueue.push('queue', enterQueue).push('queue', loopQueue)
-      // 动画事件注册
-      this.animation[name].event.on('start', data => this.event.fire(`${name}-animation-start`, data))
-      this.animation[name].event.on('process', data => this.event.fire(`${name}-animation-process`, data))
-      this.animation[name].event.on('end', data => this.event.fire(`${name}-animation-end`, data))
-    })
-    return () => this.subLayers.forEach(type => this.animation[type] && this.animation[type].play())
+      })
+      // 为每种元素支持的每种动画配置
+      this.subLayers.forEach(name => {
+        // 没有数据，不需要配置动画
+        if (this.#backupData[name].length === 0 || !options || !options[name]) {
+          this.animation[name] = null
+          return
+        }
+        const animationQueue = new Animation.Queue({loop: false})
+        const enterQueue = new Animation.Queue({loop: false})
+        const loopQueue = new Animation.Queue({loop: true})
+        const {enterAnimation, loopAnimation} = options[name]
+        const targets = `.wave-basic-${name}`
+        // 配置入场动画和轮播动画并连接
+        enterAnimation && enterQueue.push(enterAnimation.type, {...enterAnimation, targets}, this.root)
+        loopAnimation && loopQueue.push(loopAnimation.type, {...loopAnimation, targets}, this.root)
+        this.animation[name] = animationQueue.push('queue', enterQueue).push('queue', loopQueue)
+        // 动画事件注册
+        this.animation[name].event.on('start', data => this.event.fire(`${name}-animation-start`, data))
+        this.animation[name].event.on('process', data => this.event.fire(`${name}-animation-process`, data))
+        this.animation[name].event.on('end', data => this.event.fire(`${name}-animation-end`, data))
+      })
+    }, 0)
   }
 
   /**
