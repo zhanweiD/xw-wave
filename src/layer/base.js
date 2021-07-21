@@ -1,14 +1,14 @@
 import {isArray, isEqual, merge} from 'lodash'
-import createEvent from '../util/create-event'
+import Data from '../data'
 import Animation from '../animation'
 import formatText from '../util/format-text'
 import getTextWidth from '../util/text-width'
-import TableList from '../data/table-list'
+import createEvent from '../util/create-event'
 import basicMapping from '../draw'
 import Tooltip from './tooltip'
 
 // 文字基于坐标的方向
-export const positionType = {
+const positionType = {
   CENTER: 'center',
   TOP: 'top',
   RIGHT: 'right',
@@ -48,7 +48,6 @@ export default class LayerBase {
    * 颜色增强函数
    * @param {Number} count 数量
    * @param {Array} customColors 自定义颜色覆盖主题色
-   * @param {Boolean} isMainColor 覆盖自定义颜色的默认值
    * @returns 正确的颜色
    */
   getColor(count, customColors) {
@@ -56,7 +55,7 @@ export default class LayerBase {
     const order = this.data?.options?.order
     const {getColor} = this.options
     // 判断列表内有无颜色相关的属性，目前图例有用到
-    if (order && this.data instanceof TableList) {
+    if (order && this.data instanceof Data.TableList) {
       const colorMapping = {}
       const colors = getColor(Math.max(...Object.values(order)) + 1, customColors)
       Object.keys(order).forEach(key => colorMapping[key] = colors[order[key]])
