@@ -1,9 +1,9 @@
-import Wave from './src/wave'
-import Data from './src/data'
-import Layer from './src/layer'
-import Animation from './src/animation'
-import layout from './src/layout'
-import draw from './src/draw'
+import Wave from './wave'
+import Data from './data'
+import Layer from './layer'
+import Animation from './animation'
+import layout from './layout'
+import draw from './draw'
 
 export default Wave
 export {
