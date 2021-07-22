@@ -44,6 +44,7 @@ export default class EdgeBundleLayer extends LayerBase {
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions, ['circle', 'curve', 'text'])
     this.className = 'wave-edge-bundle'
+    this.tooltipTargets = ['circle']
   }
 
   // 传入列表类，三列分别为起点终点和数值

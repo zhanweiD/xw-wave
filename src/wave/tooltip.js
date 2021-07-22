@@ -1,7 +1,5 @@
-import * as d3 from 'd3'
 import {isEqual, isArray, merge} from 'lodash'
 import createLog from '../util/create-log'
-import Animation from '../animation'
 
 // 展示类型
 const modeType = {
@@ -59,20 +57,19 @@ export default class Tooltip {
   show() {
     this.isVisible = true
     this.instance.style('display', 'block')
-    d3.select(this.target).classed('tooltip-active', true)
+    return this
   }
 
   // 隐藏
   hide() {
     this.isVisible = false
     this.instance.style('display', 'none')
-    d3.select(this.target).classed('tooltip-active', false)
+    return this
   }
 
   // 更新数据
-  update({target}, {data, backup}, options = {}) {
+  update({data, backup}, options = {}) {
     let list = null
-    this.target = target
     this.options = {...this.options, ...options}
     const {titleSize, titleColor, pointSize, labelSize, labelColor, valueSize, valueColor, mode} = this.options
     // 计算和筛选需要展示的数据
@@ -144,11 +141,11 @@ export default class Tooltip {
         .text(d => d.value)
       this.backup = list
     }
+    return this
   }
 
   // 移动
-  move({x, y}, options = {}) {
-    const {enableAnimation, animationDuration, animationDelay} = {...defaultOptions, ...options}
+  move({x, y}) {
     const drift = 10
     // 边界判断
     const rect = this.instance._groups[0][0].getBoundingClientRect()
@@ -162,18 +159,9 @@ export default class Tooltip {
     } else {
       y += drift
     }
-    // 移动距离过大时采用动画过渡
-    const animation = new Animation.Move({
-      delay: enableAnimation ? animationDelay : 0,
-      targets: this.instance._groups[0][0],
-      duration: enableAnimation ? animationDuration : 0,
-      position: [[this.lastPosition.x || 0, x], [this.lastPosition.y || 0, y]],
-      easing: 'easeOutQuart',
-    })
-    // 一次性动画，结束时销毁
-    animation.event.on('end', () => animation.destroy())
-    animation.play()
+    this.instance.style('left', `${x}px`).style('top', `${y}px`)
     this.lastPosition = {x, y}
+    return this
   }
 
   destroy() {

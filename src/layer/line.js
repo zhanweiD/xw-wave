@@ -73,6 +73,7 @@ export default class LineLayer extends LayerBase {
     super({...defaultOptions, ...layerOptions}, waveOptions, ['curve', 'circle', 'area', 'text'])
     const {mode} = this.options
     this.className = `wave-${mode}-curve`
+    this.tooltipTargets = ['circle']
   }
 
   // 传入列表类，第一列数据要求为纬度数据列

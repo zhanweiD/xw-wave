@@ -63,6 +63,7 @@ export default class ArcLayer extends LayerBase {
     super({...defaultOptions, ...layerOptions}, waveOptions, ['arc', 'text'])
     const {type, mode} = this.options
     this.className = `wave-${mode}-${type}`
+    this.tooltipTargets = ['arc']
   }
   
   // 非堆叠夜莺玫瑰图固定列数为2列

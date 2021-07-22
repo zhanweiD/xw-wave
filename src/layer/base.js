@@ -5,7 +5,6 @@ import formatText from '../util/format-text'
 import getTextWidth from '../util/text-width'
 import createEvent from '../util/create-event'
 import basicMapping from '../draw'
-import Tooltip from './tooltip'
 
 // 文字基于坐标的方向
 const positionType = {
@@ -30,18 +29,19 @@ export default class LayerBase {
 
   #backupEvent = {}
 
+  #backupAnimation = {}
+
   constructor(layerOptions, waveOptions, subLayers) {
     this.options = merge(layerOptions, waveOptions)
     this.subLayers = subLayers || []
+    this.tooltipTargets = []
     this.root = null
-    this.tooltip = null
     this.className = null
-    this.animation = {}
     this.#createEvent()
-    this.warn = (text, data) => this.options.warn(text, data)
     this.event = createEvent(__filename)
+    this.warn = (text, data) => this.options.warn(text, data)
     this.subLayers.forEach(name => this.#backupData[name] = [])
-    this.playAnimation = () => this.subLayers.forEach(type => this.animation[type]?.play())
+    this.playAnimation = () => this.subLayers.forEach(type => this.#backupAnimation[type]?.play())
   }
 
   /**
@@ -163,17 +163,13 @@ export default class LayerBase {
 
   // 初始化基础事件
   #createEvent = () => {
+    const {tooltip} = this.options
     this.#backupEvent = {
       common: {},
       tooltip: {
-        // 悬浮组合事件
-        mouseover: (event, data) => {
-          this.tooltip.update(event, {data, backup: this.#backupData})
-          this.tooltip.show()
-          this.tooltip.move(event, {enableAnimation: false})
-        },
-        mousemove: event => this.tooltip.move(event),
-        mouseout: () => this.tooltip.hide(),
+        mouseover: (event, data) => tooltip.update({data, backup: this.#backupData}).show().move(event),
+        mousemove: event => tooltip.move(event),
+        mouseout: () => tooltip.hide(),
       },
     }
     // 基础鼠标事件
@@ -195,28 +191,11 @@ export default class LayerBase {
   }
 
   // 元素渲染后进行配置
-  setTooltip(options) {
-    // 初始化实例对象
-    if (options && !options.rebind && !this.tooltip) {
-      this.tooltip = new Tooltip(this.options.container, options)
-    }
-    // 为元素绑定事件
-    this.tooltip && this.tooltip.options.targets.forEach(subLayer => setTimeout(() => {
+  setTooltip() {
+    this.tooltipTargets.forEach(subLayer => setTimeout(() => {
       const els = this.root.selectAll(`.wave-basic-${subLayer}`)
       tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
     }, 0))
-  }
-
-  // 销毁图层
-  destroy() {
-    // 动画资源销毁
-    this.subLayers.forEach(name => this.animation[name]?.destroy())
-    // tooltip 实例销毁
-    this.tooltip && this.tooltip.destroy()
-    // dom 元素销毁
-    this.root.remove()
-    // 通知 wave 删除这个图层实例
-    this.event.fire('destroy')
   }
 
   /**
@@ -238,14 +217,14 @@ export default class LayerBase {
     setTimeout(() => {
       // 配置动画前先销毁之前的动画，释放资源
       this.subLayers.forEach(name => {
-        this.animation[name] && this.animation[name].destroy()
-        this.animation[name] = null
+        this.#backupAnimation[name] && this.#backupAnimation[name].destroy()
+        this.#backupAnimation[name] = null
       })
       // 为每种元素支持的每种动画配置
       this.subLayers.forEach(name => {
         // 没有数据，不需要配置动画
         if (this.#backupData[name].length === 0 || !options || !options[name]) {
-          this.animation[name] = null
+          this.#backupAnimation[name] = null
           return
         }
         const animationQueue = new Animation.Queue({loop: false})
@@ -256,11 +235,11 @@ export default class LayerBase {
         // 配置入场动画和轮播动画并连接
         enterAnimation && enterQueue.push(enterAnimation.type, {...enterAnimation, targets}, this.root)
         loopAnimation && loopQueue.push(loopAnimation.type, {...loopAnimation, targets}, this.root)
-        this.animation[name] = animationQueue.push('queue', enterQueue).push('queue', loopQueue)
+        this.#backupAnimation[name] = animationQueue.push('queue', enterQueue).push('queue', loopQueue)
         // 动画事件注册
-        this.animation[name].event.on('start', data => this.event.fire(`${name}-animation-start`, data))
-        this.animation[name].event.on('process', data => this.event.fire(`${name}-animation-process`, data))
-        this.animation[name].event.on('end', data => this.event.fire(`${name}-animation-end`, data))
+        this.#backupAnimation[name].event.on('start', data => this.event.fire(`${name}-animation-start`, data))
+        this.#backupAnimation[name].event.on('process', data => this.event.fire(`${name}-animation-process`, data))
+        this.#backupAnimation[name].event.on('end', data => this.event.fire(`${name}-animation-end`, data))
       })
     }, 0)
   }
@@ -308,5 +287,12 @@ export default class LayerBase {
     // 新的元素需要重新注册事件
     this.setEvent(subLayer)
     this.setTooltip({rebind: true})
+  }
+
+  // 销毁图层
+  destroy() {
+    this.subLayers.forEach(name => this.#backupAnimation[name]?.destroy())
+    this.root.remove()
+    this.event.fire('destroy')
   }
 }

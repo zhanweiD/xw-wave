@@ -66,6 +66,7 @@ export default class SankeyLayer extends LayerBase {
     super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'ribbon', 'text'])
     const {type} = this.options
     this.className = `wave-${type}-sankey`
+    this.tooltipTargets = ['rect']
   }
 
   // 传入表格关系型数据
@@ -127,14 +128,9 @@ export default class SankeyLayer extends LayerBase {
       }))
     })
     // 堆叠柱状数据变更
-    this.#rectData = this.#rectData.map(groupData => {
-      return groupData.reduce((prev, cur, index) => {
-        return [...prev, {
-          ...cur, 
-          y: prev[index].y + prev[index].height + nodeGap,
-        }]
-      }, [{y: groupData[0].y - nodeGap, height: 0}]).slice(1)
-    })
+    this.#rectData = this.#rectData.map(groupData => groupData.reduce((prev, cur, index) => {
+      return [...prev, {...cur, y: prev[index].y + prev[index].height + nodeGap}]
+    }, [{y: groupData[0].y - nodeGap, height: 0}]).slice(1))
     // 对齐调整节点的位置
     this.#rectData.forEach(groupData => {
       const tailNode = groupData[groupData.length - 1]
@@ -223,7 +219,7 @@ export default class SankeyLayer extends LayerBase {
     const {type} = this.options
     const rectData = this.#rectData.map(groupData => {
       const data = groupData.map(({width, height}) => [width, height])
-      const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
+      const source = groupData.map(({dimension, name, value}) => ({dimension, category: name, value}))
       const position = groupData.map(({x, y}) => [x, y])
       const fill = groupData.map(({color}) => color)
       const transformOrigin = 'center'

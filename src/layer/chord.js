@@ -42,6 +42,7 @@ export default class ChordLayer extends LayerBase {
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions, ['ribbon', 'arc', 'text'])
     this.className = 'wave-chord'
+    this.tooltipTargets = ['arc']
   }
 
   // 传入表格关系型数据

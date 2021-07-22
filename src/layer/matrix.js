@@ -52,6 +52,7 @@ export default class MatrixLayer extends LayerBase {
     super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'circle', 'text'])
     const {shape} = this.options
     this.className = `wave-${shape}-matrix`
+    this.tooltipTargets = ['rect', 'circle']
   }
 
   // 传入列表类，第一列数据要求为纬度数据列

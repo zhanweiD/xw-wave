@@ -74,6 +74,7 @@ export default class RectLayer extends LayerBase {
     super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'text'])
     const {type, mode} = this.options
     this.className = `wave-${mode}-${type}`
+    this.tooltipTargets = ['rect']
   }
 
   // 过滤数据

@@ -14,7 +14,7 @@ const defaultOptions = {
 
 // 默认样式
 const defaultStyle = {
-  circleSize: 4,
+  circleSize: 6,
   circle: {},
   polygon: {
     strokeWidth: 2,
@@ -56,6 +56,7 @@ export default class RadarLayer extends LayerBase {
     super({...defaultOptions, ...layerOptions}, waveOptions, ['polygon', 'circle', 'text'])
     const {mode} = this.options
     this.className = `wave-${mode}`
+    this.tooltipTargets = ['circle']
   }
 
   // 传入列表类，第一列数据要求为纬度数据列

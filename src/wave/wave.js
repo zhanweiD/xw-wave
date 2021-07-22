@@ -1,11 +1,12 @@
 import * as d3 from 'd3'
 import chroma from 'chroma-js'
-import createEvent from './util/create-event'
-import createLog from './util/create-log'
-import standardLayout from './layout/standard'
-import createUuid from './util/uuid'
-import createDefs from './util/define'
-import {layerMapping} from './layer'
+import createEvent from '../util/create-event'
+import createLog from '../util/create-log'
+import standardLayout from '../layout/standard'
+import createUuid from '../util/uuid'
+import createDefs from './define'
+import Tooltip from './tooltip'
+import {layerMapping} from '../layer'
 
 // 图表状态
 const stateType = {
@@ -49,6 +50,8 @@ export default class Wave {
 
   #schedule = null
 
+  #tooltip = null
+
   #layer = []
 
   get state() {
@@ -70,6 +73,7 @@ export default class Wave {
     padding = [40, 40, 40, 40],
     adjust = true,
     define = {},
+    tooltip = {},
     theme = ['white', 'black'],
     baseFontSize = 1,
     layout = standardLayout,
@@ -107,6 +111,7 @@ export default class Wave {
       .attr('width', this.#containerWidth)
       .attr('height', this.#containerHeight)
     this.#defs = this.#root.append('defs')
+    this.#tooltip = new Tooltip(this.#container, tooltip)
 
     // 初始化布局信息
     this.#layout = ((typeof layout === 'function' && layout) || standardLayout)({
@@ -174,20 +179,21 @@ export default class Wave {
     // 暴露给图层的上下文环境
     const context = {
       root: this.#root,
-      container: this.#container,
       containerWidth: this.#containerWidth,
       containerHeight: this.#containerHeight,
       baseFontSize: this.baseFontSize,
+      tooltip: this.#tooltip,
+      defs: this.#defs,
       getColor: this.getColor.bind(this),
       warn: this.warn.bind(this),
-      defs: this.#defs,
     }
     // 根据类型创建图层
     const layer = new layerMapping[type](options, context)
     const layerId = options.id || createUuid()
     // 新增对应的图层
-    this.#layer.push({type, id: layerId, instance: layer})
     this.registerLifeCircle(layer)
+    this.#layer.push({type, id: layerId, instance: layer})
+    this.#state = stateType.READY
     // 注册销毁事件
     layer.event.on('destroy', () => {
       const index = this.#layer.findIndex(({id}) => id === layerId)
@@ -202,7 +208,6 @@ export default class Wave {
    * @param {LayerBase} layers 需要绑定坐标轴的图层
    */
   bindCoordinate(axisLayer, layers) {
-    // 比例尺融合
     layers = layers.filter(layer => layer.scale)
     layers.forEach(({scale, options}) => {
       const result = {}
@@ -241,22 +246,20 @@ export default class Wave {
     const layers = this.#layer.filter(({id}) => targets.find(item => item === id))
     const prevRange = new Array(layers.length).fill(null)
     // 笔刷影响图层的比例尺
-    const brushed = event => {
-      layers.forEach(({instance}, i) => {
-        const {selection} = event
-        const total = isHorizontal ? width : height
-        const scale = isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
-        if (prevRange[i] === null) prevRange[i] = scale.range()
-        const zoomFactor = total / ((selection[1] - selection[0]) || 1)
-        const nextRange = [prevRange[i][0], prevRange[i][0] + (prevRange[i][1] - prevRange[i][0]) * zoomFactor]
-        const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
-        scale.range(nextRange.map(value => value - offset))
-        scale.brushed = true
-        instance.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
-        instance.setStyle()
-        instance.draw()
-      })
-    }
+    const brushed = event => layers.forEach(({instance}, i) => {
+      const {selection} = event
+      const total = isHorizontal ? width : height
+      const scale = isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
+      if (prevRange[i] === null) prevRange[i] = scale.range()
+      const zoomFactor = total / ((selection[1] - selection[0]) || 1)
+      const nextRange = [prevRange[i][0], prevRange[i][0] + (prevRange[i][1] - prevRange[i][0]) * zoomFactor]
+      const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
+      scale.range(nextRange.map(value => value - offset))
+      scale.brushed = true
+      instance.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
+      instance.setStyle()
+      instance.draw()
+    })
     // 创建笔刷实例
     const [brushX1, brushX2, brushY1, brushY2] = [left, left + width, top, top + height]
     const brush = (isHorizontal ? d3.brushX() : d3.brushY())
@@ -314,7 +317,7 @@ export default class Wave {
 
   // 销毁所有图层
   destroy() {
-    this.#layer.forEach(layer => layer.instance.destroy())
+    while (this.#layer.length !== 0) this.#layer[0].instance.destroy()
     this.#state = stateType.DESTROY
   }
 }

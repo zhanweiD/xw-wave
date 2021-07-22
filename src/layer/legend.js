@@ -290,7 +290,6 @@ export default class LegendLayer extends LayerBase {
     const rectData = [{
       data: this.#data.rectData.map(({width, height}) => [width, height]),
       position: this.#data.rectData.map(({x, y}) => [x, y]),
-      source: this.#data.rectData.map(({source}) => source),
       ...this.#style.shape,
       fill: this.#data.rectData.map(({fill}) => fill),
     }]
@@ -304,7 +303,6 @@ export default class LegendLayer extends LayerBase {
       data: this.#data.circleData.map(({rx, ry}) => [rx, ry]),
       position: this.#data.circleData.map(({cx, cy}) => [cx, cy]),
       strokeWidth: this.#data.circleData.map(({strokeWidth}) => strokeWidth),
-      source: this.#data.circleData.map(({source}) => source),
       ...this.#style.shape,
       fill: this.#data.circleData.map(({fill}) => fill),
       stroke: this.#data.circleData.map(({stroke}) => stroke),
@@ -312,7 +310,6 @@ export default class LegendLayer extends LayerBase {
     const lineData = [{
       position: this.#data.lineData.map(({x1, x2, y1, y2}) => [x1, y1, x2, y2]),
       strokeWidth: this.#data.lineData.map(({strokeWidth}) => strokeWidth),
-      source: this.#data.lineData.map(({source}) => source),
       dasharray: this.#data.lineData.map(({dasharray}) => dasharray),
       ...this.#style.shape,
       stroke: this.#data.lineData.map(({stroke}) => stroke),

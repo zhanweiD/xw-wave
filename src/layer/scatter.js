@@ -36,6 +36,7 @@ export default class ScatterLayer extends LayerBase {
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions, ['circle', 'text'])
     this.className = 'wave-scatter'
+    this.tooltipTargets = ['circle']
   }
 
   // 列数据依次为：分组名称、x轴坐标值、y轴坐标值、数值（可缺省）
