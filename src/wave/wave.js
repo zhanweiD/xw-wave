@@ -275,7 +275,7 @@ export default class Wave {
    * @param {Function} action 动作函数
    * @param {Boolean} fire 是否触发
    */
-  schedule(type, action, fire = false) {
+  schedule({type, action, fire = false}) {
     const types = {
       sync: ['data', 'style', 'draw'],
       async: ['event', 'tooltip', 'animation', 'brush'],
@@ -287,7 +287,7 @@ export default class Wave {
       types.async.forEach(name => this.#schedule[name] === [])
     }
     // 添加一个新的动作
-    if (this.#schedule[type]) {
+    if (action && this.#schedule[type]) {
       this.#schedule[type].push(action)
     }
     // 触发注册的动作并删除
@@ -298,13 +298,6 @@ export default class Wave {
     }
   }
 
-  // 重绘制所有图层
-  draw(redraw = false) {
-    redraw && this.#layer.forEach(layer => layer.instance.setData())
-    redraw && this.#layer.forEach(layer => layer.instance.setStyle())
-    this.#layer.forEach(layer => layer.instance.draw())
-  }
-
   /**
    * 图表报错生命周期
    * @param {String} text 报错信息
@@ -313,6 +306,13 @@ export default class Wave {
   warn(text, data) {
     this.#state = stateType.WARN
     this.log.error(text, data)
+  }
+
+  // 重绘制所有图层
+  draw(redraw = false) {
+    redraw && this.#layer.forEach(layer => layer.instance.setData())
+    redraw && this.#layer.forEach(layer => layer.instance.setStyle())
+    this.#layer.forEach(layer => layer.instance.draw())
   }
 
   // 销毁所有图层
