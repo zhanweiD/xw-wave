@@ -53,10 +53,7 @@ export default class Relation extends DataBase {
     return this
   }
 
-  /**
-   * 根据 from 和 to 的值获取节点的前后依赖关系
-   * @returns 层级描述对象
-   */
+  // 根据 from 和 to 的值获取节点的前后依赖关系
   #computeLevel = () => {
     const roots = []
     const level = {}

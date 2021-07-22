@@ -111,7 +111,7 @@ export default class SankeyLayer extends LayerBase {
       const ratio = totalNumber / ((isHorizontal ? layout.height : layout.width) - gapLength)
       return totalNumber + gapLength * ratio
     })
-    // 更新比例尺值域
+    // 更新比例尺定义域和值域
     this.#scale.scaleY.domain([0, d3.max(maxNumbers)])
     const {scaleX, scaleY} = this.#scale
     // 基础矩形数据
@@ -163,10 +163,9 @@ export default class SankeyLayer extends LayerBase {
         y3: toNode.y + toNode.ribbonLength[0] - length,
         x4: toNode.x - ribbonGap,
         y4: toNode.y + toNode.ribbonLength[0],
+        color: fromNode.color,
       }
     })
-    // 丝带暂时用开始节点的颜色
-    this.#ribbonData.forEach(ribbon => ribbon.color = ribbon.from.color)
     // 横竖坐标转换
     if (type === directionType.VERTICAL) {
       this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, height, width, ...other}) => ({

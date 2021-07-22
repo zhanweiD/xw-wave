@@ -221,3 +221,44 @@ export const createSankeyData = () => {
   ]
   return [nodes, links]
 }
+
+export const createTreeData = () => {
+  const nodes = [
+    ['id', 'name'],
+    ['sa', '学校A'],
+    ['sb', '学校B'],
+    ['sa-g1', '一年级'],
+    ['sa-g2', '二年级'],
+    ['sb-g1', '一年级'],
+    ['sb-g2', '二年级'],
+    ['sb-g3', '三年级'],
+    ['s1', '学生1'],
+    ['s2', '学生2'],
+    ['s3', '学生3'],
+    ['s4', '学生4'],
+    ['s5', '学生5'],
+    ['s6', '学生6'],
+    ['s7', '学生7'],
+    ['s8', '学生8'],
+    ['s9', '学生9'],
+  ]
+    
+  const links = [
+    ['from', 'to'],
+    ['sa', 'sa-g1'],
+    ['sa', 'sa-g2'],
+    ['sb', 'sb-g1'],
+    ['sb', 'sb-g2'],
+    ['sb', 'sb-g3'],
+    ['sa-g1', 's1'],
+    ['sa-g1', 's2'],
+    ['sa-g2', 's3'],
+    ['sa-g2', 's4'],
+    ['sb-g1', 's5'],
+    ['sb-g2', 's6'],
+    ['sb-g3', 's7'],
+    ['sb-g3', 's8'],
+    ['sb-g3', 's9'],
+  ]
+  return [nodes, links]
+}
