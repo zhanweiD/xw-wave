@@ -1,0 +1,6 @@
+*
+!src/**
+src/demo/**
+src/index.js
+src/index.css
+src/.*

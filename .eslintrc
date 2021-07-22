@@ -41,7 +41,7 @@
     "no-trailing-spaces": [
       "off"
     ],
-    "import/prefer-default-export":[
+    "import/prefer-default-export": [
       "off"
     ],
     // 禁止使用 console
@@ -57,12 +57,12 @@
       "off"
     ],
     // if 里只有一个 if，自动 format 会改变原有代码逻辑
-    "no-lonely-if":[
+    "no-lonely-if": [
       "off"
     ],
     // 禁止在 switch case 中声明变量
-    "no-case-declarations":["off"],
-    "jsx-a11y/click-events-have-key-events":[
+    "no-case-declarations": ["off"],
+    "jsx-a11y/click-events-have-key-events": [
       "off"
     ],
     "arrow-body-style": ["off"],
@@ -82,7 +82,10 @@
     ],
     "no-unused-expressions": [
       "off",
-      { "allowShortCircuit": true, "allowTernary": true }
+      {
+        "allowShortCircuit": true,
+        "allowTernary": true
+      }
     ],
     // 禁止标识符中有悬空下划线
     // # allowAfterSuper
@@ -200,7 +203,7 @@
     "react/jsx-one-expression-per-line": [
       "off"
     ],
-    "react/jsx-closing-bracket-location":  [
+    "react/jsx-closing-bracket-location": [
       "off"
     ],
     "no-nested-ternary": 0,
