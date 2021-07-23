@@ -41,11 +41,11 @@ export default class SankeyLayer extends LayerBase {
   
   #scale = {}
 
-  #rectData = {}
+  #rectData = []
 
-  #ribbonData = {}
+  #ribbonData = []
 
-  #textData = {}
+  #textData = []
 
   #style = defaultStyle
 

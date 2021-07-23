@@ -15,7 +15,7 @@ const createSchema = (container, theme, layout, type) => {
     // 容器高，自适应为 auto 时无效
     height: 100,
     // 主绘图图层的内边距
-    padding: [0, 0, 0, 0],
+    padding: [60, 60, 60, 60],
     // 这个 layout 应该是一个生成函数
     layout,
     // 声明坐标系
@@ -46,9 +46,17 @@ const createSchema = (container, theme, layout, type) => {
         },
         data: createTreeData(),
         style: {
+          align: 'middle',
+          labelPosition: 'outer',
           labelOffset: 10,
+          circle: {
+            fill: type === 'horizontal' ? undefined : 'gray',
+          },
           curve: {
-            curve: type === 'horizontal' ? 'curveBumpX' : 'curveBumpY',
+            stroke: type === 'horizontal' ? ['blue', 'skyblue'] : 'gray',
+            curve: type === 'horizontal' ? 'curveBumpX' : 'curveStepAfter',
+            strokeWidth: 3,
+            strokeOpacity: 0.8,
           },
         },
       },

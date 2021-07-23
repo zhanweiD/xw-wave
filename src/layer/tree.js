@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 import * as d3 from 'd3'
 import LayerBase from './base'
 import Scale from '../data/scale'
@@ -15,6 +16,12 @@ const directionType = {
   VERTICAL: 'vertical',
 }
 
+// 数值标签位置
+const labelPositionType = {
+  INNER: 'inner',
+  OUTER: 'outer',
+}
+
 // 默认选项
 const defaultOptions = {
   type: directionType.HORIZONTAL,
@@ -23,10 +30,13 @@ const defaultOptions = {
 // 默认样式
 const defaultStyle = {
   labelOffset: 5,
+  labelPosition: labelPositionType.OUTER,
   align: alignType.START,
   circleSize: 10,
   circle: {},
-  curve: {},
+  curve: {
+    curve: 'curveLinear',
+  },
   text: {},
 }
 
@@ -36,11 +46,11 @@ export default class TreeLayer extends LayerBase {
   
   #scale = {}
 
-  #circleData = {}
+  #circleData = []
 
-  #curveData = {}
+  #curveData = []
 
-  #textData = {}
+  #textData = []
 
   #style = defaultStyle
 
@@ -74,7 +84,7 @@ export default class TreeLayer extends LayerBase {
     this.#scale.nice = {fixedBandWidth: 5, ...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
       scaleX: new Scale({
-        type: 'band',
+        type: 'point',
         domain: levels,
         range: type === directionType.HORIZONTAL ? [0, width] : [0, height],
         nice: this.#scale.nice,
@@ -94,56 +104,56 @@ export default class TreeLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {links} = this.#data.data
+    const {labelOffset, labelPosition, circleSize, align, text, circle, curve} = this.#style
     const {type, layout} = this.options
-    const {labelOffset, circleSize, align, text, circle} = this.#style
+    const {links} = this.#data.data
     const groups = this.#data.get('groups')
-    // 计算最大节点数
     const maxNumber = d3.max(groups.map(item => item.length - 1))
     // 更新比例尺定义域和值域
-    this.#scale.scaleY.domain([0, maxNumber])
+    this.#scale.scaleX.range([circleSize / 2, this.#scale.scaleX.range()[1] - circleSize / 2])
     this.#scale.scaleY.range([circleSize / 2, this.#scale.scaleY.range()[1] - circleSize / 2])
+    this.#scale.scaleY.domain([0, maxNumber])
     const {scaleX, scaleY} = this.#scale
     // 节点基础数据
-    this.#circleData = groups.map(groupedNodes => {
+    this.#circleData = []
+    for (let i = 0; i < groups.length; i++) {
+      const groupedNodes = groups[groups.length - i - 1]
       const colors = this.getColor(groupedNodes.length, circle.fill)
-      return groupedNodes.map((item, i) => ({
+      this.#circleData[i] = groupedNodes.map((item, j) => ({
         cx: layout.left + scaleX(item.level),
-        cy: layout.top + scaleY(i),
+        cy: layout.top + (i === 0 ? scaleY(j) : item.cy),
         rx: circleSize / 2,
         ry: circleSize / 2,
-        color: colors[i],
+        color: colors[j],
         ...item,
       }))
-    })
-    // 对齐调整节点的位置
-    this.#circleData.forEach(groupData => {
-      const tailNode = groupData[groupData.length - 1]
-      if (type === directionType.HORIZONTAL) {
-        const offset = layout.top + layout.height - tailNode.cy - tailNode.ry
-        const moveY = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
-        groupData.forEach(item => item.cy += moveY)
-      } else if (type === directionType.VERTICAL) {
-        const offset = layout.left + layout.width - tailNode.cy - tailNode.rx
-        const moveX = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
-        groupData.forEach(item => item.cy += moveX)
-      }
-    })
-    // 连线数据
+      // 根据子节点的位置刷新父节点的位置
+      this.#circleData[i].forEach(({cy, parents}) => parents.forEach(parent => {
+        if (!parent.cy) parent.cy = cy;
+        // 确定子节点的最大坐标和最小坐标
+        [parent.min, parent.max] = [Math.min(cy, parent.min || cy), Math.max(cy, parent.max || cy)]
+        if (align === alignType.START) {
+          parent.cy = parent.min
+        } else if (align === alignType.MIDDLE) {
+          parent.cy = (parent.min + parent.max) / 2
+        } else if (align === alignType.END) {
+          parent.cy = parent.max
+        }
+      }))
+    }
+    // 连线基础数据
     const rects = this.#circleData.reduce((prev, cur) => [...prev, ...cur])
-    this.#curveData = links.map(({from, to}) => {
+    this.#curveData = [links.map(({from, to}) => {
       const fromNode = rects.find(({id}) => id === from)
       const toNode = rects.find(({id}) => id === to)
       return {
-        from: fromNode,
-        to: toNode,
         x1: fromNode.cx,
         y1: fromNode.cy,
         x2: toNode.cx,
         y2: toNode.cy,
         color: fromNode.color,
       }
-    })
+    })]
     // 横竖坐标转换
     if (type === directionType.VERTICAL) {
       this.#circleData = this.#circleData.map(groupData => groupData.map(({cx, cy, ...other}) => ({
@@ -151,32 +161,52 @@ export default class TreeLayer extends LayerBase {
         cy: cx - layout.left + layout.top, 
         ...other,
       })))
-      this.#curveData = this.#curveData.map(({x1, y1, x2, y2, ...other}) => ({
+      this.#curveData = this.#curveData.map(groupData => groupData.map(({x1, y1, x2, y2, ...other}) => ({
         ...other,
         x1: y1 - layout.top + layout.left,
         y1: x1 - layout.left + layout.top,
         x2: y2 - layout.top + layout.left,
         y2: x2 - layout.left + layout.top,
-      }))
+      })))
+    }
+    // 阶梯曲线模式需要优化以获得更好的展示效果
+    if (curve.curve.match(/step/i)) {
+      const keys = Array.from(new Set(this.#curveData[0].map(({x1, y1}) => `${x1}${y1}`)))
+      this.#curveData = keys.map(key => this.#curveData[0].filter(({x1, y1}) => `${x1}${y1}` === key))
+      // 重构线的数据，注意前面计算的数据是从叶子到根
+      this.#curveData = this.#curveData.map(groupData => {
+        const {x1, x2, y1, y2} = groupData[0]
+        const medianX = type === directionType.VERTICAL ? x1 : (x1 + x2) / 2
+        const medianY = type === directionType.HORIZONTAL ? y1 : (y1 + y2) / 2
+        const masterLine = {...groupData[0], x2: medianX, y2: medianY}
+        const slaveLines = groupData.map(({...other}) => ({
+          ...other, 
+          x1: medianX, 
+          y1: medianY,
+        }))
+        return [masterLine, ...slaveLines]
+      })
     }
     // 标签文字数据
-    this.#textData = this.#circleData.map(groupData => {
+    this.#textData = this.#circleData.map((groupData, i) => {
+      const isSpecial = (labelPosition === labelPositionType.OUTER && i === 0)
+        || (labelPosition === labelPositionType.INNER && i === this.#circleData.length - 1)
       if (type === directionType.HORIZONTAL) {
-        return groupData.map(({cx, cy, ry, name}) => this.createText({
-          x: cx + labelOffset,
-          y: cy + ry / 2,
-          value: name,
-          position: 'right',
+        return groupData.map(({cx, cy, rx, name}) => this.createText({
+          x: isSpecial ? cx + rx + labelOffset : cx - rx - labelOffset,
+          y: cy,
+          position: isSpecial ? 'right' : 'left',
           style: text,
+          value: name,
         }))
       }
       if (type === directionType.VERTICAL) {
         return groupData.map(({cx, cy, ry, name}) => this.createText({
           x: cx,
-          y: cy + ry + labelOffset,
-          value: name,
-          position: 'bottom',
+          y: isSpecial ? cy + ry + labelOffset : cy - ry - labelOffset,
+          position: isSpecial ? 'bottom' : 'top',
           style: text,
+          value: name,
         }))
       }
       return null
@@ -191,13 +221,13 @@ export default class TreeLayer extends LayerBase {
       const position = groupData.map(({cx, cy}) => [cx, cy])
       const fill = groupData.map(({color}) => color)
       const transformOrigin = 'center'
-      return {data, source, position, transformOrigin, ...this.#style.rect, fill}
+      return {data, source, position, transformOrigin, fill, ...this.#style.rect}
     })
-    const curveData = [{
-      position: this.#curveData.map(({x1, y1, x2, y2}) => [[x1, y1], [x2, y2]]),
-      stroke: this.#curveData.map(({color}) => color),
+    const curveData = this.#curveData.map(groupData => ({
+      position: groupData.map(({x1, y1, x2, y2}) => [[x1, y1], [x2, y2]]),
       ...this.#style.curve,
-    }]
+      stroke: groupData.map(({color}) => color),
+    }))
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)
       const position = groupData.map(({x, y}) => [x, y])

@@ -54,7 +54,8 @@ export default class EdgeBundleLayer extends LayerBase {
     const maxRadius = Math.min(width, height) / 2
     const [centerX, centerY] = [left + width / 2, top + height / 2]
     const root = {name: 'root', children: this.#data.data.nodes}
-    // 节点数据
+    // d3 的 hierarchy 方法对 children 有要求
+    this.#data.data.nodes.forEach(node => delete node.children)
     const nodes = d3.cluster().size([360, maxRadius]).separation((a, b) => {
       const v1 = Math.log(a.data.value) * Math.log(a.data.value) || 1
       const v2 = Math.log(b.data.value) * Math.log(b.data.value) || 1
@@ -74,8 +75,7 @@ export default class EdgeBundleLayer extends LayerBase {
     // 节点数据简化成原点数据
     const categorys = Array.from(new Set(nodes.map(({data}) => data.category)))
     this.#circleData = categorys.map(category => {
-      const groupNodes = nodes.filter(({data}) => data.category === category)
-      return groupNodes.map(({data, x, y}) => {
+      return nodes.filter(({data}) => data.category === category).map(({data, x, y}) => {
         const [angle, radius] = [(x / 180) * Math.PI, y]
         const [cx, cy] = [Math.sin(angle) * radius + centerX, centerY - Math.cos(angle) * radius]
         return {source: data, cx, cy, angle, radius}

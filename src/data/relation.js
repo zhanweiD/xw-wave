@@ -5,7 +5,7 @@ import DataBase from './base'
 export default class Relation extends DataBase {
   constructor(nodeTableList, linkTableList, options) {
     super(options)
-    this.data = {nodes: [], links: []}
+    this.data = {nodes: [], links: [], roots: []}
     this.update(nodeTableList, linkTableList, options)
   }
 
@@ -19,25 +19,29 @@ export default class Relation extends DataBase {
     if (!this.isLegalData('relation', nodeTableList, linkTableList)) {
       this.warn('数据结构错误', {nodeTableList, linkTableList})
     } else {
-      // 节点数据
-      const nodeIdIndex = nodeTableList[0].findIndex(value => value === 'id')
-      const nodeNameIndex = nodeTableList[0].findIndex(value => value === 'name')
-      const nodeValueIndex = nodeTableList[0].findIndex(value => value === 'value')
-      const nodeCategoryIndex = nodeTableList[0].findIndex(value => value === 'category')
+      const findNode = key => nodeTableList[0].findIndex(value => value === key)
+      const [nodeIdIndex, nodeNameIndex, nodeValueIndex, nodeCategoryIndex] = [
+        findNode('id'), findNode('name'), findNode('value'), findNode('category'),
+      ]
+      // 节点基础数据
       this.data.nodes = nodeTableList.slice(1).map(item => ({
         id: item[nodeIdIndex] || item[nodeNameIndex],
         name: item[nodeNameIndex],
         value: item[nodeValueIndex],
         category: item[nodeCategoryIndex],
+        parents: [],
+        children: [],
       }))
-      // 边数据
-      const linkFromIndex = linkTableList[0].findIndex(value => value === 'from')
-      const linkToIndex = linkTableList[0].findIndex(value => value === 'to')
-      const linkValueIndex = linkTableList[0].findIndex(value => value === 'value')
+      const findLink = key => linkTableList[0].findIndex(value => value === key)
+      const [linkFromIndex, linkToIndex, linkValueIndex, linkCategoryIndex] = [
+        findLink('from'), findLink('to'), findLink('value'), findNode('category'),
+      ]
+      // 边的基础数据
       this.data.links = linkTableList.slice(1).map(item => ({
         value: item[linkValueIndex],
         from: item[linkFromIndex],
         to: item[linkToIndex],
+        category: item[linkCategoryIndex],
       }))
       // 如果节点自己没有自己定义数据，则从边中找
       if (nodeValueIndex === -1 && linkValueIndex !== -1) {
@@ -53,19 +57,22 @@ export default class Relation extends DataBase {
     return this
   }
 
-  // 根据 from 和 to 的值获取节点的前后依赖关系
+  // 计算节点的前后依赖关系
   #computeLevel = () => {
-    const roots = []
     const level = {}
     const comeleted = {}
     this.data.nodes.forEach(({id}) => comeleted[id] = false)
     this.data.nodes.forEach(({id}) => level[id] = -1)
     // 寻找当前节点的根节点
     const findRoot = id => {
+      const current = this.data.nodes.find(node => node.id === id)
       const prevIds = this.data.links.filter(({to}) => to === id).map(({from}) => from)
       if (prevIds.length === 0) {
-        !comeleted[id] && roots.push(id)
+        !comeleted[id] && this.data.roots.push(id)
       } else {
+        const parents = prevIds.map(prevId => this.data.nodes.find(node => node.id === prevId))
+        current.parents.push(...prevIds)
+        parents.forEach(parent => parent.children.push(id))
         prevIds.forEach(prevId => !comeleted[prevId] && findRoot(prevId))
       }
       comeleted[id] = true
@@ -90,8 +97,15 @@ export default class Relation extends DataBase {
         updateLevel(nextId, parents)
       })
     }
-    this.data.links.forEach(({from}) => findRoot(from))
-    roots.forEach(root => updateLevel(root, []))
+    // 计算层级数据
+    this.data.links.forEach(({to}) => findRoot(to))
+    this.data.roots.forEach(root => updateLevel(root, []))
     this.data.nodes.map(node => node.level = level[node.id])
+    // 清洗多余的 parent 和 children 节点
+    const findNode = id => this.data.nodes.find(item => item.id === id)
+    this.data.nodes.forEach(({parents, children}, i) => {
+      this.data.nodes[i].parents = Array.from(new Set(parents)).map(findNode)
+      this.data.nodes[i].children = Array.from(new Set(children)).map(findNode)
+    })
   }
 }
