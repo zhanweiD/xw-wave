@@ -40,7 +40,6 @@ const defaultStyle = {
   text: {},
 }
 
-// 矩形图层
 export default class TreeLayer extends LayerBase {
   #data = null
   

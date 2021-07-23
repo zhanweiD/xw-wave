@@ -16,7 +16,6 @@ const defaultStyle = {
   text: {},
 }
 
-// 标题图层
 export default class TextLayer extends LayerBase {
   #data = null
 

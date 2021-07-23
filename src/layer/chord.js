@@ -12,7 +12,6 @@ const defaultStyle = {
   arc: {},
 }
 
-// 矩形图层
 export default class ChordLayer extends LayerBase {
   #data = null
   

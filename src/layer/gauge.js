@@ -22,7 +22,6 @@ const defaultStyle = {
   },
 }
 
-// 仪表盘层
 export default class GaugeLayer extends LayerBase {
   #data = {}
 

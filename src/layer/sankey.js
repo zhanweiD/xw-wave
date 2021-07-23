@@ -35,7 +35,6 @@ const defaultStyle = {
   },
 }
 
-// 矩形图层
 export default class SankeyLayer extends LayerBase {
   #data = null
   

@@ -40,7 +40,6 @@ const defaultStyle = {
   },
 }
 
-// 折线图层
 export default class LineLayer extends LayerBase {
   #data = null
   

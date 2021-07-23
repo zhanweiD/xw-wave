@@ -27,7 +27,6 @@ const defaultStyle = {
   text: {},
 }
 
-// 辅助线图层
 export default class AuxiliaryLayer extends LayerBase {
   #data = null
   

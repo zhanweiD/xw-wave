@@ -40,7 +40,6 @@ const defaultStyle = {
   },
 }
 
-// 图例图层
 export default class LegendLayer extends LayerBase {
   #data = {
     // 原始数据

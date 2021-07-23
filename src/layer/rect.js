@@ -45,7 +45,6 @@ const defaultStyle = {
   text: {},
 }
 
-// 矩形图层
 export default class RectLayer extends LayerBase {
   #data = null
   

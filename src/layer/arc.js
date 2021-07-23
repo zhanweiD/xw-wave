@@ -34,7 +34,6 @@ const defaultStyle = {
   text: {},
 }
 
-// 圆弧图层
 export default class ArcLayer extends LayerBase {
   #data = null
   

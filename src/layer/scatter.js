@@ -8,7 +8,6 @@ const defaultStyle = {
   text: {},
 }
 
-// 散点气泡层
 export default class ScatterLayer extends LayerBase {
   #data = null
   

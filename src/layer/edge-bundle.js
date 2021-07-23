@@ -14,7 +14,6 @@ const defaultStyle = {
   circle: {},
 }
 
-// 矩形图层
 export default class EdgeBundleLayer extends LayerBase {
   #data = null
   

@@ -21,7 +21,6 @@ const defaultStyle = {
   text: {},
 }
 
-// 矩形图层
 export default class MatrixLayer extends LayerBase {
   #data = null
   

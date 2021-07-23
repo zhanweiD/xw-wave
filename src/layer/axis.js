@@ -67,7 +67,6 @@ const getPosition = (type, targetScale) => {
   return position
 }
 
-// 坐标轴图层
 export default class AxisLayer extends LayerBase {
   #scale = {}
 

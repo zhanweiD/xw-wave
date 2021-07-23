@@ -25,7 +25,6 @@ const defaultStyle = {
   },
 }
 
-// 矩形图层
 export default class RadarLayer extends LayerBase {
   #data = null
   
