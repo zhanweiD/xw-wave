@@ -1,5 +1,6 @@
 /* eslint-disable no-bitwise */
 import * as d3 from 'd3'
+import {isNumber} from 'lodash'
 import LayerBase from './base'
 import Scale from '../data/scale'
 
@@ -98,6 +99,17 @@ export default class TreeLayer extends LayerBase {
     // 根据层级分组节点
     this.#data.set('levels', levels)
     this.#data.set('groups', levels.map(value => nodes.filter(({level}) => level === value)))
+    // dfs 插入叶子节点的横向顺序
+    let order = 0
+    const dfs = node => {
+      if (node.children.length === 0) {
+        node.order = order++
+      } else {
+        node.children.forEach(child => dfs(child))
+      }
+    }
+    this.#data.get('groups')[0].forEach(dfs)
+    this.#data.set('maxOrder', order)
   }
 
   // 覆盖默认图层样式
@@ -107,11 +119,10 @@ export default class TreeLayer extends LayerBase {
     const {type, layout} = this.options
     const {links} = this.#data.data
     const groups = this.#data.get('groups')
-    const maxNumber = d3.max(groups.map(item => item.length - 1))
     // 更新比例尺定义域和值域
     this.#scale.scaleX.range([circleSize / 2, this.#scale.scaleX.range()[1] - circleSize / 2])
     this.#scale.scaleY.range([circleSize / 2, this.#scale.scaleY.range()[1] - circleSize / 2])
-    this.#scale.scaleY.domain([0, maxNumber])
+    this.#scale.scaleY.domain([0, this.#data.get('maxOrder')])
     const {scaleX, scaleY} = this.#scale
     // 节点基础数据
     this.#circleData = []
@@ -120,7 +131,7 @@ export default class TreeLayer extends LayerBase {
       const colors = this.getColor(groupedNodes.length, circle.fill)
       this.#circleData[i] = groupedNodes.map((item, j) => ({
         cx: layout.left + scaleX(item.level),
-        cy: layout.top + (i === 0 ? scaleY(j) : item.cy),
+        cy: layout.top + (isNumber(item.order) ? scaleY(item.order) : item.cy),
         rx: circleSize / 2,
         ry: circleSize / 2,
         color: colors[j],
