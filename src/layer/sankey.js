@@ -99,7 +99,7 @@ export default class SankeyLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {links} = this.#data.data
-    const {type, layout} = this.options
+    const {type, layout, createGradient} = this.options
     const {labelOffset, nodeGap, ribbonGap, align, text, rect} = this.#style
     const isHorizontal = type === directionType.HORIZONTAL
     const [levels, groups] = [this.#data.get('levels'), this.#data.get('groups')]
@@ -162,7 +162,7 @@ export default class SankeyLayer extends LayerBase {
         y3: toNode.y + toNode.ribbonLength[0] - length,
         x4: toNode.x - ribbonGap,
         y4: toNode.y + toNode.ribbonLength[0],
-        color: fromNode.color,
+        color: createGradient({type: 'linear', direction: type, colors: [fromNode.color, toNode.color]}),
       }
     })
     // 横竖坐标转换

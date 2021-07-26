@@ -11,9 +11,9 @@ import {layerMapping} from '../layer'
 // 图表状态
 const stateType = {
   INITILIZE: 'initilize', // 初始化
+  DESTROY: 'destroy', // 已销毁
   READY: 'ready', // 就绪
   WARN: 'warn', // 发生错误
-  DESTROY: 'destroy', // 已销毁
 }
 
 // 笔刷模式
@@ -25,9 +25,9 @@ const brushType = {
 // 坐标轴组合类型
 const coordinateType = {
   CARTESIAN_BAND_LINEAR: 'cartesian-band-linear',
-  CARTESIAN_BAND_LINEAR_LINEAR: 'cartesian-band-linear-linear',
   CARTESIAN_LINEAR_LINEAR: 'cartesian-linear-linear',
   POLAR_BAND_LINEAR: 'polar-band-linear',
+  CARTESIAN_POLAR: 'cartesian-polar',
 }
 
 // 图表类主要用于管理图层
@@ -47,8 +47,6 @@ export default class Wave {
   #root = null
 
   #defs = null
-
-  #schedule = null
 
   #tooltip = null
 
@@ -130,6 +128,37 @@ export default class Wave {
   }
 
   /**
+   * 定义渐变色的快捷方式
+   * @param {Object} options 描述对象
+   * @returns {String} 渐变 ID
+   */
+  #createGradient = ({type, direction, colors}) => {
+    const id = createUuid()
+    createDefs({
+      container: this.#defs,
+      schema: {
+        linearGradient: type === 'linear' && [{
+          id,
+          x2: direction === 'horizontal' ? '100%' : '0%',
+          y2: direction === 'vertical' ? '100%' : '0%',
+          stops: colors.map((color, i) => ({
+            offset: `${(i * 100) / (colors.length - 1)}%`,
+            color,
+          })),
+        }],
+        radialGradient: type === 'radial' && [{
+          id,
+          stops: colors.map((color, i) => ({
+            offset: `${(i * 100) / (color.length - 1)}%`,
+            color,
+          })),
+        }],
+      },
+    })
+    return `url(#${id})`
+  }
+
+  /**
    * 根据主题获取颜色
    * @param {Number} count 数量
    * @param {Array} customColors 自定义颜色覆盖主题色
@@ -183,9 +212,9 @@ export default class Wave {
       containerHeight: this.#containerHeight,
       baseFontSize: this.baseFontSize,
       tooltip: this.#tooltip,
-      defs: this.#defs,
-      getColor: this.getColor.bind(this),
       warn: this.warn.bind(this),
+      getColor: this.getColor.bind(this),
+      createGradient: this.#createGradient.bind(this),
     }
     // 根据类型创建图层
     const layer = new layerMapping[type](options, context)
@@ -238,7 +267,11 @@ export default class Wave {
     })
   }
 
-  // 基于某个图层创建笔刷
+  /**
+   * 基于某个图层创建笔刷
+   * @param {Object} options 配置描述对象
+   * @returns 笔刷实例
+   */
   createBrush(options = {}) {
     const {type, layout, targets} = options
     const isHorizontal = type === brushType.HORIZONTAL
@@ -267,35 +300,7 @@ export default class Wave {
     // 确定笔刷区域
     const brushDOM = this.#root.append('g').attr('class', 'wave-brush').call(brush)
     brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
-  }
-
-  /**
-   * 图表许多函数有前后依赖的调用关系，提供一个函数方便统一管理
-   * @param {String} type 函数类型
-   * @param {Function} action 动作函数
-   * @param {Boolean} fire 是否触发
-   */
-  schedule({type, action, fire = false}) {
-    const types = {
-      sync: ['data', 'style', 'draw'],
-      async: ['event', 'tooltip', 'animation', 'brush'],
-    }
-    // 初始化图层生命周期集合
-    if (!this.#schedule) {
-      this.#schedule = {}
-      types.sync.forEach(name => this.#schedule[name] === [])
-      types.async.forEach(name => this.#schedule[name] === [])
-    }
-    // 添加一个新的动作
-    if (action && this.#schedule[type]) {
-      this.#schedule[type].push(action)
-    }
-    // 触发注册的动作并删除
-    if (fire) {
-      types.sync.forEach(name => this.#schedule[name].forEach(fn => fn()))
-      types.async.forEach(name => this.#schedule[name].forEach(fn => setTimeout(fn, 0)))
-      this.#schedule = null
-    }
+    return brush
   }
 
   /**
@@ -308,10 +313,13 @@ export default class Wave {
     this.log.error(text, data)
   }
 
-  // 重绘制所有图层
+  /**
+   * 重绘制所有图层
+   * @param {Boolean} redraw 是否重新计算数据
+   */
   draw(redraw = false) {
-    redraw && this.#layer.forEach(layer => layer.instance.setData())
-    redraw && this.#layer.forEach(layer => layer.instance.setStyle())
+    redraw && this.#layer.forEach(({instance}) => instance.setData())
+    redraw && this.#layer.forEach(({instance}) => instance.setStyle())
     this.#layer.forEach(layer => layer.instance.draw())
   }
 
