@@ -18,7 +18,10 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
   layout,
   // 声明坐标系
   coordinate: 'cartesian-point-linear',
-
+  // 提示
+  tooltip: {
+    mode: 'group',
+  },  
   // 图层数据，下标顺序代表绘制顺序
   layers: [
     // 标题文字图层
@@ -99,6 +102,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         layout: 'main',
         axis: 'main',
         mode,
+        fallback: 'zero',
       },
       scale: {
         count: 5,
@@ -117,13 +121,13 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
       },
       style: {
         labelPosition: 'top',
-        line: {
+        curve: {
           strokeWidth: 2,
           curve,
         },
         area: {
           hide: !hasArea,
-          opacity: 0.2,
+          opacity: 0.8,
           curve,
         },
         text: {
@@ -150,6 +154,13 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
             scope: 'stroke',
           },
         },
+        area: {
+          enterAnimation: {
+            type: 'erase',
+            delay: 0,
+            duration: 2000,
+          },
+        },
         text: {
           enterAnimation: {
             type: 'fade',
@@ -158,10 +169,6 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
             mode: 'fadeIn',
           },
         },
-      },
-      tooltip: {
-        mode: 'group',
-        targets: ['circle'],
       },
       event: {
         'click-circle': d => console.log(d),

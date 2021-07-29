@@ -12,16 +12,12 @@ const reinitializeWave = (wave, schema) => {
 
 // 图表更新策略
 const updateWave = ({action, ...other}) => {
-  try {
-    if (action === 'data') {
-      const {instance, schema} = other
-      reinitializeWave(instance, schema)
-    } else {
-      updateStyle(other)
-    } 
-  } catch (error) {
-    console.error('图层配置解析错误，更新失败', error)
-  }
+  if (action === 'data') {
+    const {instance, schema} = other
+    reinitializeWave(instance, schema)
+  } else {
+    updateStyle(other)
+  } 
 }
 
 // 根据配置更新一个图表
@@ -47,4 +43,11 @@ const updateStyle = ({tabId, layerId, option, value, schema, instance}) => {
   instance.draw()
 }
 
-export default updateWave
+export default (...parameter) => {
+  try {
+    return updateWave(...parameter)
+  } catch (error) {
+    console.error('图标更新失败\n', error)
+    return null
+  }
+}

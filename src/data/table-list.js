@@ -36,9 +36,9 @@ export default class TableList extends DataBase {
     if (mode === modeType.SUM) {
       if (target === targetType.ROW) {
         data = [data.reduce((prev, cur) => ({
-          header: `${prev.header}_${cur.header}`,
-          alias: `${prev.alias || ''}_${cur.alias || ''}`,
-          list: prev.list.map((value, i) => value + cur.list[i]),
+          header: `${prev.header}-${cur.header}`,
+          alias: `${prev.alias}-${cur.alias}`,
+          list: prev.list.map((value, i) => d3.sum([value, cur.list[i]])),
           min: d3.min([prev.min, cur.min]),
           max: d3.min([prev.max, cur.max]),
         }))]

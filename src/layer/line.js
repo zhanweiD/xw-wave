@@ -1,3 +1,4 @@
+import {isNumber} from 'lodash'
 import LayerBase from './base'
 import Scale from '../data/scale'
 
@@ -7,9 +8,17 @@ const modeType = {
   STACK: 'stack', // 堆叠
 }
 
+// 数据异常处理方式
+const fallbackType = {
+  ZERO: 'zero', // 置为零
+  CONTINUE: 'continue', // 保持连接
+  BREAK: 'break', // 中断
+}
+
 // 默认选项
 const defaultOptions = {
   mode: modeType.DEFAULT,
+  fallback: fallbackType.BREAK,
 }
 
 // 文字方向
@@ -36,7 +45,7 @@ const defaultStyle = {
     strokeWidth: 2,
   },
   area: {
-    fillOpacity: 0.2,
+    fillOpacity: 0.5,
   },
 }
 
@@ -106,15 +115,14 @@ export default class LineLayer extends LayerBase {
         dimension,
         category: headers[i + 1],
         x: left + scaleX(dimension) + scaleX.bandwidth() / 2,
-        y: top + (value > 0 ? scaleY(value) : scaleY(0)),
-        height: height - scaleY(value),
+        y: isNumber(value) ? top + scaleY(value) : top + height,
       }))
     })
     // 堆叠柱状数据变更
     if (mode === modeType.STACK) {
       this.#curveData = this.#curveData.map(groupData => groupData.reduce((prev, cur, index) => {
-        return [...prev, {...cur, y: prev[index].y - cur.height}]
-      }, [{y: groupData[0].y + groupData[0].height}]).slice(1))
+        return [...prev, {...cur, y: prev[index].y - ((scaleY(0) + top) - cur.y)}]
+      }, [{y: top + scaleY(0)}]).slice(1))
     }
   }
 
@@ -147,11 +155,30 @@ export default class LineLayer extends LayerBase {
     })
   }
 
+  // 数据异常时重构数据
+  #fallbackFilter = position => {
+    const {scaleY} = this.#scale
+    const {fallback, layout} = this.options
+    if (fallback === fallbackType.BREAK) {
+      return position.reduce((prev, cur) => (cur[1]
+        ? [...prev.slice(0, prev.length - 1), [...prev[prev.length - 1], cur]] 
+        : [...prev, []]),
+      [[]])
+    }
+    if (fallback === fallbackType.CONTINUE) {
+      return [position.filter(item => Boolean(item[1]))]
+    }
+    if (fallback === fallbackType.ZERO) {
+      return [position.map(item => [item[0], item[1] || scaleY(0) + layout.top])]
+    }
+    return null
+  }
+
   // 绘制
   draw() {
     const curveData = this.#curveData[0].map(({color}, index) => {
-      const position = this.#curveData.map(item => [item[index].x, item[index].y])
-      return {position: [position], ...this.#style.curve, stroke: color}
+      const position = this.#curveData.map(item => [item[index].x, isNumber(item[index].value) && item[index].y])
+      return {position: this.#fallbackFilter(position), ...this.#style.curve, stroke: color}
     })
     const areaData = this.#areaData[0].map(({color}, index) => {
       const position = this.#areaData.map(item => [item[index].x, item[index].y0, item[index].y1])

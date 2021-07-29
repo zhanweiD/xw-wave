@@ -13,7 +13,7 @@ const isNormalLayer = layerType => !isAxisLayer(layerType) && !isLegendLayer(lay
 
 // 根据配置创建一个图层
 const createLayer = (wave, config) => {
-  const {type, options, data, scale, style, animation, tooltip, event} = config
+  const {type, options, data, scale, style, animation, event} = config
   const layer = wave.createLayer(type, {...options, layout: wave.layout[options.layout]})
   // 数据结构判断
   let dataSet = data
@@ -36,38 +36,38 @@ const createLayer = (wave, config) => {
   event && Object.keys(event).forEach(eventName => layer.event.on(eventName, event[eventName]))
   // 设置图层的动画（异步函数）
   layer.setAnimation(animation)
-  // 设置图层的 tooltip（异步函数）
-  layer.setTooltip(tooltip)
   return layer
 }
 
 // 根据配置创建一个新的图表
 function createWave(schema, existedWave) {
+  const {brush, layers, ...initialConfig} = schema
+  const wave = existedWave || new Wave(initialConfig)
+  // 有些层比较特殊，需要依赖其他图层的数据或者比例尺
+  const normalLayerConfigs = layers.filter(({type}) => isNormalLayer(type))
+  const axisLayerConfig = layers.find(({type}) => isAxisLayer(type))
+  const legendLayerConfig = layers.find(({type}) => isLegendLayer(type))
+  // 图层实例
+  const normalLayers = normalLayerConfigs.map(layer => createLayer(wave, layer))
+  const axisLayer = axisLayerConfig && createLayer(wave, axisLayerConfig)
+  // 坐标轴层会对现有图层进行比例尺融合
+  axisLayerConfig && wave.bindCoordinate(axisLayer, normalLayers)
+  // 最后绘制依赖其他图层的图例图层
+  legendLayerConfig && createLayer(wave, legendLayerConfig)
+  // 根据 schema 配置的顺序进行绘制
+  layers.map(({options}) => wave.layer.find(({id}) => id === options.id).instance.draw())
+  // 绘制之后添加添加笔刷，然后是动画和 tooltip
+  brush && wave.createBrush({...brush, layout: wave.layout[brush.layout]})
+  // 默认开启动画，后面改成由 wave 统一管理
+  setTimeout(() => wave.layer.map(({instance}) => instance.playAnimation()))
+  return wave
+}
+
+export default (...parameter) => {
   try {
-    const {container, adjust, width, height, padding, theme, coordinate, define, layout, brush, layers} = schema
-    const wave = existedWave || new Wave({container, define, adjust, width, height, padding, coordinate, theme, layout})
-    // 有些层比较特殊，需要依赖其他图层的数据或者比例尺
-    const normalLayerConfigs = layers.filter(({type}) => isNormalLayer(type))
-    const axisLayerConfig = layers.find(({type}) => isAxisLayer(type))
-    const legendLayerConfig = layers.find(({type}) => isLegendLayer(type))
-    // 图层实例
-    const normalLayers = normalLayerConfigs.map(layer => createLayer(wave, layer))
-    const axisLayer = axisLayerConfig && createLayer(wave, axisLayerConfig)
-    // 坐标轴层会对现有图层进行比例尺融合
-    axisLayerConfig && wave.bindCoordinate(axisLayer, normalLayers)
-    // 最后绘制依赖其他图层的图例图层
-    legendLayerConfig && createLayer(wave, legendLayerConfig)
-    // 根据 schema 配置的顺序进行绘制
-    layers.map(({options}) => wave.layer.find(({id}) => id === options.id).instance.draw())
-    // 绘制之后添加添加笔刷，然后是动画和 tooltip
-    brush && wave.createBrush({...brush, layout: wave.layout[brush.layout]})
-    // 默认开启动画，后面改成由 wave 统一管理
-    setTimeout(() => wave.layer.map(({instance}) => instance.playAnimation()))
-    return wave
+    return createWave(...parameter)
   } catch (error) {
-    console.error('初始化失败', error)
+    console.error('图表初始化失败', error)
     return null
   }
 }
-
-export default createWave
