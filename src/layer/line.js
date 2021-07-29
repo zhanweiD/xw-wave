@@ -45,7 +45,7 @@ const defaultStyle = {
     strokeWidth: 2,
   },
   area: {
-    fillOpacity: 0.5,
+    fillOpacity: 0,
   },
 }
 

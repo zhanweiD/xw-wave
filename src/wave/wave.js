@@ -192,7 +192,7 @@ export default class Wave {
           fn.call(layer, ...parameter)
           layer.event.fire(name, {...parameter})
         } catch (error) {
-          this.warn('图层生命周期调用失败', error)
+          this.warn('图层生命周期调用失败\n', error)
         }
       }
     })

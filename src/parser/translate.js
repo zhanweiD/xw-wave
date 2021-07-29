@@ -87,7 +87,7 @@ export default (...parameter) => {
   try {
     return translate(...parameter)
   } catch (error) {
-    console.error('图表解析失败', error)
+    console.error('图表解析失败\n', error)
     return null
   }
 }

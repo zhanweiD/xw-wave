@@ -42,12 +42,17 @@ export default class DataBase {
     if (!DataBase.isTableList(tableList) || tableList[0].length !== 3) {
       return false
     }
-    const rows = Array.from(new Set(tableList.slice(1).map(item => item[0])))
-    const columns = Array.from(new Set(tableList.slice(1).map(item => item[1])))
-    const table = [rows, columns, rows.map(row => columns.map(column => {
-      return tableList.find(item => item[0] === row && item[1] === column)[2] || NaN
-    }))]
-    return table
+    try {
+      const originNodes = tableList.slice(1).reduce((prev, cur) => [...prev, cur[0], cur[1]], [])
+      const nodes = Array.from(new Set(originNodes))
+      return [nodes, nodes, nodes.map(row => nodes.map(column => {
+        const items = tableList.filter(item => item[0] === row && item[1] === column)
+        return items.reduce((prev, cur) => prev + cur[2], 0)
+      }))]
+    } catch (error) {
+      console.error('列表转表格失败\n', error)
+      return tableList
+    }
   }
 
   // 初始化数据，order 定义每组数据的优先级，可以决定颜色的选取顺序

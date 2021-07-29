@@ -17,17 +17,19 @@ const createLayer = (wave, config) => {
   const layer = wave.createLayer(type, {...options, layout: wave.layout[options.layout]})
   // 数据结构判断
   let dataSet = data
-  if (isArray(data) && data.length === 2 && DataBase.isRelation(data[0], data[1])) {
+  if (type === 'legend') {
+    dataSet = wave.layer.filter(({instance}) => instance.data instanceof TableList).map(({instance}) => instance)
+  } else if (isArray(data) && data.length === 2 && DataBase.isRelation(data[0], data[1])) {
     dataSet = new Relation(data[0], data[1])
   } else if (DataBase.isTable(data) || data?.type === 'table') {
     dataSet = new Table(DataBase.isTable(data) ? data : Random.table(data))
   } else if (DataBase.isTableList(data) || data?.type === 'tableList') {
-    dataSet = new TableList(DataBase.isTableList(data) ? data : Random.tableList(data))
-  }
-  // 图例需要的数据是图层实例
-  if (type === 'legend') {
-    dataSet = wave.layer.filter(({instance}) => instance.data instanceof TableList).map(({instance}) => instance)
-  }
+    if (type === 'matrix' || type === 'chord') {
+      dataSet = new Table(DataBase.isTableList(data) ? DataBase.tableListToTable(data) : Random.tableList(data))
+    } else {
+      dataSet = new TableList(DataBase.isTableList(data) ? data : Random.tableList(data))
+    }
+  } 
   // 设置图层的数据，第二个参数为比例尺配置
   layer.setData(dataSet, {nice: scale})
   // 设置图层的样式
@@ -67,7 +69,7 @@ export default (...parameter) => {
   try {
     return createWave(...parameter)
   } catch (error) {
-    console.error('图表初始化失败', error)
+    console.error('图表初始化失败\n', error)
     return null
   }
 }
