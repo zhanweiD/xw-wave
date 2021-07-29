@@ -58,7 +58,7 @@ export default class AuxiliaryLayer extends LayerBase {
   }
 
   // 传入数据数组和比例尺，辅助线需要外部的比例尺
-  setData(data, scales) {
+  setData(data, scales = {}) {
     this.#data = data || this.#data
     this.#scale = this.createScale({}, this.#scale, scales)
     const {type, layout} = this.options
@@ -104,7 +104,7 @@ export default class AuxiliaryLayer extends LayerBase {
     this.#data.set('legendData', {
       list: pureTableList.map(([label], i) => ({label, color: colors[i]})),
       shape: 'dotted-line',
-      canFilter: false,
+      filter: 'row',
     })
   }
 

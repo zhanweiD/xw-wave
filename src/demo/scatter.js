@@ -132,7 +132,7 @@ const createSchema = (container, theme, layout, mode) => ({
         axis: 'main',
         mode,
       },
-      data: createTableListData().map(item => [item[1], item[2], item[0], item[3]]),
+      data: createTableListData(),
       scale: {
         count: 5,
         // fixedPaddingInner: 10,

@@ -1,4 +1,4 @@
-import {sum, max} from 'd3'
+import {sum, max, range} from 'd3'
 import {cloneDeep} from 'lodash'
 import LayerBase from './base'
 import getTextWidth from '../util/text-width'
@@ -82,47 +82,70 @@ export default class LegendLayer extends LayerBase {
     const colors = cloneDeep(this.#data.shapeColors)
     const originData = cloneDeep(this.#layers.map(layer => layer.data))
     const counts = this.#layers.map(({data}) => data.get('legendData')?.list.length)
-    const disableFlag = new Array(this.#data.shapeColors.length).fill(false)
+    const filterTypes = this.#layers.map(({data}) => data.get('legendData')?.filter)
+    const active = new Array(this.#data.shapeColors.length).fill(true)
     const disableColor = '#E2E3E588'
     // 数据筛选
     this.event.off('click-interactive')
     this.event.on('click-interactive', object => {
       const {index} = object.data.source
-      const layerIndex = counts.findIndex((v, i) => counts.slice(0, i + 1).reduce((prev, cur) => prev + cur) > index)
+      const layerIndex = counts.findIndex((v, i) => sum(counts.slice(0, i + 1)) > index)
       const startIndex = counts.slice(0, layerIndex).reduce((prev, cur) => prev + cur, 0)
       const data = originData[layerIndex]
       const layer = this.#layers[layerIndex]
       // 图层需要手动开启过滤支持
-      if (!layer.data.get('legendData')?.canFilter) return
+      if (!filterTypes[layerIndex]) return
       // 更新图例状态
-      if (disableFlag[index]) {
-        disableFlag[index] = false
+      if (!active[index]) {
+        active[index] = true
         this.#data.shapeColors[index] = colors[index]
         this.#data.textColors[index] = 'white'
       } else {
-        disableFlag[index] = true
+        active[index] = false
         this.#data.shapeColors[index] = disableColor
         this.#data.textColors[index] = disableColor
       }
-      // 更新图层
-      const order = {}
-      const subHeaders = data.data.filter((v, i) => (!i || !disableFlag[startIndex + i - 1])).map(({header}) => header)
-      const subData = data.select(subHeaders)
-      data.data.slice(1).map(({header}) => header).forEach((header, i) => order[header] = i)
-      subData.options.order = order
       try {
         // 表示当前图层重绘制来自于图例过滤
         this.#isFiltering = true
-        layer.setData(subData)
+        let filteredData = data
+        // 根据第一列的值过滤行
+        if (filterTypes[layerIndex] === 'row') {
+          const order = {type: 'row', mapping: {}}
+          const mapping = range(startIndex, startIndex + counts[layerIndex]).map(i => active[i])
+          filteredData = data.select(data.data.map(({header}) => header))
+          filteredData.data.forEach(item => item.list = item.list.filter((v, j) => mapping[j]))
+          data.data[0].list.forEach((dimension, i) => order.mapping[dimension] = i)
+          filteredData.options.order = order
+        }
+        // 根据第一行的值过滤列
+        if (filterTypes[layerIndex] === 'column') {
+          const order = {type: 'column', mapping: {}}
+          const subData = data.data.filter((v, i) => (!i || active[startIndex + i - 1]))
+          filteredData = data.select(subData.map(({header}) => header))
+          data.data.slice(1).map(({header}) => header).forEach((header, i) => order.mapping[header] = i)
+          filteredData.options.order = order
+        }
+        // 更新图层
+        layer.setData(filteredData)
         layer.setStyle()
         layer.draw()
+        // 更新图例
+        this.setStyle()
+        this.draw()
       } catch (error) {
-        this.warn('图例数据过滤错误', {error, data: subData})
+        this.warn('图例数据过滤错误\n', error)
       }
-      // 更新图例
+    })
+  }
+
+  // 更新图层数据并重绘
+  #refresh = () => {
+    if (!this.#isFiltering) {
+      this.setData()
       this.setStyle()
       this.draw()
-    })
+    }
   }
 
   /**
@@ -148,14 +171,10 @@ export default class LegendLayer extends LayerBase {
       } 
     })
     // 生命周期绑定
-    layers && this.#filter()
-    layers && this.#layers.forEach(layer => layer.event.on('draw', () => {
-      if (!this.#isFiltering) {
-        this.setData()
-        this.setStyle()
-        this.draw()
-      }
-    }))
+    if (layers) {
+      this.#filter()
+      this.#layers.forEach(layer => layer.event.on('draw', this.#refresh))
+    }
   }
 
   // 坐标为文字左侧中点

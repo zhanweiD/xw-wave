@@ -34,7 +34,7 @@ export default class Table extends DataBase {
       }
     }
     // HACK: 返回一个新的列表对象
-    const result = new Table([[], [], []])
+    const result = new Table([[], [], []], this.options)
     result.data = cloneDeep(data)
     return result
   }

@@ -96,9 +96,6 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
       style: {
         labelPosition: type === 'nightingaleRose' ? 'outer' : 'inner',
         innerRadius: donut ? 20 : 0,
-        arc: {
-          enableUpdateAnimation: true,
-        },
         text: {
           enableUpdateAnimation: true,
           fontSize: 8,

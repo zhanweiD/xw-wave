@@ -189,7 +189,7 @@ export default class ArcLayer extends LayerBase {
       this.#arcData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
       this.#data.set('legendData', {
         list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
-        canFilter: true,
+        filter: 'column',
         shape: 'rect',
       })
     } else if (this.#arcData[0]?.length === 1) {
@@ -197,7 +197,7 @@ export default class ArcLayer extends LayerBase {
       this.#arcData.forEach((groupData, i) => (groupData[0].color = colors[i]))
       this.#data.set('legendData', {
         list: pureTableList.map((item, i) => ({label: item[0], color: colors[i]})),
-        canFilter: false,
+        filter: 'row',
         shape: 'rect',
       })
     }

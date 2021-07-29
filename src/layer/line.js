@@ -151,7 +151,7 @@ export default class LineLayer extends LayerBase {
     this.#data.set('legendData', {
       list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
       shape: 'broken-line',
-      canFilter: true,
+      filter: 'column',
     })
   }
 

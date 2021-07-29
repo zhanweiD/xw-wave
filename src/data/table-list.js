@@ -63,7 +63,7 @@ export default class TableList extends DataBase {
       }
     }
     // HACK: 返回一个新的列表对象
-    const result = new TableList([[]])
+    const result = new TableList([[]], this.options)
     result.data = data
     return result
   }

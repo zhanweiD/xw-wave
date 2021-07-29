@@ -1,5 +1,4 @@
 import {isArray, isEqual, merge} from 'lodash'
-import Data from '../data'
 import Animation from '../animation'
 import formatText from '../util/format-text'
 import getTextWidth from '../util/text-width'
@@ -55,12 +54,15 @@ export default class LayerBase {
     const order = this.data?.options?.order
     const {getColor} = this.options
     // 判断列表内有无颜色相关的属性，目前图例有用到
-    if (order && this.data instanceof Data.TableList) {
+    if (order) {
       const colorMapping = {}
-      const colors = getColor(Math.max(...Object.values(order)) + 1, customColors)
-      Object.keys(order).forEach(key => colorMapping[key] = colors[order[key]])
-      const finalColors = data.slice(1).map(({header}) => colorMapping[header])
-      return data.length === 2 ? new Array(data[0].list.length).fill(finalColors) : finalColors
+      const {type, mapping} = order
+      const colors = getColor(Math.max(...Object.values(mapping)) + 1, customColors)
+      Object.keys(mapping).forEach(key => colorMapping[key] = colors[mapping[key]])
+      const finalColors = type === 'column'
+        ? data.slice(1).map(({header}) => colorMapping[header])
+        : data[0].list.map(dimension => colorMapping[dimension])
+      return finalColors.length !== count ? new Array(count).fill(finalColors[0]) : finalColors
     }
     return this.options.getColor(count, customColors)
   }
@@ -210,7 +212,7 @@ export default class LayerBase {
 
   /**
    * 配置动画
-   * @param {*} options 以元素类型为 key 的动画描述对象
+   * @param {Object} options 以元素类型为 key 的动画描述对象
    * @returns 启动全部动画队列的函数
    */
   setAnimation(options) {
