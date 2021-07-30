@@ -130,7 +130,7 @@ export default class Wave {
   /**
    * 定义渐变色的快捷方式
    * @param {Object} options 描述对象
-   * @returns {String} 渐变 ID
+   * @returns {String} 渐变色引用地址
    */
   #createGradient = ({type, direction, colors}) => {
     const id = createUuid()
