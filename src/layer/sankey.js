@@ -126,10 +126,10 @@ export default class SankeyLayer extends LayerBase {
         ...item,
       }))
     })
-    // 堆叠柱状数据变更
-    this.#rectData = this.#rectData.map(groupData => groupData.reduce((prev, cur, index) => {
-      return [...prev, {...cur, y: prev[index].y + prev[index].height + nodeGap}]
-    }, [{y: groupData[0].y - nodeGap, height: 0}]).slice(1))
+    // 堆叠柱子数据变更
+    this.#rectData.forEach(groupData => groupData.forEach((item, i) => {
+      i !== 0 && (item.y = groupData[i - 1].y + groupData[i - 1].height + nodeGap)
+    }))
     // 对齐调整节点的位置
     this.#rectData.forEach(groupData => {
       const tailNode = groupData[groupData.length - 1]

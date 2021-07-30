@@ -161,27 +161,23 @@ export default class ArcLayer extends LayerBase {
       scaleRadius.range([innerRadius, scaleRadius.range()[1]])
     }
     // 圆弧基础数据
-    this.#arcData = pureTableList.map(([dimension, ...values]) => {
-      return values.map((value, i) => ({
-        value,
-        dimension,
-        category: headers[i + 1],
-        innerRadius,
-        outerRadius: scaleRadius(value),
-        ...scaleAngle(dimension),
-        ...arcCenter,
-      }))
-    })
+    this.#arcData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
+      value,
+      dimension,
+      category: headers[i + 1],
+      innerRadius,
+      outerRadius: scaleRadius(value),
+      ...scaleAngle(dimension),
+      ...arcCenter,
+    })))
     // 堆叠的夜莺玫瑰图
     if (mode === modeType.STACK) {
-      this.#arcData = this.#arcData.map(groupData => {
-        return groupData.reduce((prev, cur, index) => {
-          return [...prev, {...cur, 
-            innerRadius: prev[index].outerRadius,
-            outerRadius: prev[index].outerRadius + cur.outerRadius - innerRadius,
-          }]
-        }, [{outerRadius: innerRadius}]).slice(1)
-      })
+      this.#arcData.forEach(groupData => groupData.forEach((item, i) => {
+        if (i !== 0) {
+          item.innerRadius = groupData[i - 1].outerRadius
+          item.outerRadius = item.innerRadius + item.outerRadius - innerRadius
+        }
+      }))
     }
     // 颜色跟随主题
     if (this.#arcData[0]?.length > 1) {

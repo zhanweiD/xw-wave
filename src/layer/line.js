@@ -109,20 +109,18 @@ export default class LineLayer extends LayerBase {
     }, this.#scale, scales)
     // 计算基础数据
     const {scaleX, scaleY} = this.#scale
-    this.#curveData = pureTableList.map(([dimension, ...values]) => {
-      return values.map((value, i) => ({
-        value,
-        dimension,
-        category: headers[i + 1],
-        x: left + scaleX(dimension) + scaleX.bandwidth() / 2,
-        y: isNumber(value) ? top + scaleY(value) : top + height,
-      }))
-    })
+    this.#curveData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
+      value,
+      dimension,
+      category: headers[i + 1],
+      x: left + scaleX(dimension) + scaleX.bandwidth() / 2,
+      y: isNumber(value) ? top + scaleY(value) : top + height,
+    })))
     // 堆叠柱状数据变更
     if (mode === modeType.STACK) {
-      this.#curveData = this.#curveData.map(groupData => groupData.reduce((prev, cur, index) => {
-        return [...prev, {...cur, y: prev[index].y - ((scaleY(0) + top) - cur.y)}]
-      }, [{y: top + scaleY(0)}]).slice(1))
+      this.#curveData.forEach(groupData => groupData.forEach((item, i) => {
+        i !== 0 && (item.y = groupData[i - 1].y - (scaleY(0) + top - item.y))
+      }))
     }
   }
 

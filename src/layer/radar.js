@@ -88,21 +88,19 @@ export default class RadarLayer extends LayerBase {
     }, this.#scale, scales)
     // 根据比例尺计算顶点
     const {scaleAngle, scaleRadius} = this.#scale
-    this.#polygonData = pureTableList.map(([dimension, ...values]) => {
-      return values.map((value, i) => {
-        const [angle, r] = [(scaleAngle(dimension) / 180) * Math.PI, scaleRadius(value)]
-        const [x, y] = [polygonCenter.x + Math.sin(angle) * r, polygonCenter.y - Math.cos(angle) * r]
-        return ({value, dimension, category: headers[i + 1], x, y, angle, r, center: polygonCenter})
-      })
-    })
+    this.#polygonData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => {
+      const [angle, r] = [(scaleAngle(dimension) / 180) * Math.PI, scaleRadius(value)]
+      const [x, y] = [polygonCenter.x + Math.sin(angle) * r, polygonCenter.y - Math.cos(angle) * r]
+      return ({value, dimension, category: headers[i + 1], x, y, angle, r, center: polygonCenter})
+    }))
     // 堆叠雷达图数据变更
     if (mode === modeType.STACK) {
-      this.#polygonData = this.#polygonData.map(groupData => groupData.reduce((prev, cur, index) => {
-        return [...prev, {...cur, 
-          x: prev[index].x + cur.x - polygonCenter.x,
-          y: prev[index].y + cur.y - polygonCenter.y,
-        }]
-      }, [{x: polygonCenter.x, y: polygonCenter.y}]).slice(1))
+      this.#polygonData.forEach(groupData => groupData.forEach((item, i) => {
+        if (i !== 0) {
+          item.x = groupData[i - 1].x + item.x - polygonCenter.x
+          item.y = groupData[i - 1].y + item.y - polygonCenter.y
+        }
+      }))
     }
   }
 
