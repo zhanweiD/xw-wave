@@ -9,9 +9,10 @@ export default (text, format = {}) => {
     decimalPlace = 8, // 保留小数位
   } = format
   
-  if (type === 'number') {
+  // 除了手动格式化，顺便消除浮点数丢失精度的问题
+  if (type === 'number' || !Number.isNaN(Number(text))) {
     return d3.format(`${isThousandth ? ',' : ''}.${decimalPlace}~${isPercentage ? '%' : 'f'}`)(text)
-  }
+  }  
   
   return String(text)
 }

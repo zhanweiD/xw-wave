@@ -42,14 +42,14 @@ const createSchema = (container, theme, layout) => {
         options: {
           id: 'sankey',
           layout: 'main',
-          type: 'vertical',
+          type: 'horizontal',
         },
         data: createSankeyData(),
         style: {
+          align: 'middle',
           labelOffset: 10,
           text: {
             fontSize: 12,
-            writingMode: 'vertical',
           },
           line: {
             curve: 'curveBasis',

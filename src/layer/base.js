@@ -117,8 +117,8 @@ export default class LayerBase {
    */
   createText({x, y, value, style, position = positionType.RIGHTTOP, offset = 0, textAnchor = 'start'}) {
     let [positionX, positionY] = [x, y]
-    const {fontSize = 12, writingMode, format = null} = style
-    const formattedText = format ? formatText(value, format) : value
+    const {fontSize = 12, writingMode, format} = style
+    const formattedText = formatText(value, format)
     const textWidth = getTextWidth(formattedText, fontSize)
     const autoOffset = isArray(offset) ? 0 : offset
     if (position === positionType.CENTER) {
