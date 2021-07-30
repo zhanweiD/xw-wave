@@ -1,4 +1,4 @@
-import {getStandardLayoutWithBrush} from '../layout/standard'
+import Layout from '../layout'
 import {createTableListData} from './mock'
 
 const titleMapping = {
@@ -188,6 +188,6 @@ const createSchema = (container, theme, layout, mode) => ({
 })
 
 export default {
-  scatter: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'scatter'),
-  bubble: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'bubble'),
+  scatter: (container, theme) => createSchema(container, theme, Layout.standard(false), 'scatter'),
+  bubble: (container, theme) => createSchema(container, theme, Layout.standard(false), 'bubble'),
 }

@@ -1,4 +1,4 @@
-import standardLayout from '../layout/standard'
+import Layout from '../layout'
 
 const titleMapping = {
   default: '雷达图',
@@ -151,10 +151,6 @@ const createSchema = (container, theme, layout, mode) => ({
           },
         },
       },
-      tooltip: {
-        mode: 'group',
-        targets: ['circle'],
-      },
       event: {
         'click-circle': d => console.log(d),
       },
@@ -163,6 +159,6 @@ const createSchema = (container, theme, layout, mode) => ({
 })
 
 export default {
-  radar: (container, theme) => createSchema(container, theme, standardLayout, 'default'),
-  stackRadar: (container, theme) => createSchema(container, theme, standardLayout, 'stack'),
+  radar: (container, theme) => createSchema(container, theme, Layout.standard(false), 'default'),
+  stackRadar: (container, theme) => createSchema(container, theme, Layout.standard(false), 'stack'),
 }

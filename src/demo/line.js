@@ -1,4 +1,4 @@
-import createStandardLayout from '../layout/standard'
+import Layout from '../layout'
 
 // 柱状图配置数据生成
 const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
@@ -178,10 +178,10 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
 })
 
 export default {
-  line: (container, theme) => createSchema(container, theme, createStandardLayout, 'default', false, false),
-  stackLine: (container, theme) => createSchema(container, theme, createStandardLayout, 'stack', false, false),
-  area: (container, theme) => createSchema(container, theme, createStandardLayout, 'default', true, 'curveMonotoneX'),
-  stackArea: (container, theme) => createSchema(container, theme, createStandardLayout, 'stack', true, 'curveMonotoneX'),
-  step: (container, theme) => createSchema(container, theme, createStandardLayout, 'stack', false, 'curveStep'),
-  stepArea: (container, theme) => createSchema(container, theme, createStandardLayout, 'stack', true, 'curveStep'),
+  line: (container, theme) => createSchema(container, theme, Layout.standard(true), 'default', false, false),
+  stackLine: (container, theme) => createSchema(container, theme, Layout.standard(true), 'stack', false, false),
+  area: (container, theme) => createSchema(container, theme, Layout.standard(true), 'default', true, 'curveMonotoneX'),
+  stackArea: (container, theme) => createSchema(container, theme, Layout.standard(true), 'stack', true, 'curveMonotoneX'),
+  step: (container, theme) => createSchema(container, theme, Layout.standard(true), 'stack', false, 'curveStep'),
+  stepArea: (container, theme) => createSchema(container, theme, Layout.standard(true), 'stack', true, 'curveStep'),
 }

@@ -12,6 +12,7 @@ import lineSchema from './line'
 import chordSchema from './chord'
 import sankeySchema from './sankey'
 import treeSchema from './tree'
+import columnFacetSchema from './column-facet'
 import {createWave} from '../parser'
 import s from './demo.module.css'
 
@@ -34,11 +35,12 @@ const chartMapping = {
   gauge: '仪表盘',
   relation: '关系图',
   tree: '树图',
+  facet: '分面图',
 }
 
 export default function Example() {
   const [theme, setTheme] = useState('fairyLand')
-  const [chart, setChart] = useState('column')
+  const [chart, setChart] = useState('facet')
   const containerStyle = {background: ThemeConfig[theme].background}
   const refs = range(1, 100, 1).map(() => useRef(null))
 
@@ -89,6 +91,8 @@ export default function Example() {
     // 树图类
     waves.push(chart === 'tree' && createWave(treeSchema.horizontalTree(refs[34].current, themeColors)))
     waves.push(chart === 'tree' && createWave(treeSchema.verticalTree(refs[35].current, themeColors)))
+    // 分面图
+    waves.push(chart === 'facet' && createWave(columnFacetSchema.facet1(refs[36].current, themeColors)))
   }, [theme, chart])
 
   return (
@@ -146,6 +150,7 @@ export default function Example() {
           {chart === 'relation' && <div className={s.wave} ref={refs[33]} />}
           {chart === 'tree' && <div className={s.wave} ref={refs[34]} />}
           {chart === 'tree' && <div className={s.wave} ref={refs[35]} />}
+          {chart === 'facet' && <div className={s.wave} ref={refs[36]} />}
         </div>
       </div>
     </div>

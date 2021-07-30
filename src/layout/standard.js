@@ -1,5 +1,5 @@
 // 计算布局信息
-function getStandardLayout({containerWidth, containerHeight, padding, brush = false}) {
+const getStandardLayout = brush => ({containerWidth, containerHeight, padding}) => {
   const brushHeight = brush ? containerHeight / 10 : 0
   const heightWithoutBrush = containerHeight - brushHeight
   const layout = {
@@ -27,18 +27,6 @@ function getStandardLayout({containerWidth, containerHeight, padding, brush = fa
       left: padding[3],
       right: containerWidth - padding[1],
     },
-    axisX: {
-      top: padding[0],
-      bottom: heightWithoutBrush - padding[2],
-      left: padding[3],
-      right: containerWidth - padding[1],
-    },
-    axisY: {
-      top: padding[0],
-      bottom: heightWithoutBrush - padding[2],
-      left: 0,
-      right: containerWidth,  
-    },
     brush: {
       top: heightWithoutBrush,
       bottom: containerHeight,
@@ -55,12 +43,4 @@ function getStandardLayout({containerWidth, containerHeight, padding, brush = fa
   return layout
 }
 
-// 默认不带笔刷（临时写法）
-export default function getStandardLayoutWithoutBrush(options) {
-  return getStandardLayout({...options, brush: false})
-}
-
-// 带笔刷（临时写法）
-export function getStandardLayoutWithBrush(options) {
-  return getStandardLayout({...options, brush: true})
-}
+export default getStandardLayout

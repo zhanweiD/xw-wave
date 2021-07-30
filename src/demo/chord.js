@@ -1,4 +1,4 @@
-import standardLayout from '../layout/standard'
+import Layout from '../layout'
 
 const titleMapping = {
   chord: '和弦图',
@@ -77,8 +77,8 @@ const createSchema = (container, theme, layout, type) => {
 }
 
 export default {
-  edgeBundle: (container, theme) => createSchema(container, theme, standardLayout, 'edgeBundle'),
-  chord: (container, theme) => createSchema(container, theme, standardLayout, 'chord'),
+  edgeBundle: (container, theme) => createSchema(container, theme, Layout.standard(false), 'edgeBundle'),
+  chord: (container, theme) => createSchema(container, theme, Layout.standard(false), 'chord'),
 }
 
 export const nodes = [

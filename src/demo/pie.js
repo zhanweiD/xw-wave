@@ -1,4 +1,4 @@
-import standardLayout from '../layout/standard'
+import Layout from '../layout'
 
 const titleMapping = {
   pie: ['饼图', '环图'],
@@ -121,10 +121,6 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
           },
         },
       },
-      tooltip: {
-        mode: 'single',
-        targets: ['arc'],
-      },
       event: {
         'click-arc': d => console.log(d),
       },
@@ -133,10 +129,10 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
 })
 
 export default {
-  pie: (container, theme) => createSchema(container, theme, standardLayout, 'pie', 'default', false),
-  donut: (container, theme) => createSchema(container, theme, standardLayout, 'pie', 'default', true),
-  nightingaleRose: (container, theme) => createSchema(container, theme, standardLayout, 'nightingaleRose', 'default', false),
-  donutNightingaleRose: (container, theme) => createSchema(container, theme, standardLayout, 'nightingaleRose', 'default', true),
-  stackNightingaleRose: (container, theme) => createSchema(container, theme, standardLayout, 'nightingaleRose', 'stack', false),
-  stackDonutNightingaleRose: (container, theme) => createSchema(container, theme, standardLayout, 'nightingaleRose', 'stack', true),
+  pie: (container, theme) => createSchema(container, theme, Layout.standard(false), 'pie', 'default', false),
+  donut: (container, theme) => createSchema(container, theme, Layout.standard(false), 'pie', 'default', true),
+  nightingaleRose: (container, theme) => createSchema(container, theme, Layout.standard(false), 'nightingaleRose', 'default', false),
+  donutNightingaleRose: (container, theme) => createSchema(container, theme, Layout.standard(false), 'nightingaleRose', 'default', true),
+  stackNightingaleRose: (container, theme) => createSchema(container, theme, Layout.standard(false), 'nightingaleRose', 'stack', false),
+  stackDonutNightingaleRose: (container, theme) => createSchema(container, theme, Layout.standard(false), 'nightingaleRose', 'stack', true),
 }

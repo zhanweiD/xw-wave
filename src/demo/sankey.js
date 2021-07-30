@@ -1,4 +1,4 @@
-import standardLayout from '../layout/standard'
+import Layout from '../layout'
 import {createSankeyData} from './mock'
 
 // 柱状图配置数据生成
@@ -66,5 +66,5 @@ const createSchema = (container, theme, layout) => {
 }
 
 export default {
-  sankey: (container, theme) => createSchema(container, theme, standardLayout),
+  sankey: (container, theme) => createSchema(container, theme, Layout.standard(false)),
 }

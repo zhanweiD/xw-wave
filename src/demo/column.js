@@ -1,4 +1,4 @@
-import {getStandardLayoutWithBrush} from '../layout/standard'
+import Layout from '../layout'
 
 const titleMapping = {
   group: '分组图',
@@ -128,7 +128,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
         },
         scale: {
           count: 5,
-          zero: true,
+          zero: mode !== 'interval',
           // fixedPaddingInner: 10,
           // fixedBandWidth: 30,
           fixedBoundary: 'start',
@@ -269,14 +269,14 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
 }
 
 export default {
-  groupColumn: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'column', 'group', false),
-  stackColumn: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'column', 'stack', false),
-  intervalColumn: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'column', 'interval', false),
-  waterfallColumn: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'column', 'waterfall', false),
-  groupBar: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'bar', 'group', false),
-  stackBar: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'bar', 'stack', false),
-  intervalBar: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'bar', 'interval', false),
-  waterfallBar: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'bar', 'waterfall', false),
-  groupLineColumn: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'column', 'group', true),
-  stackLineColumn: (container, theme) => createSchema(container, theme, getStandardLayoutWithBrush, 'column', 'stack', true),
+  groupColumn: (container, theme) => createSchema(container, theme, Layout.standard(true), 'column', 'group', false),
+  stackColumn: (container, theme) => createSchema(container, theme, Layout.standard(true), 'column', 'stack', false),
+  intervalColumn: (container, theme) => createSchema(container, theme, Layout.standard(true), 'column', 'interval', false),
+  waterfallColumn: (container, theme) => createSchema(container, theme, Layout.standard(true), 'column', 'waterfall', false),
+  groupBar: (container, theme) => createSchema(container, theme, Layout.standard(true), 'bar', 'group', false),
+  stackBar: (container, theme) => createSchema(container, theme, Layout.standard(true), 'bar', 'stack', false),
+  intervalBar: (container, theme) => createSchema(container, theme, Layout.standard(true), 'bar', 'interval', false),
+  waterfallBar: (container, theme) => createSchema(container, theme, Layout.standard(true), 'bar', 'waterfall', false),
+  groupLineColumn: (container, theme) => createSchema(container, theme, Layout.standard(true), 'column', 'group', true),
+  stackLineColumn: (container, theme) => createSchema(container, theme, Layout.standard(true), 'column', 'stack', true),
 }

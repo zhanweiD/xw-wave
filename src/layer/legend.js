@@ -275,7 +275,7 @@ export default class LegendLayer extends LayerBase {
       totalHeight = maxHeight
     } else if (direction === directionType.VERTICAL) {
       const {y} = this.#data.textData[this.#data.textData.length - 1]
-      totalWidth = shapeSize + inner + max(textData.map(value => getTextWidth(value, fontSize)))
+      totalWidth = shapeSize + inner + max(textWidths)
       totalHeight = y - top + maxHeight
     }
     const [offsetX, offsetY] = [width - totalWidth, height - totalHeight]

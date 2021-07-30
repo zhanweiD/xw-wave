@@ -1,4 +1,4 @@
-import createStandardLayout from '../layout/standard'
+import Layout from '../layout'
 
 const titleMapping = {
   rect: '矩形热力图',
@@ -123,6 +123,6 @@ const createSchema = (container, theme, layout, shape) => ({
 })
 
 export default {
-  rectHeatmap: (container, theme) => createSchema(container, theme, createStandardLayout, 'rect'),
-  circleHeatmap: (container, theme) => createSchema(container, theme, createStandardLayout, 'circle'),
+  rectHeatmap: (container, theme) => createSchema(container, theme, Layout.standard(false), 'rect'),
+  circleHeatmap: (container, theme) => createSchema(container, theme, Layout.standard(false), 'circle'),
 }

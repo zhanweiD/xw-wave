@@ -2,10 +2,10 @@ import * as d3 from 'd3'
 import chroma from 'chroma-js'
 import createEvent from '../util/create-event'
 import createLog from '../util/create-log'
-import standardLayout from '../layout/standard'
 import createUuid from '../util/uuid'
 import createDefs from './define'
 import Tooltip from './tooltip'
+import Layout from '../layout'
 import {layerMapping} from '../layer'
 
 // 图表状态
@@ -74,7 +74,7 @@ export default class Wave {
     tooltip = {},
     theme = ['white', 'black'],
     baseFontSize = 1,
-    layout = standardLayout,
+    layout = Layout.standard,
     coordinate = coordinateType.CARTESIAN_BAND_LINEAR,
   }) {
     // 初始化状态和容器
@@ -112,7 +112,7 @@ export default class Wave {
     this.#tooltip = new Tooltip(this.#container, tooltip)
 
     // 初始化布局信息
-    this.#layout = ((typeof layout === 'function' && layout) || standardLayout)({
+    this.#layout = layout({
       containerWidth: this.#containerWidth,
       containerHeight: this.#containerHeight,
       padding: this.#padding,

@@ -1,4 +1,4 @@
-import standardLayout from '../layout/standard'
+import Layout from '../layout'
 import {createTreeData} from './mock'
 
 // 柱状图配置数据生成
@@ -66,6 +66,6 @@ const createSchema = (container, theme, layout, type) => {
 }
 
 export default {
-  horizontalTree: (container, theme) => createSchema(container, theme, standardLayout, 'horizontal'),
-  verticalTree: (container, theme) => createSchema(container, theme, standardLayout, 'vertical'),
+  horizontalTree: (container, theme) => createSchema(container, theme, Layout.standard(false), 'horizontal'),
+  verticalTree: (container, theme) => createSchema(container, theme, Layout.standard(false), 'vertical'),
 }
