@@ -147,6 +147,10 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
               return elData
             },
           },
+          bgRect: {
+            fill: 'gray',
+            fillOpacity: 0.3,
+          },
           text: {
             fontSize: 10,
             enableUpdateAnimation: true,

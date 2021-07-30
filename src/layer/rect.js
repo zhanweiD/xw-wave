@@ -41,8 +41,11 @@ const defaultStyle = {
   paddingInner: 0,
   labelPosition: labelPositionType.CENTER,
   labelOffset: 5,
-  rect: {},
   text: {},
+  rect: {},
+  bgRect: {
+    fill: 'none',
+  },
 }
 
 export default class RectLayer extends LayerBase {
@@ -53,6 +56,8 @@ export default class RectLayer extends LayerBase {
   #style = defaultStyle
 
   #rectData = []
+
+  #bgRectData = []
 
   #textData = []
 
@@ -70,7 +75,7 @@ export default class RectLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'text'])
+    super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'bgRect', 'text'])
     const {type, mode} = this.options
     this.className = `wave-${mode}-${type}`
     this.tooltipTargets = ['rect']
@@ -135,6 +140,13 @@ export default class RectLayer extends LayerBase {
         height: Math.abs(scaleY(value) - scaleY(0)),
       }))
     })
+    // 矩形背景
+    this.#bgRectData = pureTableList.map(([dimension]) => [{
+      x: layout.left + scaleX(dimension),
+      y: layout.top,
+      width: scaleX.bandwidth(),
+      height: scaleY.range()[0],
+    }])
     // 堆叠柱状数据变更
     if (mode === modeType.STACK) {
       this.#rectData = this.#rectData.map(groupData => groupData.reduce((prev, cur, index) => {
@@ -176,13 +188,18 @@ export default class RectLayer extends LayerBase {
       const firstRect = this.#rectData[0][0]
       const offset = isArray(firstRect.value) ? Math.abs(scaleY(0) - scaleY(firstRect.value[0])) : 0
       const zeroY = firstRect.y + firstRect.height + offset
-      this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, height, width, value, ...other}) => ({
-        value, 
+      this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, height, width, ...other}) => ({
         width: height, 
         height: width,
         y: x - layout.left + layout.top, 
         x: zeroY - height - y + layout.left,
         ...other,
+      })))
+      this.#bgRectData = this.#bgRectData.map(groupData => groupData.map(({x, y, height, width}) => ({
+        width: height, 
+        height: width,
+        y: x - layout.left + layout.top, 
+        x: y - layout.top + layout.left,
       })));
       [this.#scale.scaleX, this.#scale.scaleY] = [this.#scale.scaleY, this.#scale.scaleX]
       if (this.#scale.scaleX.range()[0] > this.#scale.scaleX.range()[1]) {
@@ -277,11 +294,17 @@ export default class RectLayer extends LayerBase {
       const transformOrigin = type === waveType.COLUMN ? 'bottom' : 'left'
       return {data, source, position, transformOrigin, ...this.#style.rect, fill}
     })
+    const bgRect = this.#bgRectData.map(groupData => {
+      const data = groupData.map(({width, height}) => [width, height])
+      const position = groupData.map(({x, y}) => [x, y])
+      return {data, position, ...this.#style.bgRect}
+    })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)
       const position = groupData.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
+    this.drawBasic('rect', bgRect, 'bgRect')
     this.drawBasic('rect', rectData)
     this.drawBasic('text', textData)
   }
