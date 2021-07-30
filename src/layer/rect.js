@@ -10,11 +10,11 @@ const waveType = {
 
 // 元素组合方式
 const modeType = {
-  DEFAULT: 'default', // 覆盖
   GROUP: 'group', // 分组
   STACK: 'stack', // 堆叠
   INTERVAL: 'interval', // 区间
   WATERFALL: 'waterfall', // 瀑布
+  DEFAULT: 'default', // 覆盖
 }
 
 // 默认选项
@@ -97,115 +97,170 @@ export default class RectLayer extends LayerBase {
     return data
   }
 
-  // 传入列表类，第一列数据要求为纬度数据列
+  // 第一列数据要求为维度数据列
   setData(tableList, scales = {}) {
+    const {type} = this.options
     this.#data = (tableList && this.#filter(tableList)) || this.#data
-    const {type, mode, layout} = this.options
+    // 调用不同的方法生成基础绘图数据
+    if (type === waveType.COLUMN) {
+      this.#setColumnData(scales)
+    } else if (type === waveType.BAR) {
+      this.#setBarData(scales)
+    }
+    // 根据模式转换绘图数据
+    this.#transform()
+  }
+
+  // 柱状数据生成
+  #setColumnData = (scales = {}) => {
+    const {mode, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
-    // 条形图比例尺对外参数和对内参数不一致
-    if (type === waveType.BAR) {
-      [this.#scale.scaleX, this.#scale.scaleY] = [this.#scale.scaleY, this.#scale.scaleX];
-      [scales.scaleX, scales.scaleY] = [scales.scaleY, scales.scaleX]
-      if (this.#scale.scaleY?.range()[0] < this.#scale.scaleY?.range()[1]) {
-        this.#scale.scaleY.range(this.#scale.scaleY.range().reverse())
-      }
-    }
     // 初始化比例尺
     this.#scale.nice = {zero: true, ...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'band',
         domain: this.#data.select(headers[0]).data[0].list,
-        range: type === waveType.COLUMN ? [0, layout.width] : [0, layout.height],
+        range: [0, layout.width],
         nice: this.#scale.nice,
       }),
       scaleY: new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
-        range: type === waveType.COLUMN ? [layout.height, 0] : [layout.width, 0],
+        range: [layout.height, 0],
         nice: this.#scale.nice,
       }),
-    }, this.#scale, {...scales, scaleY: scales.scaleY?.range(this.#scale.scaleY?.range())})
+    }, this.#scale, scales)
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
     const {scaleX, scaleY} = this.#scale
-    this.#rectData = pureTableList.map(([dimension, ...values]) => {
-      return values.map((value, i) => ({
-        value,
-        dimension,
-        category: headers[i + 1],
-        x: layout.left + scaleX(dimension),
-        y: layout.top + (value > 0 ? scaleY(value) : scaleY(0)),
-        width: scaleX.bandwidth(),
-        height: Math.abs(scaleY(value) - scaleY(0)),
-      }))
-    })
+    this.#rectData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
+      value,
+      dimension,
+      category: headers[i + 1],
+      x: layout.left + scaleX(dimension),
+      y: layout.top + (value > 0 ? scaleY(value) : scaleY(0)),
+      width: scaleX.bandwidth(),
+      height: Math.abs(scaleY(value) - scaleY(0)),
+    })))
     // 矩形背景
     this.#bgRectData = pureTableList.map(([dimension]) => [{
       x: layout.left + scaleX(dimension),
       y: layout.top,
       width: scaleX.bandwidth(),
-      height: scaleY.range()[0],
+      height: layout.height,
     }])
-    // 堆叠柱状数据变更
+  }
+
+  // 条形数据生成
+  #setBarData = (scales = {}) => {
+    const {mode, layout} = this.options
+    const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
+    const headers = this.#data.data.map(({header}) => header)
+    // 初始化比例尺
+    this.#scale.nice = {zero: true, ...this.#scale.nice, ...scales.nice}
+    this.#scale = this.createScale({
+      scaleX: new Scale({
+        type: 'linear',
+        domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
+        range: [0, layout.width],
+        nice: this.#scale.nice,
+      }),
+      scaleY: new Scale({
+        type: 'band',
+        domain: this.#data.select(headers[0]).data[0].list,
+        range: [0, layout.height],
+        nice: this.#scale.nice,
+      }),
+    }, this.#scale, scales)
+    // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
+    const {scaleX, scaleY} = this.#scale
+    this.#rectData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
+      value,
+      dimension,
+      category: headers[i + 1],
+      y: layout.top + scaleY(dimension),
+      x: layout.left + (value < 0 ? scaleX(value) : scaleX(0)),
+      height: scaleY.bandwidth(),
+      width: Math.abs(scaleX(value) - scaleX(0)),
+    })))
+    // 矩形背景
+    this.#bgRectData = pureTableList.map(([dimension]) => [{
+      x: layout.left,
+      y: layout.top + scaleY(dimension),
+      width: layout.width,
+      height: scaleY.bandwidth(),
+    }])
+  }
+
+  // 数据变换
+  #transform = () => {
+    let transformedData = this.#rectData
+    const {type, mode} = this.options
+    // 堆叠数据变更
     if (mode === modeType.STACK) {
-      this.#rectData = this.#rectData.map(groupData => groupData.reduce((prev, cur, index) => {
-        return [...prev, {...cur, y: prev[index].y - cur.height}]
-      }, [{y: groupData[0].y + groupData[0].height}]).slice(1))
-    }
-    // 分组柱状数据变更
-    if (mode === modeType.GROUP) {
-      const columnNumber = this.#rectData[0].length
-      this.#rectData = this.#rectData.map(groupData => groupData.reduce((prev, cur, index) => {
-        return [...prev, {...cur, 
-          x: prev[index].x + cur.width / columnNumber, 
-          width: cur.width / columnNumber,
-        }]
-      }, [{x: groupData[0].x - groupData[0].width / columnNumber}]).slice(1))
-    }
-    // 区间柱状数据变更
-    if (mode === modeType.INTERVAL) {
-      this.#rectData = this.#rectData.map(groupData => {
-        const data1 = groupData[0]
-        const data2 = groupData[1]
-        const [min, max] = [Math.min(data1.value, data2.value), Math.max(data1.value, data2.value)]
-        const y = Math.min(data1.y, data2.y)
-        const height = Math.abs(data1.y - data2.y)
-        return [{...data1, y, height, value: [min, max]}]
-      })
-    }
-    // 瀑布柱状数据变更，最后一列为总值
-    if (mode === modeType.WATERFALL) {
-      this.#rectData = this.#rectData.reduce((prev, cur) => {
-        return [...prev, [{...cur[0], y: prev[prev.length - 1][0].y - cur[0].height}]]
-      }, [[{y: this.#rectData[0][0].y + this.#rectData[0][0].height}]]).slice(1)
-      // 最后一个柱子需要特殊处理
-      const {y, height} = this.#rectData[this.#rectData.length - 1][0]
-      this.#rectData[this.#rectData.length - 1][0].y = y + height
-    }
-    // 矩形到条形的数据转换，同时更新比例尺
-    if (type === waveType.BAR) {
-      const firstRect = this.#rectData[0][0]
-      const offset = isArray(firstRect.value) ? Math.abs(scaleY(0) - scaleY(firstRect.value[0])) : 0
-      const zeroY = firstRect.y + firstRect.height + offset
-      this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, height, width, ...other}) => ({
-        width: height, 
-        height: width,
-        y: x - layout.left + layout.top, 
-        x: zeroY - height - y + layout.left,
-        ...other,
-      })))
-      this.#bgRectData = this.#bgRectData.map(groupData => groupData.map(({x, y, height, width}) => ({
-        width: height, 
-        height: width,
-        y: x - layout.left + layout.top, 
-        x: y - layout.top + layout.left,
-      })));
-      [this.#scale.scaleX, this.#scale.scaleY] = [this.#scale.scaleY, this.#scale.scaleX]
-      if (this.#scale.scaleX.range()[0] > this.#scale.scaleX.range()[1]) {
-        this.#scale.scaleX.range(this.#scale.scaleX.range().reverse())
+      if (type === waveType.COLUMN) {
+        transformedData.forEach(groupData => groupData.forEach((item, i) => {
+          i !== 0 && (item.y = groupData[i - 1].y - item.height)
+        }))
+      } else if (type === waveType.BAR) {
+        transformedData.forEach(groupData => groupData.forEach((item, i) => {
+          i !== 0 && (item.x = groupData[i - 1].x + groupData[i - 1].width)
+        }))
       }
     }
+    // 分组数据变更
+    if (mode === modeType.GROUP) {
+      const columnNumber = transformedData[0].length
+      if (type === waveType.COLUMN) {
+        transformedData.forEach(groupData => groupData.forEach((item, i) => {
+          item.width /= columnNumber
+          i !== 0 && (item.x = groupData[i - 1].x + groupData[i - 1].width)
+        }))
+      } else if (type === waveType.BAR) {
+        transformedData.forEach(groupData => groupData.forEach((item, i) => {
+          item.height /= columnNumber
+          i !== 0 && (item.y = groupData[i - 1].y + groupData[i - 1].height)
+        }))
+      }
+    }
+    // 区间数据变更
+    if (mode === modeType.INTERVAL) {
+      transformedData = transformedData.map(groupData => {
+        const [data1, data2] = [groupData[0], groupData[1]]
+        const [min, max] = [Math.min(data1.value, data2.value), Math.max(data1.value, data2.value)]
+        if (type === waveType.COLUMN) {
+          const y = Math.min(data1.y, data2.y)
+          const height = Math.abs(data1.y - data2.y)
+          return [{...data1, y, height, value: [min, max]}]
+        }
+        if (type === waveType.BAR) {
+          const x = Math.min(data1.x + data1.width, data2.x + data2.width)
+          const width = Math.abs(data1.x + data1.width - data2.x - data2.width)
+          return [{...data1, x, width, value: [min, max]}]
+        }
+        return groupData
+      })
+    }
+    // 瀑布数据变更，最后一列为总值
+    if (mode === modeType.WATERFALL) {
+      if (type === waveType.COLUMN) {
+        transformedData.forEach((groupData, i) => groupData.forEach(item => {
+          i !== 0 && (item.y = transformedData[i - 1][0].y - item.height)
+        }))
+        // 最后一个柱子需要特殊处理
+        const {y, height} = transformedData[transformedData.length - 1][0]
+        transformedData[transformedData.length - 1][0].y = y + height
+      } else if (type === waveType.BAR) {
+        transformedData.forEach((groupData, i) => groupData.forEach(item => {
+          i !== 0 && (item.x = transformedData[i - 1][0].x + transformedData[i - 1][0].width)
+        }))
+        // 最后一个柱子需要特殊处理
+        const {x, width} = transformedData[transformedData.length - 1][0]
+        transformedData[transformedData.length - 1][0].x = x - width
+      }
+    }
+    this.#rectData = transformedData
   }
 
   // 获取标签坐标
