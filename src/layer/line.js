@@ -180,7 +180,7 @@ export default class LineLayer extends LayerBase {
     })
     const areaData = this.#areaData[0].map(({color}, index) => {
       const position = this.#areaData.map(item => [item[index].x, item[index].y0, item[index].y1])
-      return {position: [position], ...this.#style.area, fill: color}
+      return {position: this.#fallbackFilter(position), ...this.#style.area, fill: color}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)

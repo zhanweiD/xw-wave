@@ -241,7 +241,7 @@ export default class LegendLayer extends LayerBase {
     const {fontSize, format} = this.#style.text
     const [inner, outer] = gap
     const maxHeight = max([shapeSize, fontSize])
-    const shapeWidth = maxHeight * 2
+    const shapeWidth = shapeSize * 2
     // 清空衍生数据
     this.#data.rectData = []
     this.#data.circleData = []
@@ -275,8 +275,8 @@ export default class LegendLayer extends LayerBase {
       totalHeight = maxHeight
     } else if (direction === directionType.VERTICAL) {
       const {y} = this.#data.textData[this.#data.textData.length - 1]
-      totalWidth = shapeSize * 2 + inner + max(textWidths)
-      totalHeight = y - top
+      totalWidth = shapeWidth + inner + max(textWidths)
+      totalHeight = y - fontSize / 2 + maxHeight / 2 - top
     }
     const [offsetX, offsetY] = [width - totalWidth, height - totalHeight]
     const [isHorizontalMiddle, isHorizontalEnd] = [align === alignType.MIDDLE, align === alignType.END]

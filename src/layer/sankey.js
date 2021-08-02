@@ -138,7 +138,7 @@ export default class SankeyLayer extends LayerBase {
         const moveY = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
         groupData.forEach(item => item.y += moveY)
       } else if (type === directionType.VERTICAL) {
-        const offset = layout.left + layout.width - tailNode.y - tailNode.height
+        const offset = layout.top + layout.width - tailNode.y - tailNode.height
         const moveX = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
         groupData.forEach(item => item.y += moveX)
       }
