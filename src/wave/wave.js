@@ -74,7 +74,7 @@ export default class Wave {
     tooltip = {},
     theme = ['white', 'black'],
     baseFontSize = 1,
-    layout = Layout.standard,
+    layout = Layout.standard(false),
     coordinate = coordinateType.CARTESIAN_BAND_LINEAR,
   }) {
     // 初始化状态和容器
