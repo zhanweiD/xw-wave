@@ -100,7 +100,7 @@ export default class LayerBase {
   createStyle(defaultStyle, currentStyle, incomingStyle) {
     const {baseFontSize} = this.options
     const style = merge({}, defaultStyle, currentStyle, incomingStyle)
-    const keys = Object.keys(style)
+    const keys = Object.keys(incomingStyle)
     // 统一缩放字号
     keys.forEach(key => {
       if (key.search(/text/i) !== -1 && style[key].fontSize) {
