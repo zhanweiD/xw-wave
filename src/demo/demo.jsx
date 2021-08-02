@@ -13,7 +13,7 @@ import chordSchema from './chord'
 import sankeySchema from './sankey'
 import treeSchema from './tree'
 import columnFacetSchema from './column-facet'
-import {createWave} from '../parser'
+import {createWave} from '../wave'
 import s from './demo.module.css'
 
 const themeMapping = {

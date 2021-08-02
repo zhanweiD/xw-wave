@@ -1,5 +1,5 @@
 import {isArray} from 'lodash'
-import Wave from '../wave'
+import Wave from './wave'
 import DataBase from '../data/base'
 import TableList from '../data/table-list'
 import Table from '../data/table'
@@ -42,7 +42,7 @@ const createLayer = (wave, config) => {
 }
 
 // 根据配置创建一个新的图表
-function createWave(schema, existedWave) {
+const createWave = (schema, existedWave) => {
   const {brush, layers, ...initialConfig} = schema
   const wave = existedWave || new Wave(initialConfig)
   // 有些层比较特殊，需要依赖其他图层的数据或者比例尺
