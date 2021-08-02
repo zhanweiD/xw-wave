@@ -18,7 +18,7 @@ export default class Relation extends DataBase {
    */
   update(nodeTableList, linkTableList) {
     if (!this.isLegalData('relation', nodeTableList, linkTableList)) {
-      this.warn('数据结构错误', {nodeTableList, linkTableList})
+      this.log.error('数据结构错误', {nodeTableList, linkTableList})
     } else {
       const findNode = key => nodeTableList[0].findIndex(value => value === key)
       const [nodeIdIndex, nodeNameIndex, nodeValueIndex, nodeCategoryIndex] = [

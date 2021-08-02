@@ -51,7 +51,7 @@ export default class Table extends DataBase {
     }
     // 校验是否符合规范
     if (!this.isLegalData('table', table)) {
-      this.warn('表格数据结构错误', table)
+      this.log.error('表格数据结构错误', table)
     } else {
       this.data = table
     }
@@ -67,7 +67,7 @@ export default class Table extends DataBase {
     data.forEach(item => {
       if ((target === targetType.ROW && item.length !== this.data[0].length)
         || (target === targetType.COLUMN && item.length !== this.data[1].length)) {
-        this.warn('数据长度与当前列表不匹配')
+        this.log.error('数据长度与当前列表不匹配')
       } else {
         data.forEach(([dimension, ...values]) => {
           if (target === targetType.ROW) {

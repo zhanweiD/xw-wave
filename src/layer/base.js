@@ -37,7 +37,7 @@ export default class LayerBase {
     this.root = null
     this.className = null
     this.#createEvent()
-    this.event = createEvent(__filename)
+    this.event = createEvent('src/layer/base')
     this.warn = (text, data) => this.options.warn(text, data)
     this.subLayers.forEach(name => this.#backupData[name] = [])
     this.playAnimation = () => this.subLayers.forEach(type => this.#backupAnimation[type]?.play())

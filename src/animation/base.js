@@ -14,16 +14,14 @@ export default class AnimationBase {
     // 初始化 options
     const options = merge({context}, defaultOptions, incomingOptions)
     const {targets} = options
-    if (targets && typeof targets === 'string') {
-      // class 作为 targets
+    if (targets && typeof targets === 'string') { // class
       merge(options, {className: targets, targets: context.selectAll(targets)._groups[0]})
     } else if (targets && targets.constructor.name === 'Selection') {
-      // d3 Selection 作为 targets
       merge(options, {targets: targets._groups[0]})
     }
     this.options = options
-    this.event = createEvent(__filename)
-    this.log = createLog(__filename)
+    this.log = createLog('src/animation/base')
+    this.event = createEvent('src/animation/base')
   }
 
   // 生命周期钩子：控制动画执行

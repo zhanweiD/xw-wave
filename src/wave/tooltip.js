@@ -29,7 +29,7 @@ export default class Tooltip {
     this.isMoving = false
     this.isVisible = false
     this.isAvailable = false
-    this.log = createLog(__filename)
+    this.log = createLog('src/wave/tooltip')
     this.options = merge({}, defaultOptions, options)
     this.lastPosition = {x: -100, y: -100}
     // 根容器

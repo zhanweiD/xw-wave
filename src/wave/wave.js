@@ -122,8 +122,8 @@ export default class Wave {
     this.theme = theme
     this.coordinate = coordinate
     this.baseFontSize = baseFontSize
-    this.event = createEvent(__filename)
-    this.log = createLog(__filename)
+    this.log = createLog('src/wave/wave')
+    this.event = createEvent('src/wave/wave')
     createDefs({schema: define, container: this.#defs})
   }
 
@@ -208,10 +208,10 @@ export default class Wave {
     // 暴露给图层的上下文环境
     const context = {
       root: this.#root,
+      tooltip: this.#tooltip,
+      baseFontSize: this.baseFontSize,
       containerWidth: this.#containerWidth,
       containerHeight: this.#containerHeight,
-      baseFontSize: this.baseFontSize,
-      tooltip: this.#tooltip,
       warn: this.warn.bind(this),
       getColor: this.getColor.bind(this),
       createGradient: this.#createGradient.bind(this),

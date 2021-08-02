@@ -76,7 +76,7 @@ export default class TableList extends DataBase {
    */
   update(tableList, options = {}) {
     if (!this.isLegalData('list', tableList)) {
-      this.warn('列表数据结构错误', tableList)
+      this.log.error('列表数据结构错误', tableList)
     } else {
       // 类内部用对象表示数据
       const updateData = tableList[0].map((header, index) => ({
@@ -105,7 +105,7 @@ export default class TableList extends DataBase {
   push(...rows) {
     rows.forEach(row => {
       if (row.length !== this.data.length) {
-        this.warn('数据长度与当前列表不匹配', row)
+        this.log.error('数据长度与当前列表不匹配', row)
       } else {
         row.forEach((value, i) => this.data[i].list.push(value))
       }
