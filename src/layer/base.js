@@ -71,16 +71,16 @@ export default class LayerBase {
    * 返回统一处理后的比例尺
    * @param {Object} defaultScale 默认比例尺，由数据计算而来
    * @param {Object} currentScale 当前比例尺
-   * @param {Object} incomingStyle 传入比例尺
+   * @param {Object} incomingScale 传入比例尺
    * @returns 
    */
-  createScale(defaultScale, currentScale, incomingStyle) {
-    const nice = merge(defaultScale?.nice, currentScale?.nice, incomingStyle?.nice)
+  createScale(defaultScale, currentScale, incomingScale = {}) {
+    const nice = merge(defaultScale?.nice, currentScale?.nice, incomingScale?.nice)
     const scale = {nice}
     // 比例尺的命名是固定不变的
     scaleTypes.forEach(type => {
       // 由于目前的比例尺策略是由坐标轴统一控制，所以图层数据计算的比例尺优先级最低
-      scale[type] = incomingStyle[type] || defaultScale[type] || currentScale[type]
+      scale[type] = incomingScale[type] || defaultScale[type] || currentScale[type]
       // 笔刷更改了当前比例尺的值域，这个值域需要继承
       if (currentScale[type]?.brushed) {
         scale[type].range(currentScale[type].range())
@@ -97,7 +97,7 @@ export default class LayerBase {
    * @param {Object} incomingStyle 传入样式
    * @returns 新的样式
    */
-  createStyle(defaultStyle, currentStyle, incomingStyle) {
+  createStyle(defaultStyle, currentStyle, incomingStyle = {}) {
     const {baseFontSize} = this.options
     const style = merge({}, defaultStyle, currentStyle, incomingStyle)
     const keys = Object.keys(incomingStyle)
