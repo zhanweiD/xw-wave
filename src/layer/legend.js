@@ -275,8 +275,8 @@ export default class LegendLayer extends LayerBase {
       totalHeight = maxHeight
     } else if (direction === directionType.VERTICAL) {
       const {y} = this.#data.textData[this.#data.textData.length - 1]
-      totalWidth = shapeSize + inner + max(textWidths)
-      totalHeight = y - top + maxHeight
+      totalWidth = shapeSize * 2 + inner + max(textWidths)
+      totalHeight = y - top
     }
     const [offsetX, offsetY] = [width - totalWidth, height - totalHeight]
     const [isHorizontalMiddle, isHorizontalEnd] = [align === alignType.MIDDLE, align === alignType.END]
@@ -290,7 +290,7 @@ export default class LegendLayer extends LayerBase {
     this.#data.shape.forEach((value, i) => this.#createShape({
       shape: value,
       size: shapeSize,
-      x: this.#data.textData[i].x,
+      x: this.#data.textData[i].x - inner,
       y: this.#data.textData[i].y - fontSize / 2,
       color: this.#data.shapeColors[i],
     }))
