@@ -5,8 +5,14 @@ import createLog from '../util/create-log'
 export default class DataBase {
   #storage = {}
 
+  // 初始化数据，order 定义每组数据的优先级，可以决定颜色的选取顺序
+  constructor(options) {
+    this.options = merge({order: null}, options)
+    this.log = createLog('src/data/base')
+  }
+
   // 是否为列表数据
-  static isTableList = tableList => {
+  isTableList = tableList => {
     if (!Array.isArray(tableList) 
       || tableList.length === 0 
       || tableList.findIndex(item => !Array.isArray(item)) !== -1
@@ -17,46 +23,58 @@ export default class DataBase {
   }
 
   // 是否为表格数据
-  static isTable = table => {
+  isTable = table => {
     if (!Array.isArray(table) 
       || table.length < 3 
       || table.findIndex(item => !Array.isArray(item)) !== -1
-      || !DataBase.isTableList(table[2])) {
+      || !this.isTableList(table[2])) {
       return false
     }
     return true
   }
 
   // 是否为关系型数据
-  static isRelation = (nodeTableList, linkTableList) => {
-    if (!DataBase.isTableList(nodeTableList) || !DataBase.isTableList(linkTableList)) {
+  isRelation = (nodeTableList, linkTableList) => {
+    if (!this.isTableList(nodeTableList) || !this.isTableList(linkTableList)) {
       return false
     }
     return true
   }
 
   // 列表转表格
-  static tableListToTable = tableList => {
-    if (!DataBase.isTableList(tableList) || tableList[0].length !== 3) {
+  tableListToTable = tableList => {
+    if (!this.isTableList(tableList) || tableList[0].length !== 3) {
       return false
     }
     try {
-      const originNodes = tableList.slice(1).reduce((prev, cur) => [...prev, cur[0], cur[1]], [])
-      const nodes = Array.from(new Set(originNodes))
-      return [nodes, nodes, nodes.map(row => nodes.map(column => {
-        const items = tableList.filter(item => item[0] === row && item[1] === column)
-        return items.reduce((prev, cur) => prev + cur[2], 0)
+      const rows = Array.from(new Set(tableList.slice(1).map(item => item[0])))
+      const columns = Array.from(new Set(tableList.slice(1).map(item => item[1])))
+      return [rows, columns, rows.map(row => columns.map(column => {
+        return tableList.find(item => item[0] === row && item[1] === column)[2]
       }))]
     } catch (error) {
-      console.error('列表转表格失败\n', error)
+      this.log.error('列表转表格失败\n', error)
       return tableList
     }
   }
 
-  // 初始化数据，order 定义每组数据的优先级，可以决定颜色的选取顺序
-  constructor(options) {
-    this.options = merge({order: null}, options)
-    this.log = createLog('src/data/base')
+  // 关系转表格
+  relationToTable = (nodeTableList, linkTableList) => {
+    if (!this.isTableList(nodeTableList) || !this.isTableList(linkTableList)) {
+      return false
+    }
+    try {
+      const idIndex = nodeTableList[0].findIndex(key => key === 'id')
+      const fromIndex = linkTableList[0].findIndex(key => key === 'from')
+      const toIndex = linkTableList[0].findIndex(key => key === 'to')
+      const nodes = Array.from(new Set(nodeTableList.slice(1).map(item => item[idIndex])))
+      return [nodes, nodes, nodes.map(row => nodes.map(column => {
+        return linkTableList.find(item => item[fromIndex] === row && item[toIndex] === column).value
+      }))]
+    } catch (error) {
+      this.log.error('关系表转表格失败\n', error)
+      return [nodeTableList, linkTableList]
+    }
   }
 
   /**
@@ -65,13 +83,13 @@ export default class DataBase {
    */
   isLegalData(type, ...data) {
     if (type === 'list') {
-      return DataBase.isTableList(...data)
+      return this.isTableList(...data)
     } 
     if (type === 'table') {
-      return DataBase.isTable(...data)
+      return this.isTable(...data)
     } 
     if (type === 'relation') {
-      return DataBase.isRelation(...data)
+      return this.isRelation(...data)
     }
     return false
   }

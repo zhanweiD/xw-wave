@@ -47,7 +47,7 @@ export default class Table extends DataBase {
   update(table) {
     // 列表到表格的数据转换
     if (!this.isLegalData('table', table) && this.isLegalData('tableList', table)) {
-      table = DataBase.tableListToTable(table)
+      table = this.tableListToTable(table)
     }
     // 校验是否符合规范
     if (!this.isLegalData('table', table)) {

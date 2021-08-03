@@ -10,6 +10,7 @@ import Relation from '../data/relation'
 const isAxisLayer = layerType => layerType === 'axis'
 const isLegendLayer = layerType => layerType === 'legend'
 const isNormalLayer = layerType => !isAxisLayer(layerType) && !isLegendLayer(layerType)
+const dataBase = new DataBase()
 
 // 根据配置创建一个图层
 const createLayer = (wave, config) => {
@@ -19,15 +20,19 @@ const createLayer = (wave, config) => {
   let dataSet = data
   if (type === 'legend') {
     dataSet = wave.layer.filter(({instance}) => instance.data instanceof TableList).map(({instance}) => instance)
-  } else if (isArray(data) && data.length === 2 && DataBase.isRelation(data[0], data[1])) {
-    dataSet = new Relation(data[0], data[1])
-  } else if (DataBase.isTable(data) || data?.type === 'table') {
-    dataSet = new Table(DataBase.isTable(data) ? data : Random.table(data))
-  } else if (DataBase.isTableList(data) || data?.type === 'tableList') {
-    if (type === 'matrix' || type === 'chord') {
-      dataSet = new Table(DataBase.isTableList(data) ? DataBase.tableListToTable(data) : Random.tableList(data))
+  } else if (dataBase.isTable(data) || data?.type === 'table') {
+    dataSet = new Table(dataBase.isTable(data) ? data : Random.table(data))
+  } else if (isArray(data) && data.length === 2 && dataBase.isRelation(data[0], data[1])) {
+    if (type === 'chord') {
+      dataSet = new Table(dataBase.relationToTable(data[0], data[1]))
     } else {
-      dataSet = new TableList(DataBase.isTableList(data) ? data : Random.tableList(data))
+      dataSet = new Relation(data[0], data[1])
+    }
+  } else if (dataBase.isTableList(data) || data?.type === 'tableList') {
+    if (type === 'matrix') {
+      dataSet = new Table(dataBase.tableListToTable(data))
+    } else {
+      dataSet = new TableList(dataBase.isTableList(data) ? data : Random.tableList(data))
     }
   } 
   // 设置图层的数据，第二个参数为比例尺配置
