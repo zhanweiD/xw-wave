@@ -92,7 +92,7 @@ export default class LineLayer extends LayerBase {
     const headers = this.#data.data.map(({header}) => header)
     const {width, height, top, left} = layout
     // 初始化比例尺
-    this.#scale.nice = {zero: true, ...this.#scale.nice, ...scales.nice}
+    this.#scale.nice = {...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'band',

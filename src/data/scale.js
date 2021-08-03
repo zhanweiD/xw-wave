@@ -81,7 +81,7 @@ export default function Scale({type, domain, range, nice = defaultNice}) {
  * @param {Scale} scale
  * @returns 包含 0 的比例尺
  */
-const extendZero = scale => {
+export const extendZero = scale => {
   let [start, end] = scale.domain()
   if (start < end) {
     if (start > 0) {
@@ -97,7 +97,6 @@ const extendZero = scale => {
     }
   }
   scale.domain([start, end])
-  return scale
 }
 
 /**
@@ -105,7 +104,7 @@ const extendZero = scale => {
  * @param {Scale} scale 比例尺
  * @param {Number} tickCount 刻度线数量
  */
-const niceScale = (scale, tickCount) => {
+export const niceScale = (scale, tickCount) => {
   // 数据同质判断
   let [start, end] = scale.domain()
   if (start === end) {

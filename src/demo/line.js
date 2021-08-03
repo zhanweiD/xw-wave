@@ -91,6 +91,9 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         layout: 'main',
         type: 'cartesian',
       },
+      scale: {
+        zero: mode === 'stack',
+      },
       style: {
       },
     },
@@ -116,7 +119,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         row: 6,
         column: 3,
         mu: 500,
-        sigma: 200,
+        sigma: 50,
         decimalPlace: 1,
       },
       style: {

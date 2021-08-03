@@ -69,7 +69,7 @@ export default class DataBase {
       const toIndex = linkTableList[0].findIndex(key => key === 'to')
       const nodes = Array.from(new Set(nodeTableList.slice(1).map(item => item[idIndex])))
       return [nodes, nodes, nodes.map(row => nodes.map(column => {
-        return linkTableList.find(item => item[fromIndex] === row && item[toIndex] === column).value
+        return linkTableList.find(item => item[fromIndex] === row && item[toIndex] === column)?.value
       }))]
     } catch (error) {
       this.log.error('关系表转表格失败\n', error)

@@ -1,5 +1,7 @@
 import * as d3 from 'd3'
+import {merge} from 'lodash'
 import LayerBase, {scaleTypes} from './base'
+import {extendZero} from '../data/scale'
 
 // 坐标类型，单个或者组合
 const axisType = {
@@ -68,7 +70,7 @@ const getPosition = (type, targetScale) => {
 }
 
 export default class AxisLayer extends LayerBase {
-  #scale = {}
+  #scale = {nice: {}}
 
   #lineData = {
     lineX: [],
@@ -108,6 +110,7 @@ export default class AxisLayer extends LayerBase {
 
   // 比例尺融合，多图层共用坐标轴
   #mergeScale = scales => {
+    merge(this.#scale.nice, scales.nice)
     scaleTypes.forEach(type => {
       if (!scales[type]) return
       if (!this.#scale[type]) {
@@ -123,12 +126,16 @@ export default class AxisLayer extends LayerBase {
           this.#scale[type].domain([start, end])
         }
       }
+      // 拓展比例尺以包括零边界
+      if (this.#scale.nice.zero && this.#scale[type].type === 'linear') {
+        extendZero(this.#scale[type])
+      }
     })
   }
 
   // 传入数据数组和比例尺，辅助线需要外部的比例尺
-  setData(data, scale) {
-    this.#mergeScale(scale)
+  setData(data, scales) {
+    this.#mergeScale(scales)
     const {type, layout, containerWidth} = this.options
     const {left, top, width, height} = layout
     // 清空数据

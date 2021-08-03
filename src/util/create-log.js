@@ -10,7 +10,7 @@ const createLog = file => {
       console.warn(text, `Path: '${filePath}'\n`, data)
     },
     error(text, data = emptyData) {
-      console.error(text, `Path: '${filePath}\n'`, data)
+      console.error(text, `Path: '${filePath}'\n`, data)
     },
     dump() {
       console.log(JSON.stringify(this.get(), null, 4))
