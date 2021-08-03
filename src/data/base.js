@@ -50,7 +50,8 @@ export default class DataBase {
       const rows = Array.from(new Set(tableList.slice(1).map(item => item[0])))
       const columns = Array.from(new Set(tableList.slice(1).map(item => item[1])))
       return [rows, columns, rows.map(row => columns.map(column => {
-        return tableList.find(item => item[0] === row && item[1] === column)[2]
+        const target = tableList.find(item => item[0] === row && item[1] === column)
+        return target ? target[2] : 0
       }))]
     } catch (error) {
       this.log.error('列表转表格失败\n', error)
@@ -65,11 +66,15 @@ export default class DataBase {
     }
     try {
       const idIndex = nodeTableList[0].findIndex(key => key === 'id')
+      const nameIndex = nodeTableList[0].findIndex(key => key === 'name')
       const fromIndex = linkTableList[0].findIndex(key => key === 'from')
       const toIndex = linkTableList[0].findIndex(key => key === 'to')
-      const nodes = Array.from(new Set(nodeTableList.slice(1).map(item => item[idIndex])))
-      return [nodes, nodes, nodes.map(row => nodes.map(column => {
-        return linkTableList.find(item => item[fromIndex] === row && item[toIndex] === column)?.value
+      const valueIndex = linkTableList[0].findIndex(key => key === 'value')
+      const nodeIds = Array.from(new Set(nodeTableList.slice(1).map(item => item[idIndex])))
+      const nodeNames = nodeIds.map(id => nodeTableList.find(item => item[idIndex] === id)[nameIndex])
+      return [nodeNames, nodeNames, nodeIds.map(row => nodeIds.map(column => {
+        const target = linkTableList.find(item => item[fromIndex] === row && item[toIndex] === column)
+        return target ? target[valueIndex] : 0
       }))]
     } catch (error) {
       this.log.error('关系表转表格失败\n', error)
