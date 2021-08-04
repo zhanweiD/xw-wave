@@ -35,10 +35,11 @@ export default class TableList extends DataBase {
     // 列求和的情况
     if (mode === modeType.SUM) {
       if (target === targetType.ROW) {
-        const lists = data.map(({list}) => list).reduce((prev, cur, i) => {
+        let lists = data.map(({list}) => list).reduce((prev, cur, i) => {
           const latest = i === 1 ? [prev] : [...prev]
           return latest.concat([latest[i - 1].map((value, j) => d3.sum([value, cur[j]]))])
         })
+        lists = data.length === 1 ? [lists] : lists
         data = [{
           header: data.map(({header}) => header).join('-'),
           list: lists.length > 0 ? lists[lists.length - 1] : [],
