@@ -22,6 +22,7 @@ const defaultOptions = {
 
 // 默认样式
 const defaultStyle = {
+  nodeWidth: 5,
   nodeGap: 5,
   ribbonGap: 0,
   labelOffset: 5,
@@ -75,19 +76,17 @@ export default class SankeyLayer extends LayerBase {
     const {type, layout} = this.options
     const {width, height} = layout
     const levels = d3.range(0, d3.max(nodes.map(({level}) => level)) + 1)
-    this.#scale.nice = {fixedBandWidth: 5, ...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'band',
         domain: levels,
         range: type === directionType.HORIZONTAL ? [0, width] : [0, height],
-        nice: this.#scale.nice,
+        nice: scales?.nice,
       }),
       scaleY: new Scale({
         type: 'linear',
         domain: [0, 1],
         range: type === directionType.HORIZONTAL ? [0, height] : [0, width],
-        nice: null,
       }),
     }, this.#scale, scales)
     // 根据层级分组节点

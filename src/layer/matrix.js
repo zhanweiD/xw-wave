@@ -55,25 +55,22 @@ export default class MatrixLayer extends LayerBase {
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
-  setData(table, scales = {}) {
+  setData(table, scales) {
     this.#data = table || this.#data
     const {shape, layout} = this.options
     const {left, top, width, height} = layout
     const [rows, columns, pureTable] = [this.#data.data[0], this.#data.data[1], this.#data.data[2]]
     // 初始化比例尺
-    this.#scale.nice = {paddingInner: 0, ...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'band',
         domain: columns,
         range: [0, width],
-        nice: this.#scale.nice,
       }),
       scaleY: new Scale({
         type: 'band',
         domain: rows,
         range: [0, height],
-        nice: this.#scale.nice,
       }),
     }, this.#scale, scales)
     // 计算基础数据
@@ -147,7 +144,6 @@ export default class MatrixLayer extends LayerBase {
         type: 'linear',
         domain: this.#data.range(),
         range: [min, max],
-        nice: null,
       })
       this.#circleData.forEach(groupData => groupData.forEach(item => {
         item.rx = scale(item.value)

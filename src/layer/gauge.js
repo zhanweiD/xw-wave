@@ -92,7 +92,6 @@ export default class GaugeLayer extends LayerBase {
       type: 'linear',
       domain: [minValue, maxValue],
       range: [startAngle, endAngle],
-      nice: null,
     })
     // 指针圆点数据
     this.#circleData = {cx: arcCenter.x, cy: arcCenter.y, rx: pointerSize / 2, ry: pointerSize / 2}

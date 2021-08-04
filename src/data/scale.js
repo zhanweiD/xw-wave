@@ -1,10 +1,10 @@
-import {isFunction, isNumber} from 'lodash'
+import {isNumber} from 'lodash'
 import * as d3 from 'd3'
 
 const defaultNice = {
-  count: 5, // 优化的刻度数量
+  count: 0, // 优化的刻度数量
   zero: false, // 定义域是否包含 0
-  paddingInner: 0.382, // band 比例尺间距占比
+  paddingInner: 0, // band 比例尺间距占比
   fixedPaddingInner: null, // band 比例尺固定间距
   fixedBandWidth: null, // band 比例尺固定带宽
   fixedBoundary: 'start', // band 比例尺吸附边界
@@ -13,14 +13,11 @@ const defaultNice = {
 // 基于 d3 做一些比例尺的定制，方便图表操作
 export default function Scale({type, domain, range, nice = defaultNice}) {
   let scale
-  // 获取正确的定义域和值域
-  const realDomain = isFunction(domain) ? domain() : domain
-  const realRange = isFunction(range) ? range() : range
   // 离散到连续
   if (type === 'band') {
-    scale = d3.scaleBand().domain(realDomain).range(realRange)
+    scale = d3.scaleBand().domain(domain).range(range)
     // band 比例尺支持调整比例和固定值
-    if (isNumber(nice?.fixedBandWidth) && isNumber(nice?.fixedPaddingInner)) {
+    if (isNumber(nice.fixedBandWidth) && isNumber(nice.fixedPaddingInner)) {
       const {fixedBandWidth, fixedPaddingInner, fixedBoundary} = nice
       const totalRange = fixedBandWidth * domain.length + fixedPaddingInner * (domain.length - 1)
       const offset = (totalRange - Math.abs(range[1] - range[0])) * (range[1] > range[0] ? 1 : -1)
@@ -28,10 +25,10 @@ export default function Scale({type, domain, range, nice = defaultNice}) {
       // 无自适应，调整修改值域
       scale.range([fixedEnd ? range[0] - offset : range[0], fixedStart ? range[1] + offset : range[1]])
       scale.paddingInner(fixedPaddingInner / (fixedPaddingInner + fixedBandWidth))
-    } else if (isNumber(nice?.fixedBandWidth)) {
+    } else if (isNumber(nice.fixedBandWidth)) {
       // 只固定带宽，间距自适应
       scale.paddingInner(1 - (nice.fixedBandWidth * domain.length) / Math.abs(range[1] - range[0]))
-    } else if (isNumber(nice?.fixedPaddingInner)) {
+    } else if (isNumber(nice.fixedPaddingInner)) {
       // 只固定间距，带宽自适应
       scale.paddingInner((nice.fixedPaddingInner * (domain.length - 1)) / Math.abs(range[1] - range[0]))
     } else if (nice) {
@@ -41,23 +38,23 @@ export default function Scale({type, domain, range, nice = defaultNice}) {
   }
   // 离散到连续，bind 的变体，bandwidth 为 0
   if (type === 'point') {
-    scale = d3.scalePoint().domain(realDomain).range(realRange)
+    scale = d3.scalePoint().domain(domain).range(range)
   }
   // 离散到离散
   if (type === 'ordinal') {
-    scale = d3.scaleOrdinal().domain(realDomain).range(realRange)
+    scale = d3.scaleOrdinal().domain(domain).range(range)
   }
   // 连续到离散
   if (type === 'quantize') {
-    scale = d3.scaleQuantize().domain(realDomain).range(realRange)
-    nice?.zero && extendZero(scale)
-    nice?.count && niceScale(scale, nice.count)
+    scale = d3.scaleQuantize().domain(domain).range(range)
+    nice.zero && extendZero(scale)
+    nice.count && niceScale(scale, nice.count)
   }
   // 连续到连续
   if (type === 'linear') {
-    scale = d3.scaleLinear().domain(realDomain).range(realRange)
-    nice?.zero && extendZero(scale)
-    nice?.count && niceScale(scale, nice.count)
+    scale = d3.scaleLinear().domain(domain).range(range)
+    nice.zero && extendZero(scale)
+    nice.count && niceScale(scale, nice.count)
   }
   // 为圆弧定制的比例尺，domain 是一个列表（第一列纬度第二列百分比数值），range 是连续区间（0-360）
   if (type === 'angle') {

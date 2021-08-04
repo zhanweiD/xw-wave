@@ -1,4 +1,3 @@
-/* eslint-disable no-bitwise */
 import * as d3 from 'd3'
 import {isNumber} from 'lodash'
 import LayerBase from './base'
@@ -81,29 +80,26 @@ export default class TreeLayer extends LayerBase {
     const {type, layout} = this.options
     const {width, height} = layout
     const levels = d3.range(0, d3.max(nodes.map(({level}) => level)) + 1)
-    this.#scale.nice = {fixedBandWidth: 5, ...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'point',
         domain: levels,
         range: type === directionType.HORIZONTAL ? [0, width] : [0, height],
-        nice: this.#scale.nice,
       }),
       scaleY: new Scale({
         type: 'linear',
         domain: [0, 1],
         range: type === directionType.HORIZONTAL ? [0, height] : [0, width],
-        nice: null,
       }),
     }, this.#scale, scales)
     // 根据层级分组节点
     this.#data.set('levels', levels)
     this.#data.set('groups', levels.map(value => nodes.filter(({level}) => level === value)))
     // dfs 插入叶子节点的横向顺序
-    let order = 0
+    let order = -1
     const dfs = node => {
       if (node.children.length === 0) {
-        node.order = order++
+        node.order = ++order
       } else {
         node.children.forEach(child => dfs(child))
       }

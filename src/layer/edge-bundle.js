@@ -96,7 +96,6 @@ export default class EdgeBundleLayer extends LayerBase {
       type: 'linear',
       domain: [this.#data.get('minValue'), this.#data.get('maxValue')],
       range: circleSize,
-      nice: null,
     })
     // 圆的大小随数值变化
     this.#circleData.forEach(groupData => groupData.forEach(item => {

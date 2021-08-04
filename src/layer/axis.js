@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 import {merge} from 'lodash'
 import LayerBase, {scaleTypes} from './base'
-import {extendZero} from '../data/scale'
+import Scale from '../data/scale'
 
 // 坐标类型，单个或者组合
 const axisType = {
@@ -70,7 +70,16 @@ const getPosition = (type, targetScale) => {
 }
 
 export default class AxisLayer extends LayerBase {
-  #scale = {nice: {}}
+  #scale = {
+    nice: {
+      count: 5, // 优化的刻度数量
+      zero: false, // 定义域是否包含 0
+      paddingInner: 0, // band 比例尺间距占比
+      fixedPaddingInner: null, // band 比例尺固定间距
+      fixedBandWidth: null, // band 比例尺固定带宽
+      fixedBoundary: 'start', // band 比例尺吸附边界
+    },
+  }
 
   #lineData = {
     lineX: [],
@@ -126,10 +135,13 @@ export default class AxisLayer extends LayerBase {
           this.#scale[type].domain([start, end])
         }
       }
-      // 拓展比例尺以包括零边界
-      if (this.#scale.nice.zero && this.#scale[type].type === 'linear') {
-        extendZero(this.#scale[type])
-      }
+      // 基于现在的比例尺进行优化，要求优化函数有幂等性
+      this.#scale[type] = new Scale({
+        type: this.#scale[type].type,
+        domain: this.#scale[type].domain(),
+        range: this.#scale[type].range(),
+        nice: this.#scale.nice,
+      })
     })
   }
 

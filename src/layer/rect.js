@@ -98,7 +98,7 @@ export default class RectLayer extends LayerBase {
   }
 
   // 第一列数据要求为维度数据列
-  setData(tableList, scales = {}) {
+  setData(tableList, scales) {
     const {type} = this.options
     this.#data = (tableList && this.#filter(tableList)) || this.#data
     // 调用不同的方法生成基础绘图数据
@@ -112,24 +112,21 @@ export default class RectLayer extends LayerBase {
   }
 
   // 柱状数据生成
-  #setColumnData = (scales = {}) => {
+  #setColumnData = scales => {
     const {mode, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     // 初始化比例尺
-    this.#scale.nice = {zero: true, ...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'band',
         domain: this.#data.select(headers[0]).data[0].list,
         range: [0, layout.width],
-        nice: this.#scale.nice,
       }),
       scaleY: new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
         range: [layout.height, 0],
-        nice: this.#scale.nice,
       }),
     }, this.#scale, scales)
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
@@ -153,24 +150,21 @@ export default class RectLayer extends LayerBase {
   }
 
   // 条形数据生成
-  #setBarData = (scales = {}) => {
+  #setBarData = scales => {
     const {mode, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     // 初始化比例尺
-    this.#scale.nice = {zero: true, ...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
         range: [0, layout.width],
-        nice: this.#scale.nice,
       }),
       scaleY: new Scale({
         type: 'band',
         domain: this.#data.select(headers[0]).data[0].list,
         range: [0, layout.height],
-        nice: this.#scale.nice,
       }),
     }, this.#scale, scales)
     // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角

@@ -30,18 +30,21 @@ export default class TableList extends DataBase {
    */
   select(headers, options = {}) {
     const {mode, target = targetType.ROW} = options
-    const _headers = Array.isArray(headers) ? headers : [headers]
-    let data = cloneDeep(this.data.filter(({header}) => _headers.includes(header)))
+    const headerArray = Array.isArray(headers) ? headers : [headers]
+    let data = cloneDeep(this.data.filter(({header}) => headerArray.includes(header)))
     // 列求和的情况
     if (mode === modeType.SUM) {
       if (target === targetType.ROW) {
-        data = [data.reduce((prev, cur) => ({
-          header: `${prev.header}-${cur.header}`,
-          alias: `${prev.alias}-${cur.alias}`,
-          list: prev.list.map((value, i) => d3.sum([value, cur.list[i]])),
-          min: d3.min([prev.min, cur.min]),
-          max: d3.min([prev.max, cur.max]),
-        }))]
+        const lists = data.map(({list}) => list).reduce((prev, cur, i) => {
+          const latest = i === 1 ? [prev] : [...prev]
+          return latest.concat([latest[i - 1].map((value, j) => d3.sum([value, cur[j]]))])
+        })
+        data = [{
+          header: data.map(({header}) => header).join('-'),
+          list: lists.length > 0 ? lists[lists.length - 1] : [],
+          min: d3.min(lists.map(list => d3.min(list))),
+          max: d3.max(lists.map(list => d3.max(list))),
+        }]
       } else if (target === targetType.COLUMN) {
         data = data.map(item => ({...item, list: [d3.sum(item.list)]}))
       }
@@ -120,8 +123,8 @@ export default class TableList extends DataBase {
    */
   remove(headers) {
     const removedList = []
-    const _headers = Array.isArray(headers) ? headers : [headers]
-    _headers.forEach(header => {
+    const headerArray = Array.isArray(headers) ? headers : [headers]
+    headerArray.forEach(header => {
       const index = this.data.findIndex(item => item.header === header)
       if (index !== -1) {
         removedList.concat(this.data.splice(index, 1)) 
@@ -155,8 +158,8 @@ export default class TableList extends DataBase {
    * @returns {Array} 返回列表的最小值和最大值
    */
   range() {
-    const min = d3.min(this.data.map(({list}) => d3.min(list)))
-    const max = d3.max(this.data.map(({list}) => d3.max(list)))
-    return [min, max]
+    const minValue = d3.min(this.data.map(({list, min}) => d3.min([min, d3.min(list)])))
+    const maxValue = d3.max(this.data.map(({list, max}) => d3.max([max, d3.max(list)])))
+    return [minValue, maxValue]
   }
 }

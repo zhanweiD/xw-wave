@@ -103,7 +103,13 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           layout: 'main',
           type: 'cartesian',
         },
-        style: {
+        scale: {
+          count: 5,
+          zero: mode !== 'interval',
+          paddingInner: 0.382,
+          // fixedPaddingInner: 10,
+          // fixedBandWidth: 30,
+          // fixedBoundary: 'start',
         },
       },
       // 矩形图层
@@ -125,13 +131,6 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           mu: 500,
           sigma: 200,
           decimalPlace: 1,
-        },
-        scale: {
-          count: 5,
-          zero: mode !== 'interval',
-          // fixedPaddingInner: 10,
-          // fixedBandWidth: 30,
-          fixedBoundary: 'start',
         },
         style: {
           labelPosition: type === 'bar' 
@@ -200,12 +199,6 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
       layout: 'main',
       axis: mode === 'stack' ? 'minor' : 'main',
       mode,
-    },
-    scale: {
-      count: 5,
-      // fixedPaddingInner: 10,
-      // fixedBandWidth: 30,
-      fixedBoundary: 'start',
     },
     data: {
       type: 'tableList',

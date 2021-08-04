@@ -85,26 +85,23 @@ export default class LineLayer extends LayerBase {
   }
 
   // 传入列表类，第一列数据要求为纬度数据列
-  setData(tableList, scales = {}) {
+  setData(tableList, scales) {
     this.#data = tableList || this.#data
     const {mode, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     const {width, height, top, left} = layout
     // 初始化比例尺
-    this.#scale.nice = {...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'band',
         domain: this.#data.select(headers[0]).data[0].list,
         range: [0, width],
-        nice: this.#scale.nice,
       }),
       scaleY: new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
         range: [height, 0],
-        nice: this.#scale.nice,
       }),
     }, this.#scale, scales)
     // 计算基础数据
@@ -167,7 +164,7 @@ export default class LineLayer extends LayerBase {
       return [position.filter(item => Boolean(item[1]))]
     }
     if (fallback === fallbackType.ZERO) {
-      return [position.map(item => [item[0], item[1] || scaleY(0) + layout.top])]
+      return [position.map(item => [item[0], item[1] || item[2] || scaleY(0) + layout.top, item[2]])]
     }
     return null
   }
@@ -175,11 +172,18 @@ export default class LineLayer extends LayerBase {
   // 绘制
   draw() {
     const curveData = this.#curveData[0].map(({color}, index) => {
-      const position = this.#curveData.map(item => [item[index].x, isNumber(item[index].value) && item[index].y])
+      const position = this.#curveData.map(item => [
+        item[index].x, 
+        isNumber(item[index].value) && item[index].y,
+      ])
       return {position: this.#fallbackFilter(position), ...this.#style.curve, stroke: color}
     })
     const areaData = this.#areaData[0].map(({color}, index) => {
-      const position = this.#areaData.map(item => [item[index].x, item[index].y0, item[index].y1])
+      const position = this.#areaData.map(item => [
+        item[index].x, 
+        isNumber(item[index].value) && item[index].y0, 
+        item[index].y1,
+      ])
       return {position: this.#fallbackFilter(position), ...this.#style.area, fill: color}
     })
     const textData = this.#textData.map(groupData => {

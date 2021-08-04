@@ -39,25 +39,22 @@ export default class ScatterLayer extends LayerBase {
   }
 
   // 列数据依次为：分组名称、x轴坐标值、y轴坐标值、数值（可缺省）
-  setData(data, scales = {}) {
+  setData(data, scales) {
     this.#data = data || this.#data
     const {left, top, width, height} = this.options.layout
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     // 初始化比例尺
-    this.#scale.nice = {paddingInner: 0, ...this.#scale.nice, ...scales.nice}
     this.#scale = this.createScale({
-      scaleX: scales.scaleX || new Scale({
+      scaleX: new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(1, 2)).range(),
         range: [0, width],
-        nice: this.#scale.nice,
       }),
-      scaleY: scales.scaleY || new Scale({
+      scaleY: new Scale({
         type: 'linear',
         domain: this.#data.select(headers.slice(2, 3)).range(),
         range: [height, 0],
-        nice: this.#scale.nice,
       }),
     }, this.#scale, scales)
     // 计算点的基础数据
@@ -85,7 +82,6 @@ export default class ScatterLayer extends LayerBase {
       type: 'linear',
       domain: this.#data.data.length >= 4 ? this.#data.select(this.#data.data[3].header).range() : [],
       range: circleSize.map(value => value / 2),
-      nice: null,
     })
     // 颜色跟随主题
     const colors = this.getColor(this.#circleData.length, circle.fill)

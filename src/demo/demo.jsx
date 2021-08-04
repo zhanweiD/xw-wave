@@ -12,7 +12,7 @@ import lineSchema from './line'
 import chordSchema from './chord'
 import sankeySchema from './sankey'
 import treeSchema from './tree'
-import columnFacetSchema from './column-facet'
+import columnFacetSchema from './facet'
 import {createWave} from '../wave'
 import s from './demo.module.css'
 
@@ -40,7 +40,7 @@ const chartMapping = {
 
 export default function Example() {
   const [theme, setTheme] = useState('fairyLand')
-  const [chart, setChart] = useState('facet')
+  const [chart, setChart] = useState('column')
   const containerStyle = {background: ThemeConfig[theme].background}
   const refs = range(1, 100, 1).map(() => useRef(null))
 

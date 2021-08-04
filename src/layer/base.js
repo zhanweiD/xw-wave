@@ -80,7 +80,7 @@ export default class LayerBase {
     // 比例尺的命名是固定不变的
     scaleTypes.forEach(type => {
       // 由于目前的比例尺策略是由坐标轴统一控制，所以图层数据计算的比例尺优先级最低
-      scale[type] = incomingScale[type] || defaultScale[type] || currentScale[type]
+      scale[type] = incomingScale[type] || currentScale[type] || defaultScale[type]
       // 笔刷更改了当前比例尺的值域，这个值域需要继承
       if (currentScale[type]?.brushed) {
         scale[type].range(currentScale[type].range())

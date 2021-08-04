@@ -92,7 +92,8 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         type: 'cartesian',
       },
       scale: {
-        zero: mode === 'stack',
+        count: 5,
+        zero: mode === 'stack' || hasArea,
       },
       style: {
       },
@@ -105,13 +106,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         layout: 'main',
         axis: 'main',
         mode,
-        fallback: 'zero',
-      },
-      scale: {
-        count: 5,
-        // fixedPaddingInner: 10,
-        // fixedBandWidth: 30,
-        fixedBoundary: 'start',
+        fallback: 'break',
       },
       data: {
         type: 'tableList',
@@ -119,7 +114,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         row: 6,
         column: 3,
         mu: 500,
-        sigma: 50,
+        sigma: 200,
         decimalPlace: 1,
       },
       style: {
@@ -130,7 +125,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         },
         area: {
           hide: !hasArea,
-          opacity: 0.8,
+          fillOpacity: 0.5,
           curve,
         },
         text: {

@@ -100,10 +100,9 @@ const createSchema = (container, theme, layout) => {
           decimalPlace: 1,
         },
         scale: {
-          count: 5,
-          // fixedPaddingInner: 10,
+          zero: true,
           // fixedBandWidth: 30,
-          fixedBoundary: 'start',
+          // fixedBoundary: 'start',
         },
         style: {
           labelPosition: ['bottom-outer', 'top-outer'],
