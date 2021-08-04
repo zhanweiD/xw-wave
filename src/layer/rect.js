@@ -1,4 +1,4 @@
-import {isArray} from 'lodash'
+import {isArray, isNumber} from 'lodash'
 import LayerBase from './base'
 import Scale from '../data/scale'
 
@@ -38,6 +38,7 @@ const labelPositionType = {
 
 // 默认样式
 const defaultStyle = {
+  fixedLength: null,
   paddingInner: 0,
   labelPosition: labelPositionType.CENTER,
   labelOffset: 5,
@@ -284,7 +285,7 @@ export default class RectLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition, paddingInner, rect} = this.#style
+    const {labelPosition, paddingInner, fixedLength, rect} = this.#style
     const {type, mode} = this.options
     // 颜色跟随主题
     if (this.#rectData[0]?.length > 1) {
@@ -305,6 +306,18 @@ export default class RectLayer extends LayerBase {
         ...other,
       }
     }))
+    // 固定矩形长度，一般用作标记
+    if (isNumber(fixedLength)) {
+      this.#rectData.forEach(groupData => groupData.forEach(item => {
+        if (type === waveType.COLUMN) {
+          if (item.value < 0) item.y += item.height - fixedLength
+          item.height = fixedLength
+        } else if (type === waveType.BAR) {
+          if (item.value > 0) item.x = item.x + item.width - fixedLength
+          item.width = fixedLength
+        }
+      }))
+    }
     // 标签文字数据
     this.#textData = this.#rectData.map(groupData => {
       const result = []
