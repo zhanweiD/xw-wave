@@ -176,10 +176,6 @@ const createSchema = (container, theme, layout, mode) => ({
           },
         },
       },
-      tooltip: {
-        mode: 'single',
-        targets: ['circle'],
-      },
       event: {
         'click-circle': d => console.log(d),
       },

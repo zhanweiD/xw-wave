@@ -66,6 +66,7 @@ export default function Scale({type, domain, range, nice = defaultNice}) {
       const endAngle = startAngle + availableLength * cur
       return [...prev, {startAngle, endAngle}]
     }, [{endAngle: -padding}]).slice(1)
+    type = 'ordinal'
     scale = d3.scaleOrdinal().domain(domain.data[0].list).range(mappingArray)
   }
   scale.type = type
@@ -128,7 +129,7 @@ export const niceScale = (scale, tickCount) => {
     let step = Math.ceil(distance / (tickCount) / level) * level
     const newStart = Math.floor(start / step) * step
     let newEnd = newStart + tickCount * step
-    // 溢出或者冗余时对 step 进行修正
+    // 空间冗余时进行修正
     if (newEnd > end) {
       const isOverflow = () => end + (level / 2) * tickCount >= newEnd
       const isExceedThreshold = () => (newEnd - end) / (newEnd - newStart) > spaceThreshold
@@ -136,13 +137,13 @@ export const niceScale = (scale, tickCount) => {
         step -= level / 2
         newEnd = newStart + tickCount * step
       }
-    } else {
-      while (newEnd < end) {
-        step += level / 2
-        newEnd = newStart + tickCount * step
-      }
     }
-    // 优化定义域
+    // 空间不足时进行修正
+    while (newEnd < end) {
+      step += level / 2
+      newEnd = newStart + tickCount * step
+    }
+    // 更新优化后的定义域
     scale.domain(reverse ? [newEnd, newStart] : [newStart, newEnd])
   }
 }

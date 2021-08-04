@@ -151,10 +151,6 @@ const createSchema = (container, theme, layout) => {
             },
           },
         },
-        tooltip: {
-          mode: 'group',
-          targets: ['rect'],
-        },
         event: {
           'click-rect': d => console.log(d),
         },

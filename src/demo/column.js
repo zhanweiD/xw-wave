@@ -26,7 +26,10 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
     layout,
     // 声明坐标系
     coordinate: 'cartesian-bind-linear',
-
+    // 提示
+    tooltip: {
+      mode: 'group',
+    },
     // 先考虑只有一个笔刷，多笔刷感觉很少会用到
     brush: {
       layout: 'brush',
@@ -182,10 +185,6 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
             },
           },
         },
-        tooltip: {
-          mode: 'group',
-          targets: ['rect'],
-        },
         event: {
           'click-rect': d => console.log(d),
         },
@@ -249,10 +248,6 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           mode: 'fadeIn',
         },
       },
-    },
-    tooltip: {
-      mode: 'group',
-      targets: ['circle'],
     },
     event: {
       'click-circle': d => console.log(d),

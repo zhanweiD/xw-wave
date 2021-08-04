@@ -7,8 +7,15 @@ const modeType = {
   GOURP: 'group', // 基于组展示
 }
 
+// 坐标取值方式
+const positionType = {
+  ABSOLUTE: 'absolute',
+  RELATIVE: 'relative',
+}
+
 const defaultOptions = {
   mode: modeType.SINGLE,
+  position: positionType.ABSOLUTE,
   pointSize: 10,
   titleSize: 14,
   titleColor: '#383d41',
@@ -145,22 +152,23 @@ export default class Tooltip {
   }
 
   // 移动
-  move({x, y}) {
+  move({x, y, offsetX, offsetY}) {
     const drift = 10
-    // 边界判断
     const rect = this.instance._groups[0][0].getBoundingClientRect()
-    if (x + rect.width > document.body.clientWidth) {
-      x -= rect.width + drift
+    let [nextX, nextY] = this.options.position === positionType.RELATIVE ? [offsetX, offsetY] : [x, y] 
+    // 边界判断
+    if (nextX + rect.width > document.body.clientWidth) {
+      nextX -= rect.width + drift
     } else {
-      x += drift
+      nextX += drift
     }
-    if (y + rect.height > document.body.clientHeight) {
-      y -= rect.height + drift
+    if (nextY + rect.height > document.body.clientHeight) {
+      nextY -= rect.height + drift
     } else {
-      y += drift
+      nextY += drift
     }
-    this.instance.style('left', `${x}px`).style('top', `${y}px`)
-    this.lastPosition = {x, y}
+    this.instance.style('left', `${nextX}px`).style('top', `${nextY}px`)
+    this.lastPosition = {x: nextX, y: nextY}
     return this
   }
 

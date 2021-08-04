@@ -66,10 +66,6 @@ const createSchema = (container, theme, layout, type) => {
             curve: 'curveBasis',
           },
         },
-        tooltip: {
-          mode: 'single',
-          targets: ['circle', 'arc'],
-        },
       },
     ],
   }
