@@ -13,6 +13,7 @@ import EdgeBundle from './edge-bundle'
 import Chord from './chord'
 import Sankey from './sankey'
 import Tree from './tree'
+import Treemap from './treemap'
 
 export const layerMapping = {
   arc: Arc, // 圆弧
@@ -30,6 +31,7 @@ export const layerMapping = {
   scatter: Scatter, // 散点
   text: Text, // 文本
   tree: Tree, // 树形图
+  treemap: Treemap, // 矩形树图
 }
 
 export default {
@@ -48,4 +50,5 @@ export default {
   Scatter, // 散点
   Text, // 文本
   Tree, // 树形图
+  Treemap, // 矩形树图
 }

@@ -115,27 +115,26 @@ export default class LayerBase {
    * @param {Object} 计算文字需要的一些值
    * @returns 文字数据，包含坐标和值
    */
-  createText({x, y, value, style, position = positionType.RIGHTTOP, offset = 0, textAnchor = 'start'}) {
+  createText({x, y, value, style, position = positionType.RIGHTTOP, textAnchor, offset = 0}) {
     let [positionX, positionY] = [x, y]
     const {fontSize = 12, writingMode, format} = style
     const formattedText = formatText(value, format)
     const textWidth = getTextWidth(formattedText, fontSize)
-    const autoOffset = isArray(offset) ? 0 : offset
     if (position === positionType.CENTER) {
       positionX -= textWidth / 2
       positionY += fontSize / 2
     } else if (position === positionType.LEFT) {
-      positionX -= textWidth + autoOffset
+      positionX -= textWidth + offset
       positionY += fontSize / 2
     } else if (position === positionType.RIGHT) {
-      positionX += autoOffset
+      positionX += offset
       positionY += fontSize / 2
     } else if (position === positionType.TOP) {
       positionX -= textWidth / 2
-      positionY -= autoOffset
+      positionY -= offset
     } else if (position === positionType.BOTTOM) {
       positionX -= textWidth / 2
-      positionY += fontSize + autoOffset
+      positionY += fontSize + offset
     } else if (position === positionType.LEFTTOP) {
       positionX -= textWidth
     } else if (position === positionType.LEFTBOTTOM) {
@@ -160,6 +159,7 @@ export default class LayerBase {
       y: positionY,
       value: formattedText, 
       transformOrigin: `${positionX} ${positionY}`,
+      textWidth,
     }
   }
 
