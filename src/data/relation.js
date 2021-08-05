@@ -49,7 +49,7 @@ export default class Relation extends DataBase {
         this.data.nodes.forEach(node => {
           const froms = this.data.links.filter(({from}) => from === node.id).map(({value}) => value)
           const tos = this.data.links.filter(({to}) => to === node.id).map(({value}) => value)
-          node.value = formatText(d3.max([d3.sum(froms), d3.sum(tos)]))
+          node.value = formatText(d3.max([d3.sum(froms), d3.sum(tos)]), {type: 'number'})
         })
       }
       // 衍生数据

@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import LayerBase from './base'
+import formatText from '../util/format-text'
 
 // 平铺模式（d3内置）
 const tileType = {
@@ -112,10 +113,13 @@ export default class TreemapLayer extends LayerBase {
       } else if (align === alignType.END && verticalAlign === alignType.END) {
         [nameX, nameY, position] = [x + width, y + height - text.fontSize - labelGap, 'left-top'] 
       }
+      // 溢出文字处理
+      const nameText = formatText(name, {isOverflowControl: true, width, height: (height - labelGap) / 2})
+      const valueText = formatText(value, {isOverflowControl: true, width, height: (height - labelGap) / 2})
       // 返回标签和数值
       return [
-        this.createText({value: name, x: nameX, y: nameY, position, style: text}),
-        this.createText({value, x: nameX, y: nameY + text.fontSize + labelGap, position, style: text}),
+        this.createText({value: nameText, x: nameX, y: nameY, position, style: text}),
+        this.createText({value: valueText, x: nameX, y: nameY + text.fontSize + labelGap, position, style: text}),
       ]
     })
   }
