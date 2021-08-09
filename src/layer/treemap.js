@@ -37,8 +37,6 @@ const defaultStyle = {
 export default class TreemapLayer extends LayerBase {
   #data = null
   
-  #scale = {}
-
   #rectData = []
 
   #textData = []
@@ -47,10 +45,6 @@ export default class TreemapLayer extends LayerBase {
 
   get data() {
     return this.#data
-  }
-
-  get scale() {
-    return this.#scale
   }
 
   get style() {

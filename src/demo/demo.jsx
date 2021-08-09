@@ -14,6 +14,7 @@ import sankeySchema from './sankey'
 import treeSchema from './tree'
 import columnFacetSchema from './facet'
 import treemapSchema from './treemap'
+import packSchema from './pack'
 import {createWave} from '../wave'
 import s from './demo.module.css'
 
@@ -38,11 +39,12 @@ const chartMapping = {
   tree: '树图',
   facet: '分面图',
   treemap: '矩形树图',
+  pack: '打包图',
 }
 
 export default function Example() {
   const [theme, setTheme] = useState('fairyLand')
-  const [chart, setChart] = useState('treemap')
+  const [chart, setChart] = useState('pack')
   const containerStyle = {background: ThemeConfig[theme].background}
   const refs = range(1, 100, 1).map(() => useRef(null))
 
@@ -97,6 +99,8 @@ export default function Example() {
     waves.push(chart === 'facet' && createWave(columnFacetSchema.facet1(refs[36].current, themeColors)))
     // 矩形树图
     waves.push(chart === 'treemap' && createWave(treemapSchema.treemap(refs[37].current, themeColors)))
+    // 打包图
+    waves.push(chart === 'pack' && createWave(packSchema.pack(refs[38].current, themeColors)))
   }, [theme, chart])
 
   return (
@@ -156,6 +160,7 @@ export default function Example() {
           {chart === 'tree' && <div className={s.wave} ref={refs[35]} />}
           {chart === 'facet' && <div className={s.wave} ref={refs[36]} />}
           {chart === 'treemap' && <div className={s.wave} ref={refs[37]} />}
+          {chart === 'pack' && <div className={s.wave} ref={refs[38]} />}
         </div>
       </div>
     </div>

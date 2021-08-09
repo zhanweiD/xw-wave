@@ -14,6 +14,7 @@ import Chord from './chord'
 import Sankey from './sankey'
 import Tree from './tree'
 import Treemap from './treemap'
+import Pack from './pack'
 
 export const layerMapping = {
   arc: Arc, // 圆弧
@@ -25,6 +26,7 @@ export const layerMapping = {
   legend: Legend, // 图例
   line: Line, // 折线
   matrix: Matrix, // 矩阵
+  pack: Pack, // 打包图
   radar: Radar, // 雷达
   rect: Rect, // 矩形
   sankey: Sankey, // 桑基
@@ -44,6 +46,7 @@ export default {
   Legend, // 图例
   Line, // 折线
   Matrix, // 矩阵
+  Pack, // 打包图
   Radar, // 雷达
   Rect, // 矩形
   Sankey, // 桑基
