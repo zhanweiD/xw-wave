@@ -38,6 +38,7 @@ const defaultText = {
 // 默认样式
 const defaultStyle = {
   circle: {},
+  labelOffset: 10,
   lineAxisX: defaultAxisLine, // X轴线
   lineAxisY: defaultAxisLine, // Y轴线
   lineTickX: defaultTickLine, // X刻度线
@@ -203,14 +204,15 @@ export default class AxisLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {textX, textY, textAngle, textRadius} = this.#style
+    const {labelOffset, textX, textY, textAngle, textRadius} = this.#style
+    const offset = labelOffset
     // X轴主轴标签在线的正下方
     this.#textData.textX = this.#textData.textX.map(({value, x2, y2}) => {
-      return this.createText({x: x2, y: y2, position: 'bottom', value, style: textX})
+      return this.createText({x: x2, y: y2, position: 'bottom', value, style: textX, offset})
     })
     // X轴副轴标签在线的正上方
     this.#textData.textXT = this.#textData.textXT.map(({value, x1, y1}) => {
-      return this.createText({x: x1, y: y1, position: 'top', value, style: textX})
+      return this.createText({x: x1, y: y1, position: 'top', value, style: textX, offset})
     })
     // Y轴主轴标签在线的左下方
     this.#textData.textY = this.#textData.textY.map(({value, x1, y1}) => {
@@ -226,11 +228,11 @@ export default class AxisLayer extends LayerBase {
       const _angle = Math.abs((angle + 360) % 360)
       const [isTop, isBottom, isLeft, isRight] = [_angle === 0, _angle === 180, _angle > 180, _angle < 180]
       const position = isTop ? 'top' : isBottom ? 'bottom' : isLeft ? 'left' : isRight ? 'right' : 'default'
-      return this.createText({x: x2, y: y2, position, value, style: textAngle})
+      return this.createText({x: x2, y: y2, position, value, style: textAngle, offset})
     })
     // 半径坐标在角度坐标第一根线的右侧
     this.#textData.textRadius = this.#lineData.lineRadius.map(({value, cx, cy, rx}) => {
-      return this.createText({x: cx, y: cy - rx, position: 'right', value, style: textRadius})
+      return this.createText({x: cx, y: cy - rx, position: 'right', value, style: textRadius, offset})
     })
   }
 
@@ -249,7 +251,7 @@ export default class AxisLayer extends LayerBase {
     const transformTextData = (key, style) => [{
       data: this.#textData[key].map(({value}) => value),
       position: this.#textData[key].map(({x, y}) => [x, y]),
-      ...this.#style[style],
+      ...this.#style[key || style],
     }]
     if (scaleX?.type === 'linear' || scaleXT?.type === 'linear') {
       this.drawBasic('line', transformLineData('lineAxisX'), 'lineAxisX')
@@ -261,8 +263,8 @@ export default class AxisLayer extends LayerBase {
     }
     this.drawBasic('line', transformLineData('lineAngle'), 'lineAngle')
     this.drawBasic('circle', transformRadiusData('lineRadius'), 'lineRadius')
-    this.drawBasic('text', transformTextData('textX', 'textX'), 'textX')
-    this.drawBasic('text', transformTextData('textY', 'textY'), 'textY')
+    this.drawBasic('text', transformTextData('textX'), 'textX')
+    this.drawBasic('text', transformTextData('textY'), 'textY')
     this.drawBasic('text', transformTextData('textXT', 'textX'), 'textXT')
     this.drawBasic('text', transformTextData('textYR', 'textY'), 'textYR')
     this.drawBasic('text', transformTextData('textAngle'), 'textAngle')

@@ -85,6 +85,7 @@ export default class ArcLayer extends LayerBase {
     const headers = this.#data.data.map(({header}) => header)
     const labels = this.#data.select(headers[0])
     const maxRadius = Math.min(width, height) / 2
+    this.#scale.scaleAngle = null
     // 饼图的比例尺
     if (type === waveType.PIE) {
       const percentages = this.#data.select(headers[1], {mode: 'percentage', target: 'column'})
