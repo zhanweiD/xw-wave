@@ -19,7 +19,7 @@ const positionType = {
 }
 
 // 其他常量
-export const scaleTypes = ['scaleX', 'scaleY', 'scaleYR', 'scaleAngle', 'scaleRadius']
+export const scaleTypes = ['scaleX', 'scaleY', 'scaleXT', 'scaleYR', 'scaleAngle', 'scaleRadius']
 export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
 export const tooltipEvents = ['mouseover', 'mouseout', 'mousemove']
 
@@ -40,8 +40,8 @@ export default class LayerBase {
     this.event = createEvent('src/layer/base')
     this.subLayers.forEach(name => this.#backupData[name] = [])
     this.warn = (text, data) => this.options.warn(text, data)
-    this.playAnimation = () => this.subLayers.forEach(type => this.#backupAnimation[type]?.play())
     this.setAnimation = options => merge(this.#backupAnimation, {options})
+    this.playAnimation = () => this.subLayers.forEach(type => this.#backupAnimation[type]?.play())
   }
 
   /**
@@ -102,7 +102,7 @@ export default class LayerBase {
     const {baseFontSize} = this.options
     const style = merge({}, defaultStyle, currentStyle, incomingStyle)
     const keys = Object.keys(incomingStyle)
-    // 统一缩放字号
+    // 统一缩放字号（目前的策略不安全）
     keys.forEach(key => {
       if (key.search(/text/i) !== -1 && style[key].fontSize) {
         style[key].fontSize *= baseFontSize
@@ -195,13 +195,13 @@ export default class LayerBase {
     targets.style('display', isVisiable ? 'block' : 'none')
   }
 
-  // 元素渲染后设置
+  // 元素渲染后注册响应事件
   #setEvent = subLayer => {
     const els = this.root.selectAll(`.wave-basic-${subLayer}`).style('cursor', 'pointer')
     commonEvents.forEach(eventType => els.on(`${eventType}.common`, this.#backupEvent.common[eventType][subLayer]))
   }
 
-  // 元素渲染后设置
+  // 元素渲染后设置文字提示
   #setTooltip = subLayer => {
     if (this.tooltipTargets.find(key => key === subLayer)) {
       const els = this.root.selectAll(`.wave-basic-${subLayer}`)
@@ -209,7 +209,7 @@ export default class LayerBase {
     }
   }
 
-  // 元素渲染后设置
+  // 元素渲染后设置动画
   #setAnimation = subLayer => {
     let isFirst = true
     const {options} = this.#backupAnimation

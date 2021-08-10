@@ -79,10 +79,14 @@ export default class Tooltip {
     let list = null
     this.options = {...this.options, ...options}
     const {titleSize, titleColor, pointSize, labelSize, labelColor, valueSize, valueColor, mode} = this.options
-    // 计算和筛选需要展示的数据
+    // 单元素可以自定义拓展数据
     if (mode === modeType.SINGLE) {
-      list = [data].map(({fill, stroke, source}) => ({pointColor: fill || stroke, ...source}))
-    } else if (mode === modeType.GOURP) {
+      const {fill, stroke, source} = data
+      const pointColor = fill || stroke
+      list = (isArray(source) ? source : [source]).map(item => ({pointColor, ...item}))
+    }
+    // 分组展示不能拓展数据
+    if (mode === modeType.GOURP) {
       try {
         const {dimension} = data.source
         const elType = data.className.split('-')[2]

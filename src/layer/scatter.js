@@ -58,12 +58,15 @@ export default class ScatterLayer extends LayerBase {
       }),
     }, this.#scale, scales)
     // 计算点的基础数据
-    const circleData = pureTableList.map(([category, x, y, value]) => ({
+    const circleData = pureTableList.map(([category, x, y, value], i) => ({
+      value,
+      category,
       cx: left + this.#scale.scaleX(x),
       cy: top + this.#scale.scaleY(y),
-      dimension: [x, y],
-      category,
-      value,
+      source: headers.map((header, j) => ({
+        value: pureTableList[i][j],
+        category: header,
+      })),
     }))
     // 数据根据第一列的名称分组
     const categorys = Array.from(new Set(circleData.map(({category}) => category)))
@@ -112,7 +115,7 @@ export default class ScatterLayer extends LayerBase {
     const circleData = this.#circleData.map(groupData => {
       const data = groupData.map(({rx, ry}) => [rx, ry])
       const position = groupData.map(({cx, cy}) => [cx, cy])
-      const source = groupData.map(({category, value, dimension}) => ({category, value, dimension}))
+      const source = groupData.map(item => item.source)
       const fill = groupData.map(({color}) => color)
       return {data, source, position, ...this.#style.circle, fill}
     })

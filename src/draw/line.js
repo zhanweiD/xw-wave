@@ -36,7 +36,6 @@ export default function drawLine({
     source: source.length > i ? source[i] : null,
   }))
 
-  // 画线
   return container.selectAll(`.${className}`)
     .data(configuredData.map(item => mapping(item)))
     .join('line')
