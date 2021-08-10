@@ -1,3 +1,5 @@
+import {isArray} from 'lodash'
+
 // 绘制一组矩形
 export default function drawText({
   fill = 'rgba(255,255,255,1)', // 可以是数组定义渐变色
@@ -30,16 +32,16 @@ export default function drawText({
       y,
       width,
       height,
-      opacity,
-      fillOpacity,
-      strokeOpacity,
-      fill: Array.isArray(fill) ? fill[i] : fill,
-      stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-      mask: Array.isArray(mask) ? mask[i] : mask,
-      filter: Array.isArray(filter) ? filter[i] : filter,
-      strokeWidth,
+      rotate: isArray(rotate) ? rotate[i] : rotate,
+      fill: isArray(fill) ? fill[i] : fill,
+      stroke: isArray(stroke) ? stroke[i] : stroke,
+      opacity: isArray(opacity) ? opacity[i] : opacity,
+      fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
+      strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
+      strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
+      filter: isArray(filter) ? filter[i] : filter,
+      mask: isArray(mask) ? mask[i] : mask,
       source: source.length > i ? source[i] : null,
-      rotate,
       transformOrigin: getTransformOrigin({x, y, width, height, transformOrigin}),
     }
   })

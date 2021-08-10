@@ -6,6 +6,7 @@ const modeType = {
   FUNCTION: 'funtion',
   TIMER: 'timer',
 }
+
 // 默认参数
 const defaultOptions = {
   duration: 0,

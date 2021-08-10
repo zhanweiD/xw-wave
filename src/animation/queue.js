@@ -147,7 +147,7 @@ export default class AnimationQueue extends AnimationBase {
 
   play() {
     if (this.isAnimationStart || !this.isAnimationAvailable) {
-      this.isAnimationStart && this.log.error('The animation is already started!')
+      this.isAnimationStart && this.log.warn('The animation is already started!')
       !this.isAnimationAvailable && this.log.error('The animation is not available!')
     } else {
       // 重新连接，开始动画
@@ -160,7 +160,7 @@ export default class AnimationQueue extends AnimationBase {
 
   end() {
     this.isAnimationStart = false
-    this.isAnimationAvailable && this.options.loop && this.play()
+    this.isAnimationAvailable && this.options.loop && this.animationQueue.length !== 1 && this.play()
     this.event.has('end') && this.event.fire('end')
   }
 

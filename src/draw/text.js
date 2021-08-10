@@ -1,3 +1,5 @@
+import {isArray} from 'lodash'
+
 // 文字方向映射
 const directionMapping = {
   horizontal: 'horizontal-tb',
@@ -37,21 +39,21 @@ export default function drawText({
     className,
     x: position[i][0],
     y: position[i][1] - fontSize * 0.2, // 这个数字为黑体的高度差
-    fill: Array.isArray(fill) ? fill[i] : fill,
-    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-    strokeWidth,
-    opacity,
-    fillOpacity,
-    strokeOpacity,
+    fill: isArray(fill) ? fill[i] : fill,
+    stroke: isArray(stroke) ? stroke[i] : stroke,
+    opacity: isArray(opacity) ? opacity[i] : opacity,
+    fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
+    strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
+    strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
+    filter: isArray(filter) ? filter[i] : filter,
+    mask: isArray(mask) ? mask[i] : mask,
     fontFamily,
     fontWeight,
     fontSize: `${fontSize}px`,
     writingMode: directionMapping[writingMode],
-    transform: `rotate(${Array.isArray(rotation) ? rotation[i] : rotation}deg)`,
-    transformOrigin: Array.isArray(transformOrigin) ? transformOrigin[i] : transformOrigin,
-    textAnchor: Array.isArray(textAnchor) ? textAnchor[i] : textAnchor,
-    mask: Array.isArray(mask) ? mask[i] : mask,
-    filter: Array.isArray(filter) ? filter[i] : filter,
+    transform: `rotate(${isArray(rotation) ? rotation[i] : rotation}deg)`,
+    transformOrigin: isArray(transformOrigin) ? transformOrigin[i] : transformOrigin,
+    textAnchor: isArray(textAnchor) ? textAnchor[i] : textAnchor,
     textShadow,
   }))
 

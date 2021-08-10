@@ -1,5 +1,4 @@
 import anime from 'animejs'
-import * as d3 from 'd3'
 import AnimationBase from './base'
 import rgba2obj from '../util/rgba2obj'
 
@@ -12,12 +11,14 @@ const directions = {
   OUTER: 'outer',
   INNER: 'inner',
 }
+
 // 渐变作用域
 const scopes = {
   FILL: 'fill',
   STROKE: 'stroke',
   BOTH: 'both',
 }
+
 // 默认参数
 const defaultOptions = {
   delay: 1000, 
@@ -28,8 +29,6 @@ const defaultOptions = {
   opacity: 0.4,
   loop: true,
 }
-// 动画生成Id
-let count = 0
 
 // 根据方向确定要变换的 svg 属性
 const getAttributes = direction => {
@@ -65,23 +64,22 @@ const insertOffsets = (gradient, {color, opacity}) => {
 }
 
 // 创建横向渐变或者径向渐变，以及模糊效果
-const createGradient = (parentNode, {direction, color, opacity}) => {
+const createGradient = (parentNode, {id, direction, color, opacity}) => {
   let targets
   const attributes = getAttributes(direction)
   const isLeftOrTop = direction === directions.LEFT || direction === directions.TOP
-  ++count
   parentNode.append('filter')
-    .attr('id', `scanAnimation${count}-filter`)
+    .attr('id', `scan-filter-${id}`)
     .append('feGaussianBlur')
     .attr('in', 'SourceGraphic')
     .attr('stdDeviation', 0)
   if (attributes[0] === 'r') {
     targets = parentNode.append('radialGradient')
-      .attr('id', `scanAnimation${count}`)
+      .attr('id', `scan-${id}`)
       .attr(attributes[0], direction === directions.INNER ? '300%' : '0%')
   } else if (attributes.length === 2) {
     targets = parentNode.append('linearGradient')
-      .attr('id', `scanAnimation${count}`)
+      .attr('id', `scan-${id}`)
       .attr('x1', '0%')
       .attr('x2', '0%')
       .attr('y1', '0%')
@@ -97,7 +95,7 @@ export default class ScanAnimation extends AnimationBase {
     super(defaultOptions, options, context)
     const {direction, color, opacity} = this.options
     this.extraNode = context.append('defs')
-    this.targets = createGradient(this.extraNode, {direction, color, opacity})
+    this.targets = createGradient(this.extraNode, {id: this.id, direction, color, opacity})
     this.isAnimationFirstPlay = true
   }
 
@@ -120,19 +118,10 @@ export default class ScanAnimation extends AnimationBase {
       this.isAnimationFirstPlay = false
       this.lights = context.selectAll(className).clone(false)
         .attr('class', 'scanAnimation-clone')
-        .attr('filter', `url(#scanAnimation${count}-filter)`)
-        .attr('stroke', scope !== scopes.FILL ? `url(#scanAnimation${count})` : '')
-        .style('fill', scope !== scopes.STROKE ? `url(#scanAnimation${count})` : '')
+        .attr('filter', `url(#scan-filter-${this.id}`)
+        .attr('stroke', scope !== scopes.FILL ? `url(#scan-${this.id})` : '')
+        .style('fill', scope !== scopes.STROKE ? `url(#scan-${this.id})` : '')
         .style('pointer-events', 'none')
-      // 监听属性变化以便于同步
-      const targetNode = context.selectAll(className)._groups[0]
-      const observers = targetNode.forEach((el, i) => {
-        return new MutationObserver(mutationList => mutationList.forEach(({attributeName}) => {
-          d3.select(this.lights._groups[0][i]).attr(attributeName, d3.select(el).attr(attributeName))
-        })).observe(el, {attributes: true})
-      })
-      // 销毁时取消监听
-      this.event.on('destroy', () => observers.forEach(observer => observer.disconnect()))
     }
     // 变换的动画属性
     if (attributes.length === 2) {
@@ -142,7 +131,6 @@ export default class ScanAnimation extends AnimationBase {
       configs[attributes[0]] = direction === directions.INNER ? ['300%', '0%'] : ['0%', '300%']
     }
     // 开始执行
-    this.instance && anime.remove(this.targets)
     this.instance = anime(configs)
     this.event.has('play') && this.event.fire('play')
   }

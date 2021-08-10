@@ -1,13 +1,14 @@
 import * as d3 from 'd3'
+import {isArray} from 'lodash'
 
 // 绘制一组曲线
 export default function drawCurve({
   stroke = 'rgba(255,255,255,1)',
-  strokeWidth = 1,
   opacity = 1,
   strokeOpacity = 1,
+  strokeWidth = 1,
   curve = false,
-  enableUpdateAnimation = true,
+  enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   mapping = item => item, // 高级数据过滤函数
@@ -22,14 +23,14 @@ export default function drawCurve({
   const lineGenerator = d3.line().x(d => d[0]).y(d => d[1])
   curve && lineGenerator.curve(d3[curve])
   const configuredData = position.map((data, i) => ({
-    fill: 'none',
-    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-    mask: Array.isArray(mask) ? mask[i] : mask,
-    filter: Array.isArray(filter) ? filter[i] : filter,
-    strokeWidth,
     className,
-    opacity,
-    strokeOpacity,
+    fill: 'none',
+    stroke: isArray(stroke) ? stroke[i] : stroke,
+    opacity: isArray(opacity) ? opacity[i] : opacity,
+    strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
+    strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
+    filter: isArray(filter) ? filter[i] : filter,
+    mask: isArray(mask) ? mask[i] : mask,
     d: lineGenerator(data),
     source: source.length > i ? source[i] : null,
   }))

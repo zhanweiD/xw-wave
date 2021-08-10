@@ -18,7 +18,7 @@ export default class MoveAnimation extends AnimationBase {
   play() {
     const {targets, delay, duration, loop, position, easing} = this.options
     const [positionX, positionY] = position
-    anime({
+    this.instance = anime({
       targets,
       duration,
       delay,

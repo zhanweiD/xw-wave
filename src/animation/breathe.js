@@ -8,13 +8,11 @@ const defaultOptions = {
   duration: 2000,
   loop: false,
 }
-// 动画生成Id
-let count = 0
 
 // 光晕滤镜
-const createFilter = parentNode => {
+const createFilter = (parentNode, {id}) => {
   const filter = parentNode.append('filter')
-    .attr('id', `breatheAnimation${++count}`)
+    .attr('id', `url(#breathe-${id})`)
     .attr('x', '-500%')
     .attr('y', '-500%')
     .attr('width', '1000%')
@@ -39,9 +37,9 @@ export default class BreatheAnimation extends AnimationBase {
   constructor(options, context) {
     super(defaultOptions, options, context)
     this.extraNode = context.append('defs')
-    this.targets = createFilter(this.extraNode)
+    this.targets = createFilter(this.extraNode, {id: this.id})
     // 给元素添加光晕滤镜
-    d3.selectAll(this.options.targets).attr('filter', `url(#breatheAnimation${count})`)
+    d3.selectAll(this.options.targets).attr('filter', `url(#breathe-${this.id})`)
   }
 
   play() {
@@ -62,9 +60,9 @@ export default class BreatheAnimation extends AnimationBase {
   }
 
   destroy() {
-    this.instance.remove()
     this.extraNode.remove()
     this.isAnimationAvailable = false
     this.event.has('destroy') && this.event.fire('destroy')
+    anime.remove([this.targets._groups[0], this.options.targets])
   }
 }

@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import {isArray} from 'lodash'
 
 // 绘制一组面积
 export default function drawArea({
@@ -9,7 +10,7 @@ export default function drawArea({
   fillOpacity = 1,
   strokeOpacity = 1,
   curve = false,
-  enableUpdateAnimation = true,
+  enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   mapping = item => item, // 高级数据过滤函数
@@ -25,14 +26,14 @@ export default function drawArea({
   curve && areaGenerator.curve(d3[curve])
   const configuredData = position.map((data, i) => ({
     className,
-    opacity,
-    fillOpacity,
-    strokeOpacity,
-    strokeWidth,
-    fill: Array.isArray(fill) ? fill[i] : fill,
-    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-    mask: Array.isArray(mask) ? mask[i] : mask,
-    filter: Array.isArray(filter) ? filter[i] : filter,
+    fill: isArray(fill) ? fill[i] : fill,
+    stroke: isArray(stroke) ? stroke[i] : stroke,
+    opacity: isArray(opacity) ? opacity[i] : opacity,
+    fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
+    strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
+    strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
+    filter: isArray(filter) ? filter[i] : filter,
+    mask: isArray(mask) ? mask[i] : mask,
     d: areaGenerator(data),
     source: source.length > i ? source[i] : null,
   }))

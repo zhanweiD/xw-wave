@@ -1,3 +1,5 @@
+import {isArray} from 'lodash'
+
 // 绘制一组多边形
 export default function drawPolygon({
   fill = 'rgba(255,255,255,1)', // 颜色
@@ -22,14 +24,14 @@ export default function drawPolygon({
   const configuredData = data.map((points, i) => ({
     className,
     points: points.reduce((prev, cur) => `${prev} ${cur[0]},${cur[1]}`, ''),
-    fill: Array.isArray(fill) ? fill[i] : fill,
-    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-    mask: Array.isArray(mask) ? mask[i] : mask,
-    filter: Array.isArray(filter) ? filter[i] : filter,
-    strokeWidth,
-    opacity,
-    fillOpacity,
-    strokeOpacity,
+    fill: isArray(fill) ? fill[i] : fill,
+    stroke: isArray(stroke) ? stroke[i] : stroke,
+    opacity: isArray(opacity) ? opacity[i] : opacity,
+    fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
+    strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
+    strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
+    filter: isArray(filter) ? filter[i] : filter,
+    mask: isArray(mask) ? mask[i] : mask,
     source: source.length > i ? source[i] : null,
     transformOrigin: transformOrigin && `${transformOrigin[0]} ${transformOrigin[1]}`,
   }))

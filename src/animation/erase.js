@@ -9,6 +9,7 @@ const directionType = {
   RIGHT: 'right',
   BOTTOM: 'bottom',
 }
+
 // 默认参数
 const defaultOptions = {
   delay: 0,
@@ -16,16 +17,14 @@ const defaultOptions = {
   direction: directionType.RIGHT,
   loop: false,
 }
-// 动画生成Id
-let count = 0
 
 // 创建擦除动画所需的元素
-const createGradient = (parentNode, direction) => {
+const createGradient = (parentNode, {id, direction}) => {
   const isHorizontal = direction === directionType.LEFT || direction === directionType.RIGHT
   const isVertical = direction === directionType.TOP || direction === directionType.BOTTOM
   const targets = parentNode
     .append('clipPath')
-    .attr('id', `eraseAnimation${++count}`)
+    .attr('id', `erase-${id}`)
     .append('rect')
     .attr('x', direction === directionType.LEFT ? '100%' : '0%')
     .attr('y', direction === directionType.TOP ? '100%' : '0%')
@@ -40,16 +39,16 @@ export default class EraseAnimation extends AnimationBase {
     super(defaultOptions, options, context)
     const {direction, targets} = this.options
     this.extraNode = context.append('defs')
-    this.targets = createGradient(this.extraNode, direction)
+    this.targets = createGradient(this.extraNode, {id: this.id, direction})
     // 给元素设定裁剪区域
-    d3.selectAll(targets).attr('clip-path', `url(#eraseAnimation${count})`)
+    d3.selectAll(targets).attr('clip-path', `url(#erase-${this.id})`)
   }
 
   play() {
     const {delay, duration, loop, direction} = this.options
     const isHorizontal = direction === directionType.LEFT || direction === directionType.RIGHT
     const isVertical = direction === directionType.TOP || direction === directionType.BOTTOM
-    anime({
+    this.instance = anime({
       targets: this.targets,
       duration,
       delay,

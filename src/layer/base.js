@@ -38,9 +38,10 @@ export default class LayerBase {
     this.className = null
     this.#createEvent()
     this.event = createEvent('src/layer/base')
-    this.warn = (text, data) => this.options.warn(text, data)
     this.subLayers.forEach(name => this.#backupData[name] = [])
+    this.warn = (text, data) => this.options.warn(text, data)
     this.playAnimation = () => this.subLayers.forEach(type => this.#backupAnimation[type]?.play())
+    this.setAnimation = options => merge(this.#backupAnimation, {options})
   }
 
   /**
@@ -184,22 +185,6 @@ export default class LayerBase {
     })
   }
 
-  // 元素渲染后进行配置
-  setEvent = subLayer => {
-    setTimeout(() => {
-      const els = this.root.selectAll(`.wave-basic-${subLayer}`).style('cursor', 'pointer')
-      commonEvents.forEach(eventType => els.on(`${eventType}.common`, this.#backupEvent.common[eventType][subLayer]))
-    }, 0)
-  }
-
-  // 元素渲染后进行配置
-  setTooltip() {
-    this.tooltipTargets.forEach(subLayer => setTimeout(() => {
-      const els = this.root.selectAll(`.wave-basic-${subLayer}`)
-      tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
-    }, 0))
-  }
-
   /**
    * 控制整个图层的显示和隐藏
    * @param {Boolean} isVisiable 隐藏参数
@@ -210,40 +195,51 @@ export default class LayerBase {
     targets.style('display', isVisiable ? 'block' : 'none')
   }
 
-  /**
-   * 配置动画
-   * @param {Object} options 以元素类型为 key 的动画描述对象
-   * @returns 启动全部动画队列的函数
-   */
-  setAnimation(options) {
-    setTimeout(() => {
-      // 配置动画前先销毁之前的动画，释放资源
-      this.subLayers.forEach(name => {
-        this.#backupAnimation[name] && this.#backupAnimation[name].destroy()
-        this.#backupAnimation[name] = null
-      })
-      // 为每种元素支持的每种动画配置
-      this.subLayers.forEach(name => {
-        // 没有数据，不需要配置动画
-        if (this.#backupData[name].length === 0 || !options || !options[name]) {
-          this.#backupAnimation[name] = null
-          return
-        }
-        const animationQueue = new Animation.Queue({loop: false})
-        const enterQueue = new Animation.Queue({loop: false})
-        const loopQueue = new Animation.Queue({loop: true})
-        const {enterAnimation, loopAnimation} = options[name]
-        const targets = `.wave-basic-${name}`
-        // 配置入场动画和轮播动画并连接
-        enterAnimation && enterQueue.push(enterAnimation.type, {...enterAnimation, targets}, this.root)
-        loopAnimation && loopQueue.push(loopAnimation.type, {...loopAnimation, targets}, this.root)
-        this.#backupAnimation[name] = animationQueue.push('queue', enterQueue).push('queue', loopQueue)
-        // 动画事件注册
-        this.#backupAnimation[name].event.on('start', data => this.event.fire(`${name}-animation-start`, data))
-        this.#backupAnimation[name].event.on('process', data => this.event.fire(`${name}-animation-process`, data))
-        this.#backupAnimation[name].event.on('end', data => this.event.fire(`${name}-animation-end`, data))
-      })
-    }, 0)
+  // 元素渲染后设置
+  #setEvent = subLayer => {
+    const els = this.root.selectAll(`.wave-basic-${subLayer}`).style('cursor', 'pointer')
+    commonEvents.forEach(eventType => els.on(`${eventType}.common`, this.#backupEvent.common[eventType][subLayer]))
+  }
+
+  // 元素渲染后设置
+  #setTooltip = subLayer => {
+    if (this.tooltipTargets.find(key => key === subLayer)) {
+      const els = this.root.selectAll(`.wave-basic-${subLayer}`)
+      tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
+    }
+  }
+
+  // 元素渲染后设置
+  #setAnimation = subLayer => {
+    let isFirst = true
+    const {options} = this.#backupAnimation
+    // 配置动画前先销毁之前的动画，释放资源
+    if (this.#backupAnimation[subLayer]) {
+      this.#backupAnimation[subLayer].destroy()
+      isFirst = false
+    }
+    // 没有数据，不需要配置动画
+    if (this.#backupData[subLayer].length === 0 || !options || !options[subLayer]) {
+      this.#backupAnimation[subLayer] = null
+      return
+    }
+    const animationQueue = new Animation.Queue({loop: false})
+    const enterQueue = new Animation.Queue({loop: false})
+    const loopQueue = new Animation.Queue({loop: true})
+    const {enterAnimation, loopAnimation} = options[subLayer]
+    const targets = `.wave-basic-${subLayer}`
+    // 配置入场动画和轮播动画并连接
+    isFirst && enterAnimation && enterQueue.push(enterAnimation.type, {...enterAnimation, targets}, this.root)
+    loopAnimation && loopQueue.push(loopAnimation.type, {...loopAnimation, targets}, this.root)
+    this.#backupAnimation[subLayer] = animationQueue.push('queue', enterQueue).push('queue', loopQueue)
+    // 动画事件注册
+    this.#backupAnimation[subLayer].event.on('start', data => this.event.fire(`${subLayer}-animation-start`, data))
+    this.#backupAnimation[subLayer].event.on('process', data => this.event.fire(`${subLayer}-animation-process`, data))
+    this.#backupAnimation[subLayer].event.on('end', data => this.event.fire(`${subLayer}-animation-end`, data))
+    // 非首次等待数据更新后执行，待优化
+    const {updateAnimationDuration = 2000, updateAnimationDelay = 0} = this.style[subLayer]
+    const delay = updateAnimationDuration + updateAnimationDelay
+    !isFirst && setTimeout(() => this.#backupAnimation[subLayer].play(), delay)
   }
 
   /**
@@ -279,7 +275,7 @@ export default class LayerBase {
         const elContainer = container.selectAll(`.${groupClassName}`)
         const options = {...data[i], className: `wave-basic-${subLayer}`, container: elContainer}
         // 首次渲染不启用数据更新动画
-        options.enableUpdateAnimation = this.#backupData[subLayer][i] ? data[i].enableUpdateAnimation : false
+        options.enableUpdateAnimation = this.#backupData[subLayer][i] && data[i].enableUpdateAnimation
         // 调用基础元素绘制函数进行绘制
         !options.hide && basicMapping[type](options)
         // 备份数据以便支持其他功能
@@ -287,8 +283,9 @@ export default class LayerBase {
       }
     }
     // 新的元素需要重新注册事件
-    this.setEvent(subLayer)
-    this.setTooltip({rebind: true})
+    this.#setEvent(subLayer)
+    this.#setAnimation(subLayer)
+    this.#setTooltip(subLayer)
   }
 
   // 销毁图层

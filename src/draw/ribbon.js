@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import {isArray} from 'lodash'
 
 // 绘制一组丝带边
 export default function drawRibbon({
@@ -9,7 +10,7 @@ export default function drawRibbon({
   opacity = 1,
   fillOpacity = 1,
   strokeOpacity = 1,
-  enableUpdateAnimation = true,
+  enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
   mapping = item => item, // 高级数据过滤函数
@@ -24,14 +25,14 @@ export default function drawRibbon({
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((item, i) => ({
     className,
-    opacity,
-    fillOpacity,
-    strokeOpacity,
-    fill: Array.isArray(fill) ? fill[i] : fill,
-    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-    mask: Array.isArray(mask) ? mask[i] : mask,
-    filter: Array.isArray(filter) ? filter[i] : filter,
-    strokeWidth,
+    fill: isArray(fill) ? fill[i] : fill,
+    stroke: isArray(stroke) ? stroke[i] : stroke,
+    opacity: isArray(opacity) ? opacity[i] : opacity,
+    fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
+    strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
+    strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
+    filter: isArray(filter) ? filter[i] : filter,
+    mask: isArray(mask) ? mask[i] : mask,
     d: getPath(type, item),
     transform: type === 'chord' ? `translate(${position[i][0]}px, ${position[i][1]}px)` : null,
     source: source.length > i ? source[i] : null,

@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import {isArray} from 'lodash'
 
 // 绘制一组圆弧
 export default function drawArc({
@@ -27,14 +28,14 @@ export default function drawArc({
     const arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius)
     return {
       className,
-      opacity,
-      fillOpacity,
-      strokeOpacity,
-      strokeWidth,
-      fill: Array.isArray(fill) ? fill[i] : fill,
-      stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-      mask: Array.isArray(mask) ? mask[i] : mask,
-      filter: Array.isArray(filter) ? filter[i] : filter,
+      fill: isArray(fill) ? fill[i] : fill,
+      stroke: isArray(stroke) ? stroke[i] : stroke,
+      opacity: isArray(opacity) ? opacity[i] : opacity,
+      fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
+      strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
+      strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
+      filter: isArray(filter) ? filter[i] : filter,
+      mask: isArray(mask) ? mask[i] : mask,
       d: arc({startAngle: Math.PI * (startAngle / 180), endAngle: Math.PI * (endAngle / 180)}),
       transform: `translate(${x}px, ${y}px)`,
       source: source.length > i ? source[i] : null,

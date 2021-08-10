@@ -1,3 +1,5 @@
+import {isArray} from 'lodash'
+
 // 绘制一组圆形（含椭圆）
 export default function drawCircle({
   fill = 'rgba(255,255,255,1)', // 颜色
@@ -25,14 +27,14 @@ export default function drawCircle({
     cy: position[i][1],
     rx: size[0],
     ry: size[1],
-    fill: Array.isArray(fill) ? fill[i] : fill,
-    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-    mask: Array.isArray(mask) ? mask[i] : mask,
-    filter: Array.isArray(filter) ? filter[i] : filter,
-    strokeWidth: Array.isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
-    opacity,
-    fillOpacity,
-    strokeOpacity,
+    fill: isArray(fill) ? fill[i] : fill,
+    stroke: isArray(stroke) ? stroke[i] : stroke,
+    opacity: isArray(opacity) ? opacity[i] : opacity,
+    fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
+    strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
+    strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
+    filter: isArray(filter) ? filter[i] : filter,
+    mask: isArray(mask) ? mask[i] : mask,
     source: source.length > i ? source[i] : null,
     transformOrigin: `${position[i][0]} ${position[i][1]}`,
   }))

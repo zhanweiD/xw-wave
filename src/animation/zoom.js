@@ -6,12 +6,14 @@ const modeType = {
   SHOW: 'enlarge',
   HIDE: 'narrow',
 }
+
 // 方向常量
 const directions = {
   HORIZONTAL: 'horizontal',
   VERTICAL: 'vertical',
   BOTH: 'both',
 }
+
 // 默认参数
 const defaultOptions = {
   delay: 500,
@@ -44,7 +46,7 @@ export default class ZoomAnimation extends AnimationBase {
 
   play() {
     const {targets, delay, duration, mode, direction, loop} = this.options
-    anime({
+    this.instance = anime({
       targets,
       duration: duration * 0.8,
       delay: anime.stagger(duration / this.elementNumber / 5, {start: delay}),

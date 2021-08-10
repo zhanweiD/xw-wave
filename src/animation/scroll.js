@@ -42,7 +42,7 @@ export default class ScrollAnimation extends AnimationBase {
 
   play() {
     const {targets, delay, duration, offset, reverse} = this.options
-    anime({
+    this.instance = anime({
       targets,
       duration,
       delay,

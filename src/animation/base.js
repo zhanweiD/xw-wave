@@ -1,6 +1,7 @@
 import {merge} from 'lodash'
 import createEvent from '../util/create-event'
 import createLog from '../util/create-log'
+import uuid from '../util/uuid'
 
 // 动画基类
 export default class AnimationBase {
@@ -19,6 +20,7 @@ export default class AnimationBase {
     } else if (targets && targets.constructor.name === 'Selection') {
       merge(options, {targets: targets._groups[0]})
     }
+    this.id = uuid()
     this.options = options
     this.log = createLog('src/animation/base')
     this.event = createEvent('src/animation/base')

@@ -1,3 +1,5 @@
+import {isArray} from 'lodash'
+
 // 绘制一组直线
 export default function drawLine({
   stroke = 'rgba(255,255,255,1)',
@@ -19,18 +21,19 @@ export default function drawLine({
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = position.map((data, i) => ({
     className,
-    opacity,
-    strokeOpacity,
     x1: data[0],
     y1: data[1],
     x2: data[2],
     y2: data[3],
+    fill: 'none',
+    stroke: isArray(stroke) ? stroke[i] : stroke,
+    opacity: isArray(opacity) ? opacity[i] : opacity,
+    strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
+    strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
+    filter: isArray(filter) ? filter[i] : filter,
+    mask: isArray(mask) ? mask[i] : mask,
+    strokeDasharray: isArray(dasharray) ? dasharray[i] : dasharray,
     source: source.length > i ? source[i] : null,
-    stroke: Array.isArray(stroke) ? stroke[i] : stroke,
-    strokeWidth: Array.isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
-    strokeDasharray: Array.isArray(dasharray) ? dasharray[i] : dasharray,
-    mask: Array.isArray(mask) ? mask[i] : mask,
-    filter: Array.isArray(filter) ? filter[i] : filter,
   }))
 
   // 画线

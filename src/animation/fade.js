@@ -6,6 +6,7 @@ const modeType = {
   SHOW: 'fadeIn',
   HIDE: 'fadeOut',
 }
+
 // 默认参数
 const defaultOptions = {
   delay: 0,
@@ -21,7 +22,7 @@ export default class FadeAnimation extends AnimationBase {
 
   play() {
     const {targets, delay, duration, loop, mode} = this.options
-    anime({
+    this.instance = anime({
       targets,
       duration,
       delay,
