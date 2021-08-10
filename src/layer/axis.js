@@ -3,14 +3,10 @@ import {merge} from 'lodash'
 import LayerBase, {scaleTypes} from './base'
 import Scale from '../data/scale'
 
-// 坐标类型，单个或者组合
+// 坐标系类型
 const axisType = {
   CARTESIAN: 'cartesian', // 直角坐标系
-  HORIZONTAL: 'horizontal', // 水平单轴
-  VERTICAL: 'vertical', // 垂直单轴
   POLAR: 'polar', // 极坐标系
-  RADIUS: 'radius', // 半径单轴
-  ANGLE: 'angle', // 角度单轴
 }
 
 // 默认选项
@@ -19,11 +15,18 @@ const defaultOptions = {
 }
 
 // 刻度线的默认样式
-const defaultLine = {
+const defaultTickLine = {
   stroke: 'white',
   strokeWidth: 1,
   strokeOpacity: 0.2,
   fillOpacity: 0,
+}
+
+// 轴线的默认样式
+const defaultAxisLine = {
+  stroke: 'white',
+  strokeWidth: 1,
+  strokeOpacity: 0.5,
 }
 
 // 文字的默认样式
@@ -34,29 +37,24 @@ const defaultText = {
 
 // 默认样式
 const defaultStyle = {
-  labelOffset: 5,
   circle: {},
-  lineX: defaultLine,
-  lineXT: defaultLine,
-  lineY: defaultLine,
-  lineYR: defaultLine,
-  lineAngle: defaultLine,
-  lineRadius: defaultLine,
-  textX: defaultText,
-  textXT: defaultText,
-  textY: defaultText,
-  textYR: defaultText,
-  textAngle: defaultText,
-  textRadius: defaultText,
+  lineAxisX: defaultAxisLine, // X轴线
+  lineAxisY: defaultAxisLine, // Y轴线
+  lineTickX: defaultTickLine, // X刻度线
+  lineTickY: defaultTickLine, // Y刻度线
+  lineAngle: defaultTickLine, // 角度线
+  lineRadius: defaultTickLine, // 半径线
+  textX: defaultText, // X标签
+  textY: defaultText, // Y标签
+  textAngle: defaultText, // 角度标签
+  textRadius: defaultText, // 半径标签
 }
 
 // 获取坐标值
 const getPosition = (type, targetScale) => {
   const position = []
   if (targetScale?.type === 'band' || targetScale?.type === 'point') {
-    const needOffset = targetScale.type === 'band' && (
-      type === axisType.CARTESIAN || type === axisType.HORIZONTAL || type === axisType.VERTICAL
-    )
+    const needOffset = targetScale.type === 'band' && type === axisType.CARTESIAN
     targetScale.domain().forEach(label => {
       position.push([label, targetScale(label) + (needOffset ? targetScale.bandwidth() / 2 : 0)])
     })
@@ -82,18 +80,18 @@ export default class AxisLayer extends LayerBase {
   }
 
   #lineData = {
-    lineX: [],
-    lineXT: [],
-    lineY: [],
-    lineYR: [],
+    lineAxisX: [],
+    lineAxisY: [],
+    lineTickX: [],
+    lineTickY: [],
     lineAngle: [],
     lineRadius: [],
   }
 
   #textData = {
     textX: [],
-    textXT: [],
     textY: [],
+    textXT: [],
     textYR: [],
     textAngle: [],
     textRadius: [],
@@ -110,15 +108,14 @@ export default class AxisLayer extends LayerBase {
   }
 
   constructor(layerOptions, waveOptions) {
-    const lineKey = ['lineX', 'lineXT', 'lineY', 'lineYR', 'lineAngle', 'lineRadius']
+    const lineKey = ['lineAxisX', 'lineTickX', 'lineAxisY', 'lineTickY', 'lineAngle', 'lineRadius']
     const textKey = ['textX', 'textXT', 'textY', 'textYR', 'textAngle', 'textRadius']
     super({...defaultOptions, ...layerOptions}, waveOptions, [...lineKey, ...textKey])
-    const {type} = this.options
-    this.className = `wave-${type}-axis`
+    this.className = `wave-${this.options.type}-axis`
   }
 
   // 比例尺融合，多图层共用坐标轴
-  #mergeScale = scales => {
+  #merge = scales => {
     merge(this.#scale.nice, scales.nice)
     scaleTypes.forEach(type => {
       if (!scales[type]) return
@@ -147,97 +144,93 @@ export default class AxisLayer extends LayerBase {
 
   // 传入数据数组和比例尺，辅助线需要外部的比例尺
   setData(data, scales) {
-    this.#mergeScale(scales)
+    this.#merge(scales)
     const {type, layout, containerWidth} = this.options
     const {left, top, width, height} = layout
     // 清空数据
     Object.keys(this.#lineData).map(key => this.#lineData[key] = [])
     Object.keys(this.#textData).map(key => this.#textData[key] = [])
     // 水平坐标轴，垂直线分割宽度
-    if (type === axisType.HORIZONTAL || type === axisType.CARTESIAN) {
-      const position1 = getPosition(type, this.#scale.scaleX)
-      const position2 = getPosition(type, this.#scale.scaleXT)
-      const mapping = ([label, value]) => ({
-        value: label,
-        x1: left + value,
-        x2: left + value,
-        y1: top,
-        y2: top + height,
-      })
-      this.#lineData.lineX.push(...position1.map(mapping))
-      this.#lineData.lineXT.push(...position2.map(mapping)) 
-    }
+    const mappingX = ([label, value]) => ({
+      value: label,
+      x1: left + value,
+      x2: left + value,
+      y1: top,
+      y2: top + height,
+    })
+    const positionX = getPosition(type, this.#scale.scaleX).map(mappingX)
+    const positionXT = getPosition(type, this.#scale.scaleXT).map(mappingX)
+    this.#lineData.lineAxisX.push(...positionX.slice(0, 1), ...positionXT.slice(0, 1))
+    this.#lineData.lineTickX.push(...positionX.slice(1), ...positionXT.slice(1))
+    this.#textData.textX = positionX
+    this.#textData.textXT = positionXT
     // 垂直坐标轴，水平线分割高度
-    if (type === axisType.VERTICAL || type === axisType.CARTESIAN) {
-      const position1 = getPosition(type, this.#scale.scaleY)
-      const position2 = getPosition(type, this.#scale.scaleYR)
-      const mapping = ([label, value]) => ({
-        value: label,
-        x1: 0,
-        x2: containerWidth,
-        y1: top + value,
-        y2: top + value,
-      })
-      this.#lineData.lineY.push(...position1.map(mapping))
-      this.#lineData.lineYR.push(...position2.map(mapping))
-    }
+    const mappingY = ([label, value]) => ({
+      value: label,
+      x1: 0,
+      x2: containerWidth,
+      y1: top + value,
+      y2: top + value,
+    })
+    const positionY = getPosition(type, this.#scale.scaleY).map(mappingY)
+    const positionYR = getPosition(type, this.#scale.scaleYR).map(mappingY)
+    this.#lineData.lineAxisY.push(...positionY.slice(0, 1), ...positionYR.slice(0, 1))
+    this.#lineData.lineTickY.push(...positionY.slice(1), ...positionYR.slice(1))
+    this.#textData.textY = positionY
+    this.#textData.textYR = positionYR
     // 角度坐标轴，分割角度射线
-    if (type === axisType.ANGLE || type === axisType.POLAR) {
-      const position = getPosition(type, this.#scale.scaleAngle)
-      const maxRadius = this.#scale.scaleRadius?.range()[1] || Math.max(width / 2, height / 2)
-      this.#lineData.lineAngle.push(...position.map(([label, value]) => ({
-        value: label,
-        angle: value,
-        x1: left + width / 2,
-        y1: top + height / 2,
-        x2: left + width / 2 + Math.sin((value / 180) * Math.PI) * maxRadius,
-        y2: top + height / 2 - Math.cos((value / 180) * Math.PI) * maxRadius,
-      })))
-    }
+    const positionAngle = getPosition(type, this.#scale.scaleAngle)
+    const maxRadius = this.#scale.scaleRadius?.range()[1] || Math.max(width / 2, height / 2)
+    this.#lineData.lineAngle.push(...positionAngle.map(([label, value]) => ({
+      value: label,
+      angle: value,
+      x1: left + width / 2,
+      y1: top + height / 2,
+      x2: left + width / 2 + Math.sin((value / 180) * Math.PI) * maxRadius,
+      y2: top + height / 2 - Math.cos((value / 180) * Math.PI) * maxRadius,
+    })))
     // 半径坐标轴，半径圆环
-    if (type === axisType.RADIUS || type === axisType.POLAR) {
-      const position = getPosition(type, this.#scale.scaleRadius)
-      this.#lineData.lineRadius.push(...position.map(([label, value]) => ({
-        value: label,
-        cx: left + width / 2,
-        cy: top + height / 2,
-        rx: value,
-        ry: value,
-      })))
-    }
+    const positionRadius = getPosition(type, this.#scale.scaleRadius)
+    this.#lineData.lineRadius.push(...positionRadius.map(([label, value]) => ({
+      value: label,
+      cx: left + width / 2,
+      cy: top + height / 2,
+      rx: value,
+      ry: value,
+    })))
   }
 
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelOffset, textX, textXT, textY, textYR, textAngle, textRadius} = this.#style
+    const {textX, textY, textAngle, textRadius} = this.#style
     // X轴主轴标签在线的正下方
-    this.#textData.textX = this.#lineData.lineX.map(({value, x2, y2}) => {
-      return this.createText({x: x2, y: y2, position: 'bottom', value, style: textX, offset: labelOffset})
+    this.#textData.textX = this.#textData.textX.map(({value, x2, y2}) => {
+      return this.createText({x: x2, y: y2, position: 'bottom', value, style: textX})
     })
     // X轴副轴标签在线的正上方
-    this.#textData.textXT = this.#lineData.lineXT.map(({value, x1, y1}) => {
-      return this.createText({x: x1, y: y1, position: 'top', value, style: textXT, offset: labelOffset})
+    this.#textData.textXT = this.#textData.textXT.map(({value, x1, y1}) => {
+      return this.createText({x: x1, y: y1, position: 'top', value, style: textX})
     })
     // Y轴主轴标签在线的左下方
-    this.#textData.textY = this.#lineData.lineY.map(({value, x1, y1}) => {
+    this.#textData.textY = this.#textData.textY.map(({value, x1, y1}) => {
       const position = this.#scale.scaleY?.type === 'linear' ? 'right-bottom' : 'right'
-      return this.createText({x: x1, y: y1, position, value, style: textY, offset: labelOffset})
+      return this.createText({x: x1, y: y1, position, value, style: textY})
     })
     // Y轴副轴标签在线的右下方
-    this.#textData.textYR = this.#lineData.lineYR.map(({value, x2, y2}) => {
-      return this.createText({x: x2, y: y2, position: 'left-bottom', value, style: textYR, offset: labelOffset})
+    this.#textData.textYR = this.#textData.textYR.map(({value, x2, y2}) => {
+      return this.createText({x: x2, y: y2, position: 'left-bottom', value, style: textY})
     })
     // 角度坐标在线的延伸处
     this.#textData.textAngle = this.#lineData.lineAngle.map(({value, x2, y2, angle}) => {
       const _angle = Math.abs((angle + 360) % 360)
       const [isTop, isBottom, isLeft, isRight] = [_angle === 0, _angle === 180, _angle > 180, _angle < 180]
       const position = isTop ? 'top' : isBottom ? 'bottom' : isLeft ? 'left' : isRight ? 'right' : 'default'
-      return this.createText({x: x2, y: y2, position, value, style: textAngle, offset: labelOffset})
+      return this.createText({x: x2, y: y2, position, value, style: textAngle})
     })
     // 半径坐标在角度坐标第一根线的右侧
     this.#textData.textRadius = this.#lineData.lineRadius.map(({value, cx, cy, rx}) => {
-      return this.createText({x: cx, y: cy - rx, position: 'right', value, style: textRadius, offset: labelOffset})
+      return this.createText({x: cx, y: cy - rx, position: 'right', value, style: textRadius})
     })
   }
 
@@ -253,21 +246,25 @@ export default class AxisLayer extends LayerBase {
       position: this.#lineData[key].map(({cx, cy}) => [cx, cy]),
       ...this.#style[key],
     }]
-    const transformTextData = key => [{
+    const transformTextData = (key, style) => [{
       data: this.#textData[key].map(({value}) => value),
       position: this.#textData[key].map(({x, y}) => [x, y]),
-      ...this.#style[key],
+      ...this.#style[style],
     }]
-    scaleX?.type === 'linear' && this.drawBasic('line', transformLineData('lineX'), 'lineX')
-    scaleXT?.type === 'linear' && this.drawBasic('line', transformLineData('lineXT'), 'lineXT')
-    scaleY?.type === 'linear' && this.drawBasic('line', transformLineData('lineY'), 'lineY')
-    scaleYR?.type === 'linear' && this.drawBasic('line', transformLineData('lineYR'), 'lineYR')
+    if (scaleX?.type === 'linear' || scaleXT?.type === 'linear') {
+      this.drawBasic('line', transformLineData('lineAxisX'), 'lineAxisX')
+      this.drawBasic('line', transformLineData('lineTickX'), 'lineTickX')
+    }
+    if (scaleY?.type === 'linear' || scaleYR?.type === 'linear') {
+      this.drawBasic('line', transformLineData('lineAxisY'), 'lineAxisY')
+      this.drawBasic('line', transformLineData('lineTickY'), 'lineTickY')
+    }
     this.drawBasic('line', transformLineData('lineAngle'), 'lineAngle')
     this.drawBasic('circle', transformRadiusData('lineRadius'), 'lineRadius')
-    this.drawBasic('text', transformTextData('textX'), 'textX')
-    this.drawBasic('text', transformTextData('textXT'), 'textXT')
-    this.drawBasic('text', transformTextData('textY'), 'textY')
-    this.drawBasic('text', transformTextData('textYR'), 'textYR')
+    this.drawBasic('text', transformTextData('textX', 'textX'), 'textX')
+    this.drawBasic('text', transformTextData('textY', 'textY'), 'textY')
+    this.drawBasic('text', transformTextData('textXT', 'textX'), 'textXT')
+    this.drawBasic('text', transformTextData('textYR', 'textY'), 'textYR')
     this.drawBasic('text', transformTextData('textAngle'), 'textAngle')
     this.drawBasic('text', transformTextData('textRadius'), 'textRadius')
   }
