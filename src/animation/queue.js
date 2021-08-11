@@ -57,7 +57,7 @@ export default class AnimationQueue extends AnimationBase {
 
   /**
    * 离散动画链接成序列动画
-   * @param {Array | Function} priorityConfig 优先级数组或者映射函数，默认为数组下标顺序
+   * @param {Array|Function} priorityConfig 优先级数组或者映射函数，默认为数组下标顺序
    */
   connect(priorityConfig) {
     // 初始化每个动画对象的生命周期

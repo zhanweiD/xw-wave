@@ -1,6 +1,6 @@
 import {isArray, isEqual, merge} from 'lodash'
 import Animation from '../animation'
-import formatText from '../util/format-text'
+import {formatNumber} from '../util/format'
 import getTextWidth from '../util/text-width'
 import createEvent from '../util/create-event'
 import basicMapping from '../draw'
@@ -119,7 +119,7 @@ export default class LayerBase {
   createText({x, y, value, style, position = positionType.RIGHTTOP, textAnchor, offset = 0}) {
     let [positionX, positionY] = [x, y]
     const {fontSize = 12, writingMode, format} = style
-    const formattedText = formatText(value, format)
+    const formattedText = formatNumber(value, format)
     const textWidth = getTextWidth(formattedText, fontSize)
     if (position === positionType.CENTER) {
       positionX -= textWidth / 2

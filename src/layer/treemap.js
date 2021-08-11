@@ -1,8 +1,8 @@
 import * as d3 from 'd3'
 import LayerBase from './base'
-import formatText from '../util/format-text'
+import {overflowControl} from '../util/format'
 
-// 平铺模式（d3内置）
+// 平铺方式（d3内置）
 const tileType = {
   BINARY: 'treemapBinary', // 平衡二叉树
   DICE: 'treemapDice', // 水平划分
@@ -108,8 +108,8 @@ export default class TreemapLayer extends LayerBase {
         [nameX, nameY, position] = [x + width, y + height - text.fontSize - labelGap, 'left-top'] 
       }
       // 溢出文字处理
-      const nameText = formatText(name, {isOverflowControl: true, width, height: (height - labelGap) / 2})
-      const valueText = formatText(value, {isOverflowControl: true, width, height: (height - labelGap) / 2})
+      const nameText = overflowControl(name, {width, height: (height - labelGap) / 2})
+      const valueText = overflowControl(value, {width, height: (height - labelGap) / 2})
       // 返回标签和数值
       return [
         this.createText({value: nameText, x: nameX, y: nameY, position, style: text}),

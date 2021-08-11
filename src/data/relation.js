@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import DataBase from './base'
-import formatText from '../util/format-text'
+import {formatNumber} from '../util/format'
 
 // 关系型数据处理工具
 export default class Relation extends DataBase {
@@ -49,7 +49,7 @@ export default class Relation extends DataBase {
         this.data.nodes.forEach(node => {
           const froms = this.data.links.filter(({from}) => from === node.id).map(({value}) => value)
           const tos = this.data.links.filter(({to}) => to === node.id).map(({value}) => value)
-          node.value = formatText(d3.max([d3.sum(froms), d3.sum(tos)]), {type: 'number'})
+          node.value = formatNumber(d3.max([d3.sum(froms), d3.sum(tos)]), {type: 'number'})
         })
       }
       // 衍生数据

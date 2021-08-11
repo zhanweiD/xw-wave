@@ -2,7 +2,7 @@ import {sum, max, range} from 'd3'
 import {cloneDeep} from 'lodash'
 import LayerBase from './base'
 import getTextWidth from '../util/text-width'
-import formatText from '../util/format-text'
+import {formatNumber} from '../util/format'
 
 // 对齐方式
 const alignType = {
@@ -248,7 +248,7 @@ export default class LegendLayer extends LayerBase {
     this.#data.lineData = []
     this.#data.textData = []
     // 先确定文字数据
-    const textData = this.#data.text.map(value => formatText(value, format))
+    const textData = this.#data.text.map(value => formatNumber(value, format))
     const textWidths = textData.map(value => getTextWidth(value, fontSize))
     if (direction === directionType.HORIZONTAL) {
       this.#data.textData = textData.map((value, i) => this.createText({
