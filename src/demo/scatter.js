@@ -133,33 +133,23 @@ const createSchema = (container, theme, layout, mode) => ({
         mode,
       },
       data: createTableListData(),
-      scale: {
-        count: 5,
-        // fixedPaddingInner: 10,
-        // fixedBandWidth: 30,
-        fixedBoundary: 'start',
-      },
       style: {
         circleSize: mode === 'bubble' ? [10, 30] : [5, 5],
-        circle: {
-          enableUpdateAnimation: true,
-        },
         text: {
           hide: true,
           fontSize: 10,
-          enableUpdateAnimation: true,
         },
       },
       animation: {
         circle: {
-          enterAnimation: {
+          enter: {
             type: 'zoom',
             delay: 0,
             duration: 2000,
             mode: 'enlarge',
             direction: 'both',
           },
-          loopAnimation: {
+          loop: {
             type: 'scan',
             delay: 1000,
             duration: 3000,
@@ -168,7 +158,7 @@ const createSchema = (container, theme, layout, mode) => ({
           },
         },
         text: {
-          enterAnimation: {
+          enter: {
             type: 'fade',
             delay: 2000,
             duration: 1000,

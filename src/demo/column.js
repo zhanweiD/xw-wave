@@ -141,7 +141,6 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
             : ['bottom-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'top-outer'],
           rect: {
             fill: ['red', 'green'],
-            enableUpdateAnimation: true,
             mapping: elData => {
               if (elData.source.value > 900) {
                 elData.fill = 'gray'
@@ -155,20 +154,19 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           },
           text: {
             fontSize: 10,
-            enableUpdateAnimation: true,
             format: ['number', {decimalPlace: 0, isThousandth: mode === 'waterfall'}],
           },
         },
         animation: {
           rect: {
-            enterAnimation: {
+            enter: {
               type: 'zoom',
               delay: 0,
               duration: 2000,
               mode: 'enlarge',
               direction: 'both',
             },
-            loopAnimation: {
+            loop: {
               type: 'scan',
               delay: 2000,
               duration: 3000,
@@ -177,7 +175,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
             },
           },
           text: {
-            enterAnimation: {
+            enter: {
               type: 'fade',
               delay: 2000,
               duration: 1000,
@@ -218,20 +216,16 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
       },
       text: {
         fontSize: 10,
-        enableUpdateAnimation: true,
-      },
-      point: {
-        enableUpdateAnimation: true,
       },
     },
     animation: {
       curve: {
-        enterAnimation: {
+        enter: {
           type: 'erase',
           delay: 0,
           duration: 2000,
         },
-        loopAnimation: {
+        loop: {
           type: 'scan',
           delay: 2000,
           duration: 3000,
@@ -241,7 +235,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
         },
       },
       text: {
-        enterAnimation: {
+        enter: {
           type: 'fade',
           delay: 2000,
           duration: 1000,

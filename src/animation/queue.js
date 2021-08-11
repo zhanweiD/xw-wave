@@ -34,7 +34,7 @@ export default class AnimationQueue extends AnimationBase {
     const animationHead = {id: createUuid(), instance: new EmptyAnimation()}
     // 第一个元素绑定动画序列的 start 生命周期
     animationHead.instance.event.on('process', () => this.start())
-    this.animationQueue = [animationHead]
+    this.queue = [animationHead]
   }
 
   /**
@@ -61,7 +61,7 @@ export default class AnimationQueue extends AnimationBase {
    */
   connect(priorityConfig) {
     // 初始化每个动画对象的生命周期
-    this.animationQueue.forEach(({instance}) => {
+    this.queue.forEach(({instance}) => {
       instance.event.off('start')
       instance.event.off('end')
     })
@@ -70,14 +70,14 @@ export default class AnimationQueue extends AnimationBase {
     if (Array.isArray(priorityConfig)) {
       finalPriority = [0, ...priorityConfig]
     } else if (typeof priorityConfig === 'function') {
-      finalPriority = [0, ...priorityConfig(this.animationQueue.slice(1))]
+      finalPriority = [0, ...priorityConfig(this.queue.slice(1))]
     } else {
-      finalPriority = this.animationQueue.map((item, index) => index)
+      finalPriority = this.queue.map((item, index) => index)
     }
     // 根据优先级分组动画
     const groupedAnimationQueue = new Array(Math.max(...finalPriority) + 1).fill().map(() => [])
     finalPriority.forEach((priority, animationIndex) => {
-      groupedAnimationQueue[priority].push(this.animationQueue[animationIndex])
+      groupedAnimationQueue[priority].push(this.queue[animationIndex])
     })
     // 对分组后的动画进行连接
     groupedAnimationQueue.reduce((previousAnimations, currentAnimations, priority) => {
@@ -108,7 +108,7 @@ export default class AnimationQueue extends AnimationBase {
    */
   push(type, options, context) {
     // 创建一个可以序列化的动画对象（带Id）
-    const createQueueableAnimation = animation => this.animationQueue.push({
+    const createQueueableAnimation = animation => this.queue.push({
       id: options.id || createUuid(),
       instance: animation,
     })
@@ -135,11 +135,11 @@ export default class AnimationQueue extends AnimationBase {
    * @param {动画Id} id
    */
   remove(id) {
-    const index = this.animationQueue.findIndex(item => item.id === id)
+    const index = this.queue.findIndex(item => item.id === id)
     if (index !== -1) {
       // 删除旧的动画，需要再次 connect
       this.isReady = false
-      return this.animationQueue.splice(index, 1)
+      return this.queue.splice(index, 1)
     } 
     this.log.error('The Animation does not exist', id)
     return null
@@ -152,7 +152,7 @@ export default class AnimationQueue extends AnimationBase {
     } else {
       // 重新连接，开始动画
       !this.isReady && this.connect()
-      this.animationQueue[0].instance.play()
+      this.queue[0].instance.play()
     }
     this.event.has('play') && this.event.fire('play')
     return this
@@ -160,13 +160,13 @@ export default class AnimationQueue extends AnimationBase {
 
   end() {
     this.isAnimationStart = false
-    this.isAnimationAvailable && this.options.loop && this.animationQueue.length !== 1 && this.play()
+    this.isAnimationAvailable && this.options.loop && this.queue.length !== 1 && this.play()
     this.event.has('end') && this.event.fire('end')
   }
 
   destroy() {
     this.isAnimationAvailable = false
-    this.animationQueue.forEach(item => item.instance.destroy())
+    this.queue.forEach(item => item.instance.destroy())
     this.event.has('destroy') && this.event.fire('destroy')
   }
 }

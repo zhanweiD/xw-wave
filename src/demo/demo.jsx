@@ -53,11 +53,11 @@ export default function Example() {
     const themeColors = ThemeConfig[theme].colors
     // 柱状图和条形图
     waves.push(chart === 'column' && createWave(columnSchema.groupColumn(refs[1].current, themeColors)))
-    waves.push(chart === 'column' && createWave(columnSchema.stackColumn(refs[2].current, themeColors)))
-    waves.push(chart === 'column' && createWave(columnSchema.intervalColumn(refs[3].current, themeColors)))
-    waves.push(chart === 'column' && createWave(columnSchema.waterfallColumn(refs[4].current, themeColors)))
-    waves.push(chart === 'column' && createWave(columnSchema.groupLineColumn(refs[29].current, themeColors)))
-    waves.push(chart === 'column' && createWave(columnSchema.stackLineColumn(refs[30].current, themeColors)))
+    // waves.push(chart === 'column' && createWave(columnSchema.stackColumn(refs[2].current, themeColors)))
+    // waves.push(chart === 'column' && createWave(columnSchema.intervalColumn(refs[3].current, themeColors)))
+    // waves.push(chart === 'column' && createWave(columnSchema.waterfallColumn(refs[4].current, themeColors)))
+    // waves.push(chart === 'column' && createWave(columnSchema.groupLineColumn(refs[29].current, themeColors)))
+    // waves.push(chart === 'column' && createWave(columnSchema.stackLineColumn(refs[30].current, themeColors)))
     waves.push(chart === 'bar' && createWave(columnSchema.groupBar(refs[5].current, themeColors)))
     waves.push(chart === 'bar' && createWave(columnSchema.stackBar(refs[6].current, themeColors)))
     waves.push(chart === 'bar' && createWave(columnSchema.intervalBar(refs[7].current, themeColors)))

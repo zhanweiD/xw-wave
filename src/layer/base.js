@@ -28,7 +28,7 @@ export default class LayerBase {
 
   #backupEvent = {}
 
-  #backupAnimation = {}
+  #backupAnimation = {options: {}}
 
   constructor(layerOptions, waveOptions, subLayers) {
     this.options = merge(layerOptions, waveOptions)
@@ -211,12 +211,12 @@ export default class LayerBase {
 
   // 元素渲染后设置动画
   #setAnimation = subLayer => {
-    let isFirst = true
+    let isFirstPlay = true
     const {options} = this.#backupAnimation
     // 配置动画前先销毁之前的动画，释放资源
     if (this.#backupAnimation[subLayer]) {
       this.#backupAnimation[subLayer].destroy()
-      isFirst = false
+      isFirstPlay = false
     }
     // 没有数据，不需要配置动画
     if (this.#backupData[subLayer].length === 0 || !options || !options[subLayer]) {
@@ -226,20 +226,24 @@ export default class LayerBase {
     const animationQueue = new Animation.Queue({loop: false})
     const enterQueue = new Animation.Queue({loop: false})
     const loopQueue = new Animation.Queue({loop: true})
-    const {enterAnimation, loopAnimation} = options[subLayer]
+    const {enter, loop, update} = options[subLayer]
     const targets = `.wave-basic-${subLayer}`
     // 配置入场动画和轮播动画并连接
-    isFirst && enterAnimation && enterQueue.push(enterAnimation.type, {...enterAnimation, targets}, this.root)
-    loopAnimation && loopQueue.push(loopAnimation.type, {...loopAnimation, targets}, this.root)
-    this.#backupAnimation[subLayer] = animationQueue.push('queue', enterQueue).push('queue', loopQueue)
+    enter && enterQueue.push(enter.type, {...enter, targets}, this.root)
+    loop && loopQueue.push(loop.type, {...loop, targets}, this.root)
+    isFirstPlay && animationQueue.push('queue', enterQueue)
+    this.#backupAnimation[subLayer] = animationQueue.push('queue', loopQueue)
     // 动画事件注册
-    this.#backupAnimation[subLayer].event.on('start', data => this.event.fire(`${subLayer}-animation-start`, data))
-    this.#backupAnimation[subLayer].event.on('process', data => this.event.fire(`${subLayer}-animation-process`, data))
-    this.#backupAnimation[subLayer].event.on('end', data => this.event.fire(`${subLayer}-animation-end`, data))
+    this.#backupAnimation[subLayer].event.on('start', d => this.event.fire(`${subLayer}-animation-start`, d))
+    this.#backupAnimation[subLayer].event.on('process', d => this.event.fire(`${subLayer}-animation-process`, d))
+    this.#backupAnimation[subLayer].event.on('end', d => this.event.fire(`${subLayer}-animation-end`, d))
     // 非首次等待数据更新后执行，待优化
-    const {updateAnimationDuration = 2000, updateAnimationDelay = 0} = this.style[subLayer]
-    const delay = updateAnimationDuration + updateAnimationDelay
-    !isFirst && setTimeout(() => this.#backupAnimation[subLayer].play(), delay)
+    if (!isFirstPlay) {
+      clearTimeout(this.#backupAnimation[subLayer].timer)
+      const {duration = 2000, delay = 0} = update || {}
+      const timer = setTimeout(() => this.#backupAnimation[subLayer].play(), duration + delay)
+      this.#backupAnimation[subLayer].timer = timer
+    }
   }
 
   /**
@@ -275,7 +279,13 @@ export default class LayerBase {
         const elContainer = container.selectAll(`.${groupClassName}`)
         const options = {...data[i], className: `wave-basic-${subLayer}`, container: elContainer}
         // 首次渲染不启用数据更新动画
-        options.enableUpdateAnimation = this.#backupData[subLayer][i] && data[i].enableUpdateAnimation
+        options.enableUpdateAnimation = false
+        if (this.#backupData[subLayer][i] && this.#backupAnimation.options[subLayer]) {
+          const {duration, delay} = this.#backupAnimation.options[subLayer].update || {}
+          options.enableUpdateAnimation = true
+          options.updateAnimationDuration = duration
+          options.updateAnimationDelay = delay
+        }
         // 调用基础元素绘制函数进行绘制
         !options.hide && basicMapping[type](options)
         // 备份数据以便支持其他功能

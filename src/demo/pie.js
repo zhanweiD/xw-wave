@@ -78,12 +78,6 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
         type,
         mode,
       },
-      scale: {
-        count: 5,
-        // fixedPaddingInner: 10,
-        // fixedBandWidth: 30,
-        fixedBoundary: 'start',
-      },
       data: {
         type: 'tableList',
         mode: 'normal', 
@@ -97,14 +91,13 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
         labelPosition: type === 'nightingaleRose' ? 'outer' : 'inner',
         innerRadius: donut ? 20 : 0,
         text: {
-          enableUpdateAnimation: true,
           fontSize: 8,
           hide: mode === 'stack',
         },
       },
       animation: {
         arc: {
-          enterAnimation: {
+          enter: {
             type: 'zoom',
             delay: 0,
             duration: 2000,
@@ -113,7 +106,7 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
           },
         },
         text: {
-          enterAnimation: {
+          enter: {
             type: 'fade',
             delay: 2000,
             duration: 1000,

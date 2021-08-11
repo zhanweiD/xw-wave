@@ -75,16 +75,14 @@ const createSchema = (container, theme, layout, shape) => ({
       style: {
         circleSize: ['auto', 'auto'],
         rect: {
-          enableUpdateAnimation: true,
         },
         text: {
           fontSize: 10,
-          enableUpdateAnimation: true,
         },
       },
       animation: {
         rect: {
-          enterAnimation: {
+          enter: {
             type: 'zoom',
             delay: 0,
             duration: 2000,
@@ -93,7 +91,7 @@ const createSchema = (container, theme, layout, shape) => ({
           },
         },
         circle: {
-          enterAnimation: {
+          enter: {
             type: 'zoom',
             delay: 0,
             duration: 2000,
@@ -102,7 +100,7 @@ const createSchema = (container, theme, layout, shape) => ({
           },
         },
         text: {
-          enterAnimation: {
+          enter: {
             type: 'fade',
             delay: 2000,
             duration: 1000,

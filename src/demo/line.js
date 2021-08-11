@@ -130,20 +130,18 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         },
         text: {
           fontSize: 10,
-          enableUpdateAnimation: true,
         },
         point: {
-          enableUpdateAnimation: true,
         },
       },
       animation: {
         curve: {
-          enterAnimation: {
+          enter: {
             type: 'erase',
             delay: 0,
             duration: 2000,
           },
-          loopAnimation: {
+          loop: {
             type: 'scan',
             delay: 2000,
             duration: 3000,
@@ -153,14 +151,14 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
           },
         },
         area: {
-          enterAnimation: {
+          enter: {
             type: 'erase',
             delay: 0,
             duration: 2000,
           },
         },
         text: {
-          enterAnimation: {
+          enter: {
             type: 'fade',
             delay: 2000,
             duration: 1000,

@@ -84,12 +84,6 @@ const createSchema = (container, theme, layout, mode) => ({
         axis: 'main',
         mode,
       },
-      scale: {
-        count: 5,
-        // fixedPaddingInner: 10,
-        // fixedBandWidth: 30,
-        fixedBoundary: 'start',
-      },
       data: {
         type: 'tableList',
         mode: 'normal', 
@@ -101,27 +95,20 @@ const createSchema = (container, theme, layout, mode) => ({
       },
       style: {
         pointSize: 5,
-        circle: {
-          enableUpdateAnimation: true,
-        },
-        polygon: {
-          enableUpdateAnimation: true,
-        },
         text: {
           fontSize: 10,
-          enableUpdateAnimation: true,
         },
       },
       animation: {
         polygon: {
-          enterAnimation: {
+          enter: {
             type: 'zoom',
             delay: 0,
             duration: 2000,
             mode: 'enlarge',
             direction: 'both',
           },
-          loopAnimation: {
+          loop: {
             type: 'scan',
             delay: 1000,
             duration: 3000,
@@ -130,20 +117,20 @@ const createSchema = (container, theme, layout, mode) => ({
           },
         },
         circle: {
-          enterAnimation: {
+          enter: {
             type: 'fade',
             delay: 2000,
             duration: 1000,
             mode: 'fadeIn',
           },
-          loopAnimation: {
+          loop: {
             type: 'breathe',
             delay: 1000,
             duration: 2000,
           },
         },
         text: {
-          enterAnimation: {
+          enter: {
             type: 'fade',
             delay: 2000,
             duration: 1000,
