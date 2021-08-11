@@ -31,12 +31,12 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
       mode: 'group',
     },
     // 先考虑只有一个笔刷，多笔刷感觉很少会用到
-    // brush: {
-    //   layout: 'brush',
-    //   type: type === 'column' ? 'horizontal' : 'vertical',
-    //   // 哪些图层支持笔刷
-    //   targets: ['rect', 'axis'],
-    // },
+    brush: {
+      layout: 'brush',
+      type: type === 'column' ? 'horizontal' : 'vertical',
+      // 哪些图层支持笔刷
+      targets: ['rect', 'axis'],
+    },
     // 图层数据，下标顺序代表绘制顺序
     layers: [
       // 标题文字图层
@@ -166,13 +166,13 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
               mode: 'enlarge',
               direction: 'both',
             },
-            loop: {
-              type: 'scan',
-              delay: 2000,
-              duration: 3000,
-              color: 'rgba(255,255,255,1)',
-              direction: type === 'bar' ? 'right' : 'top',
-            },
+            // loop: {
+            //   type: 'scan',
+            //   delay: 2000,
+            //   duration: 3000,
+            //   color: 'rgba(255,255,255,1)',
+            //   direction: type === 'bar' ? 'right' : 'top',
+            // },
           },
           text: {
             enter: {
@@ -225,14 +225,14 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           delay: 0,
           duration: 2000,
         },
-        loop: {
-          type: 'scan',
-          delay: 2000,
-          duration: 3000,
-          color: 'rgba(255,255,255,0.9)',
-          direction: 'right',
-          scope: 'stroke',
-        },
+        // loop: {
+        //   type: 'scan',
+        //   delay: 2000,
+        //   duration: 3000,
+        //   color: 'rgba(255,255,255,0.9)',
+        //   direction: 'right',
+        //   scope: 'stroke',
+        // },
       },
       text: {
         enter: {

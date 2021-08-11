@@ -229,8 +229,8 @@ export default class LayerBase {
     const {enter, loop, update} = options[subLayer]
     const targets = `.wave-basic-${subLayer}`
     // 配置入场动画和轮播动画并连接
-    enter && enterQueue.push(enter.type, {...enter, targets}, this.root)
     loop && loopQueue.push(loop.type, {...loop, targets}, this.root)
+    isFirstPlay && enter && enterQueue.push(enter.type, {...enter, targets}, this.root)
     isFirstPlay && animationQueue.push('queue', enterQueue)
     this.#backupAnimation[subLayer] = animationQueue.push('queue', loopQueue)
     // 动画事件注册

@@ -53,11 +53,11 @@ export default function Example() {
     const themeColors = ThemeConfig[theme].colors
     // 柱状图和条形图
     waves.push(chart === 'column' && createWave(columnSchema.groupColumn(refs[1].current, themeColors)))
-    // waves.push(chart === 'column' && createWave(columnSchema.stackColumn(refs[2].current, themeColors)))
-    // waves.push(chart === 'column' && createWave(columnSchema.intervalColumn(refs[3].current, themeColors)))
-    // waves.push(chart === 'column' && createWave(columnSchema.waterfallColumn(refs[4].current, themeColors)))
-    // waves.push(chart === 'column' && createWave(columnSchema.groupLineColumn(refs[29].current, themeColors)))
-    // waves.push(chart === 'column' && createWave(columnSchema.stackLineColumn(refs[30].current, themeColors)))
+    waves.push(chart === 'column' && createWave(columnSchema.stackColumn(refs[2].current, themeColors)))
+    waves.push(chart === 'column' && createWave(columnSchema.intervalColumn(refs[3].current, themeColors)))
+    waves.push(chart === 'column' && createWave(columnSchema.waterfallColumn(refs[4].current, themeColors)))
+    waves.push(chart === 'column' && createWave(columnSchema.groupLineColumn(refs[29].current, themeColors)))
+    waves.push(chart === 'column' && createWave(columnSchema.stackLineColumn(refs[30].current, themeColors)))
     waves.push(chart === 'bar' && createWave(columnSchema.groupBar(refs[5].current, themeColors)))
     waves.push(chart === 'bar' && createWave(columnSchema.stackBar(refs[6].current, themeColors)))
     waves.push(chart === 'bar' && createWave(columnSchema.intervalBar(refs[7].current, themeColors)))
@@ -129,6 +129,7 @@ export default function Example() {
           {chart === 'column' && <div className={s.wave} ref={refs[4]} />}
           {chart === 'column' && <div className={s.wave} ref={refs[29]} />}
           {chart === 'column' && <div className={s.wave} ref={refs[30]} />}
+          {chart === 'column' && <div className={s.wave} ref={refs[31]} />}
           {chart === 'bar' && <div className={s.wave} ref={refs[5]} />}
           {chart === 'bar' && <div className={s.wave} ref={refs[6]} />}
           {chart === 'bar' && <div className={s.wave} ref={refs[7]} />}

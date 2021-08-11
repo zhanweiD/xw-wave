@@ -2,6 +2,7 @@
   width: 90vw;
   height: 90vh;
   padding: 5vh 5vw;
+  overflow: scroll;
 }
 
 .wave {
@@ -14,11 +15,13 @@
 
 .text {
   margin-left: 3vw;
+  height: 5vh;
 }
 
 .activeText {
   color: white;
   text-shadow: 0px 0px 30px white;
+  height: 5vh;
 }
 
 .inactiveText {
