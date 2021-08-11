@@ -58,10 +58,12 @@ export default function Example() {
     waves.push(chart === 'column' && createWave(columnSchema.waterfallColumn(refs[4].current, themeColors)))
     waves.push(chart === 'column' && createWave(columnSchema.groupLineColumn(refs[29].current, themeColors)))
     waves.push(chart === 'column' && createWave(columnSchema.stackLineColumn(refs[30].current, themeColors)))
+    waves.push(chart === 'column' && createWave(columnSchema.percentageColumn(refs[31].current, themeColors)))
     waves.push(chart === 'bar' && createWave(columnSchema.groupBar(refs[5].current, themeColors)))
     waves.push(chart === 'bar' && createWave(columnSchema.stackBar(refs[6].current, themeColors)))
     waves.push(chart === 'bar' && createWave(columnSchema.intervalBar(refs[7].current, themeColors)))
     waves.push(chart === 'bar' && createWave(columnSchema.waterfallBar(refs[8].current, themeColors)))
+    waves.push(chart === 'bar' && createWave(columnSchema.percentageBar(refs[32].current, themeColors)))
     // 饼图类
     waves.push(chart === 'pie' && createWave(pieSchema.pie(refs[9].current, themeColors)))
     waves.push(chart === 'pie' && createWave(pieSchema.donut(refs[10].current, themeColors)))
@@ -105,7 +107,7 @@ export default function Example() {
 
   return (
     <div className={c('fbv fb1', s.container)} style={containerStyle}>
-      <div className="fbh fb1">
+      <div className="fbh">
         <div className={s.activeText}>主题</div>
         {Object.keys(themeMapping).map(name => Children.toArray(
           <div className={c('hand', s.text, name === theme ? s.activeText : s.inactiveText)} onClick={() => setTheme(name)}>
@@ -113,7 +115,7 @@ export default function Example() {
           </div>
         ))}
       </div>
-      <div className="fbh fb1">
+      <div className="fbh">
         <div className={s.activeText}>图表</div>
         {Object.keys(chartMapping).map(name => Children.toArray(
           <div className={c('hand', s.text, name === chart ? s.activeText : s.inactiveText)} onClick={() => setChart(name)}>
@@ -121,7 +123,7 @@ export default function Example() {
           </div>
         ))}
       </div>
-      <div className="fbh fb10">
+      <div className="fbh">
         <div className="fbh fb1 fbw">
           {chart === 'column' && <div className={s.wave} ref={refs[1]} /> }
           {chart === 'column' && <div className={s.wave} ref={refs[2]} />}
@@ -134,6 +136,7 @@ export default function Example() {
           {chart === 'bar' && <div className={s.wave} ref={refs[6]} />}
           {chart === 'bar' && <div className={s.wave} ref={refs[7]} />}
           {chart === 'bar' && <div className={s.wave} ref={refs[8]} />}
+          {chart === 'bar' && <div className={s.wave} ref={refs[32]} />}
           {chart === 'pie' && <div className={s.wave} ref={refs[9]} />}
           {chart === 'pie' && <div className={s.wave} ref={refs[10]} />}
           {chart === 'pie' && <div className={s.wave} ref={refs[11]} />}

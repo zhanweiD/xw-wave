@@ -5,6 +5,7 @@ const titleMapping = {
   stack: '堆叠图',
   interval: '区间图',
   waterfall: '瀑布图',
+  percentage: '百分比图',
 }
 
 // 柱状图配置数据生成
@@ -114,6 +115,18 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           // fixedBandWidth: 30,
           // fixedBoundary: 'start',
         },
+        style: {
+          textY: {
+            format: type === 'column' && mode === 'percentage' && {
+              percentage: true,
+            },
+          },
+          textX: {
+            format: type === 'bar' && mode === 'percentage' && {
+              percentage: true,
+            },
+          },
+        },
       },
       // 矩形图层
       {
@@ -137,8 +150,8 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
         },
         style: {
           labelPosition: type === 'bar' 
-            ? ['left-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'right-outer'] 
-            : ['bottom-outer', mode === 'stack' || mode === 'waterfall' ? 'center' : 'top-outer'],
+            ? ['left-outer', mode === 'stack' || mode === 'waterfall' || mode === 'percentage' ? 'center' : 'right-outer'] 
+            : ['bottom-outer', mode === 'stack' || mode === 'waterfall' || mode === 'percentage' ? 'center' : 'top-outer'],
           rect: {
             fill: ['red', 'green'],
             mapping: elData => {
@@ -154,7 +167,11 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           },
           text: {
             fontSize: 10,
-            format: ['number', {decimalPlace: 0, thousandth: mode === 'waterfall'}],
+            format: {
+              decimalPlace: 2, 
+              thousandth: mode === 'waterfall',
+              percentage: mode === 'percentage',
+            },
           },
         },
         animation: {
@@ -261,4 +278,6 @@ export default {
   waterfallBar: (container, theme) => createSchema(container, theme, Layout.standard(true), 'bar', 'waterfall', false),
   groupLineColumn: (container, theme) => createSchema(container, theme, Layout.standard(true), 'column', 'group', true),
   stackLineColumn: (container, theme) => createSchema(container, theme, Layout.standard(true), 'column', 'stack', true),
+  percentageColumn: (container, theme) => createSchema(container, theme, Layout.standard(true), 'column', 'percentage', false),
+  percentageBar: (container, theme) => createSchema(container, theme, Layout.standard(true), 'bar', 'percentage', false),
 }

@@ -1,4 +1,5 @@
 import {isArray, isNumber} from 'lodash'
+import {formatNumber} from '../util/format'
 import LayerBase from './base'
 import Scale from '../data/scale'
 
@@ -15,6 +16,7 @@ const modeType = {
   INTERVAL: 'interval', // 区间
   WATERFALL: 'waterfall', // 瀑布
   DEFAULT: 'default', // 覆盖
+  PERCENTAGE: 'percentage', // 百分比
 }
 
 // 默认选项
@@ -126,7 +128,8 @@ export default class RectLayer extends LayerBase {
       }),
       scaleY: new Scale({
         type: 'linear',
-        domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
+        domain: mode === modeType.PERCENTAGE ? [0, 1] 
+          : this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
         range: [layout.height, 0],
       }),
     }, this.#scale, scales)
@@ -159,7 +162,8 @@ export default class RectLayer extends LayerBase {
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'linear',
-        domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
+        domain: mode === modeType.PERCENTAGE ? [0, 1] 
+          : this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
         range: [0, layout.width],
       }),
       scaleY: new Scale({
@@ -191,9 +195,25 @@ export default class RectLayer extends LayerBase {
   // 数据变换
   #transform = () => {
     let transformedData = this.#rectData
-    const {type, mode} = this.options
-    // 堆叠数据变更
-    if (mode === modeType.STACK) {
+    const {type, mode, layout} = this.options
+    // 百分比模式需要采用堆叠的计算逻辑
+    if (mode === modeType.PERCENTAGE) {
+      transformedData.forEach(groupData => {
+        const total = groupData.reduce((prev, cur) => prev + cur.value, 0)
+        const percentages = groupData.map(({value}) => value / total)
+        groupData.forEach((item, i) => {
+          item.percentage = formatNumber(percentages[i], {decimalPlace: 4})
+          if (type === waveType.COLUMN) {
+            item.y = item.y + item.height - layout.height * percentages[i]
+            item.height = layout.height * percentages[i]
+          } else if (type === waveType.BAR) {
+            item.width = layout.width * percentages[i]
+          }
+        })
+      })
+    }
+    // 堆叠数据变更，百分比是特殊的堆叠
+    if (mode === modeType.STACK || mode === modeType.PERCENTAGE) {
       if (type === waveType.COLUMN) {
         transformedData.forEach(groupData => groupData.forEach((item, i) => {
           i !== 0 && (item.y = groupData[i - 1].y - item.height)
@@ -323,16 +343,20 @@ export default class RectLayer extends LayerBase {
       const result = []
       const positionMin = isArray(labelPosition) ? labelPosition[0] : labelPosition
       const positionMax = isArray(labelPosition) ? labelPosition[1] : labelPosition
-      groupData.forEach(({value, ...data}) => {
+      groupData.forEach(({value, percentage, ...data}) => {
         // 单值标签
-        !isArray(value) && result.push(
-          this.#getLabelData({...data, value, labelPosition: value > 0 ? positionMax : positionMin})
-        )
-        // 多值标签
-        isArray(value) && result.push(
-          this.#getLabelData({...data, value: value[0], labelPosition: positionMin}),
-          this.#getLabelData({...data, value: value[1], labelPosition: positionMax}),
-        )
+        if (!isArray(value)) {
+          result.push(this.#getLabelData({
+            ...data,
+            value: percentage || value, // 兼容百分比模式
+            labelPosition: value > 0 ? positionMax : positionMin,
+          }))
+        } else {
+          result.push(
+            this.#getLabelData({...data, value: value[0], labelPosition: positionMin}),
+            this.#getLabelData({...data, value: value[1], labelPosition: positionMax}),
+          ) 
+        }
       })
       return result
     })
