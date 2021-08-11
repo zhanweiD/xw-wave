@@ -20,7 +20,7 @@ const positionType = {
 
 // 其他常量
 export const scaleTypes = ['scaleX', 'scaleY', 'scaleXT', 'scaleYR', 'scaleAngle', 'scaleRadius']
-export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown', 'dblclick']
+export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown']
 export const tooltipEvents = ['mouseover', 'mouseout', 'mousemove']
 
 export default class LayerBase {
@@ -265,7 +265,7 @@ export default class LayerBase {
     for (let i = 0; i < Math.max(this.#backupData[subLayer].length, data.length); i++) {
       const groupClassName = `${containerClassName}-${i}`
       const els = container.selectAll(`.${groupClassName}`)
-      if (i < data.length && els._groups[0].length === 0) {
+      if (i < data.length && els.size() === 0) {
         container.append('g').attr('class', groupClassName)
       } else if (i >= data.length) {
         els.remove()

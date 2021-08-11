@@ -57,7 +57,7 @@ export default class AnimationQueue extends AnimationBase {
 
   /**
    * 离散动画链接成序列动画
-   * @param {优先级数组或者映射函数，默认为数组下标顺序} priorityConfig 
+   * @param {Array | Function} priorityConfig 优先级数组或者映射函数，默认为数组下标顺序
    */
   connect(priorityConfig) {
     // 初始化每个动画对象的生命周期
@@ -136,8 +136,8 @@ export default class AnimationQueue extends AnimationBase {
    */
   remove(id) {
     const index = this.queue.findIndex(item => item.id === id)
+    // 删除旧的动画，需要再次 connect
     if (index !== -1) {
-      // 删除旧的动画，需要再次 connect
       this.isReady = false
       return this.queue.splice(index, 1)
     } 
