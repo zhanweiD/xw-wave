@@ -1,7 +1,8 @@
 import * as d3 from 'd3'
+import uuid from './uuid'
 
 // 定义线性渐变
-const createLinearGradients = ({schema, container}) => {
+const createLinearGradients = ({container, schema}) => {
   schema && schema.forEach(({id, x1, x2, y1, y2, stops}) => {
     const linearGradient = container.append('linearGradient')
       .attr('id', id)
@@ -19,7 +20,7 @@ const createLinearGradients = ({schema, container}) => {
 }
 
 // 定义放射性渐变
-const createRadialGradients = ({schema, container}) => {
+const createRadialGradients = ({container, schema}) => {
   schema && schema.forEach(({id, r, cx, cy, fx, fy, stops}) => {
     const radialGradient = container.append('radialGradient')
       .attr('id', id)
@@ -38,7 +39,7 @@ const createRadialGradients = ({schema, container}) => {
 }
 
 // 定义渐变遮罩
-const createRectMasks = ({schema, container}) => {
+const createMasks = ({container, schema}) => {
   schema && schema.forEach(item => {
     const {id, type, fill} = item
     const mask = container.append('mask').attr('id', id)
@@ -76,10 +77,42 @@ const createRectMasks = ({schema, container}) => {
 }
 
 // 预定义函数
-const createDefs = ({schema, container}) => {
-  createLinearGradients({schema: schema?.linearGradient, container})
-  createRadialGradients({schema: schema?.radialGradient, container})
-  createRectMasks({schema: schema?.mask, container})
+const createDefs = ({container, schema}) => {
+  createLinearGradients({container, schema: schema?.linearGradient})
+  createRadialGradients({container, schema: schema?.radialGradient})
+  createMasks({container, schema: schema?.mask})
+}
+
+/**
+ * 定义渐变色的快捷方式
+ * @param {Object} options 描述对象
+ * @returns {String} 渐变色引用地址
+ */
+const makeGradientCreator = container => ({type, direction, colors}) => {
+  const id = uuid()
+  createDefs({
+    container,
+    schema: {
+      linearGradient: type === 'linear' && [{
+        id,
+        x2: direction === 'horizontal' ? '100%' : '0%',
+        y2: direction === 'vertical' ? '100%' : '0%',
+        stops: colors.map((color, i) => ({
+          offset: `${(i * 100) / (colors.length - 1)}%`,
+          color,
+        })),
+      }],
+      radialGradient: type === 'radial' && [{
+        id,
+        stops: colors.map((color, i) => ({
+          offset: `${(i * 100) / (color.length - 1)}%`,
+          color,
+        })),
+      }],
+    },
+  })
+  return `url(#${id})`
 }
 
 export default createDefs
+export {makeGradientCreator}
