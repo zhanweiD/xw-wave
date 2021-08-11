@@ -61,7 +61,7 @@ const getPosition = (type, targetScale) => {
     })
   } else if (targetScale?.type === 'linear') {
     const [min, max] = targetScale.domain()
-    d3.range(min, max + 1, (max - min) / (targetScale.nice.count)).forEach(label => {
+    d3.range(min, max + 10 ** -8, (max - min) / (targetScale.nice.count)).forEach(label => {
       position.push([label, targetScale(label)])
     })
   }
@@ -251,7 +251,7 @@ export default class AxisLayer extends LayerBase {
     const transformTextData = (key, style) => [{
       data: this.#textData[key].map(({value}) => value),
       position: this.#textData[key].map(({x, y}) => [x, y]),
-      ...this.#style[key || style],
+      ...this.#style[style || key],
     }]
     if (scaleX?.type === 'linear' || scaleXT?.type === 'linear') {
       this.drawBasic('line', transformLineData('lineAxisX'), 'lineAxisX')
