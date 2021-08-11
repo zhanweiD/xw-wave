@@ -5,9 +5,9 @@ import createLog from '../util/create-log'
 import catchError from '../util/catch-error'
 import createEvent from '../util/create-event'
 import createDefs, {makeGradientCreator} from '../util/define'
+import {layerMapping} from '../layer'
 import Tooltip from './tooltip'
 import Layout from '../layout'
-import {layerMapping} from '../layer'
 
 // 图表状态
 const stateType = {
@@ -36,10 +36,6 @@ export default class Wave {
   #state = null
 
   #container = null
-
-  #containerHeight = null
-
-  #containerWidth = null
 
   #padding = null
 
@@ -85,11 +81,11 @@ export default class Wave {
     // 确定图表宽高
     if (adjust) {
       const rect = this.#container._groups[0][0].getBoundingClientRect()
-      this.#containerWidth = rect.width
-      this.#containerHeight = rect.height
+      this.containerWidth = rect.width
+      this.containerHeight = rect.height
     } else {
-      this.#containerWidth = width
-      this.#containerHeight = height
+      this.containerWidth = width
+      this.containerHeight = height
     }
 
     // 确定主绘图区域的内边距
@@ -107,15 +103,15 @@ export default class Wave {
     this.#container.html('')
     this.#root = this.#container
       .append('svg')
-      .attr('width', this.#containerWidth)
-      .attr('height', this.#containerHeight)
+      .attr('width', this.containerWidth)
+      .attr('height', this.containerHeight)
     this.#defs = this.#root.append('defs')
     this.#tooltip = new Tooltip(this.#container, tooltip)
 
     // 初始化布局信息
     this.#layout = layout({
-      containerWidth: this.#containerWidth,
-      containerHeight: this.#containerHeight,
+      containerWidth: this.containerWidth,
+      containerHeight: this.containerHeight,
       padding: this.#padding,
     })
 
@@ -161,8 +157,8 @@ export default class Wave {
       root: this.#root,
       tooltip: this.#tooltip,
       baseFontSize: this.baseFontSize,
-      containerWidth: this.#containerWidth,
-      containerHeight: this.#containerHeight,
+      containerWidth: this.containerWidth,
+      containerHeight: this.containerHeight,
       createGradient: makeGradientCreator(this.#defs),
       getColor: this.getColor.bind(this),
       warn: this.warn.bind(this),
@@ -173,6 +169,7 @@ export default class Wave {
     // 新增对应的图层
     this.#state = stateType.READY
     this.#layer.push({type, id: layerId, instance: layer})
+    // 对图层的生命周期进行错误捕获
     catchError(layer, error => this.warn('图层生命周期调用失败', error))
     // 注册销毁事件
     layer.event.on('destroy', () => {
