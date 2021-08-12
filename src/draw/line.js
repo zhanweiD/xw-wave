@@ -2,7 +2,7 @@ import {isArray} from 'lodash'
 
 // 绘制一组直线
 export default function drawLine({
-  stroke = 'rgba(255,255,255,1)',
+  stroke = 'rgba(255,255,255)',
   strokeWidth = 1,
   opacity = 1,
   strokeOpacity = 1,

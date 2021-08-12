@@ -2,8 +2,8 @@ import {isArray} from 'lodash'
 
 // 绘制一组矩形
 export default function drawText({
-  fill = 'rgba(255,255,255,1)', // 可以是数组定义渐变色
-  stroke = 'rgba(255,255,255,0)', // 可以是数组定义渐变色
+  fill = 'rgba(255,255,255)', // 可以是数组定义渐变色
+  stroke = 'rgba(255,255,255)', // 可以是数组定义渐变色
   strokeWidth = 0,
   opacity = 1,
   fillOpacity = 1,

@@ -3,8 +3,8 @@ import {isArray} from 'lodash'
 
 // 绘制一组圆弧
 export default function drawArc({
-  fill = 'rgba(255,255,255,1)',
-  stroke = 'rgba(255,255,255,0)',
+  fill = 'rgba(255,255,255)',
+  stroke = 'rgba(255,255,255)',
   strokeWidth = 0,
   opacity = 1,
   fillOpacity = 1,

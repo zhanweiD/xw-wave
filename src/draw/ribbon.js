@@ -4,9 +4,9 @@ import {isArray} from 'lodash'
 // 绘制一组丝带边
 export default function drawRibbon({
   type = 'chord',
-  fill = 'rgba(255,255,255,1)',
-  stroke = 'rgba(255,255,255,0)',
-  strokeWidth = 1,
+  fill = 'rgba(255,255,255)',
+  stroke = 'rgba(255,255,255)',
+  strokeWidth = 0,
   opacity = 1,
   fillOpacity = 1,
   strokeOpacity = 1,

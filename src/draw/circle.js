@@ -2,8 +2,8 @@ import {isArray} from 'lodash'
 
 // 绘制一组圆形（含椭圆）
 export default function drawCircle({
-  fill = 'rgba(255,255,255,1)', // 颜色
-  stroke = 'rgba(255,255,255,0)', // 描边
+  fill = 'rgba(255,255,255)', // 颜色
+  stroke = 'rgba(255,255,255)', // 描边
   strokeWidth = 0, // 描边粗细
   opacity = 1, // 不透明度
   fillOpacity = 1,

@@ -15,11 +15,13 @@ import Sankey from './sankey'
 import Tree from './tree'
 import Treemap from './treemap'
 import Pack from './pack'
+import BaseMap from './base-map'
 
 export const layerMapping = {
   arc: Arc, // 圆弧
   auxiliary: Auxiliary, // 辅助线
   axis: Axis, // 坐标轴
+  baseMap: BaseMap, // 地图底图
   chord: Chord, // 和弦图
   edgeBundle: EdgeBundle, // 边缘捆图
   gauge: Gauge, // 仪表盘
@@ -40,6 +42,7 @@ export default {
   Arc, // 圆弧
   Auxiliary, // 辅助线
   Axis, // 坐标轴
+  BaseMap, // 地图底图
   Chord, // 和弦图
   EdgeBundle, // 边缘捆图
   Gauge, // 仪表盘
