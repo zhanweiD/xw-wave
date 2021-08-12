@@ -58,11 +58,15 @@ export default class ScatterLayer extends LayerBase {
       }),
     }, this.#scale, scales)
     // 计算点的基础数据
-    const circleData = pureTableList.map(([category, x, y, value], i) => ({
-      value,
-      category,
-      cx: left + this.#scale.scaleX(x),
-      cy: top + this.#scale.scaleY(y),
+    const xIndex = headers.findIndex(header => header === 'x')
+    const yIndex = headers.findIndex(header => header === 'y')
+    const valueIndex = headers.findIndex(header => header === 'value')
+    const categoryIndex = headers.findIndex(header => header === 'category')
+    const circleData = pureTableList.map((item, i) => ({
+      value: item[valueIndex],
+      category: item[categoryIndex],
+      cx: left + this.#scale.scaleX(item[xIndex]),
+      cy: top + this.#scale.scaleY(item[yIndex]),
       source: headers.map((header, j) => ({
         value: pureTableList[i][j],
         category: header,
@@ -81,23 +85,22 @@ export default class ScatterLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {circleSize, text, circle} = this.#style
-    const scaleSize = new Scale({
-      type: 'linear',
-      domain: this.#data.data.length >= 4 ? this.#data.select(this.#data.data[3].header).range() : [],
-      range: circleSize.map(value => value / 2),
-    })
     // 颜色跟随主题
     const colors = this.getColor(this.#circleData.length, circle.fill)
     this.#circleData.forEach((groupData, i) => groupData.forEach(item => item.color = colors[i]))
     // 圆点大小数据
-    this.#circleData = this.#circleData.map(groupData => {
-      return groupData.map(({value, ...others}) => ({
-        value,
-        ...others,
-        rx: value !== undefined ? scaleSize(value) : circleSize[0] / 2,
-        ry: value !== undefined ? scaleSize(value) : circleSize[0] / 2,
-      }))
+    const valueIndex = this.#data.data.findIndex(({header}) => header === 'value')
+    const scaleSize = new Scale({
+      type: 'linear',
+      domain: valueIndex !== -1 ? this.#data.select('value').range() : [],
+      range: circleSize.map(value => value / 2),
     })
+    this.#circleData = this.#circleData.map(groupData => groupData.map(({value, ...others}) => ({
+      value,
+      rx: value !== undefined ? scaleSize(value) : circleSize[0] / 2,
+      ry: value !== undefined ? scaleSize(value) : circleSize[0] / 2,
+      ...others,
+    })))
     // 标签文字数据
     this.#textData = this.#circleData.map(groupData => groupData.map(({cx, cy, value}) => {
       return this.createText({x: cx, y: cy, value: value || '', style: text, position: 'center'})

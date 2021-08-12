@@ -1,5 +1,5 @@
 import Layout from '../layout'
-import {createTableListData} from './mock'
+import {createScatterData} from './mock'
 
 const titleMapping = {
   scatter: '散点图',
@@ -132,7 +132,7 @@ const createSchema = (container, theme, layout, mode) => ({
         axis: 'main',
         mode,
       },
-      data: createTableListData(),
+      data: createScatterData({isBubble: mode === 'bubble'}),
       style: {
         circleSize: mode === 'bubble' ? [10, 30] : [5, 5],
         text: {

@@ -5,6 +5,7 @@ import Scale from '../data/scale'
 
 // 坐标系类型
 const axisType = {
+  GEOGRAPHIC: 'geographic', // 地理坐标系
   CARTESIAN: 'cartesian', // 直角坐标系
   POLAR: 'polar', // 极坐标系
 }
@@ -134,12 +135,14 @@ export default class AxisLayer extends LayerBase {
         }
       }
       // 基于现在的比例尺进行优化，要求优化函数有幂等性
-      this.#scale[type] = new Scale({
-        type: this.#scale[type].type,
-        domain: this.#scale[type].domain(),
-        range: this.#scale[type].range(),
-        nice: this.#scale.nice,
-      })
+      if (type !== 'scalePosition') {
+        this.#scale[type] = new Scale({
+          type: this.#scale[type].type,
+          domain: this.#scale[type].domain(),
+          range: this.#scale[type].range(),
+          nice: this.#scale.nice,
+        })
+      }
     })
   }
 

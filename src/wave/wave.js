@@ -29,6 +29,7 @@ const coordinateType = {
   CARTESIAN_LINEAR_LINEAR: 'cartesian-linear-linear',
   POLAR_BAND_LINEAR: 'polar-band-linear',
   CARTESIAN_POLAR: 'cartesian-polar',
+  GEOGRAPHIC: 'geographic',
 }
 
 // 图表类主要用于管理图层
@@ -200,14 +201,25 @@ export default class Wave {
         result.scaleAngle = scale.scaleAngle
         result.scaleRadius = scale.scaleRadius
       }
+      // 地理坐标
+      if (this.coordinate.search('geographic') !== -1) {
+        result.scalePosition = scale.scalePosition
+      }
       axisLayer.setData(null, result)
       axisLayer.setStyle()
     })
     // 将坐标轴融合处理后的比例尺传递给每个图层
     layers.forEach(layer => {
       const scales = {...layer.scale, ...axisLayer.scale}
-      const scaleY = layer.options.axis === 'minor' ? scales.scaleYR : scales.scaleY
-      layer.setData(null, {...scales, scaleY})
+      // projection 投影到普通的比例尺
+      if (this.coordinate.search('geographic') !== -1) {
+        const scaleX = x => scales.scalePosition([x, 0])[0] - layer.options.layout.left
+        const scaleY = y => scales.scalePosition([0, y])[1] - layer.options.layout.top
+        layer.setData(null, {...scales, scaleX, scaleY})
+      } else {
+        const scaleY = layer.options.axis === 'minor' ? scales.scaleYR : scales.scaleY
+        layer.setData(null, {...scales, scaleY})
+      }
       layer.setStyle()
     })
   }
@@ -268,7 +280,6 @@ export default class Wave {
     this.#layer.forEach(layer => layer.instance.draw())
   }
 
-  // 销毁所有图层
   destroy() {
     while (this.#layer.length !== 0) this.#layer[0].instance.destroy()
     this.#state = stateType.DESTROY

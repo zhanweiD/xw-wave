@@ -19,7 +19,7 @@ const positionType = {
 }
 
 // 其他常量
-export const scaleTypes = ['scaleX', 'scaleY', 'scaleXT', 'scaleYR', 'scaleAngle', 'scaleRadius']
+export const scaleTypes = ['scaleX', 'scaleY', 'scaleXT', 'scaleYR', 'scaleAngle', 'scaleRadius', 'scalePosition']
 export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown']
 export const tooltipEvents = ['mouseover', 'mouseout', 'mousemove']
 

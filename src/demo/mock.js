@@ -18,6 +18,25 @@ export const createTableListData = () => {
   const finalData = originalData.slice(0, row + 1).map(item => item.slice(0, column + 1))
   return finalData
 }
+
+export const createScatterData = ({isBubble}) => {
+  const originalData = [
+    ['category', 'x', 'y', 'value'], 
+    ['1985', 157.1, 40, 184.3, 74.2], 
+    ['1990', 224.4, 158.8, 247.1, 133.2], 
+    ['2000', 489.5, 169.3, 414.6, 140.1], 
+    ['2005', 629.8, 112.5, 582.4, 275.3], 
+    ['2007', 781.6, 113, 725.2, 367.1], 
+    ['2009', 840.4, 161, 778.4, 398.8], 
+    ['2011', 855.2, 238.7, 681, 430.4], 
+    ['2013', 772.2, 230, 534.2, 386.6], 
+    ['2015', 732.7, 162.7, 439.9, 321.5], 
+    ['2016', 718.1, 141.2, 416.6, 323.2],
+  ]
+  const column = isBubble ? 3 : 2
+  const finalData = originalData.map(item => item.slice(0, column + 1))
+  return finalData
+}
   
 export const createTableData = () => {
   const rows = ['2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018']
