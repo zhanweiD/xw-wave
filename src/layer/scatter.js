@@ -38,7 +38,7 @@ export default class ScatterLayer extends LayerBase {
     this.tooltipTargets = ['circle']
   }
 
-  // 列数据依次为：分组名称、x轴坐标值、y轴坐标值、数值（可缺省）
+  // 列数据的字段是固定的
   setData(data, scales) {
     this.#data = data || this.#data
     const {left, top, width, height} = this.options.layout

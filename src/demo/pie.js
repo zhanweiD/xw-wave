@@ -23,7 +23,10 @@ const createSchema = (container, theme, layout, type, mode, donut) => ({
   layout,
   // 坐标系声明
   coordinate: 'polar-band-linear',
-
+  // 分组展示
+  tooltip: {
+    mode: 'group',
+  },
   // 图层数据，下标顺序代表绘制顺序
   layers: [
     // 标题文字图层

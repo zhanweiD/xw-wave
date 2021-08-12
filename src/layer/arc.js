@@ -75,7 +75,7 @@ export default class ArcLayer extends LayerBase {
   }
 
   /**
-   * 传入列表类，第一列数据要求为纬度数据列
+   * 传入列表类，第一列数据要求为维度数据列
    * @param {TableList} tableList 列表
    */
   setData(tableList, scales) {

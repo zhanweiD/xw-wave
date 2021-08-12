@@ -54,7 +54,7 @@ export default class MatrixLayer extends LayerBase {
     this.tooltipTargets = ['rect', 'circle']
   }
 
-  // 传入列表类，第一列数据要求为纬度数据列
+  // 传入列表类，前两列为维度数据列
   setData(table, scales) {
     this.#data = table || this.#data
     const {shape, layout} = this.options
@@ -80,7 +80,7 @@ export default class MatrixLayer extends LayerBase {
     if (shape === shapeType.RECT) {
       this.#rectData = pureTable.map((values, i) => values.map((value, j) => ({
         value,
-        dimension: [rows[i], columns[j]],
+        dimension: `${rows[i]} ${columns[j]}`,
         x: left + scaleX(columns[j]),
         y: top + scaleY(rows[i]),
         width: bandWidthX,
@@ -91,7 +91,7 @@ export default class MatrixLayer extends LayerBase {
     if (shape === shapeType.CIRCLE) {
       this.#circleData = pureTable.map((values, i) => values.map((value, j) => ({
         value,
-        dimension: [rows[i], columns[j]],
+        dimension: `${rows[i]} ${columns[j]}`,
         cx: left + scaleX(columns[j]) + bandWidthX / 2,
         cy: top + scaleY(rows[i]) + bandWidthY / 2,
         rx: Math.min(bandWidthX, bandWidthY) / 2,

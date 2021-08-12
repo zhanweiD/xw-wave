@@ -84,7 +84,7 @@ export default class LineLayer extends LayerBase {
     this.tooltipTargets = ['circle']
   }
 
-  // 传入列表类，第一列数据要求为纬度数据列
+  // 传入列表类，第一列数据要求为维度数据列
   setData(tableList, scales) {
     this.#data = tableList || this.#data
     const {mode, layout} = this.options

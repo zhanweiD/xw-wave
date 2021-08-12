@@ -56,7 +56,7 @@ export default function Scale({type, domain, range, nice = defaultNice}) {
     nice.zero && extendZero(scale)
     nice.count && niceScale(scale, nice.count)
   }
-  // 为圆弧定制的比例尺，domain 是一个列表（第一列纬度第二列百分比数值），range 是连续区间（0-360）
+  // 为圆弧定制的比例尺，domain 是一个列表（第一列维度第二列百分比数值），range 是连续区间（0-360）
   if (type === 'angle') {
     const totalLength = range[1] - range[0]
     const padding = (totalLength * nice.paddingInner) / domain.data[0].list.length
