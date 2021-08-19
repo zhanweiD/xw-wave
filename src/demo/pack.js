@@ -42,9 +42,15 @@ const createSchema = (container, theme, layout) => {
         options: {
           id: 'pack',
           layout: 'main',
+          zoom: true,
         },
         data: createTreeData(),
         style: {},
+        animation: {
+          circle: {
+            updateAnimation: {},
+          },
+        },
       },
     ],
   }

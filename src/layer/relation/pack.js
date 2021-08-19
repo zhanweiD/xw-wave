@@ -1,6 +1,11 @@
 import * as d3 from 'd3'
 import LayerBase from '../base'
 
+// 默认选项
+const defaultOptions = {
+  zoom: false,
+}
+
 // 默认样式
 const defaultStyle = {
   padding: 0,
@@ -27,8 +32,8 @@ export default class PackLayer extends LayerBase {
 
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super({...layerOptions}, waveOptions, ['circle', 'text'])
-    this.className = 'wave-pack'
+    super({...defaultOptions, ...layerOptions}, waveOptions, ['circle', 'text'])
+    this.className = `wave${this.options.zoom ? '-zoom-' : '-'}pack`
     this.tooltipTargets = ['circle']
   }
 
@@ -38,18 +43,29 @@ export default class PackLayer extends LayerBase {
     const root = {name: 'root', children: this.#data.data.nodes.filter(({level}) => level === 0)}
     this.#data.set('treeData', d3.hierarchy(root).sum(d => d.value).sort((a, b) => b.value - a.value))
     this.#data.set('maxHeight', d3.max(this.#data.get('treeData').descendants().map(({height}) => height + 1)))
+    // 初始视角
+    const {width, height} = this.options.layout
+    this.#data.set('view', [width, height])
+    this.#data.set('offset', [0, 0])
+    this.#data.set('k', 1)
   }
 
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {layout} = this.options
+    const {left, top} = this.options.layout
     const {padding, circle, text} = this.#style
-    const pack = d3.pack().size([layout.width, layout.height]).padding(padding)
+    const pack = d3.pack().size(this.#data.get('view')).padding(padding)
     const nodes = pack(this.#data.get('treeData')).descendants()
+    const [offsetX, offsetY] = this.#data.get('offset')
     // 原始绘图数据
     this.#circleData = nodes.map(({x, y, r, height, data}) => ({
-      cx: x + layout.left, cy: y + layout.top, rx: r, ry: r, height, value: data.name,
+      rx: r, 
+      ry: r, 
+      cx: x + left + offsetX, 
+      cy: y + top + offsetY, 
+      value: data.name,
+      height,
     }))
     // 根据高度进行分类
     this.#circleData = d3.range(0, this.#data.get('maxHeight')).map(value => {
@@ -82,5 +98,25 @@ export default class PackLayer extends LayerBase {
     // 只展示最里层文字防遮挡
     this.drawBasic('circle', circleData)
     this.drawBasic('text', textData.slice(textData.length - 1))
+    // 内置缩放事件
+    this.options.zoom && this.root.selectAll('.wave-basic-circle').on('click', this.#zoom)
+  }
+
+  #zoom = (event, data) => {
+    const {cx, cy, rx, ry} = data
+    const {left, top, width, height} = this.options.layout
+    const prevK = this.#data.get('k')
+    const nextK = (Math.min(width, height) / (rx + ry)) * prevK
+    // 移动目标到中心
+    const [prevX, prevY] = this.#data.get('offset')
+    const nextX = (width / 2 - (cx - prevX - left) / prevK) * nextK - (width * (nextK - 1)) / 2
+    const nextY = (height / 2 - (cy - prevY - top) / prevK) * nextK - (height * (nextK - 1)) / 2
+    // 更新数据
+    this.#data.set('k', nextK)
+    this.#data.set('offset', [nextX, nextY])
+    this.#data.set('view', [width * nextK, height * nextK])
+    // 范围计算和绘制
+    this.setStyle()
+    this.draw()
   }
 }
