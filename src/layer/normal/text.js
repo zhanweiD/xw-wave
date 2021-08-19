@@ -1,5 +1,5 @@
-import LayerBase from './base'
-import getTextWidth from '../util/text-width'
+import LayerBase from '../base'
+import getTextWidth from '../../util/text-width'
 
 // 对齐方式
 const alignType = {

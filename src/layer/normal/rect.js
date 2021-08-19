@@ -1,7 +1,7 @@
 import {isArray, isNumber} from 'lodash'
-import {formatNumber} from '../util/format'
-import LayerBase from './base'
-import Scale from '../data/scale'
+import {formatNumber} from '../../util/format'
+import LayerBase from '../base'
+import Scale from '../../data/scale'
 
 // 映射的图表类型
 const waveType = {

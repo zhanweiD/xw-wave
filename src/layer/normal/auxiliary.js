@@ -1,4 +1,4 @@
-import LayerBase from './base'
+import LayerBase from '../base'
 
 // 辅助线方向
 const directionType = {

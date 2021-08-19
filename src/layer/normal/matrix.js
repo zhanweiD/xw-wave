@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
-import LayerBase from './base'
-import Scale from '../data/scale'
+import LayerBase from '../base'
+import Scale from '../../data/scale'
 
 // 映射的图表类型
 const shapeType = {

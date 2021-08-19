@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 import {isNumber} from 'lodash'
-import LayerBase from './base'
-import Scale from '../data/scale'
+import LayerBase from '../base'
+import Scale from '../../data/scale'
 
 // 对齐方式
 const alignType = {

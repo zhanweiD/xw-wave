@@ -1,6 +1,6 @@
 import {range} from 'd3'
-import LayerBase from './base'
-import Scale from '../data/scale'
+import LayerBase from '../base'
+import Scale from '../../data/scale'
 
 // 默认样式
 const defaultStyle = {

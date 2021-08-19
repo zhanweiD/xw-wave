@@ -1,21 +1,25 @@
-import Text from './text'
+// 通用图层
 import Axis from './axis'
-import Rect from './rect'
 import Legend from './legend'
-import Arc from './arc'
-import Line from './line'
-import Radar from './radar'
-import Auxiliary from './auxiliary'
-import Scatter from './scatter'
-import Matrix from './matrix'
-import Gauge from './gauge'
-import EdgeBundle from './edge-bundle'
-import Chord from './chord'
-import Sankey from './sankey'
-import Tree from './tree'
-import Treemap from './treemap'
-import Pack from './pack'
-import BaseMap from './base-map'
+// 基础图层
+import Text from './normal/text'
+import Rect from './normal/rect'
+import Arc from './normal/arc'
+import Line from './normal/line'
+import Radar from './normal/radar'
+import Auxiliary from './normal/auxiliary'
+import Scatter from './normal/scatter'
+import Matrix from './normal/matrix'
+import Gauge from './normal/gauge'
+// 关系图层
+import EdgeBundle from './relation/edge-bundle'
+import Chord from './relation/chord'
+import Sankey from './relation/sankey'
+import Tree from './relation/tree'
+import Treemap from './relation/treemap'
+import Pack from './relation/pack'
+// 地理图层
+import BaseMap from './geography/base-map'
 
 export const layerMapping = {
   arc: Arc, // 圆弧

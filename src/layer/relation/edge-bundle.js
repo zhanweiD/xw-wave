@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
-import Scale from '../data/scale'
-import LayerBase from './base'
+import Scale from '../../data/scale'
+import LayerBase from '../base'
 
 // 默认样式
 const defaultStyle = {

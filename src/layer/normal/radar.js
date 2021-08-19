@@ -1,5 +1,5 @@
-import LayerBase from './base'
-import Scale from '../data/scale'
+import LayerBase from '../base'
+import Scale from '../../data/scale'
 
 // 元素组合方式
 const modeType = {

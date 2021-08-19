@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import LayerBase from './base'
+import LayerBase from '../base'
 
 // 默认样式
 const defaultStyle = {
