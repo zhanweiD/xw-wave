@@ -13,47 +13,51 @@ export default class AnimationBase {
     // 动画实例对象，暴露出去用于动画控制
     this.instance = null
     // 初始化 options
-    const options = merge({context}, defaultOptions, incomingOptions)
-    const {targets} = options
-    if (targets && typeof targets === 'string') { // class
-      merge(options, {className: targets, targets: context.selectAll(targets)._groups[0]})
-    } else if (targets && targets.constructor.name === 'Selection') {
-      merge(options, {targets: targets._groups[0]})
-    }
     this.id = uuid()
-    this.options = options
     this.log = createLog('src/animation/base')
     this.event = createEvent('src/animation/base')
+    this.options = merge({context}, defaultOptions, incomingOptions)
+    this.createTargets('targets', context)
+  }
+
+  // 将不同类型的目标转换为 DOM 节点
+  createTargets(key, context) {
+    const targets = this.options[key]
+    if (targets && typeof targets === 'string') { // class
+      merge(this.options, {className: targets, [key]: context.selectAll(targets)._groups[0]})
+    } else if (targets && targets.constructor.name === 'Selection') {
+      merge(this.options, {[key]: targets._groups[0]})
+    }
   }
 
   // 生命周期钩子：控制动画执行
   play() {
-    this.event.has('play') && this.event.fire('play')
+    this.event.fire('play')
     this.start()
     this.process()
     this.end()
   }
 
-  // 生命周期：动画开始
+  // 生命周期钩子：动画开始
   start() {
     this.isAnimationStart = true
-    this.event.has('start') && this.event.fire('start')
+    this.event.fire('start')
   }
 
-  // 生命周期：动画进行中
+  // 生命周期钩子：动画进行中
   process(data) {
-    this.event.has('process') && this.event.fire('process', data?.progress)
+    this.event.fire('process', data?.progress)
   }
 
-  // 生命周期：动画结束
+  // 生命周期钩子：动画结束
   end() {
     this.isAnimationStart = false
-    this.event.has('end') && this.event.fire('end')
+    this.event.fire('end')
   }
 
   // 生命周期钩子：控制动画销毁
   destroy() {
     this.isAnimationAvailable = false
-    this.event.has('destroy') && this.event.fire('destroy')
+    this.event.fire('destroy')
   }
 }

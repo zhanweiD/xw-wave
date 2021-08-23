@@ -62,7 +62,7 @@ export default class ScrollAnimation extends AnimationBase {
       loopComplete: this.end.bind(this),
       easing: 'linear',
     })
-    this.event.has('play') && this.event.fire('play')
+    this.event.fire('play')
   }
 
   end() {
@@ -70,13 +70,13 @@ export default class ScrollAnimation extends AnimationBase {
     this.active = !this.options.reverse
       ? (this.active + 1) % this.elementNumber
       : (this.active + this.elementNumber - 1) % this.elementNumber
-    this.event.has('end') && this.event.fire('end')
+    this.event.fire('end')
     this.isAnimationAvailable && this.options.loop && this.play()
   }
 
   destroy() {
     anime.remove(this.options.targets)
     this.isAnimationAvailable = false
-    this.event.has('destroy') && this.event.fire('destroy')
+    this.event.fire('destroy')
   }
 }

@@ -62,12 +62,12 @@ export default class EraseAnimation extends AnimationBase {
       height: isVertical ? ['0%', '100%'] : '100%',
       easing: 'linear',
     })
-    this.event.has('play') && this.event.fire('play')
+    this.event.fire('play')
   }
 
   destroy() {
     anime.remove(this.targets)
     this.isAnimationAvailable = false
-    this.event.has('destroy') && this.event.fire('destroy')
+    this.event.fire('destroy')
   }
 }

@@ -63,12 +63,12 @@ export default class ZoomAnimation extends AnimationBase {
         judgeScaleValue(mode === modeType.SHOW ? modeType.HIDE : modeType.SHOW, direction)[1],
       ],
     })
-    this.event.has('play') && this.event.fire('play')
+    this.event.fire('play')
   }
 
   destroy() {
     anime.remove(this.options.targets)
     this.isAnimationAvailable = false
-    this.event.has('destroy') && this.event.fire('destroy')
+    this.event.fire('destroy')
   }
 }

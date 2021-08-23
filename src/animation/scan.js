@@ -132,12 +132,12 @@ export default class ScanAnimation extends AnimationBase {
     }
     // 开始执行
     this.instance = anime(configs)
-    this.event.has('play') && this.event.fire('play')
+    this.event.fire('play')
   }
 
   destroy() {
     anime.remove(this.targets)
-    this.event.has('destroy') && this.event.fire('destroy')
+    this.event.fire('destroy')
     this.isAnimationAvailable = false
     this.lights?.remove()
     this.extraNode.remove()

@@ -1,36 +1,34 @@
 import anime from 'animejs'
 import AnimationBase from './base'
 
-// 类型常量
-const modeType = {
-  SHOW: 'fadeIn',
-  HIDE: 'fadeOut',
-}
-
 // 默认参数
 const defaultOptions = {
   delay: 0,
   duration: 2000,
-  mode: modeType.SHOW,
   loop: false,
 }
 
-export default class FadeAnimation extends AnimationBase {
+export default class PathAnimation extends AnimationBase {
   constructor(options, context) {
     super(defaultOptions, options, context)
+    // 额外转换 path 对象
+    this.createTargets('path', context)
   }
 
   play() {
-    const {targets, delay, duration, loop, mode} = this.options
+    const {targets, path, delay, duration, loop} = this.options
+    const animePath = anime.path(path)
     this.instance = anime({
       targets,
       duration,
       delay,
       loop,
+      rotate: animePath('angle'),
+      translateX: animePath('x'),
+      translateY: animePath('y'),
       update: this.process.bind(this),
       loopBegin: this.start.bind(this),
       loopComplete: this.end.bind(this),
-      opacity: mode === modeType.SHOW ? [0, 1] : [1, 0],
       easing: 'linear',
     })
     this.event.fire('play')

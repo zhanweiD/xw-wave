@@ -66,8 +66,7 @@ export default class BaseMapLayer extends LayerBase {
   // 绘制地图
   draw() {
     const blockData = [{
-      path: this.#path,
-      data: this.#blockData.map(({geometry}) => geometry),
+      data: this.#blockData.map(({geometry}) => this.#path(geometry)),
       source: this.#blockData.map(({source}) => source),
       ...this.#style.block,
     }]

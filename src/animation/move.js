@@ -30,12 +30,12 @@ export default class MoveAnimation extends AnimationBase {
       translateX: positionX,
       translateY: positionY,
     })
-    this.event.has('play') && this.event.fire('play')
+    this.event.fire('play')
   }
 
   destroy() {
     anime.remove(this.options.targets)
     this.isAnimationAvailable = false
-    this.event.has('destroy') && this.event.fire('destroy')
+    this.event.fire('destroy')
   }
 }

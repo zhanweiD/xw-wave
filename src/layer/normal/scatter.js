@@ -1,5 +1,5 @@
-import LayerBase from '../base'
 import Scale from '../../data/scale'
+import LayerBase from '../base'
 
 // 默认样式
 const defaultStyle = {
@@ -9,7 +9,7 @@ const defaultStyle = {
 }
 
 export default class ScatterLayer extends LayerBase {
-  #data = null
+  #data = []
   
   #scale = {}
 
@@ -42,8 +42,12 @@ export default class ScatterLayer extends LayerBase {
   setData(data, scales) {
     this.#data = data || this.#data
     const {left, top, width, height} = this.options.layout
-    const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
+    const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
+    const xIndex = headers.findIndex(header => header === 'x')
+    const yIndex = headers.findIndex(header => header === 'y')
+    const valueIndex = headers.findIndex(header => header === 'value')
+    const categoryIndex = headers.findIndex(header => header === 'category')
     // 初始化比例尺
     this.#scale = this.createScale({
       scaleX: new Scale({
@@ -58,10 +62,6 @@ export default class ScatterLayer extends LayerBase {
       }),
     }, this.#scale, scales)
     // 计算点的基础数据
-    const xIndex = headers.findIndex(header => header === 'x')
-    const yIndex = headers.findIndex(header => header === 'y')
-    const valueIndex = headers.findIndex(header => header === 'value')
-    const categoryIndex = headers.findIndex(header => header === 'category')
     const circleData = pureTableList.map((item, i) => ({
       value: item[valueIndex],
       category: item[categoryIndex],

@@ -38,7 +38,7 @@ const createLayer = (wave, config) => {
   // 设置图层的数据，第二个参数为比例尺配置
   layer.setData(dataSet, {nice: scale})
   // 设置图层的样式
-  style && layer.setStyle(style)
+  layer.setStyle(style)
   // 设置图层的事件
   event && Object.keys(event).forEach(eventName => layer.event.on(eventName, event[eventName]))
   // 设置图层的动画（异步函数）

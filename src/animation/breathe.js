@@ -56,13 +56,13 @@ export default class BreatheAnimation extends AnimationBase {
       loopComplete: this.end.bind(this),
       easing: 'linear',
     })
-    this.event.has('play') && this.event.fire('play')
+    this.event.fire('play')
   }
 
   destroy() {
     this.extraNode.remove()
     this.isAnimationAvailable = false
-    this.event.has('destroy') && this.event.fire('destroy')
+    this.event.fire('destroy')
     anime.remove([this.targets._groups[0], this.options.targets])
   }
 }

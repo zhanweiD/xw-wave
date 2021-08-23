@@ -54,13 +54,27 @@ const createSchema = (container, theme, layout) => {
           id: 'baseMap',
           layout: 'main',
         },
-        scale: {
-          fixedBandWidth: 7,
-        },
         data: chinaGeoJSON,
         style: {
           block: {
             fill: 'skyblue',
+          },
+        },
+      },
+      // 飞线抛物线
+      {
+        type: 'odLine',
+        options: {
+          id: 'odLine',
+          layout: 'main',
+        },
+        data: [
+          ['fromX', 'fromY', 'toX', 'toY'],
+          [120, 30, 90, 45],
+        ],
+        style: {
+          odLine: {
+            stroke: 'yellow',
           },
         },
       },

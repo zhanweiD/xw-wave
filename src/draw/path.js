@@ -8,6 +8,7 @@ export default function drawPath({
   opacity = 1, // 不透明度
   fillOpacity = 1,
   strokeOpacity = 1,
+  transform = null,
   transformOrigin = null, // 影响动画和旋转
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
@@ -17,7 +18,6 @@ export default function drawPath({
   filter = null, // 滤镜
   source = [], // 原始数据
   data = [], // 数据需要适配生成器
-  path = () => null, // 路径生成器
   container, // 容器父节点
   className, // 用于定位
 }) {
@@ -34,7 +34,8 @@ export default function drawPath({
     filter: isArray(filter) ? filter[i] : filter,
     mask: isArray(mask) ? mask[i] : mask,
     source: source.length > i ? source[i] : null,
-    transformOrigin: transformOrigin && `${transformOrigin[0]} ${transformOrigin[1]}`,
+    transform: isArray(transform) ? transform[i] : transform,
+    transformOrigin: isArray(transformOrigin) ? transformOrigin[i] : transformOrigin,
   }))
 
   return container.selectAll(`.${className}`)
@@ -44,7 +45,7 @@ export default function drawPath({
     .transition()
     .duration(enableUpdateAnimation ? updateAnimationDuration : 0)
     .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
-    .attr('d', d => path(d.data))
+    .attr('d', d => d.data)
     .attr('fill', d => d.fill)
     .attr('stroke', d => d.stroke)
     .attr('stroke-width', d => d.strokeWidth)

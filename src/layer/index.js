@@ -20,6 +20,7 @@ import Treemap from './relation/treemap'
 import Pack from './relation/pack'
 // 地理图层
 import BaseMap from './geography/base-map'
+import ODLine from './geography/od-line'
 
 export const layerMapping = {
   arc: Arc, // 圆弧
@@ -32,6 +33,7 @@ export const layerMapping = {
   legend: Legend, // 图例
   line: Line, // 折线
   matrix: Matrix, // 矩阵
+  odLine: ODLine, // 抛物线
   pack: Pack, // 打包图
   radar: Radar, // 雷达
   rect: Rect, // 矩形
@@ -53,6 +55,7 @@ export default {
   Legend, // 图例
   Line, // 折线
   Matrix, // 矩阵
+  ODLine, // 抛物线
   Pack, // 打包图
   Radar, // 雷达
   Rect, // 矩形
