@@ -6,23 +6,18 @@ import Empty from './empty'
 import Move from './move'
 import Breathe from './breathe'
 import Erase from './erase'
+import Path from './path'
 import Queue from './queue'
 
 export default {
-  // 动画队列
-  Queue,
-
-  // 入场
+  Queue, // 动画队列
   Fade, // 淡入淡出
   Zoom, // 缩放
   Erase, // 擦除
-
-  // 轮播
   Scan, // 扫光
   Scroll, // 滚动
   Breathe, // 呼吸
-
-  // 其他
+  Path, // 轨迹
   Empty, // 函数或计时器
   Move, // 移动
 }  

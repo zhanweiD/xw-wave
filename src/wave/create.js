@@ -41,7 +41,7 @@ const createLayer = (wave, config) => {
   layer.setStyle(style)
   // 设置图层的事件
   event && Object.keys(event).forEach(eventName => layer.event.on(eventName, event[eventName]))
-  // 设置图层的动画（异步函数）
+  // 设置图层的动画
   layer.setAnimation(animation)
   return layer
 }

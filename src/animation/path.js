@@ -17,13 +17,12 @@ export default class PathAnimation extends AnimationBase {
 
   play() {
     const {targets, path, delay, duration, loop} = this.options
-    const animePath = anime.path(path)
+    const animePath = anime.path(path[0])
     this.instance = anime({
       targets,
       duration,
       delay,
       loop,
-      rotate: animePath('angle'),
       translateX: animePath('x'),
       translateY: animePath('y'),
       update: this.process.bind(this),

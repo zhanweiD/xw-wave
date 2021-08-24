@@ -8,6 +8,7 @@ import MoveAnimation from './move'
 import BreatheAnimation from './breathe'
 import EraseAnimation from './erase'
 import createUuid from '../util/uuid'
+import PathAnimation from './path'
 
 const mapping = {
   fade: FadeAnimation,
@@ -18,6 +19,7 @@ const mapping = {
   breathe: BreatheAnimation,
   move: MoveAnimation,
   erase: EraseAnimation,
+  path: PathAnimation,
 }
 
 const defaultOptions = {
@@ -32,8 +34,9 @@ export default class AnimationQueue extends AnimationBase {
     this.isReady = false
     // 初始化动画队列
     const animationHead = {id: createUuid(), instance: new EmptyAnimation()}
-    // 第一个元素绑定动画序列的 start 生命周期
-    animationHead.instance.event.on('process', () => this.start())
+    // 第一个元素绑定动画序列的生命周期
+    animationHead.instance.event.on('start', () => this.start())
+    animationHead.instance.event.on('end', () => this.end())
     this.queue = [animationHead]
   }
 
@@ -42,7 +45,7 @@ export default class AnimationQueue extends AnimationBase {
    * @param {动画数组} animations 
    * @param {回调函数} callback 
    */
-  bind = (animations, callback) => {
+  #bind = (animations, callback) => {
     let completeCount = 0
     animations.forEach(({instance}) => instance.event.on('end', () => {
       if (++completeCount === animations.length) {
@@ -79,7 +82,7 @@ export default class AnimationQueue extends AnimationBase {
     finalPriority.forEach((priority, animationIndex) => {
       groupedAnimationQueue[priority].push(this.queue[animationIndex])
     })
-    // 对分组后的动画进行连接
+    // 对分组后的动画进行连接(只有动画头不会进行连接操作)
     groupedAnimationQueue.reduce((previousAnimations, currentAnimations, priority) => {
       // 子动画的每个生命周期都是动画序列的 “process”
       currentAnimations.forEach(animation => {
@@ -90,9 +93,9 @@ export default class AnimationQueue extends AnimationBase {
         animation.instance.event.on('end', () => this.process(endState))
       })
       // 最后一组元素绑定动画序列的 end 生命周期
-      if (priority === Math.max(...finalPriority)) this.bind(currentAnimations, () => this.end())
+      if (priority === Math.max(...finalPriority)) this.#bind(currentAnimations, () => this.end())
       // 前一优先级动画全部结束后启动当前优先级的动画
-      this.bind(previousAnimations, () => currentAnimations.forEach(({instance}) => instance.play()))
+      this.#bind(previousAnimations, () => currentAnimations.forEach(({instance}) => instance.play()))
       return currentAnimations
     })
     // 连接完毕，动画可以启动
@@ -151,7 +154,7 @@ export default class AnimationQueue extends AnimationBase {
       !this.isAnimationAvailable && this.log.error('The animation is not available!')
     } else {
       // 重新连接，开始动画
-      !this.isReady && this.connect()
+      !this.isReady && this.queue.length > 1 && this.connect()
       this.queue[0].instance.play()
     }
     this.event.fire('play')

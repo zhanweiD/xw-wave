@@ -46,7 +46,7 @@ export default class AnimationBase {
 
   // 生命周期钩子：动画进行中
   process(data) {
-    this.event.fire('process', data?.progress)
+    this.event.fire('process', data)
   }
 
   // 生命周期钩子：动画结束
