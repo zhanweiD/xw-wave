@@ -94,6 +94,29 @@ export default class SankeyLayer extends LayerBase {
     this.#data.set('groups', levels.map(value => nodes.filter(({level}) => level === value)))
   }
 
+  // 绘制两条三次贝塞尔曲线闭合
+  #getPath = data => {
+    const {type} = this.options
+    const [x1, y1, x2, y2, x3, y3, x4, y4] = data
+    if (type === 'horizontal') {
+      return [
+        `M ${x1},${y1}`,
+        `C ${(x1 + x2) / 2},${y1} ${(x1 + x2) / 2},${y2} ${x2},${y2}`,
+        `L ${x3},${y3}`,
+        `C ${(x3 + x4) / 2},${y3} ${(x3 + x4) / 2},${y4} ${x4},${y4} Z`,
+      ].join(' ')
+    }
+    if (type === 'vertical') {
+      return [
+        `M ${x1},${y1}`,
+        `C ${x1},${(y1 + y2) / 2} ${x2},${(y1 + y2) / 2} ${x2},${y2}`,
+        `L ${x3},${y3}`,
+        `C ${x3},${(y3 + y4) / 2} ${x4},${(y3 + y4) / 2} ${x4},${y4} Z`,
+      ].join(' ')
+    }
+    return null
+  }
+
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
@@ -213,7 +236,6 @@ export default class SankeyLayer extends LayerBase {
 
   // 绘制
   draw() {
-    const {type} = this.options
     const rectData = this.#rectData.map(groupData => {
       const data = groupData.map(({width, height}) => [width, height])
       const source = groupData.map(({dimension, name, value}) => ({dimension, category: name, value}))
@@ -223,8 +245,8 @@ export default class SankeyLayer extends LayerBase {
       return {data, source, position, transformOrigin, ...this.#style.rect, fill}
     })
     const ribbonData = this.#ribbonData.map(({x1, y1, x2, y2, x3, y3, x4, y4, color}) => {
-      const data = [[x1, y1, x3, y3, x4, y4, x2, y2]]
-      return {type: `sankey-${type}`, data, ...this.#style.ribbon, fill: color}
+      const data = [this.#getPath([x1, y1, x3, y3, x4, y4, x2, y2])]
+      return {data, ...this.#style.ribbon, fill: color}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)
@@ -233,7 +255,7 @@ export default class SankeyLayer extends LayerBase {
       return {data, position, textAnchor, ...this.#style.text}
     })
     this.drawBasic('rect', rectData)
-    this.drawBasic('ribbon', ribbonData)
+    this.drawBasic('path', ribbonData, 'ribbon')
     this.drawBasic('text', textData)
   }
 }

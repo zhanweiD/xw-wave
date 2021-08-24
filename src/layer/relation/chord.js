@@ -66,12 +66,12 @@ export default class ChordLayer extends LayerBase {
     const maxRadius = Math.min(width, height) / 2
     const [centerX, centerY] = [left + width / 2, top + height / 2]
     const {arcWidth, labelOffset, text, arc, ribbon} = this.#style
-    const innerRadius = maxRadius - arcWidth
+    const radius = maxRadius - arcWidth
     // 补充圆弧数据
     const arcColors = this.getColor(this.#arcData.length, arc.fill)
     this.#arcData = this.#arcData.map((item, i) => ({
       ...item,
-      innerRadius,
+      innerRadius: radius,
       outerRadius: maxRadius,
       color: arcColors[i],
       position: [centerX, centerY],
@@ -80,8 +80,8 @@ export default class ChordLayer extends LayerBase {
     const ribbonColors = this.getColor(this.#arcData.length, ribbon.fill)
     this.#ribbonData = this.#data.get('chordData').map(({source, target}) => ({
       index: target.index,
-      position: [centerX, centerY],
-      data: [source.startAngle, source.endAngle, innerRadius, target.startAngle, target.endAngle, innerRadius],
+      transform: `translate(${centerX},${centerY})`,
+      data: d3.ribbon()({source: {...source, radius}, target: {...target, radius}}),
       color: ribbonColors[this.#arcData.findIndex(({index}) => index === target.index)],
     }))
     // 给边数据进行分类
@@ -118,21 +118,21 @@ export default class ChordLayer extends LayerBase {
       fill: this.#arcData.map(({color}) => color),
     }]
     const ribbonData = this.#ribbonData.map(groupData => {
-      const position = groupData.map(item => item.position)
       const data = groupData.map(item => item.data)
       const fill = groupData.map(({color}) => color)
-      return {type: 'chord', data, position, ...this.#style.ribbon, fill}
+      const transform = groupData.map(item => item.transform)
+      return {data, transform, ...this.#style.ribbon, fill}
     })
     const textData = [{
       data: this.#textData.map(({value}) => value),
       position: this.#textData.map(({x, y}) => [x, y]),
       textAnchor: this.#textData.map(item => item.textAnchor),
       transformOrigin: this.#textData.map(item => item.transformOrigin),
-      ...this.#style.text,
       rotation: this.#textData.map(({angle}) => angle),
+      ...this.#style.text,
     }]
     this.drawBasic('arc', arcData)
-    this.drawBasic('ribbon', ribbonData)
+    this.drawBasic('path', ribbonData, 'ribbon')
     this.drawBasic('text', textData)
   }
 }
