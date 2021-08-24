@@ -76,6 +76,10 @@ const createSchema = (container, theme, layout) => {
           odLine: {
             stroke: 'yellow',
           },
+          flyingObject: {
+            fill: 'yellow',
+            path: 'm-16.113639,0.075168c0,29.080622 37.728806,0 37.224786,-0.075171c0.50402,0.075171 -37.224786,-29.005451 -37.224786,0.075171z',
+          },
         },
       },
       // 注意散点数据为经纬度

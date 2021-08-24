@@ -83,7 +83,6 @@ export default class ODLineLayer extends LayerBase {
         const [fromX, fromY, toX, toY] = [d[fromXIndex], d[fromYIndex], d[toXIndex], d[toYIndex]]
         const position = {fromX: scaleX(fromX), fromY: scaleY(fromY), toX: scaleX(toX), toY: scaleY(toY)}
         return {
-          // 展示原始的地理坐标数据
           source: [
             {category: 'from', value: `(${fromX},${fromY})`},
             {category: 'to', value: `(${toX},${toY})`},
@@ -99,13 +98,13 @@ export default class ODLineLayer extends LayerBase {
   // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {flyingObject} = this.#style
+    const {path} = this.#style.flyingObject
     // 有飞行物设置
-    if (flyingObject.path) {
+    if (path) {
       this.#flyingObjectData = this.#odLineData.map(({position}) => ({
         transform: `translate(${position.fromX},${position.fromY})`,
         transformOrigin: `${position.fromX} ${position.fromY}`,
-        data: flyingObject.path,
+        data: path,
       }))
       // 路径动画配置
       this.setAnimation(defaultAnimation)
