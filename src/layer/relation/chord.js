@@ -80,7 +80,7 @@ export default class ChordLayer extends LayerBase {
     const ribbonColors = this.getColor(this.#arcData.length, ribbon.fill)
     this.#ribbonData = this.#data.get('chordData').map(({source, target}) => ({
       index: target.index,
-      transform: `translate(${centerX},${centerY})`,
+      transform: `translate(${centerX}px,${centerY}px)`,
       data: d3.ribbon()({source: {...source, radius}, target: {...target, radius}}),
       color: ribbonColors[this.#arcData.findIndex(({index}) => index === target.index)],
     }))

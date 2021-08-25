@@ -52,8 +52,8 @@ export default function drawPath({
     .attr('opacity', d => d.opacity)
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
-    .attr('transform-origin', d => d.transformOrigin)
-    .attr('transform', d => d.transform)
     .attr('mask', d => d.mask)
     .attr('filter', d => d.filter)
+    .style('transform-origin', d => d.transformOrigin)
+    .style('transform', d => d.transform)
 }

@@ -62,26 +62,26 @@ export default function drawText({
     .attr('stroke-width', d => d.strokeWidth)
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
-    .attr('transform', d => `rotate(${d.rotate})`)
-    .attr('transform-origin', d => d.transformOrigin)
     .attr('mask', d => d.mask)
     .attr('filter', d => d.filter)
+    .style('transform', d => `rotate(${d.rotate}deg)`)
+    .style('transform-origin', d => d.transformOrigin)
 }
 
 const getTransformOrigin = ({x, y, height, width, transformOrigin}) => {
   let result = transformOrigin
   if (transformOrigin === 'center') {
-    result = `${x + width / 2} ${y + height / 2}`
+    result = `${x + width / 2}px ${y + height / 2}px`
   } else if (transformOrigin === 'left') {
-    result = `${x} ${y + height / 2}`
+    result = `${x}px ${y + height / 2}px`
   } else if (transformOrigin === 'right') {
-    result = `${x + width} ${y + height / 2}`
+    result = `${x + width}px ${y + height / 2}px`
   } else if (transformOrigin === 'top') {
-    result = `${x + width / 2} ${y}`
+    result = `${x + width / 2}px ${y}px`
   } else if (transformOrigin === 'bottom') {
-    result = `${x + width / 2} ${y + height}`
+    result = `${x + width / 2}px ${y + height}px`
   } else if (Array.isArray(transformOrigin)) {
-    result = `${transformOrigin[0]} ${transformOrigin[1]}`
+    result = `${transformOrigin[0]}px ${transformOrigin[1]}px`
   }
   return result
 }

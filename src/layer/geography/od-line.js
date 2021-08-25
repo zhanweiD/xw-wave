@@ -102,8 +102,7 @@ export default class ODLineLayer extends LayerBase {
     // 有飞行物设置
     if (path) {
       this.#flyingObjectData = this.#odLineData.map(({position}) => ({
-        transform: `translate(${position.fromX},${position.fromY})`,
-        transformOrigin: `${position.fromX} ${position.fromY}`,
+        transformOrigin: `${position.fromX}px ${position.fromY}px`,
         data: path,
       }))
       // 路径动画配置

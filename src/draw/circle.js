@@ -36,7 +36,7 @@ export default function drawCircle({
     filter: isArray(filter) ? filter[i] : filter,
     mask: isArray(mask) ? mask[i] : mask,
     source: source.length > i ? source[i] : null,
-    transformOrigin: `${position[i][0]} ${position[i][1]}`,
+    transformOrigin: `${position[i][0]}px ${position[i][1]}px`,
   }))
 
   return container.selectAll(`.${className}`)
@@ -56,7 +56,7 @@ export default function drawCircle({
     .attr('opacity', d => d.opacity)
     .attr('fill-opacity', d => d.fillOpacity)
     .attr('stroke-opacity', d => d.strokeOpacity)
-    .attr('transform-origin', d => d.transformOrigin)
     .attr('mask', d => d.mask)
     .attr('filter', d => d.filter)
+    .style('transform-origin', d => d.transformOrigin)
 }

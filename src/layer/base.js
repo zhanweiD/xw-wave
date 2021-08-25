@@ -159,7 +159,7 @@ export default class LayerBase {
       x: positionX,
       y: positionY,
       value: formattedText, 
-      transformOrigin: `${positionX} ${positionY}`,
+      transformOrigin: `${positionX}px ${positionY}px`,
       textWidth,
     }
   }
