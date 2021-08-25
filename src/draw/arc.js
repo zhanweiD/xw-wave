@@ -37,7 +37,7 @@ export default function drawArc({
       filter: isArray(filter) ? filter[i] : filter,
       mask: isArray(mask) ? mask[i] : mask,
       d: arc({startAngle: Math.PI * (startAngle / 180), endAngle: Math.PI * (endAngle / 180)}),
-      transform: `translate(${x}px, ${y}px)`,
+      transform: `translate(${x}, ${y})`,
       source: source.length > i ? source[i] : null,
     }
   })
@@ -58,6 +58,6 @@ export default function drawArc({
     .attr('stroke-width', d => d.strokeWidth)
     .attr('mask', d => d.mask)
     .attr('filter', d => d.filter)
-    .style('transform', d => d.transform)
+    .attr('transform', d => d.transform)
     .style('outline', 'none')
 }

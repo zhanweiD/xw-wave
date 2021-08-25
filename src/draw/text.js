@@ -51,7 +51,7 @@ export default function drawText({
     fontWeight,
     fontSize: `${fontSize}px`,
     writingMode: directionMapping[writingMode],
-    transform: `rotate(${isArray(rotation) ? rotation[i] : rotation}deg)`,
+    transform: `rotate(${isArray(rotation) ? rotation[i] : rotation})`,
     transformOrigin: isArray(transformOrigin) ? transformOrigin[i] : transformOrigin,
     textAnchor: isArray(textAnchor) ? textAnchor[i] : textAnchor,
     textShadow,
@@ -80,7 +80,7 @@ export default function drawText({
     .attr('transform-origin', d => d.transformOrigin)
     .attr('mask', d => d.mask)
     .attr('filter', d => d.filter)
-    .style('transform', d => d.transform)
+    .attr('transform', d => d.transform)
     .style('text-shadow', d => d.textShadow)
     .style('text-anchor', d => d.textAnchor)
     .style('pointer-events', 'none')
