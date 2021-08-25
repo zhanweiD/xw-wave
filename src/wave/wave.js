@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import chroma from 'chroma-js'
+import * as PIXI from 'pixi.js'
 import createUuid from '../util/uuid'
 import createLog from '../util/create-log'
 import catchError from '../util/catch-error'
@@ -42,7 +43,11 @@ export default class Wave {
 
   #layout = null
 
-  #root = null
+  #svg = null
+
+  #canvas = null
+
+  #engine = 'svg' // canvas
 
   #defs = null
 
@@ -102,11 +107,23 @@ export default class Wave {
 
     // 初始化 dom 结构
     this.#container.html('')
-    this.#root = this.#container
+    // canvas
+    const app = new PIXI.Application({
+      width: this.containerWidth, 
+      height: this.containerHeight,
+      backgroundAlpha: 0,
+      antialias: true,
+    })
+    app.view.style.position = 'absolute'
+    container.appendChild(app.view)
+    this.#canvas = app.stage
+    // svg
+    this.#svg = this.#container
       .append('svg')
       .attr('width', this.containerWidth)
       .attr('height', this.containerHeight)
-    this.#defs = this.#root.append('defs')
+      .style('position', 'absolute')
+    this.#defs = this.#svg.append('defs')
     this.#tooltip = new Tooltip(this.#container, tooltip)
 
     // 初始化布局信息
@@ -155,7 +172,8 @@ export default class Wave {
   createLayer(type, options = {}) {
     // 暴露给图层的上下文环境
     const context = {
-      root: this.#root,
+      svg: this.#svg,
+      canvas: this.#canvas,
       tooltip: this.#tooltip,
       baseFontSize: this.baseFontSize,
       containerWidth: this.containerWidth,
@@ -255,7 +273,7 @@ export default class Wave {
     const brush = (isHorizontal ? d3.brushX() : d3.brushY())
     brush.extent([[brushX1, brushY1], [brushX2, brushY2]]).on('brush', brushed)
     // 确定笔刷区域
-    const brushDOM = this.#root.append('g').attr('class', 'wave-brush').call(brush)
+    const brushDOM = this.#svg.append('g').attr('class', 'wave-brush').call(brush)
     brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
     return brush
   }
@@ -281,7 +299,9 @@ export default class Wave {
   }
 
   destroy() {
-    while (this.#layer.length !== 0) this.#layer[0].instance.destroy()
     this.#state = stateType.DESTROY
+    while (this.#layer.length !== 0) {
+      this.#layer[0].instance.destroy()
+    }
   }
 }

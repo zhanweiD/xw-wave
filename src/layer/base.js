@@ -254,7 +254,7 @@ export default class LayerBase {
    */
   drawBasic(type, data, subLayer = type) {
     // 图层容器准备
-    this.root = this.root || this.options.root.append('g').attr('class', this.className)
+    this.root = this.root || this.options.svg.append('g').attr('class', this.className)
     // 元素容器准备，没有则追加
     const containerClassName = `${this.className}-${subLayer}`
     let container = this.root.selectAll(`.${containerClassName}`)
