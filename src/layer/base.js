@@ -220,6 +220,7 @@ export default class LayerBase {
   // 元素渲染后设置动画
   #setAnimation = subLayer => {
     if (this.selector.engine !== 'svg') {
+      this.warn('LayerBase: Cannot support canvas animation')
       return
     }
     let isFirstPlay = true

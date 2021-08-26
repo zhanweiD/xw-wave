@@ -69,7 +69,7 @@ export default class Wave {
     container,
     width = 100,
     height = 100,
-    padding = [40, 40, 40, 40],
+    padding = [0, 0, 0, 0],
     adjust = true,
     define = {},
     tooltip = {},
@@ -121,8 +121,6 @@ export default class Wave {
       .attr('width', this.containerWidth)
       .attr('height', this.containerHeight)
       .style('position', 'absolute')
-    this.#defs = this.#svg.append('defs')
-    this.#tooltip = new Tooltip(this.#container, tooltip)
 
     // 初始化布局信息
     this.#layout = layout({
@@ -135,8 +133,10 @@ export default class Wave {
     this.theme = theme
     this.coordinate = coordinate
     this.baseFontSize = baseFontSize
+    this.#defs = this.#svg.append('defs')
     this.log = createLog('src/wave/wave')
     this.event = createEvent('src/wave/wave')
+    this.#tooltip = new Tooltip(this.#container, tooltip)
     createDefs({schema: define, container: this.#defs})
   }
 

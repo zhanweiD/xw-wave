@@ -1,6 +1,6 @@
 import anime from 'animejs'
+import chroma from 'chroma-js'
 import AnimationBase from './base'
-import rgba2obj from '../util/rgba2obj'
 
 // 方向常量
 const directions = {
@@ -45,9 +45,8 @@ const getAttributes = direction => {
 
 // 渐变效果
 const insertOffsets = (gradient, {color, opacity}) => {
-  const {r, g, b, a} = rgba2obj(color, opacity)
-  const minColor = `rgba(${r},${g},${b},0)`
-  const maxColor = `rgba(${r},${g},${b},${a})`
+  const minColor = chroma(color).alpha(0)
+  const maxColor = chroma(color).alpha(opacity)
   gradient.append('stop')
     .attr('offset', '20%')
     .style('stop-color', minColor)
