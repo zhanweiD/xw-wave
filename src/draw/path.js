@@ -2,8 +2,9 @@ import {isArray} from 'lodash'
 
 // 绘制一组自定义路径
 export default function drawPath({
-  fill = 'rgba(255,255,255)', // 颜色
-  stroke = 'rgba(255,255,255)', // 描边
+  engine = 'svg',
+  fill = '#fff', // 颜色
+  stroke = '#fff', // 描边
   strokeWidth = 0, // 描边粗细
   opacity = 1, // 不透明度
   fillOpacity = 1,
@@ -37,23 +38,27 @@ export default function drawPath({
     transform: isArray(transform) ? transform[i] : transform,
     transformOrigin: isArray(transformOrigin) ? transformOrigin[i] : transformOrigin,
   }))
-
-  return container.selectAll(`.${className}`)
-    .data(configuredData.map(item => mapping(item)))
-    .join('path')
-    .attr('class', d => d.className)
-    .transition()
-    .duration(enableUpdateAnimation ? updateAnimationDuration : 0)
-    .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
-    .attr('d', d => d.data)
-    .attr('fill', d => d.fill)
-    .attr('stroke', d => d.stroke)
-    .attr('stroke-width', d => d.strokeWidth)
-    .attr('opacity', d => d.opacity)
-    .attr('fill-opacity', d => d.fillOpacity)
-    .attr('stroke-opacity', d => d.strokeOpacity)
-    .attr('mask', d => d.mask)
-    .attr('filter', d => d.filter)
-    .style('transform-origin', d => d.transformOrigin)
-    .style('transform', d => d.transform)
+  if (engine === 'svg') {
+    container.selectAll(`.${className}`)
+      .data(configuredData.map(item => mapping(item)))
+      .join('path')
+      .attr('class', d => d.className)
+      .transition()
+      .duration(enableUpdateAnimation ? updateAnimationDuration : 0)
+      .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
+      .attr('d', d => d.data)
+      .attr('fill', d => d.fill)
+      .attr('stroke', d => d.stroke)
+      .attr('stroke-width', d => d.strokeWidth)
+      .attr('opacity', d => d.opacity)
+      .attr('fill-opacity', d => d.fillOpacity)
+      .attr('stroke-opacity', d => d.strokeOpacity)
+      .attr('mask', d => d.mask)
+      .attr('filter', d => d.filter)
+      .style('transform-origin', d => d.transformOrigin)
+      .style('transform', d => d.transform)
+  }
+  if (engine === 'canvas') {
+    console.warn('drawArea: Cannot support canvas')
+  }
 }

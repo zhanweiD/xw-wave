@@ -53,8 +53,7 @@ export default class AuxiliaryLayer extends LayerBase {
   // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super({...defaultOptions, ...layerOptions}, waveOptions, ['line', 'text'])
-    const {type} = this.options
-    this.className = `wave-${type}-auxiliary`
+    this.className = `wave-${this.options.type}-auxiliary`
   }
 
   // 传入数据数组和比例尺，辅助线需要外部的比例尺

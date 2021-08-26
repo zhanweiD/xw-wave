@@ -1,9 +1,12 @@
 import * as d3 from 'd3'
 import {isArray} from 'lodash'
+import {Graphics} from 'pixi.js'
+import chroma from 'chroma-js'
 
 // 绘制一组曲线
 export default function drawCurve({
-  stroke = 'rgba(255,255,255)',
+  engine = 'svg',
+  stroke = '#fff',
   opacity = 1,
   strokeOpacity = 1,
   strokeWidth = 1,
@@ -15,7 +18,7 @@ export default function drawCurve({
   mask = null, // 遮罩
   filter = null, // 滤镜
   source = [], // 原始数据
-  position = [], // 位置 [[[x,y], ...], ...]
+  position = [], // 位置 [[[x,y]]]
   container,
   className,
 }) {
@@ -24,7 +27,7 @@ export default function drawCurve({
   curve && lineGenerator.curve(d3[curve])
   const configuredData = position.map((data, i) => ({
     className,
-    fill: 'none',
+    data,
     stroke: isArray(stroke) ? stroke[i] : stroke,
     opacity: isArray(opacity) ? opacity[i] : opacity,
     strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
@@ -34,21 +37,40 @@ export default function drawCurve({
     d: lineGenerator(data),
     source: source.length > i ? source[i] : null,
   }))
-
-  return container.selectAll(`.${className}`)
-    .data(configuredData.map(item => mapping(item)))
-    .join('path')
-    .attr('class', d => d.className)
-    .transition()
-    .duration(enableUpdateAnimation ? updateAnimationDuration : 0)
-    .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
-    .attr('stroke', d => d.stroke)
-    .attr('stroke-width', d => d.strokeWidth)
-    .attr('d', d => d.d)
-    .attr('fill', d => d.fill)
-    .attr('opacity', d => d.opacity)
-    .attr('stroke-opacity', d => d.strokeOpacity)
-    .attr('mask', d => d.mask)
-    .attr('filter', d => d.filter)
-    .attr('stroke-linecap', 'round')
+  if (engine === 'svg') {
+    container.selectAll(`.${className}`)
+      .data(configuredData.map(item => mapping(item)))
+      .join('path')
+      .attr('class', d => d.className)
+      .transition()
+      .duration(enableUpdateAnimation ? updateAnimationDuration : 0)
+      .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
+      .attr('stroke', d => d.stroke)
+      .attr('stroke-width', d => d.strokeWidth)
+      .attr('d', d => d.d)
+      .attr('fill', 'none')
+      .attr('opacity', d => d.opacity)
+      .attr('stroke-opacity', d => d.strokeOpacity)
+      .attr('mask', d => d.mask)
+      .attr('filter', d => d.filter)
+      .attr('stroke-linecap', 'round')
+  }
+  if (engine === 'canvas') {
+    configuredData.forEach((config, i) => {
+      const graphics = new Graphics()
+      const getColor = color => chroma(color || '#000').hex().replace('#', '0x')
+      graphics.className = config.className
+      graphics.lineStyle(config.strokeWidth, getColor(config.stroke), config.strokeOpacity)
+      graphics.moveTo(config.data[0][0], config.data[0][1])
+      for (let j = 1; j < config.data.length; j++) {
+        graphics.lineTo(config.data[j][0], config.data[j][1])
+      }
+      // 覆盖或追加
+      if (container.children.length <= i) {
+        container.addChild(graphics)
+      } else {
+        container.children[i] = graphics
+      }
+    })
+  }
 }

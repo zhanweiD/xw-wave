@@ -3,6 +3,7 @@ import Animation from '../animation'
 import {formatNumber} from '../util/format'
 import getTextWidth from '../util/text-width'
 import createEvent from '../util/create-event'
+import Selector from '../util/selector'
 import basicMapping from '../draw'
 
 // 文字基于坐标的方向
@@ -42,6 +43,7 @@ export default class LayerBase {
     this.warn = (text, data) => this.options.warn(text, data)
     this.setAnimation = options => merge(this.#backupAnimation, {options})
     this.playAnimation = () => this.subLayers.forEach(type => this.#backupAnimation[type]?.play())
+    this.selector = new Selector(this.options.engine || 'svg')
   }
 
   /**
@@ -190,20 +192,26 @@ export default class LayerBase {
    * @param {Boolean} isVisiable 隐藏参数
    * @param {String} subLayer 元素类型可缺省
    */
-  setVisible(isVisiable, subLayer) {
-    const targets = subLayer ? this.root.selectAll(`.${this.className}-${subLayer}`) : this.root
-    targets.style('display', isVisiable ? 'block' : 'none')
+  setVisible(visible, subLayer) {
+    const {selector} = this
+    const className = `${this.className}-${subLayer}`
+    const target = subLayer ? selector.getFirstChildByClassName(this.root, className) : this.root
+    selector.setVisible(target, visible)
   }
 
   // 元素渲染后注册响应事件
   #setEvent = subLayer => {
-    const els = this.root.selectAll(`.wave-basic-${subLayer}`).style('cursor', 'pointer')
-    commonEvents.forEach(eventType => els.on(`${eventType}.common`, this.#backupEvent.common[eventType][subLayer]))
+    const {engine} = this.selector
+    if (engine === 'svg') {
+      const els = this.root.selectAll(`.wave-basic-${subLayer}`).style('cursor', 'pointer')
+      commonEvents.forEach(eventType => els.on(`${eventType}.common`, this.#backupEvent.common[eventType][subLayer]))
+    }
   }
 
   // 元素渲染后设置文字提示
   #setTooltip = subLayer => {
-    if (this.tooltipTargets.find(key => key === subLayer)) {
+    const {engine} = this.selector
+    if (engine === 'svg' && this.tooltipTargets.find(key => key === subLayer)) {
       const els = this.root.selectAll(`.wave-basic-${subLayer}`)
       tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
     }
@@ -211,6 +219,9 @@ export default class LayerBase {
 
   // 元素渲染后设置动画
   #setAnimation = subLayer => {
+    if (this.selector.engine !== 'svg') {
+      return
+    }
     let isFirstPlay = true
     const {options} = this.#backupAnimation
     // 配置动画前先销毁之前的动画，释放资源
@@ -252,32 +263,39 @@ export default class LayerBase {
    * @param {Array<Object>} data 图层元素数据
    * @param {String} subLayer 元素对应的 option 字段
    */
-  drawBasic(type, data, subLayer = type) {
+  drawBasic = (type, data, subLayer = type) => {
+    const {selector} = this
+    const {engine} = selector
     // 图层容器准备
-    this.root = this.root || this.options.svg.append('g').attr('class', this.className)
-    // 元素容器准备，没有则追加
-    const containerClassName = `${this.className}-${subLayer}`
-    let container = this.root.selectAll(`.${containerClassName}`)
-    if (container.size() === 0) {
-      container = this.root.append('g').attr('class', `${this.className}-${subLayer}`)
+    if (!this.root) {
+      this.root = selector.createSubContainer(this.options[engine])
+      selector.setClassName(this.root, this.className)
+    }
+    // 子图层容器准备
+    const subLayerClassName = `${this.className}-${subLayer}`
+    let subLayerContainer = selector.getFirstChildByClassName(this.root, subLayerClassName)
+    if (!subLayerContainer) {
+      subLayerContainer = selector.createSubContainer(this.root)
+      selector.setClassName(subLayerContainer, subLayerClassName)
     }
     // 分组容器准备，删除上一次渲染多余的组
     for (let i = 0; i < Math.max(this.#backupData[subLayer].length, data.length); i++) {
-      const groupClassName = `${containerClassName}-${i}`
-      const els = container.selectAll(`.${groupClassName}`)
-      if (i < data.length && els.size() === 0) {
-        container.append('g').attr('class', groupClassName)
+      const groupClassName = `${subLayerClassName}-${i}`
+      let groupContainer = selector.getFirstChildByClassName(subLayerContainer, groupClassName)
+      if (i < data.length && !groupContainer) {
+        groupContainer = selector.createSubContainer(subLayerContainer)
+        selector.setClassName(groupContainer, groupClassName)
       } else if (i >= data.length) {
-        els.remove()
+        selector.remove(groupContainer)
       }
     }
     // 根据对应列表数据绘制最终的元素
     for (let i = 0; i < data.length; i++) {
       this.#backupData[subLayer].length = data.length
       if (!isEqual(this.#backupData[subLayer][i], data[i])) {
-        const groupClassName = `${containerClassName}-${i}`
-        const elContainer = container.selectAll(`.${groupClassName}`)
-        const options = {...data[i], className: `wave-basic-${subLayer}`, container: elContainer}
+        const groupClassName = `${subLayerClassName}-${i}`
+        const groupContainer = selector.getFirstChildByClassName(subLayerContainer, groupClassName)
+        const options = {...data[i], engine, className: `wave-basic-${subLayer}`, container: groupContainer}
         // 首次渲染不启用数据更新动画
         options.enableUpdateAnimation = false
         if (this.#backupData[subLayer][i] && this.#backupAnimation.options[subLayer]) {
@@ -301,7 +319,7 @@ export default class LayerBase {
   // 销毁图层
   destroy() {
     this.subLayers.forEach(name => this.#backupAnimation[name]?.destroy())
-    this.root.remove()
+    this.selector.remove(this.root)
     this.event.fire('destroy')
   }
 }

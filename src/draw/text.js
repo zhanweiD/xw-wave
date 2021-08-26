@@ -1,4 +1,5 @@
 import {isArray} from 'lodash'
+import {Text} from 'pixi.js'
 
 // 文字方向映射
 const directionMapping = {
@@ -8,11 +9,12 @@ const directionMapping = {
 
 // 绘制一组文本
 export default function drawText({
+  engine = 'svg',
   fontFamily = '',
   fontSize = 12,
   fontWeight = 'normal',
-  fill = 'rgba(255,255,255)',
-  stroke = 'rgba(255,255,255)',
+  fill = '#fff',
+  stroke = '#fff',
   strokeWidth = 0,
   opacity = 1,
   fillOpacity = 1,
@@ -37,8 +39,11 @@ export default function drawText({
   const configuredData = data.map((text, i) => ({
     text,
     className,
+    fontSize,
+    fontFamily,
+    fontWeight,
     x: position[i][0],
-    y: position[i][1] - fontSize * 0.2, // 这个数字为黑体的高度差
+    y: position[i][1], // 这个数字为黑体的高度差
     fill: isArray(fill) ? fill[i] : fill,
     stroke: isArray(stroke) ? stroke[i] : stroke,
     opacity: isArray(opacity) ? opacity[i] : opacity,
@@ -47,9 +52,6 @@ export default function drawText({
     strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
     filter: isArray(filter) ? filter[i] : filter,
     mask: isArray(mask) ? mask[i] : mask,
-    fontFamily,
-    fontWeight,
-    fontSize: `${fontSize}px`,
     writingMode: directionMapping[writingMode],
     transform: `rotate(${isArray(rotation) ? rotation[i] : rotation}deg)`,
     transformOrigin: isArray(transformOrigin) ? transformOrigin[i] : transformOrigin,
@@ -57,31 +59,48 @@ export default function drawText({
     textShadow,
   }))
 
-  return container.selectAll(`.${className}`)
-    .data(configuredData.map(item => mapping(item)))
-    .join('text')
-    .attr('class', d => d.className)
-    .transition()
-    .duration(enableUpdateAnimation ? updateAnimationDuration : 0)
-    .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
-    .text(d => d.text)
-    .attr('x', d => d.x)
-    .attr('y', d => d.y)
-    .attr('fill', d => d.fill)
-    .attr('stroke', d => d.stroke)
-    .attr('stroke-width', d => d.strokeWidth)
-    .attr('opacity', d => d.opacity)
-    .attr('fill-opacity', d => d.fillOpacity)
-    .attr('stroke-opacity', d => d.strokeOpacity)
-    .attr('font-family', d => d.fontFamily)
-    .attr('font-size', d => d.fontSize)
-    .attr('font-weight', d => d.fontWeight)
-    .attr('writing-mode', d => d.writingMode)
-    .attr('mask', d => d.mask)
-    .attr('filter', d => d.filter)
-    .style('transform', d => d.transform)
-    .style('transform-origin', d => d.transformOrigin)
-    .style('text-shadow', d => d.textShadow)
-    .style('text-anchor', d => d.textAnchor)
-    .style('pointer-events', 'none')
+  if (engine === 'svg') {
+    container.selectAll(`.${className}`)
+      .data(configuredData.map(item => mapping(item)))
+      .join('text')
+      .attr('class', d => d.className)
+      .transition()
+      .duration(enableUpdateAnimation ? updateAnimationDuration : 0)
+      .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
+      .text(d => d.text)
+      .attr('x', d => d.x)
+      .attr('y', d => d.y)
+      .attr('fill', d => d.fill)
+      .attr('stroke', d => d.stroke)
+      .attr('stroke-width', d => d.strokeWidth)
+      .attr('opacity', d => d.opacity)
+      .attr('fill-opacity', d => d.fillOpacity)
+      .attr('stroke-opacity', d => d.strokeOpacity)
+      .attr('font-family', d => d.fontFamily)
+      .attr('font-size', d => d.fontSize)
+      .attr('font-weight', d => d.fontWeight)
+      .attr('writing-mode', d => d.writingMode)
+      .attr('mask', d => d.mask)
+      .attr('filter', d => d.filter)
+      .style('transform', d => d.transform)
+      .style('transform-origin', d => d.transformOrigin)
+      .style('text-shadow', d => d.textShadow)
+      .style('text-anchor', d => d.textAnchor)
+      .style('pointer-events', 'none')
+  }
+  if (engine === 'canvas') {
+    configuredData.forEach((config, i) => {
+      const textSprite = new Text(config.text)
+      textSprite.className = config.className
+      textSprite.x = config.x
+      textSprite.y = config.y - config.fontSize
+      textSprite.style = config
+      // 覆盖或追加
+      if (container.children.length <= i) {
+        container.addChild(textSprite)
+      } else {
+        container.children[i] = textSprite
+      }
+    })
+  }
 }

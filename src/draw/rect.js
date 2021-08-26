@@ -1,9 +1,12 @@
 import {isArray} from 'lodash'
+import {Graphics} from 'pixi.js'
+import chroma from 'chroma-js'
 
 // 绘制一组矩形
 export default function drawText({
-  fill = 'rgba(255,255,255)', // 可以是数组定义渐变色
-  stroke = 'rgba(255,255,255)', // 可以是数组定义渐变色
+  engine = 'svg',
+  fill = '#fff', // 可以是数组定义渐变色
+  stroke = '#fff', // 可以是数组定义渐变色
   strokeWidth = 0,
   opacity = 1,
   fillOpacity = 1,
@@ -45,27 +48,45 @@ export default function drawText({
       transformOrigin: getTransformOrigin({x, y, width, height, transformOrigin}),
     }
   })
-
-  return container.selectAll(`.${className}`)
-    .data(configuredData.map(item => mapping(item)))
-    .join('rect')
-    .attr('class', d => d.className)
-    .transition()
-    .duration(enableUpdateAnimation ? updateAnimationDuration : 0)
-    .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
-    .attr('x', d => d.x)
-    .attr('y', d => d.y)
-    .attr('width', d => d.width)
-    .attr('height', d => d.height)
-    .attr('fill', d => d.fill)
-    .attr('stroke', d => d.stroke)
-    .attr('stroke-width', d => d.strokeWidth)
-    .attr('fill-opacity', d => d.fillOpacity)
-    .attr('stroke-opacity', d => d.strokeOpacity)
-    .attr('mask', d => d.mask)
-    .attr('filter', d => d.filter)
-    .style('transform', d => `rotate(${d.rotate}deg)`)
-    .style('transform-origin', d => d.transformOrigin)
+  if (engine === 'svg') {
+    container.selectAll(`.${className}`)
+      .data(configuredData.map(item => mapping(item)))
+      .join('rect')
+      .attr('class', d => d.className)
+      .transition()
+      .duration(enableUpdateAnimation ? updateAnimationDuration : 0)
+      .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
+      .attr('x', d => d.x)
+      .attr('y', d => d.y)
+      .attr('width', d => d.width)
+      .attr('height', d => d.height)
+      .attr('fill', d => d.fill)
+      .attr('stroke', d => d.stroke)
+      .attr('stroke-width', d => d.strokeWidth)
+      .attr('fill-opacity', d => d.fillOpacity)
+      .attr('stroke-opacity', d => d.strokeOpacity)
+      .attr('mask', d => d.mask)
+      .attr('filter', d => d.filter)
+      .style('transform', d => `rotate(${d.rotate}deg)`)
+      .style('transform-origin', d => d.transformOrigin)
+  }
+  if (engine === 'canvas') {
+    configuredData.forEach((config, i) => {
+      const graphics = new Graphics()
+      const getColor = color => chroma(color || '#000').hex().replace('#', '0x')
+      graphics.className = config.className
+      graphics.lineStyle(config.strokeWidth, getColor(config.stroke), config.strokeOpacity)
+      graphics.beginFill(getColor(config.fill), config.fillOpacity)
+      graphics.drawRect(config.x, config.y, config.width, config.height)
+      graphics.endFill()
+      // 覆盖或追加
+      if (container.children.length <= i) {
+        container.addChild(graphics)
+      } else {
+        container.children[i] = graphics
+      }
+    })
+  }
 }
 
 const getTransformOrigin = ({x, y, height, width, transformOrigin}) => {
@@ -80,7 +101,7 @@ const getTransformOrigin = ({x, y, height, width, transformOrigin}) => {
     result = `${x + width / 2}px ${y}px`
   } else if (transformOrigin === 'bottom') {
     result = `${x + width / 2}px ${y + height}px`
-  } else if (Array.isArray(transformOrigin)) {
+  } else if (isArray(transformOrigin)) {
     result = `${transformOrigin[0]}px ${transformOrigin[1]}px`
   }
   return result

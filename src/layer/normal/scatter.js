@@ -103,7 +103,13 @@ export default class ScatterLayer extends LayerBase {
     })))
     // 标签文字数据
     this.#textData = this.#circleData.map(groupData => groupData.map(({cx, cy, value}) => {
-      return this.createText({x: cx, y: cy, value: value || '', style: text, position: 'center'})
+      return this.createText({
+        x: cx, 
+        y: cy, 
+        value,
+        style: text,
+        position: 'center',
+      })
     }))
     // 图层自定义图例数据
     this.#data.set('legendData', {

@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import chroma from 'chroma-js'
-import * as PIXI from 'pixi.js'
+import {Application} from 'pixi.js'
 import createUuid from '../util/uuid'
 import createLog from '../util/create-log'
 import catchError from '../util/catch-error'
@@ -46,8 +46,6 @@ export default class Wave {
   #svg = null
 
   #canvas = null
-
-  #engine = 'svg' // canvas
 
   #defs = null
 
@@ -108,7 +106,7 @@ export default class Wave {
     // 初始化 dom 结构
     this.#container.html('')
     // canvas
-    const app = new PIXI.Application({
+    const app = new Application({
       width: this.containerWidth, 
       height: this.containerHeight,
       backgroundAlpha: 0,
@@ -278,26 +276,20 @@ export default class Wave {
     return brush
   }
 
-  /**
-   * 图表报错生命周期
-   * @param {String} text 报错信息
-   * @param {any} data 关联数据
-   */
+  // 图表报错生命周期
   warn(text, data) {
     this.#state = stateType.WARN
     this.log.error(text, data)
   }
 
-  /**
-   * 重绘制所有图层
-   * @param {Boolean} recalculate 是否重新计算数据
-   */
+  // 重绘制所有图层
   draw(recalculate = false) {
     recalculate && this.#layer.forEach(({instance}) => instance.setData())
     recalculate && this.#layer.forEach(({instance}) => instance.setStyle())
     this.#layer.forEach(layer => layer.instance.draw())
   }
 
+  // 销毁所有图层
   destroy() {
     this.#state = stateType.DESTROY
     while (this.#layer.length !== 0) {

@@ -4,13 +4,13 @@ const createLog = file => {
 
   return {
     info(text, data = emptyData) {
-      console.info(text, `\nPath: '${filePath}'\n`, data)
+      console.info(text, `Path: '${filePath}'\n`, data)
     },
     warn(text, data = emptyData) {
-      console.warn(text, `\nPath: '${filePath}'\n`, data)
+      console.warn(text, `Path: '${filePath}'\n`, data)
     },
     error(text, data = emptyData) {
-      console.error(text, `\nPath: '${filePath}'\n`, data)
+      console.error(text, `Path: '${filePath}'\n`, data)
     },
     dump() {
       console.log(JSON.stringify(this.get(), null, 4))

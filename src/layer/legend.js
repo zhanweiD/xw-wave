@@ -218,7 +218,6 @@ export default class LegendLayer extends LayerBase {
         ry: size / 3,
         strokeWidth: size / 5,
         stroke: color,
-        fill: 'none',
       })
     } else if (shape === shapeType.DOTTEDLINE) {
       this.#data.lineData.push({
