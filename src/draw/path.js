@@ -1,4 +1,6 @@
 import {isArray} from 'lodash'
+import {Graphics} from 'pixi.js'
+import chroma from 'chroma-js'
 
 // 绘制一组自定义路径
 export default function drawPath({
@@ -59,6 +61,39 @@ export default function drawPath({
       .style('transform', d => d.transform)
   }
   if (engine === 'canvas') {
-    console.warn('drawArea: Cannot support canvas')
+    configuredData.forEach((config, i) => {
+      let origin = config.data.toUpperCase()
+      const commands = ['M', 'L', 'H', 'V', 'C', 'S', 'Q', 'T', 'A', 'Z']
+      commands.forEach(key => origin = origin.replace(new RegExp(key, 'g'), `#${key}#`))
+      const sequence = origin.split('#').filter(Boolean)
+      // 将 svg 的 path 命令映射到 canvas
+      const graphics = new Graphics()
+      const getColor = color => chroma(color || '#000').hex().replace('#', '0x')
+      graphics.className = config.className
+      graphics.lineStyle(config.strokeWidth, getColor(config.stroke), config.strokeOpacity)
+      graphics.beginFill(getColor(config.fill), config.fillOpacity)
+      // 开始绘制
+      for (let j = 0; j < sequence.length && sequence[j] !== 'Z'; j += 2) {
+        const command = sequence[j]
+        const values = sequence[j + 1].trim().split(/[ ,]/).map(Number)
+        if (command === 'M') { // 移动
+          graphics.moveTo(...values)
+        } else if (command === 'L') { // 直线
+          graphics.lineTo(...values)
+        } else if (command === 'C') { // 三次贝塞尔
+          graphics.bezierCurveTo(...values)
+        } else if (command === 'Q') { // 二次贝塞尔
+          graphics.quadraticCurveTo(...values)
+        } else {
+          console.warn(`drawPath: Cannot support command '${command}'`)
+        }
+      }
+      // 覆盖或追加
+      if (container.children.length <= i) {
+        container.addChild(graphics)
+      } else {
+        container.children[i] = graphics
+      }
+    })
   }
 }

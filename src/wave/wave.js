@@ -178,7 +178,6 @@ export default class Wave {
       containerHeight: this.containerHeight,
       createGradient: makeGradientCreator(this.#defs),
       getColor: this.getColor.bind(this),
-      warn: this.warn.bind(this),
     }
     // 根据类型创建图层
     const layer = new layerMapping[type](options, context)
@@ -187,7 +186,10 @@ export default class Wave {
     this.#state = stateType.READY
     this.#layer.push({type, id: layerId, instance: layer})
     // 对图层的生命周期进行错误捕获
-    catchError(layer, error => this.warn('图层生命周期调用失败', error))
+    catchError(layer, error => {
+      this.#state = stateType.WARN
+      this.log.error('Wave: Layer life cycle call exception', error)
+    })
     // 注册销毁事件
     layer.event.on('destroy', () => {
       const index = this.#layer.findIndex(({id}) => id === layerId)
@@ -274,12 +276,6 @@ export default class Wave {
     const brushDOM = this.#svg.append('g').attr('class', 'wave-brush').call(brush)
     brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
     return brush
-  }
-
-  // 图表报错生命周期
-  warn(text, data) {
-    this.#state = stateType.WARN
-    this.log.error(text, data)
   }
 
   // 重绘制所有图层

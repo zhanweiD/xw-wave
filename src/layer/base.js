@@ -5,6 +5,7 @@ import getTextWidth from '../util/text-width'
 import createEvent from '../util/create-event'
 import Selector from '../util/selector'
 import basicMapping from '../draw'
+import createLog from '../util/create-log'
 
 // 文字基于坐标的方向
 const positionType = {
@@ -38,9 +39,9 @@ export default class LayerBase {
     this.root = null
     this.className = null
     this.#createEvent()
+    this.log = createLog('src/layer/base')
     this.event = createEvent('src/layer/base')
     this.subLayers.forEach(name => this.#backupData[name] = [])
-    this.warn = (text, data) => this.options.warn(text, data)
     this.setAnimation = options => merge(this.#backupAnimation, {options})
     this.playAnimation = () => this.subLayers.forEach(type => this.#backupAnimation[type]?.play())
     this.selector = new Selector(this.options.engine || 'svg')
@@ -220,7 +221,7 @@ export default class LayerBase {
   // 元素渲染后设置动画
   #setAnimation = subLayer => {
     if (this.selector.engine !== 'svg') {
-      this.warn('LayerBase: Cannot support canvas animation')
+      this.log.warn('LayerBase: Cannot support canvas animation')
       return
     }
     let isFirstPlay = true

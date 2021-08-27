@@ -5,12 +5,14 @@ import TableList from '../data/table-list'
 import Table from '../data/table'
 import Random from '../data/random'
 import Relation from '../data/relation'
+import createLog from '../util/create-log'
 
 // 图层是否依赖其他图层
 const isAxisLayer = layerType => layerType === 'axis'
 const isLegendLayer = layerType => layerType === 'legend'
 const isNormalLayer = layerType => !isAxisLayer(layerType) && !isLegendLayer(layerType)
 const dataBase = new DataBase()
+const log = createLog('src/wave/create')
 
 // 根据配置创建一个图层
 const createLayer = (wave, config) => {
@@ -74,7 +76,7 @@ export default (...parameter) => {
   try {
     return createWave(...parameter)
   } catch (error) {
-    console.error('图表初始化失败\n', error)
+    log.error('createWave: Wave initialization failed', error)
     return null
   }
 }
