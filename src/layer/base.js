@@ -44,7 +44,7 @@ export default class LayerBase {
     this.subLayers.forEach(name => this.#backupData[name] = [])
     this.setAnimation = options => merge(this.#backupAnimation, {options})
     this.playAnimation = () => this.subLayers.forEach(type => this.#backupAnimation[type]?.play())
-    this.selector = new Selector(this.options.engine || 'svg')
+    this.selector = new Selector(this.options.engine || 'canvas')
   }
 
   /**
@@ -220,10 +220,6 @@ export default class LayerBase {
 
   // 元素渲染后设置动画
   #setAnimation = subLayer => {
-    if (this.selector.engine !== 'svg') {
-      this.log.warn('LayerBase: Cannot support canvas animation')
-      return
-    }
     let isFirstPlay = true
     const {options} = this.#backupAnimation
     // 配置动画前先销毁之前的动画，释放资源
@@ -313,9 +309,13 @@ export default class LayerBase {
       }
     }
     // 新的元素需要重新注册事件
-    this.#setEvent(subLayer)
-    this.#setAnimation(subLayer)
-    this.#setTooltip(subLayer)
+    if (this.selector.engine !== 'svg') {
+      this.log.warn('LayerBase: Cannot support canvas animation/tooltip/event')
+    } else {
+      this.#setEvent(subLayer)
+      this.#setAnimation(subLayer)
+      this.#setTooltip(subLayer)
+    }
   }
 
   // 销毁图层
