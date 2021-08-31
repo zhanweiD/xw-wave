@@ -94,7 +94,7 @@ export default class GaugeLayer extends LayerBase {
       range: [startAngle, endAngle],
     })
     // 指针圆点数据
-    this.#circleData = {cx: arcCenter.x, cy: arcCenter.y, rx: pointerSize / 2, ry: pointerSize / 2}
+    this.#circleData = {cx: arcCenter.x, cy: arcCenter.y, r: pointerSize / 2}
     // 指针矩形数据
     const length = maxRadius - arcWidth - tickSize / 0.618 - (tickText.fontSize || tickSize * 2)
     const pointerAngle = (scaleAngle(value) / 180) * Math.PI
@@ -162,7 +162,7 @@ export default class GaugeLayer extends LayerBase {
       ...this.#style.pointer,
     }]
     const circleData = [{
-      data: [[this.#circleData.rx, this.#circleData.ry]],
+      data: [[this.#circleData.r, this.#circleData.r]],
       position: [[this.#circleData.cx, this.#circleData.cy]],
       ...this.#style.circle,
     }]

@@ -118,8 +118,7 @@ export default class RadarLayer extends LayerBase {
         ...others,
         cx: x,
         cy: y,
-        rx: circleSize / 2,
-        ry: circleSize / 2,
+        r: circleSize / 2,
       }))
     })
     // 标签文字数据
@@ -143,7 +142,7 @@ export default class RadarLayer extends LayerBase {
       return {data: [data], transformOrigin, ...this.#style.polygon, fill: fillColor, stroke: strokeColor}
     }).reverse()
     const circleData = this.#circleData.map(groupData => {
-      const data = groupData.map(({rx, ry}) => [rx, ry])
+      const data = groupData.map(({r}) => [r, r])
       const position = groupData.map(({cx, cy}) => [cx, cy])
       const fill = groupData.map(({fillColor}) => fillColor)
       const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))

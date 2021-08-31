@@ -191,8 +191,7 @@ export default class LegendLayer extends LayerBase {
       this.#data.circleData.push({
         cx: x - size / 2,
         cy: y,
-        rx: size / 2,
-        ry: size / 2,
+        r: size / 2,
         fill: color,
       })
     } else if (shape === shapeType.BROKENLINE) {
@@ -214,8 +213,7 @@ export default class LegendLayer extends LayerBase {
       this.#data.circleData.push({
         cx: x - size,
         cy: y,
-        rx: size / 3,
-        ry: size / 3,
+        r: size / 3,
         strokeWidth: size / 5,
         stroke: color,
       })
@@ -317,7 +315,7 @@ export default class LegendLayer extends LayerBase {
       fillOpacity: 0,
     }]
     const circleData = [{
-      data: this.#data.circleData.map(({rx, ry}) => [rx, ry]),
+      data: this.#data.circleData.map(({r}) => [r, r]),
       position: this.#data.circleData.map(({cx, cy}) => [cx, cy]),
       strokeWidth: this.#data.circleData.map(({strokeWidth}) => strokeWidth),
       ...this.#style.shape,

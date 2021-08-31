@@ -199,8 +199,7 @@ export default class AxisLayer extends LayerBase {
       value: label,
       cx: left + width / 2,
       cy: top + height / 2,
-      rx: value,
-      ry: value,
+      r: value,
     })))
   }
 
@@ -234,8 +233,8 @@ export default class AxisLayer extends LayerBase {
       return this.createText({x: x2, y: y2, position, value, style: textAngle, offset})
     })
     // 半径坐标在角度坐标第一根线的右侧
-    this.#textData.textRadius = this.#lineData.lineRadius.map(({value, cx, cy, rx}) => {
-      return this.createText({x: cx, y: cy - rx, position: 'right', value, style: textRadius, offset})
+    this.#textData.textRadius = this.#lineData.lineRadius.map(({value, cx, cy, r}) => {
+      return this.createText({x: cx, y: cy - r, position: 'right', value, style: textRadius, offset})
     })
   }
 
@@ -247,7 +246,7 @@ export default class AxisLayer extends LayerBase {
       ...this.#style[key],
     }]
     const transformRadiusData = key => [{
-      data: this.#lineData[key].map(({rx, ry}) => [rx, ry]),
+      data: this.#lineData[key].map(({r}) => [r, r]),
       position: this.#lineData[key].map(({cx, cy}) => [cx, cy]),
       ...this.#style[key],
     }]

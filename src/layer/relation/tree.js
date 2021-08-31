@@ -128,8 +128,7 @@ export default class TreeLayer extends LayerBase {
       this.#circleData[i] = groupedNodes.map((item, j) => ({
         cx: layout.left + scaleX(item.level),
         cy: layout.top + (isNumber(item.order) ? scaleY(item.order) : item.cy),
-        rx: circleSize / 2,
-        ry: circleSize / 2,
+        r: circleSize / 2,
         color: colors[j],
         ...item,
       }))
@@ -198,8 +197,8 @@ export default class TreeLayer extends LayerBase {
       const isSpecial = (labelPosition === labelPositionType.OUTER && i === 0)
         || (labelPosition === labelPositionType.INNER && i === this.#circleData.length - 1)
       if (type === directionType.HORIZONTAL) {
-        return groupData.map(({cx, cy, rx, name}) => this.createText({
-          x: isSpecial ? cx + rx + labelOffset : cx - rx - labelOffset,
+        return groupData.map(({cx, cy, r, name}) => this.createText({
+          x: isSpecial ? cx + r + labelOffset : cx - r - labelOffset,
           y: cy,
           position: isSpecial ? 'right' : 'left',
           style: text,
@@ -223,7 +222,7 @@ export default class TreeLayer extends LayerBase {
   draw() {
     const circleData = this.#circleData.map(groupData => {
       const source = groupData.map(({dimension, name, value}) => ({dimension, category: name, value}))
-      const data = groupData.map(({rx, ry}) => [rx, ry])
+      const data = groupData.map(({r}) => [r, r])
       const position = groupData.map(({cx, cy}) => [cx, cy])
       const fill = groupData.map(({color}) => color)
       const transformOrigin = 'center'

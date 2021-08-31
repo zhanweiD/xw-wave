@@ -94,8 +94,7 @@ export default class MatrixLayer extends LayerBase {
         dimension: `${rows[i]} ${columns[j]}`,
         cx: left + scaleX(columns[j]) + bandWidthX / 2,
         cy: top + scaleY(rows[i]) + bandWidthY / 2,
-        rx: Math.min(bandWidthX, bandWidthY) / 2,
-        ry: Math.min(bandWidthX, bandWidthY) / 2,
+        r: Math.min(bandWidthX, bandWidthY) / 2,
       })))
     }
     // 文字数据
@@ -146,8 +145,7 @@ export default class MatrixLayer extends LayerBase {
         range: [min, max],
       })
       this.#circleData.forEach(groupData => groupData.forEach(item => {
-        item.rx = scale(item.value)
-        item.ry = scale(item.value)
+        item.r = scale(item.value)
       }))
     }
   }
@@ -163,7 +161,7 @@ export default class MatrixLayer extends LayerBase {
       return {data, source, position, ...this.#style.rect, fill}
     })
     const circleData = this.#circleData.map(groupData => {
-      const data = groupData.map(({rx, ry}) => [rx, ry])
+      const data = groupData.map(({r}) => [r, r])
       const position = groupData.map(({cx, cy}) => [cx, cy])
       const source = groupData.map(({dimension, value}) => ({dimension, value}))
       const fill = groupData.map(({color}) => color)

@@ -60,12 +60,11 @@ export default class PackLayer extends LayerBase {
     const [offsetX, offsetY] = this.#data.get('offset')
     // 原始绘图数据
     this.#circleData = nodes.map(({x, y, r, height, data}) => ({
-      rx: r, 
-      ry: r, 
-      cx: x + left + offsetX, 
-      cy: y + top + offsetY, 
+      cx: x + left + offsetX,
+      cy: y + top + offsetY,
       value: data.name,
       height,
+      r,
     }))
     // 根据高度进行分类
     this.#circleData = d3.range(0, this.#data.get('maxHeight')).map(value => {
@@ -83,7 +82,7 @@ export default class PackLayer extends LayerBase {
   // 绘制
   draw() {
     const circleData = this.#circleData.map(groupData => {
-      const data = groupData.map(({rx, ry}) => [rx, ry])
+      const data = groupData.map(({r}) => [r, r])
       const position = groupData.map(({cx, cy}) => [cx, cy])
       const source = groupData.map(({value}) => ({value}))
       const fill = groupData.map(({color}) => color)

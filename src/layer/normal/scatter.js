@@ -97,8 +97,7 @@ export default class ScatterLayer extends LayerBase {
     })
     this.#circleData = this.#circleData.map(groupData => groupData.map(({value, ...others}) => ({
       value,
-      rx: value !== undefined ? scaleSize(value) : circleSize[0] / 2,
-      ry: value !== undefined ? scaleSize(value) : circleSize[0] / 2,
+      r: value !== undefined ? scaleSize(value) : circleSize[0] / 2,
       ...others,
     })))
     // 标签文字数据
@@ -122,7 +121,7 @@ export default class ScatterLayer extends LayerBase {
   // 绘制
   draw() {
     const circleData = this.#circleData.map(groupData => {
-      const data = groupData.map(({rx, ry}) => [rx, ry])
+      const data = groupData.map(({r}) => [r, r])
       const position = groupData.map(({cx, cy}) => [cx, cy])
       const source = groupData.map(item => item.source)
       const fill = groupData.map(({color}) => color)
