@@ -116,6 +116,7 @@ export default class EdgeBundleLayer extends LayerBase {
       const totalRadius = r + radius + labelOffset
       const [x, y] = [Math.sin(angle) * totalRadius + centerX, centerY - Math.cos(angle) * totalRadius]
       const data = this.createText({x, y, value: source.name, position: 'right', style: text})
+      angle > Math.PI && (data.x -= data.textWidth)
       return {...data, angle: ((angle / Math.PI) * 180 - (angle > Math.PI ? 270 : 90))}
     }))
   }

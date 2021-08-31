@@ -1,16 +1,9 @@
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../util/common'
 
-// 文字方向映射
-const directionMapping = {
-  svg: {
-    horizontal: 'horizontal-tb',
-    vertical: 'vertical-rl',
-  },
-  canvas: {
-    horizontal: 'ltr',
-    vertical: 'rtl',
-  },
+const writingModeMapping = {
+  horizontal: 'horizontal-tb',
+  vertical: 'vertical-rl',
 }
 
 // 绘制一组文本
@@ -60,7 +53,7 @@ export default function drawText({
     rotation: getAttr(rotation, i),
     textShadow: getAttr(textShadow, i),
     transformOrigin: getAttr(transformOrigin, i),
-    writingMode: directionMapping[engine][writingMode],
+    writingMode: writingModeMapping[writingMode],
   }))
 
   if (engine === 'svg') {
@@ -96,7 +89,7 @@ export default function drawText({
       const text = new fabric.Text(config.text, {
         className: config.className,
         left: config.x,
-        top: config.y - config.fontSize,
+        top: config.y,
         fontSize: config.fontSize,
         fontFamily: config.fontFamily,
         fontWeight: config.fontWeight,
@@ -105,7 +98,7 @@ export default function drawText({
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
         shadow: config.textShadow,
-        direction: config.writingMode,
+        originY: 'bottom',
       })
       text.rotate(config.rotation)
       // 覆盖或追加
