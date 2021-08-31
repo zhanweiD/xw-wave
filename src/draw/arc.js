@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 import {isArray} from 'lodash'
 import {fabric} from 'fabric'
-import chroma from 'chroma-js'
+import {mergeAlpha, getAttr} from '../util/common'
 
 // 绘制一组圆弧
 export default function drawArc({
@@ -26,23 +26,21 @@ export default function drawArc({
 }) {
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((value, i) => {
-    const [x, y] = position[i]
     const [startAngle, endAngle, innerRadius, outerRadius] = value
     const arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius)
     return {
       className,
-      position: position[i],
-      fill: isArray(fill) ? fill[i] : fill,
-      stroke: isArray(stroke) ? stroke[i] : stroke,
-      opacity: isArray(opacity) ? opacity[i] : opacity,
-      fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
-      strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
-      strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
-      filter: isArray(filter) ? filter[i] : filter,
-      mask: isArray(mask) ? mask[i] : mask,
-      source: source.length > i ? source[i] : null,
-      transform: `translate(${x}px, ${y}px)`,
+      fill: getAttr(fill, i),
+      stroke: getAttr(stroke, i),
+      opacity: getAttr(opacity, i),
+      fillOpacity: getAttr(fillOpacity, i),
+      strokeOpacity: getAttr(strokeOpacity, i),
+      strokeWidth: getAttr(strokeWidth, i),
+      source: getAttr(source, i),
+      filter: getAttr(filter, i),
+      mask: getAttr(mask, i),
       path: arc({startAngle: Math.PI * (startAngle / 180), endAngle: Math.PI * (endAngle / 180)}),
+      position: isArray(position) && isArray(position[0]) ? position[i] : position,
     }
   })
   if (engine === 'svg') {
@@ -62,15 +60,15 @@ export default function drawArc({
       .attr('stroke-width', d => d.strokeWidth)
       .attr('mask', d => d.mask)
       .attr('filter', d => d.filter)
-      .style('transform', d => d.transform)
+      .style('transform', d => `translate(${d.position[0]}px,${d.position[1]}px)`)
       .style('outline', 'none')
   }
   if (engine === 'canvas') {
     configuredData.forEach((config, i) => {
       const path = new fabric.Path(config.path, {
         className: config.className,
-        fill: chroma(config.fill || '#000').alpha(config.fillOpacity),
-        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
+        fill: mergeAlpha(config.fill, config.fillOpacity),
+        stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
       })

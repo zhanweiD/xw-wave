@@ -1,15 +1,23 @@
+/**
+ * Node handler for svg(d3) and canvas(fabric)
+ */
+
 import {select} from 'd3'
 import {fabric} from 'fabric'
+import createLog from './create-log'
 
 const engineType = {
   SVG: 'svg',
   CANVAS: 'canvas',
 }
 
-// svg(d3)和canvas(pixi)有不同的元素处理方式
 export default class Seletor {
   constructor(engine) {
     this.engine = engine
+    this.log = createLog('src/util/selector')
+    if (engine !== engineType.SVG && engine !== engineType.CANVAS) {
+      this.log.error('Selector: Wrong engine type')
+    }
   }
 
   setVisible(target, visible) {

@@ -1,6 +1,6 @@
-import {isArray} from 'lodash'
 import {fabric} from 'fabric'
-import chroma from 'chroma-js'
+import {isArray} from 'lodash'
+import {mergeAlpha, getAttr} from '../util/common'
 
 // 绘制一组圆形（含椭圆）
 export default function drawCircle({
@@ -26,20 +26,20 @@ export default function drawCircle({
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((size, i) => ({
     className,
+    fill: getAttr(fill, i),
+    stroke: getAttr(stroke, i),
+    opacity: getAttr(opacity, i),
+    fillOpacity: getAttr(fillOpacity, i),
+    strokeOpacity: getAttr(strokeOpacity, i),
+    strokeWidth: getAttr(strokeWidth, i),
+    source: getAttr(source, i),
+    filter: getAttr(filter, i),
+    mask: getAttr(mask, i),
+    position: isArray(position) && isArray(position[0]) ? position[i] : position,
     cx: position[i][0],
     cy: position[i][1],
     rx: size[0],
     ry: size[1],
-    fill: isArray(fill) ? fill[i] : fill,
-    stroke: isArray(stroke) ? stroke[i] : stroke,
-    opacity: isArray(opacity) ? opacity[i] : opacity,
-    fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
-    strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
-    strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
-    filter: isArray(filter) ? filter[i] : filter,
-    mask: isArray(mask) ? mask[i] : mask,
-    source: source.length > i ? source[i] : null,
-    transformOrigin: `${position[i][0]}px ${position[i][1]}px`,
   }))
   if (engine === 'svg') {
     container.selectAll(`.${className}`)
@@ -61,19 +61,19 @@ export default function drawCircle({
       .attr('stroke-opacity', d => d.strokeOpacity)
       .attr('mask', d => d.mask)
       .attr('filter', d => d.filter)
-      .style('transform-origin', d => d.transformOrigin)
+      .style('transform-origin', d => `${d.position[0]}px ${d.position[1]}px`)
   }
   if (engine === 'canvas') {
     configuredData.forEach((config, i) => {
       const ellipse = new fabric.Ellipse({
         className: config.className,
-        left: config.cx - config.rx,
-        top: config.cy - config.ry,
         rx: config.rx,
         ry: config.ry,
-        fill: chroma(config.fill || '#000').alpha(config.fillOpacity),
-        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
-        strokeWidth: config.strokeWidth || 0,
+        left: config.cx - config.rx,
+        top: config.cy - config.ry,
+        fill: mergeAlpha(config.fill, config.fillOpacity),
+        stroke: mergeAlpha(config.stroke, config.strokeOpacity),
+        strokeWidth: config.strokeWidth,
         opacity: config.opacity,
       })
       // 覆盖或追加

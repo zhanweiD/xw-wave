@@ -57,7 +57,7 @@ const createSchema = (container, theme, layout, type) => ({
         line: {
           hide: true,
         },
-        rect: {
+        pointer: {
           hide: true,
         },
         circle: {

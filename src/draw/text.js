@@ -1,6 +1,5 @@
-import {isArray} from 'lodash'
 import {fabric} from 'fabric'
-import chroma from 'chroma-js'
+import {mergeAlpha, getAttr} from '../util/common'
 
 // 文字方向映射
 const directionMapping = {
@@ -12,20 +11,6 @@ const directionMapping = {
     horizontal: 'ltr',
     vertical: 'rtl',
   },
-}
-
-// svg 的文字对齐到 canvas 的文字对齐
-const anchorToAlign = anchor => {
-  switch (anchor) {
-    case 'start':
-      return 'left'
-    case 'middle':
-      return 'center'
-    case 'end':
-      return 'right'
-    default:
-      return ''
-  }
 }
 
 // 绘制一组文本
@@ -43,7 +28,6 @@ export default function drawText({
   rotation = 0,
   textShadow = '2px 2px 2px rgba(0,0,0,0)',
   writingMode = 'horizontal', // 文字方向 enumeration ['horizontal', 'vertical']
-  textAnchor = 'start', // 文字锚点 enumeration ['start', 'middle', 'end']
   transformOrigin = null, // 影响动画和旋转
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
@@ -65,20 +49,18 @@ export default function drawText({
     fontWeight,
     x: position[i][0],
     y: position[i][1],
-    fill: isArray(fill) ? fill[i] : fill,
-    stroke: isArray(stroke) ? stroke[i] : stroke,
-    opacity: isArray(opacity) ? opacity[i] : opacity,
-    fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
-    strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
-    strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
-    rotation: isArray(rotation) ? rotation[i] : rotation,
-    filter: isArray(filter) ? filter[i] : filter,
-    mask: isArray(mask) ? mask[i] : mask,
+    fill: getAttr(fill, i),
+    stroke: getAttr(stroke, i),
+    opacity: getAttr(opacity, i),
+    fillOpacity: getAttr(fillOpacity, i),
+    strokeOpacity: getAttr(strokeOpacity, i),
+    strokeWidth: getAttr(strokeWidth, i),
+    filter: getAttr(filter, i),
+    mask: getAttr(mask, i),
+    rotation: getAttr(rotation, i),
+    textShadow: getAttr(textShadow, i),
+    transformOrigin: getAttr(transformOrigin, i),
     writingMode: directionMapping[engine][writingMode],
-    transform: `rotate(${isArray(rotation) ? rotation[i] : rotation}deg)`,
-    transformOrigin: isArray(transformOrigin) ? transformOrigin[i] : transformOrigin,
-    textAnchor: isArray(textAnchor) ? textAnchor[i] : textAnchor,
-    textShadow,
   }))
 
   if (engine === 'svg') {
@@ -104,10 +86,9 @@ export default function drawText({
       .attr('writing-mode', d => d.writingMode)
       .attr('mask', d => d.mask)
       .attr('filter', d => d.filter)
-      .style('transform', d => d.transform)
+      .style('transform', d => `rotate(${d.rotation}deg)`)
       .style('transform-origin', d => d.transformOrigin)
       .style('text-shadow', d => d.textShadow)
-      .style('text-anchor', d => d.textAnchor)
       .style('pointer-events', 'none')
   }
   if (engine === 'canvas') {
@@ -119,13 +100,12 @@ export default function drawText({
         fontSize: config.fontSize,
         fontFamily: config.fontFamily,
         fontWeight: config.fontWeight,
-        fill: chroma(config.fill || '#000').alpha(config.fillOpacity),
-        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
-        opacity: config.opacity,
+        fill: mergeAlpha(config.fill, config.fillOpacity),
+        stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeWidth: config.strokeWidth,
+        opacity: config.opacity,
         shadow: config.textShadow,
         direction: config.writingMode,
-        textAlign: anchorToAlign(config.textAnchor),
       })
       text.rotate(config.rotation)
       // 覆盖或追加

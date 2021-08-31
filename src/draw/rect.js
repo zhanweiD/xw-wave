@@ -1,6 +1,6 @@
 import {isArray} from 'lodash'
 import {fabric} from 'fabric'
-import chroma from 'chroma-js'
+import {mergeAlpha, getAttr} from '../util/common'
 
 // 绘制一组矩形
 export default function drawText({
@@ -26,24 +26,22 @@ export default function drawText({
 }) {
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((size, i) => {
-    const [width, height] = size
-    const [x, y] = position[i]
     return {
       className,
-      x,
-      y,
-      width,
-      height,
-      fill: isArray(fill) ? fill[i] : fill,
-      stroke: isArray(stroke) ? stroke[i] : stroke,
-      opacity: isArray(opacity) ? opacity[i] : opacity,
-      fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
-      strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
-      strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
-      filter: isArray(filter) ? filter[i] : filter,
-      mask: isArray(mask) ? mask[i] : mask,
-      source: source.length > i ? source[i] : null,
-      transformOrigin: getTransformOrigin({x, y, width, height, transformOrigin}),
+      x: position[i][0],
+      y: position[i][1],
+      width: size[0],
+      height: size[1],
+      fill: getAttr(fill, i),
+      stroke: getAttr(stroke, i),
+      opacity: getAttr(opacity, i),
+      fillOpacity: getAttr(fillOpacity, i),
+      strokeOpacity: getAttr(strokeOpacity, i),
+      strokeWidth: getAttr(strokeWidth, i),
+      source: getAttr(source, i),
+      filter: getAttr(filter, i),
+      mask: getAttr(mask, i),
+      transformOrigin: getTransformOrigin({size, position: position[i], transformOrigin}),
     }
   })
   if (engine === 'svg') {
@@ -75,8 +73,8 @@ export default function drawText({
         left: config.x,
         width: config.width,
         height: config.height,
-        fill: chroma(config.fill || '#000').alpha(config.fillOpacity),
-        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
+        fill: mergeAlpha(config.fill, config.fillOpacity),
+        stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
       })
@@ -90,8 +88,10 @@ export default function drawText({
   }
 }
 
-const getTransformOrigin = ({x, y, height, width, transformOrigin}) => {
+const getTransformOrigin = ({position, size, transformOrigin}) => {
   let result = transformOrigin
+  const [x, y] = position
+  const [width, height] = size
   if (transformOrigin === 'center') {
     result = `${x + width / 2}px ${y + height / 2}px`
   } else if (transformOrigin === 'left') {

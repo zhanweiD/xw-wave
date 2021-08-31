@@ -18,6 +18,12 @@ const stateType = {
   WARN: 'warn', // 发生错误
 }
 
+// 渲染方式
+const engineType = {
+  SVG: 'svg',
+  CANVAS: 'canvas',
+}
+
 // 笔刷模式
 const brushType = {
   HORIZONTAL: 'horizontal',
@@ -43,9 +49,9 @@ export default class Wave {
 
   #layout = null
 
-  #svg = null
+  #engine = null
 
-  #canvas = null
+  #root = null
 
   #defs = null
 
@@ -71,16 +77,18 @@ export default class Wave {
     height = 100,
     padding = [0, 0, 0, 0],
     adjust = true,
+    theme = [],
     define = {},
     tooltip = {},
-    theme = ['white', 'black'],
     baseFontSize = 1,
+    engine = engineType.CANVAS,
     layout = Layout.standard(false),
     coordinate = coordinateType.CARTESIAN_BAND_LINEAR,
   }) {
     // 初始化状态和容器
     this.#state = stateType.INITILIZE
     this.#container = d3.select(container)
+    this.#engine = engine
 
     // 确定图表宽高
     if (adjust) {
@@ -105,21 +113,25 @@ export default class Wave {
 
     // 初始化 dom 结构
     this.#container.html('')
-    // svg
-    this.#svg = this.#container
-      .append('svg')
-      .attr('width', this.containerWidth)
-      .attr('height', this.containerHeight)
-      .style('position', 'absolute')
-    // canvas
-    const canvas = this.#container
-      .append('canvas')
-      .attr('width', this.containerWidth)
-      .attr('height', this.containerHeight)
-      .style('position', 'absolute')
-    const canvasRoot = new fabric.StaticCanvas(canvas._groups[0][0])
-    this.#canvas = new fabric.Group()
-    canvasRoot.add(this.#canvas)
+    if (engine === engineType.SVG) {
+      this.#root = this.#container
+        .append('svg')
+        .attr('width', this.containerWidth)
+        .attr('height', this.containerHeight)
+        .style('position', 'absolute')
+      this.#defs = this.#root.append('defs')
+    } else if (engine === engineType.CANVAS) {
+      const canvas = this.#container
+        .append('canvas')
+        .attr('width', this.containerWidth)
+        .attr('height', this.containerHeight)
+        .style('position', 'absolute')
+      const canvasRoot = new fabric.StaticCanvas(canvas._groups[0][0])
+      this.#root = new fabric.Group()
+      this.#defs = []
+      canvasRoot.add(this.#root)
+      canvasRoot.defs = this.#defs
+    }
     
     // 初始化布局信息
     this.#layout = layout({
@@ -132,7 +144,6 @@ export default class Wave {
     this.theme = theme
     this.coordinate = coordinate
     this.baseFontSize = baseFontSize
-    this.#defs = this.#svg.append('defs')
     this.log = createLog('src/wave/wave')
     this.event = createEvent('src/wave/wave')
     this.#tooltip = new Tooltip(this.#container, tooltip)
@@ -169,13 +180,13 @@ export default class Wave {
   createLayer(type, options = {}) {
     // 暴露给图层的上下文环境
     const context = {
-      svg: this.#svg,
-      canvas: this.#canvas,
+      root: this.#root,
+      engine: this.#engine,
       tooltip: this.#tooltip,
       baseFontSize: this.baseFontSize,
       containerWidth: this.containerWidth,
       containerHeight: this.containerHeight,
-      createGradient: makeGradientCreator(this.#defs),
+      createGradient: makeGradientCreator(this.#defs, this.#engine),
       getColor: this.getColor.bind(this),
     }
     // 根据类型创建图层
@@ -247,41 +258,44 @@ export default class Wave {
    * @returns 笔刷实例
    */
   createBrush(options = {}) {
-    const {type, layout, targets} = options
-    const {width, height, left, top} = layout
-    const isHorizontal = type === brushType.HORIZONTAL
-    const layers = this.#layer.filter(({id}) => targets.find(item => item === id))
-    const prevRange = new Array(layers.length).fill(null)
-    // 笔刷影响图层的比例尺
-    const brushed = event => layers.forEach(({instance}, i) => {
-      const {selection} = event
-      const total = isHorizontal ? width : height
-      const scale = isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
-      if (prevRange[i] === null) prevRange[i] = scale.range()
-      const zoomFactor = total / ((selection[1] - selection[0]) || 1)
-      const nextRange = [prevRange[i][0], prevRange[i][0] + (prevRange[i][1] - prevRange[i][0]) * zoomFactor]
-      const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
-      scale.range(nextRange.map(value => value - offset))
-      scale.brushed = true
-      instance.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
-      instance.setStyle()
-      instance.draw()
-    })
-    // 创建笔刷实例
-    const [brushX1, brushX2, brushY1, brushY2] = [left, left + width, top, top + height]
-    const brush = (isHorizontal ? d3.brushX() : d3.brushY())
-    brush.extent([[brushX1, brushY1], [brushX2, brushY2]]).on('brush', brushed)
-    // 确定笔刷区域
-    const brushDOM = this.#svg.append('g').attr('class', 'wave-brush').call(brush)
-    brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
-    return brush
+    if (this.#engine === engineType.SVG) {
+      const {type, layout, targets} = options
+      const {width, height, left, top} = layout
+      const isHorizontal = type === brushType.HORIZONTAL
+      const layers = this.#layer.filter(({id}) => targets.find(item => item === id))
+      const prevRange = new Array(layers.length).fill(null)
+      // 笔刷影响图层的比例尺
+      const brushed = event => layers.forEach(({instance}, i) => {
+        const {selection} = event
+        const total = isHorizontal ? width : height
+        const scale = isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
+        if (prevRange[i] === null) prevRange[i] = scale.range()
+        const zoomFactor = total / ((selection[1] - selection[0]) || 1)
+        const nextRange = [prevRange[i][0], prevRange[i][0] + (prevRange[i][1] - prevRange[i][0]) * zoomFactor]
+        const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
+        scale.range(nextRange.map(value => value - offset))
+        scale.brushed = true
+        instance.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
+        instance.setStyle()
+        instance.draw()
+      })
+      // 创建笔刷实例
+      const [brushX1, brushX2, brushY1, brushY2] = [left, left + width, top, top + height]
+      const brush = (isHorizontal ? d3.brushX() : d3.brushY())
+      brush.extent([[brushX1, brushY1], [brushX2, brushY2]]).on('brush', brushed)
+      // 确定笔刷区域
+      const brushDOM = this.#root.append('g').attr('class', 'wave-brush').call(brush)
+      brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
+    }
   }
 
   // 重绘制所有图层
   draw(recalculate = false) {
-    recalculate && this.#layer.forEach(({instance}) => instance.setData())
-    recalculate && this.#layer.forEach(({instance}) => instance.setStyle())
-    this.#layer.forEach(layer => layer.instance.draw())
+    this.#layer.forEach(({instance}) => {
+      recalculate && instance.setData()
+      recalculate && instance.setStyle()
+      instance.draw()
+    })
   }
 
   // 销毁所有图层

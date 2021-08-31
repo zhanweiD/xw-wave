@@ -44,7 +44,7 @@ export default class LayerBase {
     this.subLayers.forEach(name => this.#backupData[name] = [])
     this.setAnimation = options => merge(this.#backupAnimation, {options})
     this.playAnimation = () => this.subLayers.forEach(type => this.#backupAnimation[type]?.play())
-    this.selector = new Selector(this.options.engine || 'canvas')
+    this.selector = new Selector(this.options.engine)
   }
 
   /**
@@ -119,7 +119,7 @@ export default class LayerBase {
    * @param {Object} 计算文字需要的一些值
    * @returns 文字数据，包含坐标和值
    */
-  createText({x, y, value, style, position = positionType.RIGHTTOP, textAnchor, offset = 0}) {
+  createText({x, y, value, style, position = positionType.RIGHTTOP, offset = 0}) {
     let [positionX, positionY] = [x, y]
     const {fontSize = 12, writingMode, format} = style
     const formattedText = String(formatNumber(value, format))
@@ -150,7 +150,7 @@ export default class LayerBase {
     // 根据文字书写方向重定向位置，仍然有字体高度问题
     if (writingMode === 'vertical') {
       positionX += textWidth / 2
-      positionY += textAnchor === 'end' ? fontSize : -fontSize
+      positionY += -fontSize
     }
     // 偏移控制
     if (isArray(style.offset)) {
@@ -158,7 +158,6 @@ export default class LayerBase {
       positionY -= style.offset[1]
     }
     return {
-      textAnchor,
       x: positionX,
       y: positionY,
       value: formattedText, 
@@ -266,7 +265,7 @@ export default class LayerBase {
     const {engine} = selector
     // 图层容器准备
     if (!this.root) {
-      this.root = selector.createSubContainer(this.options[engine])
+      this.root = selector.createSubContainer(this.options.root)
       selector.setClassName(this.root, this.className)
     }
     // 子图层容器准备

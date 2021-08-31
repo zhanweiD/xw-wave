@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
-import {isArray} from 'lodash'
 import {fabric} from 'fabric'
-import chroma from 'chroma-js'
+import {mergeAlpha, getAttr} from '../util/common'
 
 // 绘制一组曲线
 export default function drawCurve({
@@ -27,15 +26,14 @@ export default function drawCurve({
   curve && lineGenerator.curve(d3[curve])
   const configuredData = position.map((data, i) => ({
     className,
-    data,
-    stroke: isArray(stroke) ? stroke[i] : stroke,
-    opacity: isArray(opacity) ? opacity[i] : opacity,
-    strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
-    strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
-    filter: isArray(filter) ? filter[i] : filter,
-    mask: isArray(mask) ? mask[i] : mask,
+    stroke: getAttr(stroke, i),
+    opacity: getAttr(opacity, i),
+    strokeOpacity: getAttr(strokeOpacity, i),
+    strokeWidth: getAttr(strokeWidth, i),
+    source: getAttr(source, i),
+    filter: getAttr(filter, i),
+    mask: getAttr(mask, i),
     path: lineGenerator(data),
-    source: source.length > i ? source[i] : null,
   }))
   if (engine === 'svg') {
     container.selectAll(`.${className}`)
@@ -59,8 +57,8 @@ export default function drawCurve({
     configuredData.forEach((config, i) => {
       const path = new fabric.Path(config.path, {
         className: config.className,
-        fill: chroma.random().alpha(0),
-        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
+        fill: null,
+        stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
       })

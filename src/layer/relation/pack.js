@@ -91,8 +91,7 @@ export default class PackLayer extends LayerBase {
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)
       const position = groupData.map(({x, y}) => [x, y])
-      const textAnchor = groupData.map(item => item.textAnchor)
-      return {data, position, textAnchor, ...this.#style.text}
+      return {data, position, ...this.#style.text}
     })
     // 只展示最里层文字防遮挡
     this.drawBasic('circle', circleData)

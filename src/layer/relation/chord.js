@@ -99,10 +99,9 @@ export default class ChordLayer extends LayerBase {
     this.#textData = this.#arcData.map(({startAngle, endAngle, outerRadius, category}) => {
       const angle = ((startAngle + endAngle) / 360) * Math.PI
       const totalRadius = outerRadius + labelOffset
-      const textAnchor = angle > Math.PI ? 'end' : 'start'
       const [x, y] = [Math.sin(angle) * totalRadius + centerX, centerY - Math.cos(angle) * totalRadius]
       const data = this.createText({x, y, value: category, position: 'right', style: text})
-      return {...data, textAnchor, angle: ((angle / Math.PI) * 180 - (angle > Math.PI ? 270 : 90))}
+      return {...data, angle: ((angle / Math.PI) * 180 - (angle > Math.PI ? 270 : 90))}
     })
   }
 
@@ -126,7 +125,6 @@ export default class ChordLayer extends LayerBase {
     const textData = [{
       data: this.#textData.map(({value}) => value),
       position: this.#textData.map(({x, y}) => [x, y]),
-      textAnchor: this.#textData.map(item => item.textAnchor),
       transformOrigin: this.#textData.map(item => item.transformOrigin),
       rotation: this.#textData.map(({angle}) => angle),
       ...this.#style.text,

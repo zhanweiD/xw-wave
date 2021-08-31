@@ -226,7 +226,6 @@ export default class SankeyLayer extends LayerBase {
           y: isLast ? y - labelOffset : y + height + labelOffset,
           value: `${name}(${value})`,
           position: isLast ? 'top' : 'bottom',
-          textAnchor: isLast ? 'end' : 'start',
           style: text,
         }))
       }
@@ -251,8 +250,7 @@ export default class SankeyLayer extends LayerBase {
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)
       const position = groupData.map(({x, y}) => [x, y])
-      const textAnchor = groupData.map(item => item.textAnchor)
-      return {data, position, textAnchor, ...this.#style.text}
+      return {data, position, ...this.#style.text}
     })
     this.drawBasic('rect', rectData)
     this.drawBasic('path', ribbonData, 'ribbon')

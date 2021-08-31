@@ -1,6 +1,5 @@
-import {isArray} from 'lodash'
 import {fabric} from 'fabric'
-import chroma from 'chroma-js'
+import {mergeAlpha, getAttr} from '../util/common'
 
 // 绘制一组直线
 export default function drawLine({
@@ -24,18 +23,18 @@ export default function drawLine({
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = position.map((data, i) => ({
     className,
+    stroke: getAttr(stroke, i),
+    opacity: getAttr(opacity, i),
+    strokeOpacity: getAttr(strokeOpacity, i),
+    strokeWidth: getAttr(strokeWidth, i),
+    source: getAttr(source, i),
+    filter: getAttr(filter, i),
+    mask: getAttr(mask, i),
+    strokeDasharray: getAttr(dasharray, i),
     x1: data[0],
     y1: data[1],
     x2: data[2],
     y2: data[3],
-    stroke: isArray(stroke) ? stroke[i] : stroke,
-    opacity: isArray(opacity) ? opacity[i] : opacity,
-    strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
-    strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
-    filter: isArray(filter) ? filter[i] : filter,
-    mask: isArray(mask) ? mask[i] : mask,
-    strokeDasharray: isArray(dasharray) ? dasharray[i] : dasharray,
-    source: source.length > i ? source[i] : null,
   }))
   if (engine === 'svg') {
     container.selectAll(`.${className}`)
@@ -62,9 +61,9 @@ export default function drawLine({
     configuredData.forEach((config, i) => {
       const line = new fabric.Line([config.x1, config.y1, config.x2, config.y2], {
         className: config.className,
-        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
-        opacity: config.opacity,
+        stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeWidth: config.strokeWidth,
+        opacity: config.opacity,
         strokeDashArray: String(config.strokeDasharray).split(' '),
       })
       // 覆盖或追加

@@ -114,10 +114,9 @@ export default class EdgeBundleLayer extends LayerBase {
     // 标签数据
     this.#textData = this.#circleData.map(groupData => groupData.map(({r, source, angle, radius}) => {
       const totalRadius = r + radius + labelOffset
-      const textAnchor = angle > Math.PI ? 'end' : 'start'
       const [x, y] = [Math.sin(angle) * totalRadius + centerX, centerY - Math.cos(angle) * totalRadius]
       const data = this.createText({x, y, value: source.name, position: 'right', style: text})
-      return {...data, textAnchor, angle: ((angle / Math.PI) * 180 - (angle > Math.PI ? 270 : 90))}
+      return {...data, angle: ((angle / Math.PI) * 180 - (angle > Math.PI ? 270 : 90))}
     }))
   }
 
@@ -139,9 +138,8 @@ export default class EdgeBundleLayer extends LayerBase {
       const data = groupData.map(({value}) => value)
       const position = groupData.map(({x, y}) => [x, y])
       const rotation = groupData.map(({angle}) => angle)
-      const textAnchor = groupData.map(item => item.textAnchor)
       const transformOrigin = groupData.map(item => item.transformOrigin)
-      return {data, position, textAnchor, transformOrigin, ...this.#style.text, rotation}
+      return {data, position, transformOrigin, ...this.#style.text, rotation}
     })
     this.drawBasic('curve', curveData)
     this.drawBasic('circle', circleData)

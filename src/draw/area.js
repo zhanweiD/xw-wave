@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
-import {isArray} from 'lodash'
 import {fabric} from 'fabric'
-import chroma from 'chroma-js'
+import {mergeAlpha, getAttr} from '../util/common'
 
 // 绘制一组面积
 export default function drawArea({
@@ -29,16 +28,16 @@ export default function drawArea({
   curve && areaGenerator.curve(d3[curve])
   const configuredData = position.map((data, i) => ({
     className,
-    fill: isArray(fill) ? fill[i] : fill,
-    stroke: isArray(stroke) ? stroke[i] : stroke,
-    opacity: isArray(opacity) ? opacity[i] : opacity,
-    fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
-    strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
-    strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
-    filter: isArray(filter) ? filter[i] : filter,
-    mask: isArray(mask) ? mask[i] : mask,
+    fill: getAttr(fill, i),
+    stroke: getAttr(stroke, i),
+    opacity: getAttr(opacity, i),
+    fillOpacity: getAttr(fillOpacity, i),
+    strokeOpacity: getAttr(strokeOpacity, i),
+    strokeWidth: getAttr(strokeWidth, i),
+    source: getAttr(source, i),
+    filter: getAttr(filter, i),
+    mask: getAttr(mask, i),
     path: areaGenerator(data),
-    source: source.length > i ? source[i] : null,
   }))
   if (engine === 'svg') {
     container.selectAll(`.${className}`)
@@ -63,8 +62,8 @@ export default function drawArea({
     configuredData.forEach((config, i) => {
       const path = new fabric.Path(config.path, {
         className: config.className,
-        fill: chroma(config.fill || '#000').alpha(config.fillOpacity),
-        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
+        fill: mergeAlpha(config.fill, config.fillOpacity),
+        stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
       })

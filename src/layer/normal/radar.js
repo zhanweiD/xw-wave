@@ -137,9 +137,9 @@ export default class RadarLayer extends LayerBase {
   // 绘制
   draw() {
     const polygonData = this.#polygonData[0].map(({fillColor, strokeColor, center}, index) => {
-      const transformOrigin = [center.x, center.y]
+      const position = [center.x, center.y]
       const data = this.#polygonData.map(item => [item[index].x, item[index].y])
-      return {data: [data], transformOrigin, ...this.#style.polygon, fill: fillColor, stroke: strokeColor}
+      return {data: [data], position, ...this.#style.polygon, fill: fillColor, stroke: strokeColor}
     }).reverse()
     const circleData = this.#circleData.map(groupData => {
       const data = groupData.map(({r}) => [r, r])

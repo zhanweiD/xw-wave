@@ -206,9 +206,9 @@ export default class TreeLayer extends LayerBase {
         }))
       }
       if (type === directionType.VERTICAL) {
-        return groupData.map(({cx, cy, ry, name}) => this.createText({
+        return groupData.map(({cx, cy, r, name}) => this.createText({
           x: cx,
-          y: isSpecial ? cy + ry + labelOffset : cy - ry - labelOffset,
+          y: isSpecial ? cy + r + labelOffset : cy - r - labelOffset,
           position: isSpecial ? 'bottom' : 'top',
           style: text,
           value: name,
@@ -236,8 +236,7 @@ export default class TreeLayer extends LayerBase {
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)
       const position = groupData.map(({x, y}) => [x, y])
-      const textAnchor = groupData.map(item => item.textAnchor)
-      return {data, position, textAnchor, ...this.#style.text}
+      return {data, position, ...this.#style.text}
     })
     this.drawBasic('curve', curveData)
     this.drawBasic('circle', circleData)
