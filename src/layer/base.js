@@ -122,7 +122,7 @@ export default class LayerBase {
   createText({x, y, value, style, position = positionType.RIGHTTOP, textAnchor, offset = 0}) {
     let [positionX, positionY] = [x, y]
     const {fontSize = 12, writingMode, format} = style
-    const formattedText = formatNumber(value, format)
+    const formattedText = String(formatNumber(value, format))
     const textWidth = getTextWidth(formattedText, fontSize)
     if (position === positionType.CENTER) {
       positionX -= textWidth / 2
@@ -309,9 +309,7 @@ export default class LayerBase {
       }
     }
     // 新的元素需要重新注册事件
-    if (this.selector.engine !== 'svg') {
-      this.log.warn('LayerBase: Cannot support canvas animation/tooltip/event')
-    } else {
+    if (this.selector.engine === 'svg') {
       this.#setEvent(subLayer)
       this.#setAnimation(subLayer)
       this.#setTooltip(subLayer)

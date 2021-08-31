@@ -99,7 +99,9 @@ export default class PackLayer extends LayerBase {
     this.drawBasic('circle', circleData)
     this.drawBasic('text', textData.slice(textData.length - 1))
     // 内置缩放事件
-    this.options.zoom && this.root.selectAll('.wave-basic-circle').on('click', this.#zoom)
+    if (this.options.zoom && this.options.engine === 'svg') {
+      this.root.selectAll('.wave-basic-circle').on('click', this.#zoom)
+    }
   }
 
   #zoom = (event, data) => {

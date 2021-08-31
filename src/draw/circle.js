@@ -1,5 +1,5 @@
 import {isArray} from 'lodash'
-import {Graphics} from 'pixi.js'
+import {fabric} from 'fabric'
 import chroma from 'chroma-js'
 
 // 绘制一组圆形（含椭圆）
@@ -65,19 +65,22 @@ export default function drawCircle({
   }
   if (engine === 'canvas') {
     configuredData.forEach((config, i) => {
-      const graphics = new Graphics()
-      const {cx, rx, cy, ry} = config
-      const getColor = color => chroma(color || '#000').hex().replace('#', '0x')
-      graphics.className = config.className
-      graphics.lineStyle(config.strokeWidth, getColor(config.stroke), config.strokeOpacity)
-      graphics.beginFill(getColor(config.fill), fillOpacity)
-      graphics.drawEllipse(cx, cy, rx, ry)
-      graphics.endFill()
+      const ellipse = new fabric.Ellipse({
+        className: config.className,
+        left: config.cx - config.rx,
+        top: config.cy - config.ry,
+        rx: config.rx,
+        ry: config.ry,
+        fill: chroma(config.fill || '#000').alpha(config.fillOpacity),
+        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
+        strokeWidth: config.strokeWidth || 0,
+        opacity: config.opacity,
+      })
       // 覆盖或追加
-      if (container.children.length <= i) {
-        container.addChild(graphics)
+      if (container.getObjects().length <= i) {
+        container.addWithUpdate(ellipse)
       } else {
-        container.children[i] = graphics
+        container.item(i).set(ellipse)
       }
     })
   }

@@ -1,5 +1,5 @@
 import {select} from 'd3'
-import {Container} from 'pixi.js'
+import {fabric} from 'fabric'
 
 const engineType = {
   SVG: 'svg',
@@ -17,7 +17,7 @@ export default class Seletor {
       target.attr('display', visible ? 'block' : 'none')
     }
     if (this.engine === engineType.CANVAS) {
-      target.visible = visible
+      target.visible = visible 
     }
   }
 
@@ -36,7 +36,7 @@ export default class Seletor {
       return result.size() > 0 ? select(result._groups[0][0]) : null
     }
     if (this.engine === engineType.CANVAS) {
-      const result = target.children.filter(child => child.className === className)
+      const result = target.getObjects().filter(child => child.className === className)
       return result.length > 0 ? result[0] : null
     }
     return []
@@ -47,7 +47,9 @@ export default class Seletor {
       return target.append('g')
     }
     if (this.engine === engineType.CANVAS) {
-      return target.addChild(new Container())
+      const group = new fabric.Group([])
+      target.addWithUpdate(group)
+      return group
     }
     return null
   }
@@ -57,7 +59,7 @@ export default class Seletor {
       return target.remove()
     }
     if (this.engine === engineType.CANVAS) {
-      return target.parent.removeChild(this.target)
+      return target.group.remove(target)
     }
     return null
   }

@@ -1,5 +1,5 @@
 import {isArray} from 'lodash'
-import {Graphics} from 'pixi.js'
+import {fabric} from 'fabric'
 import chroma from 'chroma-js'
 
 // 绘制一组矩形
@@ -11,7 +11,6 @@ export default function drawText({
   opacity = 1,
   fillOpacity = 1,
   strokeOpacity = 1,
-  rotate = 0, // 旋转
   transformOrigin = 'center', // 影响动画和旋转
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
@@ -35,7 +34,6 @@ export default function drawText({
       y,
       width,
       height,
-      rotate: isArray(rotate) ? rotate[i] : rotate,
       fill: isArray(fill) ? fill[i] : fill,
       stroke: isArray(stroke) ? stroke[i] : stroke,
       opacity: isArray(opacity) ? opacity[i] : opacity,
@@ -67,23 +65,26 @@ export default function drawText({
       .attr('stroke-opacity', d => d.strokeOpacity)
       .attr('mask', d => d.mask)
       .attr('filter', d => d.filter)
-      .style('transform', d => `rotate(${d.rotate}deg)`)
       .style('transform-origin', d => d.transformOrigin)
   }
   if (engine === 'canvas') {
     configuredData.forEach((config, i) => {
-      const graphics = new Graphics()
-      const getColor = color => chroma(color || '#000').hex().replace('#', '0x')
-      graphics.className = config.className
-      graphics.lineStyle(config.strokeWidth, getColor(config.stroke), config.strokeOpacity)
-      graphics.beginFill(getColor(config.fill), config.fillOpacity)
-      graphics.drawRect(config.x, config.y, config.width, config.height)
-      graphics.endFill()
+      const rect = new fabric.Rect({
+        className: config.className,
+        top: config.y,
+        left: config.x,
+        width: config.width,
+        height: config.height,
+        fill: chroma(config.fill || '#000').alpha(config.fillOpacity),
+        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
+        strokeWidth: config.strokeWidth,
+        opacity: config.opacity,
+      })
       // 覆盖或追加
-      if (container.children.length <= i) {
-        container.addChild(graphics)
+      if (container.getObjects().length <= i) {
+        container.addWithUpdate(rect)
       } else {
-        container.children[i] = graphics
+        container.item(i).set(rect)
       }
     })
   }

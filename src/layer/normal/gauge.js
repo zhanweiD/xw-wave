@@ -13,8 +13,8 @@ const defaultStyle = {
   pointerSize: 5,
   arc: {},
   line: {},
-  rect: {},
   circle: {},
+  pointer: {},
   tickText: {},
   labelText: {},
   valueText: {
@@ -29,11 +29,11 @@ export default class GaugeLayer extends LayerBase {
 
   #arcData = []
 
-  #rectData = {}
+  #lineData = []
 
   #circleData = {}
 
-  #lineData = []
+  #pointerData = {}
 
   #valueTextData = []
 
@@ -46,7 +46,7 @@ export default class GaugeLayer extends LayerBase {
   }
 
   constructor(layerOptions, waveOptions) {
-    const subLayers = ['arc', 'line', 'rect', 'circle', 'tickText', 'labelText', 'valueText']
+    const subLayers = ['arc', 'line', 'pointer', 'circle', 'tickText', 'labelText', 'valueText']
     super(layerOptions, waveOptions, subLayers)
     this.className = 'wave-gauge'
   }
@@ -96,12 +96,13 @@ export default class GaugeLayer extends LayerBase {
     // 指针圆点数据
     this.#circleData = {cx: arcCenter.x, cy: arcCenter.y, rx: pointerSize / 2, ry: pointerSize / 2}
     // 指针矩形数据
-    this.#rectData = {
-      width: pointerSize / 4,
-      height: maxRadius - arcWidth - tickSize / 0.618 - (tickText.fontSize || tickSize * 2),
-      x: arcCenter.x - pointerSize / 8,
-      y: arcCenter.y,
-      rotate: scaleAngle(value) + 180,
+    const length = maxRadius - arcWidth - tickSize / 0.618 - (tickText.fontSize || tickSize * 2)
+    const pointerAngle = (scaleAngle(value) / 180) * Math.PI
+    this.#pointerData = {
+      x1: this.#circleData.cx,
+      y1: this.#circleData.cy,
+      x2: this.#circleData.cx + length * Math.sin(pointerAngle),
+      y2: this.#circleData.cy - length * Math.cos(pointerAngle),
     }
     // 弧形坐标轴弧线数据
     this.#arcData = fragments.map(([min, max], i) => ({
@@ -156,12 +157,9 @@ export default class GaugeLayer extends LayerBase {
   }
 
   draw() {
-    const rectData = [{
-      data: [[this.#rectData.width, this.#rectData.height]],
-      position: [[this.#rectData.x, this.#rectData.y]],
-      rotate: this.#rectData.rotate,
-      transformOrigin: 'top',
-      ...this.#style.rect,
+    const pointerData = [{
+      position: [[this.#pointerData.x1, this.#pointerData.y1, this.#pointerData.x2, this.#pointerData.y2]],
+      ...this.#style.pointer,
     }]
     const circleData = [{
       data: [[this.#circleData.rx, this.#circleData.ry]],
@@ -193,10 +191,10 @@ export default class GaugeLayer extends LayerBase {
       position: [[x, y]], 
       ...this.#style.valueText,
     }))
-    this.drawBasic('circle', circleData)
-    this.drawBasic('rect', rectData)
     this.drawBasic('arc', arcData)
     this.drawBasic('line', lineData)
+    this.drawBasic('circle', circleData)
+    this.drawBasic('line', pointerData, 'pointer')
     this.drawBasic('text', tickText, 'tickText')
     this.drawBasic('text', labelText, 'labelText')
     this.drawBasic('text', valueText, 'valueText')

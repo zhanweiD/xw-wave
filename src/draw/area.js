@@ -1,5 +1,7 @@
 import * as d3 from 'd3'
 import {isArray} from 'lodash'
+import {fabric} from 'fabric'
+import chroma from 'chroma-js'
 
 // 绘制一组面积
 export default function drawArea({
@@ -35,7 +37,7 @@ export default function drawArea({
     strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
     filter: isArray(filter) ? filter[i] : filter,
     mask: isArray(mask) ? mask[i] : mask,
-    d: areaGenerator(data),
+    path: areaGenerator(data),
     source: source.length > i ? source[i] : null,
   }))
   if (engine === 'svg') {
@@ -46,9 +48,9 @@ export default function drawArea({
       .transition()
       .duration(enableUpdateAnimation ? updateAnimationDuration : 0)
       .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
+      .attr('d', d => d.path)
       .attr('stroke', d => d.stroke)
       .attr('stroke-width', d => d.strokeWidth)
-      .attr('d', d => d.d)
       .attr('fill', d => d.fill)
       .attr('opacity', d => d.opacity)
       .attr('fill-opacity', d => d.fillOpacity)
@@ -58,6 +60,20 @@ export default function drawArea({
       .style('pointer-events', 'none')
   }
   if (engine === 'canvas') {
-    console.warn('drawArea: Cannot support canvas')
+    configuredData.forEach((config, i) => {
+      const path = new fabric.Path(config.path, {
+        className: config.className,
+        fill: chroma(config.fill || '#000').alpha(config.fillOpacity),
+        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
+        strokeWidth: config.strokeWidth,
+        opacity: config.opacity,
+      })
+      // 覆盖或追加
+      if (container.getObjects().length <= i) {
+        container.addWithUpdate(path)
+      } else {
+        container.item(i).set(path)
+      }
+    })
   }
 }

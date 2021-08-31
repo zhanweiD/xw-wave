@@ -1,5 +1,5 @@
 import {isArray} from 'lodash'
-import {Graphics} from 'pixi.js'
+import {fabric} from 'fabric'
 import chroma from 'chroma-js'
 
 // 绘制一组多边形
@@ -26,7 +26,7 @@ export default function drawPolygon({
   // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((points, i) => ({
     className,
-    pointArray: points.reduce((prev, cur) => [...prev, ...cur], []),
+    pointArray: points.map(([x, y]) => ({x, y})),
     pointString: points.reduce((prev, cur) => `${prev} ${cur[0]},${cur[1]}`, ''),
     fill: isArray(fill) ? fill[i] : fill,
     stroke: isArray(stroke) ? stroke[i] : stroke,
@@ -60,18 +60,18 @@ export default function drawPolygon({
   }
   if (engine === 'canvas') {
     configuredData.forEach((config, i) => {
-      const graphics = new Graphics()
-      const getColor = color => chroma(color || '#000').hex().replace('#', '0x')
-      graphics.className = config.className
-      graphics.lineStyle(config.strokeWidth, getColor(config.stroke), config.strokeOpacity)
-      graphics.beginFill(getColor(config.fill), config.fillOpacity)
-      graphics.drawPolygon(config.pointArray)
-      graphics.endFill()
+      const rect = new fabric.Polygon(config.pointArray, {
+        className: config.className,
+        fill: chroma(config.fill || '#000').alpha(config.fillOpacity),
+        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
+        strokeWidth: config.strokeWidth,
+        opacity: config.opacity,
+      })
       // 覆盖或追加
-      if (container.children.length <= i) {
-        container.addChild(graphics)
+      if (container.getObjects().length <= i) {
+        container.addWithUpdate(rect)
       } else {
-        container.children[i] = graphics
+        container.item(i).set(rect)
       }
     })
   }

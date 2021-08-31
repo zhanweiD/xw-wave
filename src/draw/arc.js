@@ -1,8 +1,7 @@
 import * as d3 from 'd3'
 import {isArray} from 'lodash'
-import {Graphics} from 'pixi.js'
+import {fabric} from 'fabric'
 import chroma from 'chroma-js'
-import '@pixi/graphics-extras'
 
 // 绘制一组圆弧
 export default function drawArc({
@@ -32,7 +31,7 @@ export default function drawArc({
     const arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius)
     return {
       className,
-      data: {x, y, startAngle, endAngle, innerRadius, outerRadius},
+      position: position[i],
       fill: isArray(fill) ? fill[i] : fill,
       stroke: isArray(stroke) ? stroke[i] : stroke,
       opacity: isArray(opacity) ? opacity[i] : opacity,
@@ -41,9 +40,9 @@ export default function drawArc({
       strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
       filter: isArray(filter) ? filter[i] : filter,
       mask: isArray(mask) ? mask[i] : mask,
-      d: arc({startAngle: Math.PI * (startAngle / 180), endAngle: Math.PI * (endAngle / 180)}),
       source: source.length > i ? source[i] : null,
       transform: `translate(${x}px, ${y}px)`,
+      path: arc({startAngle: Math.PI * (startAngle / 180), endAngle: Math.PI * (endAngle / 180)}),
     }
   })
   if (engine === 'svg') {
@@ -57,7 +56,7 @@ export default function drawArc({
       .attr('opacity', d => d.opacity)
       .attr('fill-opacity', d => d.fillOpacity)
       .attr('stroke-opacity', d => d.strokeOpacity)
-      .attr('d', d => d.d)
+      .attr('d', d => d.path)
       .attr('fill', d => d.fill)
       .attr('stroke', d => d.stroke)
       .attr('stroke-width', d => d.strokeWidth)
@@ -68,20 +67,21 @@ export default function drawArc({
   }
   if (engine === 'canvas') {
     configuredData.forEach((config, i) => {
-      const graphics = new Graphics()
-      const {x, y, innerRadius, outerRadius, startAngle, endAngle} = config.data
-      const getColor = color => chroma(color || '#000').hex().replace('#', '0x')
-      const getArc = angle => ((angle - 90) / 180) * Math.PI
-      graphics.className = config.className
-      graphics.lineStyle(config.strokeWidth, getColor(config.stroke), config.strokeOpacity)
-      graphics.beginFill(getColor(config.fill), config.fillOpacity)
-      graphics.drawTorus(x, y, innerRadius, outerRadius, getArc(startAngle), getArc(endAngle))
-      graphics.endFill()
+      const path = new fabric.Path(config.path, {
+        className: config.className,
+        fill: chroma(config.fill || '#000').alpha(config.fillOpacity),
+        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
+        strokeWidth: config.strokeWidth,
+        opacity: config.opacity,
+      })
+      // 整体位移
+      path.left += config.position[0]
+      path.top += config.position[1]
       // 覆盖或追加
-      if (container.children.length <= i) {
-        container.addChild(graphics)
+      if (container.getObjects().length <= i) {
+        container.addWithUpdate(path)
       } else {
-        container.children[i] = graphics
+        container.item(i).set(path)
       }
     })
   }

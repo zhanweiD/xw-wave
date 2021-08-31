@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import {isArray} from 'lodash'
-import {Graphics} from 'pixi.js'
+import {fabric} from 'fabric'
 import chroma from 'chroma-js'
 
 // 绘制一组曲线
@@ -34,7 +34,7 @@ export default function drawCurve({
     strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
     filter: isArray(filter) ? filter[i] : filter,
     mask: isArray(mask) ? mask[i] : mask,
-    d: lineGenerator(data),
+    path: lineGenerator(data),
     source: source.length > i ? source[i] : null,
   }))
   if (engine === 'svg') {
@@ -47,7 +47,7 @@ export default function drawCurve({
       .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
       .attr('stroke', d => d.stroke)
       .attr('stroke-width', d => d.strokeWidth)
-      .attr('d', d => d.d)
+      .attr('d', d => d.path)
       .attr('fill', 'none')
       .attr('opacity', d => d.opacity)
       .attr('stroke-opacity', d => d.strokeOpacity)
@@ -57,19 +57,18 @@ export default function drawCurve({
   }
   if (engine === 'canvas') {
     configuredData.forEach((config, i) => {
-      const graphics = new Graphics()
-      const getColor = color => chroma(color || '#000').hex().replace('#', '0x')
-      graphics.className = config.className
-      graphics.lineStyle(config.strokeWidth, getColor(config.stroke), config.strokeOpacity)
-      graphics.moveTo(config.data[0][0], config.data[0][1])
-      for (let j = 1; j < config.data.length; j++) {
-        graphics.lineTo(config.data[j][0], config.data[j][1])
-      }
+      const path = new fabric.Path(config.path, {
+        className: config.className,
+        fill: chroma.random().alpha(0),
+        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
+        strokeWidth: config.strokeWidth,
+        opacity: config.opacity,
+      })
       // 覆盖或追加
-      if (container.children.length <= i) {
-        container.addChild(graphics)
+      if (container.getObjects().length <= i) {
+        container.addWithUpdate(path)
       } else {
-        container.children[i] = graphics
+        container.item(i).set(path)
       }
     })
   }

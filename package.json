@@ -5,13 +5,12 @@
   "main": "src/main.js",
   "description": "数澜科技可视化团队版权所有",
   "dependencies": {
-    "@pixi/graphics-extras": "^6.1.2",
     "animejs": "^3.2.1",
     "chroma-js": "^2.1.1",
     "d3": "^6.6.1",
+    "fabric": "^4.6.0",
     "hanson": "^1.2.0",
-    "lodash": "^4.17.21",
-    "pixi.js": "^6.1.2"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.3",
