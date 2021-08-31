@@ -4,7 +4,7 @@ import {mergeAlpha} from './common'
 import uuid from './uuid'
 
 /**
- * Create linear gradients
+ * create linear gradients
  * @param {object} param0 
  */
 const createLinearGradients = ({container, schema, engine}) => {
@@ -38,7 +38,7 @@ const createLinearGradients = ({container, schema, engine}) => {
 }
 
 /**
- * Create radial gradients
+ * create radial gradients
  * @param {object} param0 
  */
 const createRadialGradients = ({container, schema, engine}) => {
@@ -73,7 +73,7 @@ const createRadialGradients = ({container, schema, engine}) => {
 }
 
 /**
- * Create masks
+ * create masks
  * @param {object} param0 
  */
 const createMasks = ({container, schema, engine}) => {
@@ -114,7 +114,7 @@ const createMasks = ({container, schema, engine}) => {
 }
 
 /**
- * Unified entrance
+ * unified entrance
  * @param {*} param0 
  */
 const createDefs = ({container, schema, engine}) => {
@@ -125,7 +125,7 @@ const createDefs = ({container, schema, engine}) => {
 }
 
 /**
- * Syntactic sugar to create gradients
+ * syntactic sugar to create gradients
  * @param {any} container 
  * @param {string} engine 
  * @returns {string|fabric.Gradient}

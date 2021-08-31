@@ -1,7 +1,7 @@
-// 随机字符串字符集
+// character set
 const chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
 
-// 创建随机字符串
+// create a random string
 export default (n = 6) => {
   let string = ''
   for (let i = 0; i < n; i++) {

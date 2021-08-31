@@ -1,11 +1,11 @@
 /**
- * Some tinny functions that will be used by other functions
+ * some tinny functions that will be used by other functions
  */
 
 import chroma from 'chroma-js'
 
 /**
- * Combining color and opacity and check for errors
+ * combining color and opacity and check for errors
  * @param {string} color 
  * @param {number} opacity 
  */
@@ -18,7 +18,7 @@ export const mergeAlpha = (color, opacity) => {
 }
 
 /**
- * Get real attr from target (such as array or itself)
+ * get real attr from target (such as array or itself)
  * @param {any} target 
  * @param {number} index 
  * @param {any} defaultValue 

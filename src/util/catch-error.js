@@ -1,15 +1,20 @@
-/* eslint-disable no-restricted-syntax */
-export default (object, onError) => {
-  // 基础图层生命周期
+/**
+ * catch every error that may be thrown in the life cycle
+ * @param {any} object 
+ * @param {function} onError run when error
+ */
+const catchError = (object, onError) => {
+  // basic life cycles
   let lifeCycles = ['setData', 'setStyle', 'draw']
-  // 其他自定义函数
+  // other function that need to be catched
+  // eslint-disable-next-line no-restricted-syntax
   for (const key in object) {
     if (typeof object[key] === 'function') {
       lifeCycles.push(key)
     }
   }
-  // 生命周期
   lifeCycles = Array.from(new Set(lifeCycles))
+  // start catch error
   lifeCycles.forEach(name => {
     const fn = object[name]
     object[name] = (...parameter) => {
@@ -22,3 +27,5 @@ export default (object, onError) => {
     }
   })
 }
+
+export default catchError
