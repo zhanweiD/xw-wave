@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import chroma from 'chroma-js'
-import {Application} from 'pixi.js'
+import {fabric} from 'fabric'
 import createUuid from '../util/uuid'
 import createLog from '../util/create-log'
 import catchError from '../util/catch-error'
@@ -105,23 +105,22 @@ export default class Wave {
 
     // 初始化 dom 结构
     this.#container.html('')
-    // canvas
-    const app = new Application({
-      width: this.containerWidth, 
-      height: this.containerHeight,
-      backgroundAlpha: 0,
-      antialias: true,
-    })
-    app.view.style.position = 'absolute'
-    container.appendChild(app.view)
-    this.#canvas = app.stage
     // svg
     this.#svg = this.#container
       .append('svg')
       .attr('width', this.containerWidth)
       .attr('height', this.containerHeight)
       .style('position', 'absolute')
-
+    // canvas
+    const canvas = this.#container
+      .append('canvas')
+      .attr('width', this.containerWidth)
+      .attr('height', this.containerHeight)
+      .style('position', 'absolute')
+    const canvasRoot = new fabric.StaticCanvas(canvas._groups[0][0])
+    this.#canvas = new fabric.Group()
+    canvasRoot.add(this.#canvas)
+    
     // 初始化布局信息
     this.#layout = layout({
       containerWidth: this.containerWidth,

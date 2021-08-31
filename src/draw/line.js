@@ -1,5 +1,5 @@
 import {isArray} from 'lodash'
-import {Graphics} from 'pixi.js'
+import {fabric} from 'fabric'
 import chroma from 'chroma-js'
 
 // 绘制一组直线
@@ -9,7 +9,7 @@ export default function drawLine({
   strokeWidth = 1,
   opacity = 1,
   strokeOpacity = 1,
-  dasharray = '0',
+  dasharray = '',
   enableUpdateAnimation = false,
   updateAnimationDuration = 1000,
   updateAnimationDelay = 0,
@@ -60,18 +60,18 @@ export default function drawLine({
   }
   if (engine === 'canvas') {
     configuredData.forEach((config, i) => {
-      const graphics = new Graphics()
-      const {x1, y1, x2, y2} = config
-      const getColor = color => chroma(color || '#000').hex().replace('#', '0x')
-      graphics.className = config.className
-      graphics.lineStyle(config.strokeWidth, getColor(config.stroke), config.strokeOpacity)
-      graphics.moveTo(x1, y1)
-      graphics.lineTo(x2, y2)
+      const line = new fabric.Line([config.x1, config.y1, config.x2, config.y2], {
+        className: config.className,
+        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
+        opacity: config.opacity,
+        strokeWidth: config.strokeWidth,
+        strokeDashArray: String(config.strokeDasharray).split(' '),
+      })
       // 覆盖或追加
-      if (container.children.length <= i) {
-        container.addChild(graphics)
+      if (container.getObjects().length <= i) {
+        container.addWithUpdate(line)
       } else {
-        container.children[i] = graphics
+        container.item(i).set(line)
       }
     })
   }

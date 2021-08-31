@@ -1,10 +1,31 @@
 import {isArray} from 'lodash'
-import {Text} from 'pixi.js'
+import {fabric} from 'fabric'
+import chroma from 'chroma-js'
 
 // 文字方向映射
 const directionMapping = {
-  horizontal: 'horizontal-tb',
-  vertical: 'vertical-rl',
+  svg: {
+    horizontal: 'horizontal-tb',
+    vertical: 'vertical-rl',
+  },
+  canvas: {
+    horizontal: 'ltr',
+    vertical: 'rtl',
+  },
+}
+
+// svg 的文字对齐到 canvas 的文字对齐
+const anchorToAlign = anchor => {
+  switch (anchor) {
+    case 'start':
+      return 'left'
+    case 'middle':
+      return 'center'
+    case 'end':
+      return 'right'
+    default:
+      return ''
+  }
 }
 
 // 绘制一组文本
@@ -43,16 +64,17 @@ export default function drawText({
     fontFamily,
     fontWeight,
     x: position[i][0],
-    y: position[i][1], // 这个数字为黑体的高度差
+    y: position[i][1],
     fill: isArray(fill) ? fill[i] : fill,
     stroke: isArray(stroke) ? stroke[i] : stroke,
     opacity: isArray(opacity) ? opacity[i] : opacity,
     fillOpacity: isArray(fillOpacity) ? fillOpacity[i] : fillOpacity,
     strokeOpacity: isArray(strokeOpacity) ? strokeOpacity[i] : strokeOpacity,
     strokeWidth: isArray(strokeWidth) ? strokeWidth[i] : strokeWidth,
+    rotation: isArray(rotation) ? rotation[i] : rotation,
     filter: isArray(filter) ? filter[i] : filter,
     mask: isArray(mask) ? mask[i] : mask,
-    writingMode: directionMapping[writingMode],
+    writingMode: directionMapping[engine][writingMode],
     transform: `rotate(${isArray(rotation) ? rotation[i] : rotation}deg)`,
     transformOrigin: isArray(transformOrigin) ? transformOrigin[i] : transformOrigin,
     textAnchor: isArray(textAnchor) ? textAnchor[i] : textAnchor,
@@ -90,16 +112,27 @@ export default function drawText({
   }
   if (engine === 'canvas') {
     configuredData.forEach((config, i) => {
-      const textSprite = new Text(config.text)
-      textSprite.className = config.className
-      textSprite.x = config.x
-      textSprite.y = config.y - config.fontSize
-      textSprite.style = config
+      const text = new fabric.Text(config.text, {
+        className: config.className,
+        left: config.x,
+        top: config.y - config.fontSize,
+        fontSize: config.fontSize,
+        fontFamily: config.fontFamily,
+        fontWeight: config.fontWeight,
+        fill: chroma(config.fill || '#000').alpha(config.fillOpacity),
+        stroke: chroma(config.stroke || '#000').alpha(config.strokeOpacity),
+        opacity: config.opacity,
+        strokeWidth: config.strokeWidth,
+        shadow: config.textShadow,
+        direction: config.writingMode,
+        textAlign: anchorToAlign(config.textAnchor),
+      })
+      text.rotate(config.rotation)
       // 覆盖或追加
-      if (container.children.length <= i) {
-        container.addChild(textSprite)
+      if (container.getObjects().length <= i) {
+        container.addWithUpdate(text)
       } else {
-        container.children[i] = textSprite
+        container.item(i).set(text)
       }
     })
   }
