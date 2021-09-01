@@ -11,6 +11,9 @@ import chroma from 'chroma-js'
  */
 export const mergeAlpha = (color, opacity) => {
   try {
+    if (typeof color !== 'string' && typeof color !== 'number') {
+      throw new Error()
+    }
     return chroma(color).alpha(opacity).hex()
   } catch (error) {
     return color

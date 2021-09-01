@@ -10,6 +10,7 @@ export default function drawCurve({
   strokeOpacity = 1,
   strokeWidth = 1,
   curve = false,
+  dasharray = '',
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
@@ -33,6 +34,7 @@ export default function drawCurve({
     source: getAttr(source, i),
     filter: getAttr(filter, i),
     mask: getAttr(mask, i),
+    strokeDasharray: getAttr(dasharray, i),
     path: lineGenerator(data),
   }))
   if (engine === 'svg') {
@@ -45,13 +47,14 @@ export default function drawCurve({
       .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
       .attr('stroke', d => d.stroke)
       .attr('stroke-width', d => d.strokeWidth)
+      .attr('stroke-dasharray', d => d.strokeDasharray)
+      .attr('stroke-opacity', d => d.strokeOpacity)
+      .attr('stroke-linecap', 'round')
       .attr('d', d => d.path)
       .attr('fill', 'none')
       .attr('opacity', d => d.opacity)
-      .attr('stroke-opacity', d => d.strokeOpacity)
-      .attr('mask', d => d.mask)
       .attr('filter', d => d.filter)
-      .attr('stroke-linecap', 'round')
+      .attr('mask', d => d.mask)
   }
   if (engine === 'canvas') {
     configuredData.forEach((config, i) => {
@@ -59,6 +62,7 @@ export default function drawCurve({
         className: config.className,
         fill: null,
         stroke: mergeAlpha(config.stroke, config.strokeOpacity),
+        strokeDashArray: String(config.strokeDasharray).split(' '),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
       })

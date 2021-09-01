@@ -9,7 +9,7 @@ export default function drawPolygon({
   stroke = '#fff', // 描边
   strokeWidth = 0, // 描边粗细
   opacity = 1, // 不透明度
-  fillOpacity = 0,
+  fillOpacity = 1,
   strokeOpacity = 1,
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,

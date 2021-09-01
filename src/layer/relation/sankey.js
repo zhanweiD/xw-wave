@@ -30,6 +30,7 @@ const defaultStyle = {
   rect: {},
   ribbon: {
     fillOpacity: 0.7,
+    strokeOpacity: 0,
   },
   text: {
     fontSize: 12,

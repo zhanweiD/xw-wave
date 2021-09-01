@@ -16,6 +16,7 @@ import columnFacetSchema from './facet'
 import treemapSchema from './treemap'
 import packSchema from './pack'
 import mapSchema from './map'
+import decoSchema from './decoration'
 import {createWave} from '../wave'
 import s from './demo.module.css'
 
@@ -39,11 +40,12 @@ const chartMapping = {
   relation: '关系图',
   facet: '分面图',
   map: '地图',
+  deco: '装饰',
 }
 
 export default function Example() {
   const [theme, setTheme] = useState('duskUniverse')
-  const [chart, setChart] = useState('map')
+  const [chart, setChart] = useState('deco')
   const containerStyle = {background: ThemeConfig[theme].background}
   const refs = range(1, 100, 1).map(() => useRef(null))
 
@@ -102,6 +104,8 @@ export default function Example() {
     waves.push(chart === 'facet' && createWave(columnFacetSchema.facet1(refs[1].current, themeColors)))
     // 地图
     waves.push(chart === 'map' && createWave(mapSchema.baseMap(refs[1].current, themeColors)))
+    // 装饰
+    waves.push(chart === 'deco' && createWave(decoSchema.titleAlpha(refs[1].current, themeColors)))
   }, [theme, chart])
 
   return (
@@ -165,6 +169,8 @@ export default function Example() {
           {chart === 'relation' && <div className={s.wave} ref={refs[7]} />}
           {chart === 'facet' && <div className={s.wave} ref={refs[1]} />}
           {chart === 'map' && <div className={s.wave} ref={refs[1]} />}
+          {chart === 'deco' && <div className={s.decoWave} ref={refs[1]} />}
+          {chart === 'deco' && <div className={s.decoWave} ref={refs[2]} />}
         </div>
       </div>
     </div>

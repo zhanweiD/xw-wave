@@ -47,8 +47,8 @@ export default function drawLine({
       .attr('stroke', d => d.stroke)
       .attr('stroke-width', d => d.strokeWidth)
       .attr('stroke-dasharray', d => d.strokeDasharray)
-      .attr('opacity', d => d.opacity)
       .attr('stroke-opacity', d => d.strokeOpacity)
+      .attr('opacity', d => d.opacity)
       .attr('x1', d => d.x1)
       .attr('y1', d => d.y1)
       .attr('x2', d => d.x2)
@@ -62,9 +62,9 @@ export default function drawLine({
       const line = new fabric.Line([config.x1, config.y1, config.x2, config.y2], {
         className: config.className,
         stroke: mergeAlpha(config.stroke, config.strokeOpacity),
+        strokeDashArray: String(config.strokeDasharray).split(' '),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
-        strokeDashArray: String(config.strokeDasharray).split(' '),
       })
       // 覆盖或追加
       if (container.getObjects().length <= i) {
