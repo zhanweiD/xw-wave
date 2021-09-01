@@ -24,7 +24,7 @@ export default class TableList extends DataBase {
 
   /**
    * 获取列表的一个子集，并定义组合方式
-   * @param {String | Array<String>} headers 数据列索引
+   * @param {String|Array<String>} headers 数据列索引
    * @param {TableList} options 数据列组合配置
    * @returns {TableList} 返回一个新的列表实例
    */
@@ -119,7 +119,7 @@ export default class TableList extends DataBase {
 
   /**
    * 删除列表数据
-   * @param {String | Array<String>} headers 数据列索引
+   * @param {String|Array<String>} headers 数据列索引
    * @returns 删除的数据列
    */
   remove(headers) {

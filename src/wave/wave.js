@@ -10,27 +10,23 @@ import {layerMapping} from '../layer'
 import Tooltip from './tooltip'
 import Layout from '../layout'
 
-// 图表状态
 const stateType = {
-  INITILIZE: 'initilize', // 初始化
-  DESTROY: 'destroy', // 已销毁
-  READY: 'ready', // 就绪
-  WARN: 'warn', // 发生错误
+  INITILIZE: 'initilize',
+  DESTROY: 'destroy',
+  READY: 'ready',
+  WARN: 'warn',
 }
 
-// 渲染方式
 const engineType = {
   SVG: 'svg',
   CANVAS: 'canvas',
 }
 
-// 笔刷模式
 const brushType = {
   HORIZONTAL: 'horizontal',
   VERTICAL: 'vertical',
 }
 
-// 坐标轴组合类型
 const coordinateType = {
   CARTESIAN_BAND_LINEAR: 'cartesian-band-linear',
   CARTESIAN_LINEAR_LINEAR: 'cartesian-linear-linear',
@@ -85,12 +81,12 @@ export default class Wave {
     layout = Layout.standard(false),
     coordinate = coordinateType.CARTESIAN_BAND_LINEAR,
   }) {
-    // 初始化状态和容器
+    // initialize some attr
     this.#state = stateType.INITILIZE
     this.#container = d3.select(container)
     this.#engine = engine
 
-    // 确定图表宽高
+    // initialize the wave width and height
     if (adjust) {
       const rect = this.#container._groups[0][0].getBoundingClientRect()
       this.containerWidth = rect.width
@@ -100,7 +96,7 @@ export default class Wave {
       this.containerHeight = height
     }
 
-    // 确定主绘图区域的内边距
+    // initialize the main padding
     if (padding.length === 1) {
       this.#padding = [padding[0], padding[0], padding[0], padding[0]]
     } else if (padding.length === 2) {
@@ -111,7 +107,7 @@ export default class Wave {
       this.#padding = padding
     }
 
-    // 初始化 dom 结构
+    // initialize the dom & root
     this.#container.html('')
     if (engine === engineType.SVG) {
       this.#root = this.#container
@@ -133,14 +129,14 @@ export default class Wave {
       canvasRoot.defs = this.#defs
     }
     
-    // 初始化布局信息
+    // initialize the layout
     this.#layout = layout({
       containerWidth: this.containerWidth,
       containerHeight: this.containerHeight,
       padding: this.#padding,
     })
 
-    // 初始化其他属性
+    // initialize other attr
     this.theme = theme
     this.coordinate = coordinate
     this.baseFontSize = baseFontSize
@@ -151,19 +147,19 @@ export default class Wave {
   }
 
   /**
-   * 根据主题获取颜色
-   * @param {Number} count 数量
-   * @param {Array} customColors 自定义颜色覆盖主题色
+   * basic color function that used by layer
+   * @param {Number} count color number that we want
+   * @param {Array} customColors custom colors will override theme colors
    */
   getColor(count, customColors) {
     let colors = this.theme
-    // 自定义渐变色
+    // custom theme
     if (Array.isArray(customColors)) {
       colors = customColors
     } else if (customColors) {
       return new Array(count).fill(customColors)
     }
-    // 主题色的取色逻辑
+    // how to get colors with color array
     if (colors.length > 2 && !customColors) {
       colors.length > 2 && count <= 3 && (colors = colors.slice(2, 7))
       colors.length > 2 && count === 4 && (colors = colors.slice(2))
@@ -172,13 +168,13 @@ export default class Wave {
   }
 
   /**
-   * 创建一个图层
-   * @param {String} type 图层类型
-   * @param {Object} options 图层配置参数
+   * create a layer
+   * @param {String} type
+   * @param {Object} options
    * @returns {LayerBase}
    */
   createLayer(type, options = {}) {
-    // 暴露给图层的上下文环境
+    // context from wave
     const context = {
       root: this.#root,
       engine: this.#engine,
@@ -189,18 +185,18 @@ export default class Wave {
       createGradient: makeGradientCreator(this.#defs, this.#engine),
       getColor: this.getColor.bind(this),
     }
-    // 根据类型创建图层
+    // generate a layer by layer type
     const layer = new layerMapping[type](options, context)
     const layerId = options.id || createUuid()
-    // 新增对应的图层
+    // wave will save the layer for easy management 
     this.#state = stateType.READY
     this.#layer.push({type, id: layerId, instance: layer})
-    // 对图层的生命周期进行错误捕获
+    // catch layer's life cycle
     catchError(layer, error => {
       this.#state = stateType.WARN
       this.log.error('Wave: Layer life cycle call exception', error)
     })
-    // 注册销毁事件
+    // register destroy event
     layer.event.on('destroy', () => {
       const index = this.#layer.findIndex(({id}) => id === layerId)
       this.#layer.splice(index, 1)
@@ -209,37 +205,37 @@ export default class Wave {
   }
 
   /**
-   * 绑定坐标系，在图层数据处理之后执行
-   * @param {AxisLayer} axisLayer 坐标轴图层
-   * @param {LayerBase} layers 需要绑定坐标轴的图层
+   * bind coordinate after layer's setData done
+   * @param {AxisLayer} axisLayer
+   * @param {LayerBase} layers
    */
   bindCoordinate(axisLayer, layers) {
     layers = layers.filter(layer => layer.scale)
     layers.forEach(({scale, options}) => {
       const result = {}
       const {axis} = options
-      // 直角坐标系
+      // cartesian coordinate system
       if (this.coordinate.search('cartesian') !== -1) {
         result.scaleX = scale.scaleX
         axis === 'main' && (result.scaleY = scale.scaleY)
         axis === 'minor' && (result.scaleYR = scale.scaleY)
       }
-      // 极坐标系
+      // polar coordinate system
       if (this.coordinate.search('polar') !== -1) {
         result.scaleAngle = scale.scaleAngle
         result.scaleRadius = scale.scaleRadius
       }
-      // 地理坐标
+      // geography coordinate system
       if (this.coordinate.search('geographic') !== -1) {
         result.scalePosition = scale.scalePosition
       }
       axisLayer.setData(null, result)
       axisLayer.setStyle()
     })
-    // 将坐标轴融合处理后的比例尺传递给每个图层
+    // axis will merge all scales and give them to every layer
     layers.forEach(layer => {
       const scales = {...layer.scale, ...axisLayer.scale}
-      // projection 投影到普通的比例尺
+      // projection to normal scale
       if (this.coordinate.search('geographic') !== -1) {
         const scaleX = x => scales.scalePosition([x, 0])[0] - layer.options.layout.left
         const scaleY = y => scales.scalePosition([0, y])[1] - layer.options.layout.top
@@ -253,9 +249,8 @@ export default class Wave {
   }
 
   /**
-   * 基于某个图层创建笔刷
-   * @param {Object} options 配置描述对象
-   * @returns 笔刷实例
+   * create brush based on layer
+   * @param {Object} options
    */
   createBrush(options = {}) {
     if (this.#engine === engineType.SVG) {
@@ -264,7 +259,7 @@ export default class Wave {
       const isHorizontal = type === brushType.HORIZONTAL
       const layers = this.#layer.filter(({id}) => targets.find(item => item === id))
       const prevRange = new Array(layers.length).fill(null)
-      // 笔刷影响图层的比例尺
+      // brush will change range of scale
       const brushed = event => layers.forEach(({instance}, i) => {
         const {selection} = event
         const total = isHorizontal ? width : height
@@ -279,17 +274,17 @@ export default class Wave {
         instance.setStyle()
         instance.draw()
       })
-      // 创建笔刷实例
+      // create brush instance
       const [brushX1, brushX2, brushY1, brushY2] = [left, left + width, top, top + height]
       const brush = (isHorizontal ? d3.brushX() : d3.brushY())
       brush.extent([[brushX1, brushY1], [brushX2, brushY2]]).on('brush', brushed)
-      // 确定笔刷区域
+      // initialize brush area
       const brushDOM = this.#root.append('g').attr('class', 'wave-brush').call(brush)
       brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
     }
   }
 
-  // 重绘制所有图层
+  // redraw all layers
   draw(recalculate = false) {
     this.#layer.forEach(({instance}) => {
       recalculate && instance.setData()
@@ -298,7 +293,7 @@ export default class Wave {
     })
   }
 
-  // 销毁所有图层
+  // destroy all layers
   destroy() {
     this.#state = stateType.DESTROY
     while (this.#layer.length !== 0) {

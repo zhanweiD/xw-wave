@@ -85,7 +85,7 @@ export default class Table extends DataBase {
 
   /**
    * 删除列表数据
-   * @param {String | Array<String>} headers 数据列索引
+   * @param {String|Array<String>} headers 数据列索引
    * @returns 删除的数据列
    */
   remove(target = targetType.ROW, ...data) {

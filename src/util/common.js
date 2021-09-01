@@ -6,8 +6,8 @@ import chroma from 'chroma-js'
 
 /**
  * combining color and opacity and check for errors
- * @param {string} color 
- * @param {number} opacity 
+ * @param {String} color 
+ * @param {Number} opacity 
  */
 export const mergeAlpha = (color, opacity) => {
   try {
@@ -19,9 +19,9 @@ export const mergeAlpha = (color, opacity) => {
 
 /**
  * get real attr from target (such as array or itself)
- * @param {any} target 
- * @param {number} index 
- * @param {any} defaultValue 
+ * @param {*} target 
+ * @param {Number} index 
+ * @param {*} defaultValue 
  * @returns 
  */
 export const getAttr = (target, index, defaultValue = null) => {

@@ -119,7 +119,7 @@ export default class DataBase {
   /**
    * 挂载一些额外的数据到实例上
    * @param {String} key 键
-   * @param {any} value 值
+   * @param {*} value 值
    */
   set(key, value) {
     this.#storage[key] = value

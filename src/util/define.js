@@ -5,7 +5,7 @@ import uuid from './uuid'
 
 /**
  * create linear gradients
- * @param {object} param0 
+ * @param {Object} param0 
  */
 const createLinearGradients = ({container, schema, engine}) => {
   schema.forEach(({id, x1 = 0, x2 = 0, y1 = 0, y2 = 0, stops}) => {
@@ -39,7 +39,7 @@ const createLinearGradients = ({container, schema, engine}) => {
 
 /**
  * create radial gradients
- * @param {object} param0 
+ * @param {Object} param0 
  */
 const createRadialGradients = ({container, schema, engine}) => {
   schema.forEach(({id, r = 1, cx = 1, cy = 1, fx = 0, fy = 0, stops}) => {
@@ -74,7 +74,7 @@ const createRadialGradients = ({container, schema, engine}) => {
 
 /**
  * create masks
- * @param {object} param0 
+ * @param {Object} param0 
  */
 const createMasks = ({container, schema, engine}) => {
   engine === 'svg' && schema.forEach(item => {
@@ -126,9 +126,9 @@ const createDefs = ({container, schema, engine}) => {
 
 /**
  * syntactic sugar to create gradients
- * @param {any} container 
- * @param {string} engine 
- * @returns {string|fabric.Gradient}
+ * @param {*} container 
+ * @param {String} engine 
+ * @returns {String|fabric.Gradient}
  */
 const makeGradientCreator = (container, engine) => ({type, direction, colors}) => {
   const id = uuid()
