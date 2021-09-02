@@ -62,7 +62,7 @@ export default function drawCurve({
         className: config.className,
         fill: null,
         stroke: mergeAlpha(config.stroke, config.strokeOpacity),
-        strokeDashArray: String(config.strokeDasharray).split(' '),
+        strokeDashArray: String(config.strokeDasharray).trim().split(' ').map(Number),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
       })

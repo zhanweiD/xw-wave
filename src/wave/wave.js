@@ -17,11 +17,6 @@ const stateType = {
   WARN: 'warn',
 }
 
-const engineType = {
-  SVG: 'svg',
-  CANVAS: 'canvas',
-}
-
 const brushType = {
   HORIZONTAL: 'horizontal',
   VERTICAL: 'vertical',
@@ -77,7 +72,7 @@ export default class Wave {
     define = {},
     tooltip = {},
     baseFontSize = 1,
-    engine = engineType.CANVAS,
+    engine = 'canvas',
     layout = Layout.standard(false),
     coordinate = coordinateType.CARTESIAN_BAND_LINEAR,
   }) {
@@ -109,19 +104,20 @@ export default class Wave {
 
     // initialize the dom & root
     this.#container.html('')
-    if (engine === engineType.SVG) {
+    if (engine === 'svg') {
       this.#root = this.#container
         .append('svg')
         .attr('width', this.containerWidth)
         .attr('height', this.containerHeight)
         .style('position', 'absolute')
       this.#defs = this.#root.append('defs')
-    } else if (engine === engineType.CANVAS) {
+    } else if (engine === 'canvas') {
       const canvas = this.#container
         .append('canvas')
         .attr('width', this.containerWidth)
         .attr('height', this.containerHeight)
         .style('position', 'absolute')
+      fabric.Object.prototype.objectCaching = false
       const canvasRoot = new fabric.StaticCanvas(canvas._groups[0][0])
       this.#root = new fabric.Group()
       this.#defs = []
@@ -253,7 +249,7 @@ export default class Wave {
    * @param {Object} options
    */
   createBrush(options = {}) {
-    if (this.#engine === engineType.SVG) {
+    if (this.#engine === 'svg') {
       const {type, layout, targets} = options
       const {width, height, left, top} = layout
       const isHorizontal = type === brushType.HORIZONTAL

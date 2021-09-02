@@ -42,7 +42,7 @@ const createLinearGradients = ({container, schema, engine}) => {
  * @param {Object} param0 
  */
 const createRadialGradients = ({container, schema, engine}) => {
-  schema.forEach(({id, r = 1, cx = 1, cy = 1, fx = 0, fy = 0, stops}) => {
+  schema.forEach(({id, r = 1, r2 = 2, cx = 1, cy = 1, fx = 0, fy = 0, stops}) => {
     if (engine === 'svg') {
       const radialGradient = container.append('radialGradient')
         .attr('id', id)
@@ -62,7 +62,7 @@ const createRadialGradients = ({container, schema, engine}) => {
         gradientId: id,
         type: 'radial',
         gradientUnits: 'percentage', // or 'pixels'
-        coords: {x1: cx, y1: cy, x2: fx, y2: fy, r1: r, r2: 2},
+        coords: {x1: cx, y1: cy, x2: fx, y2: fy, r1: r, r2},
         colorStops: stops.map(({offset = 1, opacity = 1, color = '#fff'}) => ({
           offset,
           color: mergeAlpha(color, opacity),
@@ -130,7 +130,7 @@ const createDefs = ({container, schema, engine}) => {
  * @param {String} engine 
  * @returns {String|fabric.Gradient}
  */
-const makeGradientCreator = (container, engine) => ({type, direction, colors}) => {
+const makeGradientCreator = (container, engine) => ({type, direction, colors, ...other}) => {
   const id = uuid()
   createDefs({
     container,
@@ -140,6 +140,7 @@ const makeGradientCreator = (container, engine) => ({type, direction, colors}) =
         id,
         x2: direction === 'horizontal' ? 1 : 0,
         y2: direction === 'vertical' ? 1 : 0,
+        ...other,
         stops: colors.map((color, i) => ({
           offset: i / (colors.length - 1),
           color,
@@ -147,6 +148,7 @@ const makeGradientCreator = (container, engine) => ({type, direction, colors}) =
       }],
       radialGradient: type === 'radial' && [{
         id,
+        ...other,
         stops: colors.map((color, i) => ({
           offset: i / (colors.length - 1),
           color,
