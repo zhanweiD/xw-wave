@@ -2,7 +2,6 @@
 import chroma from 'chroma-js'
 import LayerBase from '../base'
 
-// 默认样式
 const defaultStyle = {
   active: true,
   mainColor: 'rgb(0,119,255)',
@@ -34,12 +33,10 @@ export default class TitleBLayer extends LayerBase {
     this.className = 'wave-title-b'
   }
 
-  setData() {
-    this.log.warn('TitleB: There is no data can be set')
-  }
-
   /**
    * create a hexagon which not exceed the area
+   * @param {Number} left 
+   * @param {Number} top 
    * @param {Number} width 
    * @param {Number} height 
    * @returns {Array<Number} polygon points

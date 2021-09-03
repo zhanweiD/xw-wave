@@ -5,7 +5,6 @@ import {easeQuadIn, easeQuadOut, easePolyIn} from 'd3'
 import {range} from '../../util/common'
 import LayerBase from '../base'
 
-// 默认样式
 const defaultStyle = {
   mainColor: 'rgb(0,119,255)',
   minorColor: 'rgb(200,200,200)',
@@ -62,10 +61,6 @@ export default class TitleALayer extends LayerBase {
       clearTimeout(this.#animationTimer.side)
       clearTimeout(this.#animationTimer.center)
     })
-  }
-
-  setData() {
-    this.log.warn('TitleA: There is no data can be set')
   }
 
   /**

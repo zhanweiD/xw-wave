@@ -43,4 +43,5 @@ export default {
   titleBAvtive: (container, theme) => createSchema(container, theme, 'titleB', true),
   titleBInactive: (container, theme) => createSchema(container, theme, 'titleB', false),
   titleC: (container, theme) => createSchema(container, theme, 'titleC'),
+  titleD: (container, theme) => createSchema(container, theme, 'titleD'),
 }

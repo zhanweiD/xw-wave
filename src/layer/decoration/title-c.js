@@ -2,9 +2,7 @@
 import chroma from 'chroma-js'
 import LayerBase from '../base'
 
-// 默认样式
 const defaultStyle = {
-  active: true,
   mainColor: 'rgb(0,119,255)',
   minorColor: 'rgb(200,200,200)',
   circleSize: 4,
@@ -31,10 +29,6 @@ export default class TitleCLayer extends LayerBase {
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions, ['circle', 'curve', 'rect'])
     this.className = 'wave-title-c'
-  }
-
-  setData() {
-    this.log.warn('TitleC: There is no data can be set')
   }
 
   setStyle(style) {
