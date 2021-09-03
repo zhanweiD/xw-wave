@@ -109,6 +109,8 @@ export default function Example() {
     waves.push(chart === 'map' && createWave(mapSchema.baseMap(refs[1].current, themeColors)))
     // 装饰
     waves.push(chart === 'decoration' && createWave(decoSchema.titleA(refs[1].current, themeColors)))
+    waves.push(chart === 'decoration' && createWave(decoSchema.titleBAvtive(refs[2].current, themeColors)))
+    waves.push(chart === 'decoration' && createWave(decoSchema.titleBInactive(refs[3].current, themeColors)))
     // 重新设置数据
     setFallbackWaves(waves)
   }, [theme, chart])
@@ -174,8 +176,12 @@ export default function Example() {
           {chart === 'relation' && <div className={s.wave} ref={refs[7]} />}
           {chart === 'facet' && <div className={s.wave} ref={refs[1]} />}
           {chart === 'map' && <div className={s.wave} ref={refs[1]} />}
-          {chart === 'decoration' && <div className={s.decoWave} ref={refs[1]} />}
-          {chart === 'decoration' && <div className={s.decoWave} ref={refs[2]} />}
+          {chart === 'decoration' && <div className={s.decoTitleWave} ref={refs[1]} />}
+          {chart === 'decoration' && <div className={s.decoSubtitleWave} ref={refs[2]} />}
+          {chart === 'decoration' && <div className={s.decoSubtitleWave} ref={refs[3]} />}
+          {chart === 'decoration' && <div className={s.decoSubtitleWave} ref={refs[4]} />}
+          {chart === 'decoration' && <div className={s.decoSubtitleWave} ref={refs[5]} />}
+          {chart === 'decoration' && <div className={s.decoSubtitleWave} ref={refs[6]} />}
         </div>
       </div>
     </div>
