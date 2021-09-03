@@ -1,7 +1,7 @@
 import Layout from '../layout'
 
 // 柱状图配置数据生成
-const createSchema = (container, theme, layerName, active) => {
+const createSchema = (container, theme, layerName, style) => {
   const schema = {
     // 容器
     container,
@@ -30,7 +30,7 @@ const createSchema = (container, theme, layerName, active) => {
         },
         data: null,
         style: {
-          active,
+          ...style,
         },
       },
     ],
@@ -40,8 +40,9 @@ const createSchema = (container, theme, layerName, active) => {
 
 export default {
   titleA: (container, theme) => createSchema(container, theme, 'titleA'),
-  titleBAvtive: (container, theme) => createSchema(container, theme, 'titleB', true),
-  titleBInactive: (container, theme) => createSchema(container, theme, 'titleB', false),
+  titleBAvtive: (container, theme) => createSchema(container, theme, 'titleB', {avtive: true}),
+  titleBInactive: (container, theme) => createSchema(container, theme, 'titleB', {active: false}),
   titleC: (container, theme) => createSchema(container, theme, 'titleC'),
-  titleD: (container, theme) => createSchema(container, theme, 'titleD'),
+  titleD1: (container, theme) => createSchema(container, theme, 'titleD', {leftIcon: 'arrow'}),
+  titleD2: (container, theme) => createSchema(container, theme, 'titleD', {leftIcon: 'point'}),
 }

@@ -2,6 +2,7 @@
 import chroma from 'chroma-js'
 import {fabric} from 'fabric'
 import {easeQuadIn, easeQuadOut, easePolyIn} from 'd3'
+import {createParallelogram} from '../../util/shape'
 import {range} from '../../util/common'
 import LayerBase from '../base'
 
@@ -73,23 +74,6 @@ export default class TitleALayer extends LayerBase {
     const middleX = left + width / 2
     return leftPoints.map(([x, y]) => [x + (middleX - x) * 2, y])
   }
-
-  /**
-   * create a parallelogram with auto degree
-   * the parallelogram does not exceed the area
-   * @param {Number} left
-   * @param {Number} top
-   * @param {Number} width
-   * @param {Number} height
-   * @param {Number} angle
-   * @returns {Array<Number} polygon points
-   */
-  #createParallelogram = (left, top, width, height, angle = 45) => [
-    [left, top],
-    [left + width, top],
-    [left + width + Math.sin(angle) * height, top + height],
-    [left + Math.sin(angle) * height, top + height],
-  ]
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
@@ -175,15 +159,15 @@ export default class TitleALayer extends LayerBase {
     }]
     // left light parallelograms
     const leftLightParallelograms = [
-      this.#createParallelogram(al_left + al_width * 0.65, al_top, al_width / 15, al_height),
-      this.#createParallelogram(al_left + al_width * 0.75, al_top, al_width / 20, al_height),
+      createParallelogram(al_left + al_width * 0.65, al_top, al_width / 15, al_height),
+      createParallelogram(al_left + al_width * 0.75, al_top, al_width / 20, al_height),
     ]
     // left dark parallelograms
     const leftDarkParallelograms = [
-      this.#createParallelogram(al_left + al_width * 0.2, al_top, al_width / 15, al_height),
-      this.#createParallelogram(al_left + al_width * 0.2 + al_width / 16, al_top, al_width / 15, al_height),
-      this.#createParallelogram(al_left + al_width * 0.6, al_top, al_width / 10, al_height),
-      this.#createParallelogram(al_left + al_width * 0.6 + al_width / 11, al_top, al_width / 10, al_height),
+      createParallelogram(al_left + al_width * 0.2, al_top, al_width / 15, al_height),
+      createParallelogram(al_left + al_width * 0.2 + al_width / 16, al_top, al_width / 15, al_height),
+      createParallelogram(al_left + al_width * 0.6, al_top, al_width / 10, al_height),
+      createParallelogram(al_left + al_width * 0.6 + al_width / 11, al_top, al_width / 10, al_height),
     ]
     // right parallelograms
     const rightLightParallelograms = leftLightParallelograms.map(value => this.#symmetricMapping(value))

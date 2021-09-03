@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import chroma from 'chroma-js'
 import LayerBase from '../base'
+import {createHexagon} from '../../util/shape'
 
 const defaultStyle = {
   active: true,
@@ -33,23 +34,6 @@ export default class TitleBLayer extends LayerBase {
     this.className = 'wave-title-b'
   }
 
-  /**
-   * create a hexagon which not exceed the area
-   * @param {Number} left 
-   * @param {Number} top 
-   * @param {Number} width 
-   * @param {Number} height 
-   * @returns {Array<Number} polygon points
-   */
-  #createHexagon = (left, top, width, height) => [
-    [left + width * 0.5, top],
-    [left + width, top + height * 0.25],
-    [left + width, top + height * 0.75],
-    [left + width * 0.5, top + height],
-    [left, top + height * 0.75],
-    [left, top + height * 0.25],
-  ]
-
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {createGradient, layout} = this.options
@@ -80,12 +64,12 @@ export default class TitleBLayer extends LayerBase {
     ]
     // polygons with order
     this.#polygonData = [{
-      points: this.#createHexagon(po_left, po_top, po_width, po_height),
+      points: createHexagon(po_left, po_top, po_width, po_height),
       stroke: chroma(mainColor),
       strokeWidth,
       fill: '#000',
     }, {
-      points: this.#createHexagon(pi_left, pi_top, pi_width, pi_height),
+      points: createHexagon(pi_left, pi_top, pi_width, pi_height),
       fill: active ? chroma(mainColor).darken(2) : '#000',
       stroke: chroma(mainColor).alpha(0),
       strokeWidth: 0,
