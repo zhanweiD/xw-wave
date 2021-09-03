@@ -7,7 +7,7 @@ import Selector from '../util/selector'
 import basicMapping from '../draw'
 import createLog from '../util/create-log'
 
-// 文字基于坐标的方向
+// text position attached to the point
 const positionType = {
   CENTER: 'center',
   TOP: 'top',
@@ -20,7 +20,7 @@ const positionType = {
   RIGHTBOTTOM: 'right-bottom',
 }
 
-// 其他常量
+// some constants
 export const scaleTypes = ['scaleX', 'scaleY', 'scaleXT', 'scaleYR', 'scaleAngle', 'scaleRadius', 'scalePosition']
 export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown']
 export const tooltipEvents = ['mouseover', 'mouseout', 'mousemove']
@@ -30,62 +30,87 @@ export default class LayerBase {
 
   #backupEvent = {}
 
-  #backupAnimation = {options: {}}
+  #backupAnimation = {
+    options: {},
+  }
 
-  constructor(layerOptions, waveOptions, subLayers) {
+  constructor(layerOptions, waveOptions, sublayers) {
     this.options = merge(layerOptions, waveOptions)
-    this.subLayers = subLayers || []
+    this.sublayers = sublayers || []
     this.tooltipTargets = []
     this.root = null
     this.className = null
     this.#createEvent()
     this.log = createLog('src/layer/base')
     this.event = createEvent('src/layer/base')
-    this.subLayers.forEach(name => this.#backupData[name] = [])
-    this.setAnimation = options => merge(this.#backupAnimation, {options})
-    this.playAnimation = () => this.subLayers.forEach(type => this.#backupAnimation[type]?.play())
+    this.sublayers.forEach(name => this.#backupData[name] = [])
     this.selector = new Selector(this.options.engine)
   }
 
+  setData() { 
+    this.log.warn('LayerBase: The subclass does not implemented the setData method')
+  }
+
+  setStyle() { 
+    this.log.warn('LayerBase: The subclass does not implemented the setStyle method')
+  }
+
+  // play all animations
+  playAnimation() {
+    this.sublayers.forEach(type => this.#backupAnimation[type]?.play())
+  }
+  
   /**
-   * 颜色增强函数
-   * @param {Number} count 数量
-   * @param {Array} customColors 自定义颜色覆盖主题色
-   * @returns 正确的颜色
+   * merge animation config
+   * @param {*} options 
+   */
+  setAnimation(options) {
+    merge(this.#backupAnimation, {options})
+  }
+
+  /**
+   * color enhance function
+   * @param {Number} count color number that we want
+   * @param {Array} customColors custom colors will override theme colors
+   * @returns correct colors
    */
   getColor(count, customColors) {
     const data = this.data?.data
-    const order = this.data?.options?.order
     const {getColor} = this.options
-    // 判断列表内有无颜色相关的属性，目前图例有用到
+    // the order attribute indicates the color priority
+    const order = this.data?.options?.order
+    // the legend layer uses the 'order'
     if (order) {
       const colorMapping = {}
       const {type, mapping} = order
       const colors = getColor(Math.max(...Object.values(mapping)) + 1, customColors)
       Object.keys(mapping).forEach(key => colorMapping[key] = colors[mapping[key]])
+      // row & column has different vision
       const finalColors = type === 'column'
         ? data.slice(1).map(({header}) => colorMapping[header])
         : data[0].list.map(dimension => colorMapping[dimension])
+      // auto fill
       return finalColors.length !== count ? new Array(count).fill(finalColors[0]) : finalColors
     }
     return this.options.getColor(count, customColors)
   }
 
   /**
-   * 返回统一处理后的比例尺
-   * @param {Object} defaultScale 默认比例尺，由数据计算而来
-   * @param {Object} currentScale 当前比例尺
-   * @param {Object} incomingScale 传入比例尺
-   * @returns 
+   * merge scale for the whole layer
+   * @param {Object} defaultScale
+   * @param {Object} currentScale
+   * @param {Object} incomingScale
+   * @returns corrent scales
    */
   createScale(defaultScale, currentScale, incomingScale = {}) {
     const nice = merge(defaultScale?.nice, currentScale?.nice, incomingScale?.nice)
     const scale = {nice}
-    // 比例尺的命名是固定不变的
+    // the naming of the scale is fixed
     scaleTypes.forEach(type => {
-      // 由于目前的比例尺策略是由坐标轴统一控制，所以图层数据计算的比例尺优先级最低
+      // due to the axis layer control all the scale which from different layer
+      // scales which generate by layer itself has lowest priority
       scale[type] = incomingScale[type] || currentScale[type] || defaultScale[type]
-      // 笔刷更改了当前比例尺的值域，这个值域需要继承
+      // the brush changed the range of current scale that need to be remembered
       if (currentScale[type]?.brushed) {
         scale[type].range(currentScale[type].range())
         scale[type].brushed = currentScale[type].brushed
@@ -95,17 +120,17 @@ export default class LayerBase {
   }
 
   /**
-   * 返回统一处理后的样式
-   * @param {Object} defaultStyle 默认样式
-   * @param {Object} currentStyle 当前样式
-   * @param {Object} incomingStyle 传入样式
-   * @returns 新的样式
+   * merge style for the whole layer
+   * @param {Object} defaultStyle
+   * @param {Object} currentStyle
+   * @param {Object} incomingStyle
+   * @returns correct styles
    */
   createStyle(defaultStyle, currentStyle, incomingStyle = {}) {
     const {baseFontSize} = this.options
     const style = merge({}, defaultStyle, currentStyle, incomingStyle)
     const keys = Object.keys(incomingStyle)
-    // 统一缩放字号（目前的策略不安全）
+    // multiply the baseFontSize (not save yet)
     keys.forEach(key => {
       if (key.search(/text/i) !== -1 && style[key].fontSize) {
         style[key].fontSize *= baseFontSize
@@ -115,9 +140,9 @@ export default class LayerBase {
   }
 
   /**
-   * 返回统一处理后的标签数据
-   * @param {Object} 计算文字需要的一些值
-   * @returns 文字数据，包含坐标和值
+   * handle texts in the wave
+   * @param {Object} options schema
+   * @returns text data
    */
   createText({x, y, value, style, position = positionType.RIGHTTOP, offset = 0}) {
     let [positionX, positionY] = [x, y]
@@ -147,12 +172,13 @@ export default class LayerBase {
     } else if (position === positionType.RIGHTBOTTOM) {
       positionY += fontSize
     }
-    // 根据文字书写方向重定向位置，仍然有字体高度问题
+    // relocate position according to the 'writingMode'
+    // but still has a problem: font height
     if (writingMode === 'vertical') {
       positionX += textWidth / 2
       positionY += -fontSize
     }
-    // 偏移控制
+    // offset fix
     if (isArray(style.offset)) {
       positionX += style.offset[0]
       positionY -= style.offset[1]
@@ -166,158 +192,159 @@ export default class LayerBase {
     }
   }
 
-  // 初始化基础事件
+  // initialize mouse event
   #createEvent = () => {
     const {tooltip} = this.options
     this.#backupEvent = {
       common: {},
+      // tooltip event
       tooltip: {
         mouseover: (event, data) => tooltip.update({data, backup: this.#backupData}).show().move(event),
         mousemove: event => tooltip.move(event),
         mouseout: () => tooltip.hide(),
       },
     }
-    // 基础鼠标事件
+    // basic mouse event
     commonEvents.forEach(eventType => {
       this.#backupEvent.common[eventType] = {}
       const events = this.#backupEvent.common[eventType]
-      this.subLayers.forEach(subLayer => {
-        events[subLayer] = (event, data) => this.event.fire(`${eventType}-${subLayer}`, {event, data})
+      this.sublayers.forEach(sublayer => {
+        events[sublayer] = (event, data) => this.event.fire(`${eventType}-${sublayer}`, {event, data})
       })
     })
   }
 
   /**
-   * 控制整个图层的显示和隐藏
-   * @param {Boolean} isVisiable 隐藏参数
-   * @param {String} subLayer 元素类型可缺省
+   * set visible for the layer
+   * @param {Boolean} isVisiable
+   * @param {String} sublayer
    */
-  setVisible(visible, subLayer) {
+  setVisible(visible, sublayer) {
     const {selector} = this
-    const className = `${this.className}-${subLayer}`
-    const target = subLayer ? selector.getFirstChildByClassName(this.root, className) : this.root
+    const className = `${this.className}-${sublayer}`
+    const target = sublayer ? selector.getFirstChildByClassName(this.root, className) : this.root
     selector.setVisible(target, visible)
   }
 
-  // 元素渲染后注册响应事件
-  #setEvent = subLayer => {
+  // register the response events after render
+  #setEvent = sublayer => {
     const {engine} = this.selector
     if (engine === 'svg') {
-      const els = this.root.selectAll(`.wave-basic-${subLayer}`).style('cursor', 'pointer')
-      commonEvents.forEach(eventType => els.on(`${eventType}.common`, this.#backupEvent.common[eventType][subLayer]))
+      const els = this.root.selectAll(`.wave-basic-${sublayer}`).style('cursor', 'pointer')
+      commonEvents.forEach(eventType => els.on(`${eventType}.common`, this.#backupEvent.common[eventType][sublayer]))
     }
   }
 
-  // 元素渲染后设置文字提示
-  #setTooltip = subLayer => {
+  // register the tooltip events after render
+  #setTooltip = sublayer => {
     const {engine} = this.selector
-    if (engine === 'svg' && this.tooltipTargets.find(key => key === subLayer)) {
-      const els = this.root.selectAll(`.wave-basic-${subLayer}`)
+    if (engine === 'svg' && this.tooltipTargets.find(key => key === sublayer)) {
+      const els = this.root.selectAll(`.wave-basic-${sublayer}`)
       tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
     }
   }
 
-  // 元素渲染后设置动画
-  #setAnimation = subLayer => {
+  // register the animation events after render
+  #setAnimation = sublayer => {
     let isFirstPlay = true
     const {options} = this.#backupAnimation
-    // 配置动画前先销毁之前的动画，释放资源
-    if (this.#backupAnimation[subLayer]) {
-      this.#backupAnimation[subLayer].destroy()
+    // destroy previous animation to free resource
+    if (this.#backupAnimation[sublayer]) {
+      this.#backupAnimation[sublayer].destroy()
       isFirstPlay = false
     }
-    // 没有数据，不需要配置动画
-    if (this.#backupData[subLayer].length === 0 || !options || !options[subLayer]) {
-      this.#backupAnimation[subLayer] = null
+    // no data & config
+    if (this.#backupData[sublayer].length === 0 || !options || !options[sublayer]) {
+      this.#backupAnimation[sublayer] = null
       return
     }
     const animationQueue = new Animation.Queue({loop: false})
     const enterQueue = new Animation.Queue({loop: false})
     const loopQueue = new Animation.Queue({loop: true})
-    const {enter, loop, update} = options[subLayer]
-    const targets = `.wave-basic-${subLayer}`
-    // 配置入场动画和轮播动画并连接
+    const {enter, loop, update} = options[sublayer]
+    const targets = `.wave-basic-${sublayer}`
+    // create enter & loop animation and connect them
     isFirstPlay && animationQueue.push('queue', enterQueue)
     isFirstPlay && enter && enterQueue.push(enter.type, {...enter, targets}, this.root)
     loop && loopQueue.push(loop.type, {...loop, targets}, this.root)
-    this.#backupAnimation[subLayer] = animationQueue.push('queue', loopQueue)
-    // 动画事件注册
-    this.#backupAnimation[subLayer].event.on('start', d => this.event.fire(`${subLayer}-animation-start`, d))
-    this.#backupAnimation[subLayer].event.on('process', d => this.event.fire(`${subLayer}-animation-process`, d))
-    this.#backupAnimation[subLayer].event.on('end', d => this.event.fire(`${subLayer}-animation-end`, d))
-    // 非首次等待数据更新后执行，待优化
+    this.#backupAnimation[sublayer] = animationQueue.push('queue', loopQueue)
+    // register the animation events
+    this.#backupAnimation[sublayer].event.on('start', d => this.event.fire(`${sublayer}-animation-start`, d))
+    this.#backupAnimation[sublayer].event.on('process', d => this.event.fire(`${sublayer}-animation-process`, d))
+    this.#backupAnimation[sublayer].event.on('end', d => this.event.fire(`${sublayer}-animation-end`, d))
+    // restart the loop animation after the update animation
     if (!isFirstPlay) {
-      clearTimeout(this.#backupAnimation[subLayer].timer)
+      clearTimeout(this.#backupAnimation[sublayer].timer)
       const {duration = 2000, delay = 0} = update || {}
-      const timer = setTimeout(() => this.#backupAnimation[subLayer].play(), duration + delay)
-      this.#backupAnimation[subLayer].timer = timer
+      const timer = setTimeout(() => this.#backupAnimation[sublayer].play(), duration + delay)
+      this.#backupAnimation[sublayer].timer = timer
     }
   }
 
   /**
-   * 统一的 draw 函数
-   * @param {String} type 元素类型
-   * @param {Array<Object>} data 图层元素数据
-   * @param {String} subLayer 元素对应的 option 字段
+   * universal draw function
+   * @param {String} type element type
+   * @param {Array<Object>} data sublayer data
+   * @param {String} sublayer
    */
-  drawBasic = (type, data, subLayer = type) => {
+  drawBasic = (type, data, sublayer = type) => {
     const {selector} = this
     const {engine} = selector
-    // 图层容器准备
+    // layer container preparation
     if (!this.root) {
       this.root = selector.createSubContainer(this.options.root)
       selector.setClassName(this.root, this.className)
     }
-    // 子图层容器准备
-    const subLayerClassName = `${this.className}-${subLayer}`
-    let subLayerContainer = selector.getFirstChildByClassName(this.root, subLayerClassName)
-    if (!subLayerContainer) {
-      subLayerContainer = selector.createSubContainer(this.root)
-      selector.setClassName(subLayerContainer, subLayerClassName)
+    // sublayer container preparation
+    const sublayerClassName = `${this.className}-${sublayer}`
+    let sublayerContainer = selector.getFirstChildByClassName(this.root, sublayerClassName)
+    if (!sublayerContainer) {
+      sublayerContainer = selector.createSubContainer(this.root)
+      selector.setClassName(sublayerContainer, sublayerClassName)
     }
-    // 分组容器准备，删除上一次渲染多余的组
-    for (let i = 0; i < Math.max(this.#backupData[subLayer].length, data.length); i++) {
-      const groupClassName = `${subLayerClassName}-${i}`
-      let groupContainer = selector.getFirstChildByClassName(subLayerContainer, groupClassName)
+    // group container preparation: delete the redundant group in the last rendering
+    for (let i = 0; i < Math.max(this.#backupData[sublayer].length, data.length); i++) {
+      const groupClassName = `${sublayerClassName}-${i}`
+      let groupContainer = selector.getFirstChildByClassName(sublayerContainer, groupClassName)
       if (i < data.length && !groupContainer) {
-        groupContainer = selector.createSubContainer(subLayerContainer)
+        groupContainer = selector.createSubContainer(sublayerContainer)
         selector.setClassName(groupContainer, groupClassName)
       } else if (i >= data.length) {
         selector.remove(groupContainer)
       }
     }
-    // 根据对应列表数据绘制最终的元素
+    // start analysis data
     for (let i = 0; i < data.length; i++) {
-      this.#backupData[subLayer].length = data.length
-      if (!isEqual(this.#backupData[subLayer][i], data[i])) {
-        const groupClassName = `${subLayerClassName}-${i}`
-        const groupContainer = selector.getFirstChildByClassName(subLayerContainer, groupClassName)
-        const options = {...data[i], engine, className: `wave-basic-${subLayer}`, container: groupContainer}
-        // 首次渲染不启用数据更新动画
+      this.#backupData[sublayer].length = data.length
+      if (!isEqual(this.#backupData[sublayer][i], data[i])) {
+        const groupClassName = `${sublayerClassName}-${i}`
+        const groupContainer = selector.getFirstChildByClassName(sublayerContainer, groupClassName)
+        const options = {...data[i], engine, className: `wave-basic-${sublayer}`, container: groupContainer}
+        // first play will close the update animation
         options.enableUpdateAnimation = false
-        if (this.#backupData[subLayer][i] && this.#backupAnimation.options[subLayer]) {
-          const {duration, delay} = this.#backupAnimation.options[subLayer].update || {}
+        if (this.#backupData[sublayer][i] && this.#backupAnimation.options[sublayer]) {
+          const {duration, delay} = this.#backupAnimation.options[sublayer].update || {}
           options.enableUpdateAnimation = true
           options.updateAnimationDuration = duration
           options.updateAnimationDelay = delay
         }
-        // 调用基础元素绘制函数进行绘制
+        // draw basic elements using draw functions
         !options.hide && basicMapping[type](options)
-        // 备份数据以便支持其他功能
-        this.#backupData[subLayer][i] = data[i]
+        // backup data
+        this.#backupData[sublayer][i] = data[i]
       }
     }
-    // 新的元素需要重新注册事件
+    // new elements need to register events
     if (this.selector.engine === 'svg') {
-      this.#setEvent(subLayer)
-      this.#setAnimation(subLayer)
-      this.#setTooltip(subLayer)
+      this.#setEvent(sublayer)
+      this.#setAnimation(sublayer)
+      this.#setTooltip(sublayer)
     }
   }
 
-  // 销毁图层
+  // destroy the layer
   destroy() {
-    this.subLayers.forEach(name => this.#backupAnimation[name]?.destroy())
+    this.sublayers.forEach(name => this.#backupAnimation[name]?.destroy())
     this.selector.remove(this.root)
     this.event.fire('destroy')
   }

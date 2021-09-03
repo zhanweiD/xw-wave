@@ -3,9 +3,9 @@ import getTextWidth from './text-width'
 
 /**
  * format number
- * @param {string|number} text 
- * @param {object} config 
- * @returns {string} formatted string
+ * @param {String|Number} text 
+ * @param {Object} config 
+ * @returns {String} formatted string
  */
 export const formatNumber = (text, config) => {
   // anonymous formatting
@@ -28,9 +28,9 @@ export const formatNumber = (text, config) => {
 
 /**
  * text overflow control
- * @param {string|number} text 
- * @param {object} config 
- * @returns {string} formatted string
+ * @param {String|Number} text 
+ * @param {Object} config 
+ * @returns {String} formatted string
  */
 export const overflowControl = (text, config) => {
   const {

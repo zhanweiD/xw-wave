@@ -7,6 +7,7 @@ const defaultStyle = {
   labelOffset: 5,
   ribbon: {
     fillOpacity: 0.7,
+    strokeOpacity: 0,
   },
   text: {},
   arc: {},

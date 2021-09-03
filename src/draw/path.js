@@ -7,7 +7,7 @@ export default function drawPath({
   engine = 'svg',
   fill = '#fff', // 颜色
   stroke = '#fff', // 描边
-  strokeWidth = 0, // 描边粗细
+  strokeWidth = 1, // 描边粗细
   opacity = 1, // 不透明度
   fillOpacity = 1,
   strokeOpacity = 1,

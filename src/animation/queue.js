@@ -26,49 +26,48 @@ const defaultOptions = {
   loop: false,
 }
 
-// 动画队列类
 export default class AnimationQueue extends AnimationBase {
   constructor(options) {
     super(defaultOptions, options)
-    // 动画队列是否连接就绪
+    // can start play or not
     this.isReady = false
-    // 初始化动画队列
+    // initialize animation queue
     const animationHead = {id: createUuid(), instance: new EmptyAnimation()}
-    // 第一个元素绑定动画序列的生命周期
+    // queue must has a head animation
     animationHead.instance.event.on('start', () => this.start())
     animationHead.instance.event.on('end', () => this.end())
     this.queue = [animationHead]
   }
 
   /**
-   * 用于在一组动画全部完成后执行某段代码（只绑定不执行）
-   * @param {动画数组} animations 
-   * @param {回调函数} callback 
+   * run the callback after all animations done
+   * @param {Array<AnimationBase>} animations 
+   * @param {Function} callback 
    */
   #bind = (animations, callback) => {
     let completeCount = 0
     animations.forEach(({instance}) => instance.event.on('end', () => {
       if (++completeCount === animations.length) {
-        // 重置计数并且触发数据结束的事件
+        // reset count and run the callback
         completeCount = 0
         callback()
       }
     }))
-    // 返回连接后的动画数组
+    // animations that completed bind
     return animations
   }
 
   /**
-   * 离散动画链接成序列动画
-   * @param {Array|Function} priorityConfig 优先级数组或者映射函数，默认为数组下标顺序
+   * connect discrete animations to sequence animations
+   * @param {Array|Function} priorityConfig
    */
   connect(priorityConfig) {
-    // 初始化每个动画对象的生命周期
+    // initialize life cycle
     this.queue.forEach(({instance}) => {
       instance.event.off('start')
       instance.event.off('end')
     })
-    // 序列优先级，默认为数组下标序
+    // default by index of array
     let finalPriority
     if (Array.isArray(priorityConfig)) {
       finalPriority = [0, ...priorityConfig]
@@ -77,14 +76,14 @@ export default class AnimationQueue extends AnimationBase {
     } else {
       finalPriority = this.queue.map((item, index) => index)
     }
-    // 根据优先级分组动画
+    // group animations by priority config
     const groupedAnimationQueue = new Array(Math.max(...finalPriority) + 1).fill().map(() => [])
     finalPriority.forEach((priority, animationIndex) => {
       groupedAnimationQueue[priority].push(this.queue[animationIndex])
     })
-    // 对分组后的动画进行连接(只有动画头不会进行连接操作)
+    // connect the grouped animations except head
     groupedAnimationQueue.reduce((previousAnimations, currentAnimations, priority) => {
-      // 子动画的每个生命周期都是动画序列的 “process”
+      // queue capture item's events
       currentAnimations.forEach(animation => {
         const mapToState = state => ({id: animation.id, priority, state})
         const [startState, processState, endState] = ['start', 'process', 'end'].map(mapToState)
@@ -92,30 +91,29 @@ export default class AnimationQueue extends AnimationBase {
         animation.instance.event.on('process', data => this.process({...processState, data}))
         animation.instance.event.on('end', () => this.process(endState))
       })
-      // 最后一组元素绑定动画序列的 end 生命周期
+      // last animations bind queue's 'end' event
       if (priority === Math.max(...finalPriority)) this.#bind(currentAnimations, () => this.end())
-      // 前一优先级动画全部结束后启动当前优先级的动画
+      // previous animation group fire next animation group
       this.#bind(previousAnimations, () => currentAnimations.forEach(({instance}) => instance.play()))
       return currentAnimations
     })
-    // 连接完毕，动画可以启动
+    // connet done
     this.isReady = true
     return this
   }
 
   /**
-   * 向队列中添加一个动画
-   * @param {动画类型} type
-   * @param {动画配置参数} options
-   * @param {上下文环境} context
+   * add the animation to the queue
+   * @param {String} type animation type
+   * @param {Object} options animation schema
+   * @param {*} context
    */
   push(type, options, context) {
-    // 创建一个可以序列化的动画对象（带Id）
     const createQueueableAnimation = animation => this.queue.push({
       id: options.id || createUuid(),
       instance: animation,
     })
-    // 根据类型创建动画
+    // create new queue item by type
     if (type === 'function') {
       const animation = new EmptyAnimation()
       animation.event.on('process', options)
@@ -128,18 +126,18 @@ export default class AnimationQueue extends AnimationBase {
       this.log.error('Animation Type Error', type)
       return null
     }
-    // 新的动画加入，需要再次 connect
+    // create a animation lead to reconnect
     this.isReady = false
     return this
   }
 
   /**
-   * 移除序列中已有的一个动画
-   * @param {动画Id} id
+   * remove a animation from queue
+   * @param {String} id
    */
   remove(id) {
     const index = this.queue.findIndex(item => item.id === id)
-    // 删除旧的动画，需要再次 connect
+    // remove a animation lead to reconnect
     if (index !== -1) {
       this.isReady = false
       return this.queue.splice(index, 1)
@@ -153,7 +151,7 @@ export default class AnimationQueue extends AnimationBase {
       this.isAnimationStart && this.log.warn('The animation is already started!')
       !this.isAnimationAvailable && this.log.error('The animation is not available!')
     } else {
-      // 重新连接，开始动画
+      // reconnect and play
       !this.isReady && this.queue.length > 1 && this.connect()
       this.queue[0].instance.play()
     }

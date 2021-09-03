@@ -1,7 +1,7 @@
 /**
  * catch every error that may be thrown in the life cycle
- * @param {any} object 
- * @param {function} onError run when error
+ * @param {*} object 
+ * @param {Function} onError run when error
  */
 const catchError = (object, onError) => {
   // basic life cycles
