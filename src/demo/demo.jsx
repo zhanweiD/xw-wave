@@ -111,6 +111,7 @@ export default function Example() {
     waves.push(chart === 'decoration' && createWave(decoSchema.titleA(refs[1].current, themeColors)))
     waves.push(chart === 'decoration' && createWave(decoSchema.titleBAvtive(refs[2].current, themeColors)))
     waves.push(chart === 'decoration' && createWave(decoSchema.titleBInactive(refs[3].current, themeColors)))
+    waves.push(chart === 'decoration' && createWave(decoSchema.titleC(refs[4].current, themeColors)))
     // 重新设置数据
     setFallbackWaves(waves)
   }, [theme, chart])

@@ -24,6 +24,7 @@ import ODLine from './geography/od-line'
 // 装饰图层
 import TitleA from './decoration/title-a'
 import TitleB from './decoration/title-b'
+import TitleC from './decoration/title-c'
 
 export const layerMapping = {
   arc: Arc, // 圆弧
@@ -47,6 +48,7 @@ export const layerMapping = {
   treemap: Treemap, // 矩形树图
   titleA: TitleA, // 标题装饰
   titleB: TitleB, // 标题装饰
+  titleC: TitleC, // 标题装饰
 }
 
 export default {
@@ -71,4 +73,5 @@ export default {
   Treemap, // 矩形树图
   TitleA, // 标题装饰
   TitleB, // 标题装饰
+  TitleC, // 标题装饰
 }
