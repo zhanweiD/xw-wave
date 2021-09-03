@@ -20,7 +20,7 @@ const defaultStyle = {
     strokeWidth: 2,
   },
   centerLine: {
-    strokeWidth: 1,
+    strokeWidth: 2,
   },
   centerArea: {},
   lightParallelogram: {},
@@ -44,7 +44,10 @@ export default class TitleALayer extends LayerBase {
     center: null,
   }
 
-  #streamerLength = 0
+  #streamerLength = {
+    side: 0,
+    center: 0,
+  }
 
   #style = defaultStyle
 
@@ -200,16 +203,17 @@ export default class TitleALayer extends LayerBase {
       this.#data.darkParallelograms.push({points, fill: chroma(mainColor).alpha(0.15)})
     })
     // center area
+    const coords = {x1: 0.5, x2: 0.5, y1: 1, y2: 1, r: 0, r2: 0.4}
     this.#data.centerArea = {
       points: [
         [ac_left + ac_width * 0, ac_top + ac_height, ac_top + ac_height],
-        [ac_left + ac_width * 0.5, ac_top + ac_height, ac_top + ac_height / 2],
+        [ac_left + ac_width * 0.5, ac_top + ac_height, ac_top],
         [ac_left + ac_width * 1, ac_top + ac_height, ac_top + ac_height],
       ],
       fill: createGradient({
-        type: 'linear', 
-        direction: 'vertical', 
-        colors: [chroma(mainColor).alpha(0), chroma(mainColor).alpha(0), mainColor],
+        type: 'radial',
+        colors: [mainColor, chroma(mainColor).alpha(0)],
+        ...coords,
       }),
     }
     // center line
@@ -238,8 +242,9 @@ export default class TitleALayer extends LayerBase {
       ],
     }]
     // streamer length
+    this.#streamerLength.center = ac_width / 2
     leftMiddleLinePoints.reduce((prev, cur) => {
-      this.#streamerLength += Math.sqrt((prev[0] - cur[0]) ** 2 + (prev[1] - cur[1]) ** 2)
+      this.#streamerLength.side += Math.sqrt((prev[0] - cur[0]) ** 2 + (prev[1] - cur[1]) ** 2)
       return cur
     })
   }
@@ -321,27 +326,30 @@ export default class TitleALayer extends LayerBase {
     clearTimeout(this.#animationTimer.side)
     clearTimeout(this.#animationTimer.center)
     // start play
+    const {mainColor} = this.#style
     this.#playStreamerAnimation({
       timeCycle: 3000,
       timeStep: 1000 / 30,
-      color: 'rgb(255,255,255)',
+      color: chroma(mainColor).mix('#fff').brighten(),
       targets: this.#findAnimationTargets('sideStreamer'),
       setTimer: timer => this.#animationTimer.side = timer,
       headEase: easeQuadOut,
       tailEase: easeQuadIn,
+      totalLength: this.#streamerLength.side,
     })
     this.#playStreamerAnimation({
       timeCycle: 1000,
       timeStep: 1000 / 30,
-      color: 'rgb(255,255,255)',
+      color: chroma(mainColor).mix('#fff').brighten(),
       targets: this.#findAnimationTargets('centerStreamer'),
       setTimer: timer => this.#animationTimer.center = timer,
       headEase: easePolyIn.exponent(2),
-      tailEase: easePolyIn.exponent(3),
+      tailEase: easePolyIn.exponent(3.5),
+      totalLength: this.#streamerLength.center,
     })
   }
 
-  #playStreamerAnimation = ({timeCycle, timeStep, color, targets, setTimer, headEase, tailEase}) => {
+  #playStreamerAnimation = ({timeCycle, timeStep, color, targets, totalLength, setTimer, headEase, tailEase}) => {
     let time = 0
     const {createGradient} = this.options
     // initilaize gradient
@@ -361,9 +369,9 @@ export default class TitleALayer extends LayerBase {
       const tailOffset = tailEase(time / timeCycle)
       const strokeDashArray = [
         0,
-        this.#streamerLength * tailOffset,
-        this.#streamerLength * (headOffset - tailOffset),
-        this.#streamerLength * (1 - headOffset), 
+        totalLength * tailOffset,
+        totalLength * (headOffset - tailOffset),
+        totalLength * (1 - headOffset), 
       ]
       // change gradient
       strokeLeft.coords.x1 = 1 - headOffset

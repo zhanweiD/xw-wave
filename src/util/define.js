@@ -42,15 +42,15 @@ const createLinearGradients = ({container, schema, engine}) => {
  * @param {Object} param0 
  */
 const createRadialGradients = ({container, schema, engine}) => {
-  schema.forEach(({id, r = 1, r2 = 2, cx = 1, cy = 1, fx = 0, fy = 0, stops}) => {
+  schema.forEach(({id, r = 1, r2 = 2, x1 = 1, x2 = 1, y1 = 0, y2 = 0, stops}) => {
     if (engine === 'svg') {
       const radialGradient = container.append('radialGradient')
         .attr('id', id)
         .attr('r', r)
-        .attr('fx', fx)
-        .attr('fy', fy)
-        .attr('cx', cx)
-        .attr('cy', cy)
+        .attr('cx', x1)
+        .attr('cy', y1)
+        .attr('fx', x2)
+        .attr('fy', y2)
       stops.forEach(({offset = 1, opacity = 1, color = '#fff'}) => {
         radialGradient.append('stop')
           .attr('offset', offset)
@@ -62,7 +62,7 @@ const createRadialGradients = ({container, schema, engine}) => {
         gradientId: id,
         type: 'radial',
         gradientUnits: 'percentage', // or 'pixels'
-        coords: {x1: cx, y1: cy, x2: fx, y2: fy, r1: r, r2},
+        coords: {x1, y1, x2, y2, r1: r, r2},
         colorStops: stops.map(({offset = 1, opacity = 1, color = '#fff'}) => ({
           offset,
           color: mergeAlpha(color, opacity),
