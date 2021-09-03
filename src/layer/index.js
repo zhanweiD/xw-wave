@@ -22,7 +22,7 @@ import Pack from './relation/pack'
 import BaseMap from './geography/base-map'
 import ODLine from './geography/od-line'
 // 装饰图层
-import TitleAlpha from './decoration/title-alpha'
+import TitleA from './decoration/title-a'
 
 export const layerMapping = {
   arc: Arc, // 圆弧
@@ -44,7 +44,7 @@ export const layerMapping = {
   text: Text, // 文本
   tree: Tree, // 树形图
   treemap: Treemap, // 矩形树图
-  titleAlpha: TitleAlpha, // 标题装饰1号
+  titleA: TitleA, // 标题装饰A
 }
 
 export default {
@@ -67,5 +67,5 @@ export default {
   Text, // 文本
   Tree, // 树形图
   Treemap, // 矩形树图
-  TitleAlpha, // 标题装饰1号
+  TitleA, // 标题装饰A
 }

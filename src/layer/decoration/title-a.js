@@ -1,14 +1,15 @@
 /* eslint-disable camelcase */
-import {range, easeQuadIn, easeQuadOut, easePolyIn} from 'd3'
-import {fabric} from 'fabric'
 import chroma from 'chroma-js'
+import {fabric} from 'fabric'
+import {easeQuadIn, easeQuadOut, easePolyIn} from 'd3'
+import {range} from '../../util/common'
 import LayerBase from '../base'
 
 // 默认样式
 const defaultStyle = {
   mainColor: 'rgb(0,119,255)',
   minorColor: 'rgb(200,200,200)',
-  lineGap: 3,
+  lineGap: 4,
   topLine: {
     strokeWidth: 2,
   },
@@ -26,7 +27,7 @@ const defaultStyle = {
   darkParallelograms: {},
 }
 
-export default class TitleAlphaLayer extends LayerBase {
+export default class TitleALayer extends LayerBase {
   #data = {
     topLines: [],
     middleLines: [],
@@ -58,10 +59,14 @@ export default class TitleAlphaLayer extends LayerBase {
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions, ['polygon', 'area', 'curve', 'sideStreamer', 'centerStreamer'])
     this.className = 'wave-title-alpha'
+    this.event.on('destroy', () => {
+      clearTimeout(this.#animationTimer.side)
+      clearTimeout(this.#animationTimer.center)
+    })
   }
 
   setData() {
-    this.log.warn('TitleAlpha: There is no data can be set')
+    this.log.warn('TitleA: There is no data can be set')
   }
 
   /**
@@ -132,14 +137,14 @@ export default class TitleAlphaLayer extends LayerBase {
       stroke: createGradient({
         type: 'linear', 
         direction: 'horizontal', 
-        colors: range(0, 1 + 10 ** -8, 0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.2 ? 0.5 : alpha)),
+        colors: range(0, 1, 0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.1 ? 0.5 : alpha)),
       }),
     }, {
       points: rightTopLinePoints,
       stroke: createGradient({
         type: 'linear', 
         direction: 'horizontal', 
-        colors: range(1 + 10 ** -8, 0, -0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.2 ? 0.5 : alpha)),
+        colors: range(1, 0, -0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.1 ? 0.5 : alpha)),
       }),
     }]
     this.#data.middleLines = [{
@@ -147,14 +152,14 @@ export default class TitleAlphaLayer extends LayerBase {
       stroke: createGradient({
         type: 'linear', 
         direction: 'horizontal', 
-        colors: range(0, 1 + 10 ** -8, 0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.2 ? 1 : alpha)),
+        colors: range(0, 1, 0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.1 ? 1 : alpha)),
       }),
     }, {
       points: rightMiddleLinePoints,
       stroke: createGradient({
         type: 'linear', 
         direction: 'horizontal', 
-        colors: range(1 + 10 ** -8, 0, -0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.2 ? 1 : alpha)),
+        colors: range(1, 0, -0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.1 ? 1 : alpha)),
       }),
     }]
     this.#data.bottomLines = [{
@@ -162,14 +167,14 @@ export default class TitleAlphaLayer extends LayerBase {
       stroke: createGradient({
         type: 'linear', 
         direction: 'horizontal', 
-        colors: range(0, 1 + 10 ** -8, 0.1).map(alpha => chroma(minorColor).alpha((0.5 - Math.abs(alpha - 0.5)) * 2)),
+        colors: range(0, 1, 0.1).map(alpha => chroma(minorColor).alpha((0.5 - Math.abs(alpha - 0.5)) * 2)),
       }),
     }, {
       points: rightBottomLinePoints,
       stroke: createGradient({
         type: 'linear', 
         direction: 'horizontal', 
-        colors: range(0, 1 + 10 ** -8, 0.1).map(alpha => chroma(minorColor).alpha((0.5 - Math.abs(alpha - 0.5)) * 2)),
+        colors: range(0, 1, 0.1).map(alpha => chroma(minorColor).alpha((0.5 - Math.abs(alpha - 0.5)) * 2)),
       }),
     }]
     // left light parallelograms
@@ -217,7 +222,7 @@ export default class TitleAlphaLayer extends LayerBase {
       stroke: createGradient({
         type: 'linear', 
         direction: 'horizontal', 
-        colors: range(0, 1 + 10 ** -8, 0.1).map(alpha => chroma(minorColor).alpha((0.5 - Math.abs(alpha - 0.5)) * 2)),
+        colors: range(0, 1, 0.1).map(alpha => chroma(minorColor).alpha((0.5 - Math.abs(alpha - 0.5)) * 2)),
       }),
     }
     // center streamer line
@@ -309,12 +314,12 @@ export default class TitleAlphaLayer extends LayerBase {
   // only for canvas
   playAnimation() {
     if (this.options.engine !== 'canvas') {
-      this.log.warn('TitleAlphaLayer: animation is only available with canvas')
+      this.log.warn('TitleA: animation is only available with canvas')
       return
     }
     // clear last animation
-    this.#animationTimer.side && clearTimeout(this.#animationTimer.side)
-    this.#animationTimer.center && clearTimeout(this.#animationTimer.center)
+    clearTimeout(this.#animationTimer.side)
+    clearTimeout(this.#animationTimer.center)
     // start play
     this.#playStreamerAnimation({
       timeCycle: 3000,

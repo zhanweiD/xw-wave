@@ -4,6 +4,21 @@
 
 import chroma from 'chroma-js'
 
+import * as d3 from 'd3'
+
+/**
+ * userful for get sequence array
+ * the output range does include 'stop'
+ * @param {*} start 
+ * @param {*} end 
+ * @param {*} step 
+ * @param {*} toFixed dicimal number
+ */
+export const range = (start, end, step, toFixed = 8) => {
+  return d3.range(start, end + (step > 0 ? 1 : -1) * 10 ** -(toFixed + 2), step)
+    .map(v => Number(Number(v).toFixed(toFixed)))
+}
+
 /**
  * combining color and opacity and check for errors
  * @param {String} color 

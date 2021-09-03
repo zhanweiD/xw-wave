@@ -40,16 +40,19 @@ const chartMapping = {
   relation: '关系图',
   facet: '分面图',
   map: '地图',
-  deco: '装饰',
+  decoration: '装饰',
 }
 
 export default function Example() {
+  const [chart, setChart] = useState('decoration')
   const [theme, setTheme] = useState('duskUniverse')
-  const [chart, setChart] = useState('deco')
+  const [fallbackWaves, setFallbackWaves] = useState([])
   const containerStyle = {background: ThemeConfig[theme].background}
   const refs = range(1, 100, 1).map(() => useRef(null))
 
   useEffect(() => {
+    // 释放资源
+    fallbackWaves.forEach(wave => wave && wave.destroy())
     const waves = []
     const themeColors = ThemeConfig[theme].colors
     // 柱状图
@@ -105,7 +108,9 @@ export default function Example() {
     // 地图
     waves.push(chart === 'map' && createWave(mapSchema.baseMap(refs[1].current, themeColors)))
     // 装饰
-    waves.push(chart === 'deco' && createWave(decoSchema.titleAlpha(refs[1].current, themeColors)))
+    waves.push(chart === 'decoration' && createWave(decoSchema.titleA(refs[1].current, themeColors)))
+    // 重新设置数据
+    setFallbackWaves(waves)
   }, [theme, chart])
 
   return (
@@ -169,8 +174,8 @@ export default function Example() {
           {chart === 'relation' && <div className={s.wave} ref={refs[7]} />}
           {chart === 'facet' && <div className={s.wave} ref={refs[1]} />}
           {chart === 'map' && <div className={s.wave} ref={refs[1]} />}
-          {chart === 'deco' && <div className={s.decoWave} ref={refs[1]} />}
-          {chart === 'deco' && <div className={s.decoWave} ref={refs[2]} />}
+          {chart === 'decoration' && <div className={s.decoWave} ref={refs[1]} />}
+          {chart === 'decoration' && <div className={s.decoWave} ref={refs[2]} />}
         </div>
       </div>
     </div>

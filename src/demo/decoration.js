@@ -14,7 +14,7 @@ const createSchema = (container, theme, layout) => {
     // 容器高，自适应为 auto 时无效
     height: 100,
     // 主绘图图层的内边距
-    padding: [60, 40, 40, 40],
+    padding: [0, 0, 0, 0],
     // 这个 layout 应该是一个生成函数
     layout,
     // 声明坐标系
@@ -37,9 +37,9 @@ const createSchema = (container, theme, layout) => {
         },
       },
       {
-        type: 'titleAlpha',
+        type: 'titleA',
         options: {
-          id: 'titleAlpha',
+          id: 'titleA',
           layout: 'title',
         },
         data: '',
@@ -55,5 +55,5 @@ const createSchema = (container, theme, layout) => {
 }
 
 export default {
-  titleAlpha: (container, theme) => createSchema(container, theme, Layout.standard(false)),
+  titleA: (container, theme) => createSchema(container, theme, Layout.standard(false)),
 }
