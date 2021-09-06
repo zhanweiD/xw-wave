@@ -45,7 +45,7 @@ const createSchema = (container, theme, layout) => {
           type: 'horizontal',
         },
         scale: {
-          fixedBandWidth: 7,
+          fixedBandwidth: 7,
         },
         data: createSankeyData(),
         style: {

@@ -101,7 +101,7 @@ const createSchema = (container, theme, layout) => {
         },
         scale: {
           zero: true,
-          // fixedBandWidth: 30,
+          // fixedBandwidth: 30,
           // fixedBoundary: 'start',
         },
         style: {
@@ -156,7 +156,7 @@ const createSchema = (container, theme, layout) => {
         scale: {
           count: 5,
           // fixedPaddingInner: 10,
-          // fixedBandWidth: 30,
+          // fixedBandwidth: 30,
           fixedBoundary: 'start',
         },
         data: {
@@ -209,7 +209,7 @@ const createSchema = (container, theme, layout) => {
         scale: {
           count: 5,
           // fixedPaddingInner: 10,
-          // fixedBandWidth: 30,
+          // fixedBandwidth: 30,
           fixedBoundary: 'start',
         },
         data: {

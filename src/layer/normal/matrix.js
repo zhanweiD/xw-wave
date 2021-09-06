@@ -75,7 +75,7 @@ export default class MatrixLayer extends LayerBase {
     }, this.#scale, scales)
     // 计算基础数据
     const {scaleX, scaleY} = this.#scale
-    const [bandWidthX, bandWidthY] = [scaleX.bandwidth(), scaleY.bandwidth()]
+    const [bandwidthX, bandwidthY] = [scaleX.bandwidth(), scaleY.bandwidth()]
     // 根据比例尺计算原始矩形坐标和数据，原始坐标为左上角
     if (shape === shapeType.RECT) {
       this.#rectData = pureTable.map((values, i) => values.map((value, j) => ({
@@ -83,8 +83,8 @@ export default class MatrixLayer extends LayerBase {
         dimension: `${rows[i]} ${columns[j]}`,
         x: left + scaleX(columns[j]),
         y: top + scaleY(rows[i]),
-        width: bandWidthX,
-        height: bandWidthY,
+        width: bandwidthX,
+        height: bandwidthY,
       })))
     }
     // 圆形数据
@@ -92,15 +92,15 @@ export default class MatrixLayer extends LayerBase {
       this.#circleData = pureTable.map((values, i) => values.map((value, j) => ({
         value,
         dimension: `${rows[i]} ${columns[j]}`,
-        cx: left + scaleX(columns[j]) + bandWidthX / 2,
-        cy: top + scaleY(rows[i]) + bandWidthY / 2,
-        r: Math.min(bandWidthX, bandWidthY) / 2,
+        cx: left + scaleX(columns[j]) + bandwidthX / 2,
+        cy: top + scaleY(rows[i]) + bandwidthY / 2,
+        r: Math.min(bandwidthX, bandwidthY) / 2,
       })))
     }
     // 文字数据
     this.#data.set('textData', pureTable.map((values, i) => values.map((value, j) => ({
-      x: left + scaleX(columns[j]) + bandWidthX / 2,
-      y: top + scaleY(rows[i]) + bandWidthY / 2,
+      x: left + scaleX(columns[j]) + bandwidthX / 2,
+      y: top + scaleY(rows[i]) + bandwidthY / 2,
       value,
     }))))
   }
@@ -135,8 +135,8 @@ export default class MatrixLayer extends LayerBase {
     // 圆形的大小随数值大小变化
     if (shape === shapeType.CIRCLE) {
       let [min, max] = circleSize
-      const [bandWidthX, bandWidthY] = [this.#scale.scaleX.bandwidth(), this.#scale.scaleY.bandwidth()]
-      const ceiling = Math.min(bandWidthX, bandWidthY) / 1.8
+      const [bandwidthX, bandwidthY] = [this.#scale.scaleX.bandwidth(), this.#scale.scaleY.bandwidth()]
+      const ceiling = Math.min(bandwidthX, bandwidthY) / 1.8
       if (max === 'auto' || max < 0) max = ceiling
       if (min === 'auto' || min < 0) min = max > ceiling ? ceiling / 2 : max / 2
       const scale = new Scale({

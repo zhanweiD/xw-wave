@@ -315,7 +315,7 @@ export default class RectLayer extends LayerBase {
       const colors = this.getColor(this.#rectData.length, rect.fill)
       this.#rectData.forEach((groupData, i) => (groupData[0].color = colors[i]))
     }
-    // 计算柱子占整个 bandWidth 的比值
+    // 计算柱子占整个 bandwidth 的比值
     this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, width, height, ...other}) => {
       const totalPadding = paddingInner * (type === waveType.COLUMN ? width : height)
       return {

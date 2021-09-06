@@ -112,7 +112,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           zero: mode !== 'interval',
           paddingInner: 0.382,
           // fixedPaddingInner: 10,
-          // fixedBandWidth: 30,
+          // fixedBandwidth: 30,
           // fixedBoundary: 'start',
         },
         style: {
