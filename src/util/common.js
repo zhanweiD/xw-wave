@@ -7,8 +7,7 @@ import chroma from 'chroma-js'
 import * as d3 from 'd3'
 
 /**
- * userful for get sequence array
- * the output range does include 'stop'
+ * the output range contains 'stop'.
  * @param {*} start 
  * @param {*} end 
  * @param {*} step 

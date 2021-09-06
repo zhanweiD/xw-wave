@@ -2,10 +2,10 @@
 import chroma from 'chroma-js'
 import {fabric} from 'fabric'
 import {easeQuadIn, easeQuadOut, easePolyIn} from 'd3'
+import {createParallelogram} from '../../util/shape'
 import {range} from '../../util/common'
 import LayerBase from '../base'
 
-// 默认样式
 const defaultStyle = {
   mainColor: 'rgb(0,119,255)',
   minorColor: 'rgb(200,200,200)',
@@ -51,25 +51,17 @@ export default class TitleALayer extends LayerBase {
 
   #style = defaultStyle
 
-  get data() {
-    return this.#data
-  }
-
   get style() {
     return this.#style
   }
 
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions, ['polygon', 'area', 'curve', 'sideStreamer', 'centerStreamer'])
-    this.className = 'wave-title-alpha'
+    this.className = 'wave-title-a'
     this.event.on('destroy', () => {
       clearTimeout(this.#animationTimer.side)
       clearTimeout(this.#animationTimer.center)
     })
-  }
-
-  setData() {
-    this.log.warn('TitleA: There is no data can be set')
   }
 
   /**
@@ -82,21 +74,6 @@ export default class TitleALayer extends LayerBase {
     const middleX = left + width / 2
     return leftPoints.map(([x, y]) => [x + (middleX - x) * 2, y])
   }
-
-  /**
-   * create a parallelogram with auto degree
-   * the parallelogram does not exceed the area
-   * @param {Number} width 
-   * @param {Number} height 
-   * @param {Number} angle
-   * @returns {Array<Number} polygon points
-   */
-  #createParallelogram = (left, top, width, height, angle = 45) => [
-    [left, top],
-    [left + width, top],
-    [left + width + Math.sin(angle) * height, top + height],
-    [left + Math.sin(angle) * height, top + height],
-  ]
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
@@ -182,15 +159,15 @@ export default class TitleALayer extends LayerBase {
     }]
     // left light parallelograms
     const leftLightParallelograms = [
-      this.#createParallelogram(al_left + al_width * 0.65, al_top, al_width / 15, al_height),
-      this.#createParallelogram(al_left + al_width * 0.75, al_top, al_width / 20, al_height),
+      createParallelogram(al_left + al_width * 0.65, al_top, al_width / 15, al_height),
+      createParallelogram(al_left + al_width * 0.75, al_top, al_width / 20, al_height),
     ]
     // left dark parallelograms
     const leftDarkParallelograms = [
-      this.#createParallelogram(al_left + al_width * 0.2, al_top, al_width / 15, al_height),
-      this.#createParallelogram(al_left + al_width * 0.2 + al_width / 16, al_top, al_width / 15, al_height),
-      this.#createParallelogram(al_left + al_width * 0.6, al_top, al_width / 10, al_height),
-      this.#createParallelogram(al_left + al_width * 0.6 + al_width / 11, al_top, al_width / 10, al_height),
+      createParallelogram(al_left + al_width * 0.2, al_top, al_width / 15, al_height),
+      createParallelogram(al_left + al_width * 0.2 + al_width / 16, al_top, al_width / 15, al_height),
+      createParallelogram(al_left + al_width * 0.6, al_top, al_width / 10, al_height),
+      createParallelogram(al_left + al_width * 0.6 + al_width / 11, al_top, al_width / 10, al_height),
     ]
     // right parallelograms
     const rightLightParallelograms = leftLightParallelograms.map(value => this.#symmetricMapping(value))
@@ -269,6 +246,7 @@ export default class TitleALayer extends LayerBase {
     // center streamer line
     const centerStreamerData = [{
       position: this.#data.centerStreamer.map(({points}) => points),
+      stroke: null,
       ...this.#style.centerLine,
     }]
     // side top lines
@@ -328,29 +306,40 @@ export default class TitleALayer extends LayerBase {
     // start play
     const {mainColor} = this.#style
     this.#playStreamerAnimation({
-      timeCycle: 3000,
-      timeStep: 1000 / 30,
+      duration: 3000,
+      delay: 1000,
       color: chroma(mainColor).mix('#fff').brighten(),
       targets: this.#findAnimationTargets('sideStreamer'),
       setTimer: timer => this.#animationTimer.side = timer,
       headEase: easeQuadOut,
       tailEase: easeQuadIn,
-      totalLength: this.#streamerLength.side,
+      distance: this.#streamerLength.side,
     })
     this.#playStreamerAnimation({
-      timeCycle: 1000,
-      timeStep: 1000 / 30,
+      duration: 1000,
+      endDelay: 3000,
       color: chroma(mainColor).mix('#fff').brighten(),
       targets: this.#findAnimationTargets('centerStreamer'),
       setTimer: timer => this.#animationTimer.center = timer,
       headEase: easePolyIn.exponent(2),
       tailEase: easePolyIn.exponent(3.5),
-      totalLength: this.#streamerLength.center,
+      distance: this.#streamerLength.center,
     })
   }
 
-  #playStreamerAnimation = ({timeCycle, timeStep, color, targets, totalLength, setTimer, headEase, tailEase}) => {
+  #playStreamerAnimation = ({
+    delay = 0,
+    endDelay = 0,
+    duration = 1000, 
+    color,
+    targets,
+    distance,
+    setTimer,
+    headEase,
+    tailEase,
+  }) => {
     let time = 0
+    const timeStep = 1000 / 30
     const {createGradient} = this.options
     // initilaize gradient
     const strokeLeft = createGradient({
@@ -364,14 +353,14 @@ export default class TitleALayer extends LayerBase {
       colors: [chroma(color).alpha(0), chroma(color).alpha(1)],
     })
     const animate = () => {
-      time = (time + timeStep) % timeCycle
-      const headOffset = headEase(time / timeCycle)
-      const tailOffset = tailEase(time / timeCycle)
+      time = (time + timeStep) % duration
+      const headOffset = headEase(time / duration)
+      const tailOffset = tailEase(time / duration)
       const strokeDashArray = [
         0,
-        totalLength * tailOffset,
-        totalLength * (headOffset - tailOffset),
-        totalLength * (1 - headOffset), 
+        distance * tailOffset,
+        distance * (headOffset - tailOffset),
+        distance * (1 - headOffset), 
       ]
       // change gradient
       strokeLeft.coords.x1 = 1 - headOffset
@@ -386,9 +375,9 @@ export default class TitleALayer extends LayerBase {
       })
       // render and start next loop
       this.root.canvas.renderAll()
-      const isNextTimeCycle = Math.abs(time) < 10 ** -8 || Math.abs(time - timeCycle) < 10 ** -8
-      setTimer(setTimeout(animate, isNextTimeCycle ? timeCycle : timeStep))
+      const isNextTimeCycle = Math.abs(time) < 10 ** -8 || Math.abs(time - duration) < 10 ** -8
+      setTimer(setTimeout(animate, isNextTimeCycle ? endDelay + delay : timeStep))
     }
-    animate()
+    setTimer(setTimeout(animate, delay))
   }
 }

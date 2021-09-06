@@ -5,7 +5,7 @@ import uuid from './uuid'
 
 /**
  * create linear gradients
- * @param {Object} param0 
+ * @param {Object} options
  */
 const createLinearGradients = ({container, schema, engine}) => {
   schema.forEach(({id, x1 = 0, x2 = 0, y1 = 0, y2 = 0, stops}) => {
@@ -39,14 +39,14 @@ const createLinearGradients = ({container, schema, engine}) => {
 
 /**
  * create radial gradients
- * @param {Object} param0 
+ * @param {Object} options
  */
 const createRadialGradients = ({container, schema, engine}) => {
-  schema.forEach(({id, r = 1, r2 = 2, x1 = 1, x2 = 1, y1 = 0, y2 = 0, stops}) => {
+  schema.forEach(({id, r = 0, r2 = 0, x1 = 1, x2 = 1, y1 = 0, y2 = 0, stops}) => {
     if (engine === 'svg') {
       const radialGradient = container.append('radialGradient')
         .attr('id', id)
-        .attr('r', r)
+        .attr('r', Math.max(r, r2))
         .attr('cx', x1)
         .attr('cy', y1)
         .attr('fx', x2)
@@ -74,7 +74,7 @@ const createRadialGradients = ({container, schema, engine}) => {
 
 /**
  * create masks
- * @param {Object} param0 
+ * @param {Object} options
  */
 const createMasks = ({container, schema, engine}) => {
   engine === 'svg' && schema.forEach(item => {
@@ -115,7 +115,7 @@ const createMasks = ({container, schema, engine}) => {
 
 /**
  * unified entrance
- * @param {*} param0 
+ * @param {*} options
  */
 const createDefs = ({container, schema, engine}) => {
   const {linearGradient, radialGradient, mask} = schema
@@ -148,6 +148,8 @@ const makeGradientCreator = (container, engine) => ({type, direction, colors, ..
       }],
       radialGradient: type === 'radial' && [{
         id,
+        r: 0,
+        r2: 1,
         ...other,
         stops: colors.map((color, i) => ({
           offset: i / (colors.length - 1),

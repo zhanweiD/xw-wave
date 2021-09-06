@@ -1,7 +1,7 @@
 import Layout from '../layout'
 
 // 柱状图配置数据生成
-const createSchema = (container, theme, layout) => {
+const createSchema = (container, theme, layerName, style) => {
   const schema = {
     // 容器
     container,
@@ -16,37 +16,21 @@ const createSchema = (container, theme, layout) => {
     // 主绘图图层的内边距
     padding: [0, 0, 0, 0],
     // 这个 layout 应该是一个生成函数
-    layout,
+    layout: Layout.standard(false),
     // 声明坐标系
     coordinate: 'cartesian-bind-linear',
 
     // 图层数据，下标顺序代表绘制顺序
     layers: [
-      // 标题文字图层
       {
-        type: 'text',
+        type: layerName,
         options: {
-          id: 'title',
+          id: layerName,
           layout: 'title',
         },
-        data: '装饰demo',
+        data: null,
         style: {
-          text: {
-            fontSize: 16,
-          },
-        },
-      },
-      {
-        type: 'titleA',
-        options: {
-          id: 'titleA',
-          layout: 'title',
-        },
-        data: '',
-        style: {
-          text: {
-            fontSize: 16,
-          },
+          ...style,
         },
       },
     ],
@@ -55,5 +39,11 @@ const createSchema = (container, theme, layout) => {
 }
 
 export default {
-  titleA: (container, theme) => createSchema(container, theme, Layout.standard(false)),
+  titleA: (container, theme) => createSchema(container, theme, 'titleA'),
+  titleBAvtive: (container, theme) => createSchema(container, theme, 'titleB', {avtive: true}),
+  titleBInactive: (container, theme) => createSchema(container, theme, 'titleB', {active: false}),
+  titleC: (container, theme) => createSchema(container, theme, 'titleC'),
+  titleD1: (container, theme) => createSchema(container, theme, 'titleD', {leftIcon: 'arrow'}),
+  titleD2: (container, theme) => createSchema(container, theme, 'titleD', {leftIcon: 'point'}),
+  titleE: (container, theme) => createSchema(container, theme, 'titleE', {}),
 }
