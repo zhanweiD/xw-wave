@@ -55,7 +55,7 @@ export default class Seletor {
       return target.append('g')
     }
     if (this.engine === engineType.CANVAS) {
-      const group = new fabric.Group([])
+      const group = new fabric.Group([], {subTargetCheck: true, hoverCursor: 'pointer'})
       target.addWithUpdate(group)
       return group
     }

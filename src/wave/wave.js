@@ -118,8 +118,8 @@ export default class Wave {
         .attr('height', this.containerHeight)
         .style('position', 'absolute')
       fabric.Object.prototype.objectCaching = false
-      const canvasRoot = new fabric.StaticCanvas(canvas._groups[0][0])
-      this.#root = new fabric.Group()
+      const canvasRoot = new fabric.Canvas(canvas._groups[0][0], {selection: false})
+      this.#root = new fabric.Group([], {selectable: false, subTargetCheck: true})
       this.#defs = []
       canvasRoot.add(this.#root)
       canvasRoot.defs = this.#defs
