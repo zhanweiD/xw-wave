@@ -1,4 +1,3 @@
-// 计算布局信息
 const getFacetLayout = (row, column) => ({containerWidth, containerHeight, padding}) => {
   const layout = {
     title: {
@@ -26,7 +25,6 @@ const getFacetLayout = (row, column) => ({containerWidth, containerHeight, paddi
       right: containerWidth - padding[1],
     },
   }
-  // 计算分面衍生数据
   const {top, bottom, left, right} = layout.main
   const facetWidth = (right - left) / column
   const facetHeight = (bottom - top) / row
@@ -42,7 +40,6 @@ const getFacetLayout = (row, column) => ({containerWidth, containerHeight, paddi
       }
     }
   }
-  // 计算宽高衍生数据
   Object.keys(layout).forEach(area => {
     layout[area].width = layout[area].right - layout[area].left
     layout[area].height = layout[area].bottom - layout[area].top

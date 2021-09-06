@@ -1,13 +1,11 @@
 import {isEqual, isArray, merge} from 'lodash'
 import createLog from '../util/create-log'
 
-// 展示类型
 const modeType = {
-  SINGLE: 'single', // 基于单个元素展示
-  GOURP: 'group', // 基于组展示
+  SINGLE: 'single',
+  GOURP: 'group',
 }
 
-// 坐标取值方式
 const positionType = {
   ABSOLUTE: 'absolute',
   RELATIVE: 'relative',
@@ -28,7 +26,6 @@ const defaultOptions = {
   animationDelay: 0,
 }
 
-// tooltip 类
 export default class Tooltip {
   constructor(container, options) {
     this.backup = null
@@ -39,7 +36,7 @@ export default class Tooltip {
     this.log = createLog('src/wave/tooltip')
     this.options = merge({}, defaultOptions, options)
     this.lastPosition = {x: -100, y: -100}
-    // 根容器
+    // root container
     this.instance = container
       .append('div')
       .attr('class', 'wave-tooltip')
@@ -49,7 +46,7 @@ export default class Tooltip {
       .style('display', 'none')
       .style('left', 0)
       .style('top', 0)
-    // 模糊背景
+    // blurred background
     this.instance
       .append('div')
       .attr('class', 'wave-tooltip-bg')
@@ -60,32 +57,32 @@ export default class Tooltip {
       .style('height', '1000px')
   }
 
-  // 显示
   show() {
     this.isVisible = true
     this.instance.style('display', 'block')
     return this
   }
 
-  // 隐藏
   hide() {
     this.isVisible = false
     this.instance.style('display', 'none')
     return this
   }
 
-  // 更新数据
-  update({data, backup}, options = {}) {
+  /**
+   * create tooltip list from element's data
+   * @param {Object} data 
+   * @param {Object} backup 
+   * @returns 
+   */
+  #getListData = (data, backup) => {
     let list = null
-    this.options = {...this.options, ...options}
-    const {titleSize, titleColor, pointSize, labelSize, labelColor, valueSize, valueColor, mode} = this.options
-    // 单元素可以自定义拓展数据
+    const {mode} = this.options
     if (mode === modeType.SINGLE) {
       const {fill, stroke, source} = data
       const pointColor = fill || stroke
       list = (isArray(source) ? source : [source]).map(item => ({pointColor, ...item}))
     }
-    // 分组展示不能拓展数据
     if (mode === modeType.GOURP) {
       try {
         const {dimension} = data.source
@@ -94,12 +91,19 @@ export default class Tooltip {
         const {source, fill, stroke} = groupData
         list = source.map((item, i) => ({...item, pointColor: isArray(fill) ? fill[i] : stroke[i]}))
       } catch (error) {
-        this.log.warn('此图表不支持分组展示数据', error)
+        this.log.warn('Tooltip: The layer does not support group mode', error)
       }
     }
-    // 当且仅当数据变化时进行渲染
+    return list
+  }
+
+  update({data, backup}) {
+    const list = this.#getListData(data, backup)
+    const {titleSize, titleColor, pointSize, labelSize, labelColor, valueSize, valueColor} = this.options
+    // render if and only if data change
     if (isArray(list) && !isEqual(this.backup, list)) {
-      // 头部维度信息
+      this.backup = list
+      // dimension data
       this.instance
         .selectAll('.wave-tooltip-title')
         .data([list[0].dimension])
@@ -110,7 +114,7 @@ export default class Tooltip {
         .style('color', titleColor)
         .style('position', 'relative')
         .text(d => d)
-      // 内容容器
+      // content
       const container = this.instance
         .selectAll('.wave-tooltip-content')
         .data([null])
@@ -118,7 +122,7 @@ export default class Tooltip {
         .attr('class', 'wave-tooltip-content fbv fbjsb fbac')
         .style('padding', '5px')
         .style('position', 'relative')
-      // 每一行
+      // every row
       container.selectAll('div').remove()
       const rows = container
         .selectAll('div')
@@ -126,7 +130,7 @@ export default class Tooltip {
         .join('div')
         .attr('class', 'fbh fbjsb fbac')
         .style('width', '100%')
-      // 行内圆点和标签
+      // point and text in row
       const pointWidthLabel = rows
         .append('div')
         .attr('class', 'fbh fbjsb fbac')
@@ -143,24 +147,22 @@ export default class Tooltip {
         .style('font-size', `${labelSize}px`)
         .style('color', labelColor)
         .text(d => d.category)
-      // 元素数值
+      // value in row
       rows
         .append('div')
         .style('font-weight', 'bold')
         .style('font-size', `${valueSize}px`)
         .style('color', valueColor)
         .text(d => d.value)
-      this.backup = list
     }
     return this
   }
 
-  // 移动
   move({x, y, offsetX, offsetY}) {
     const drift = 10
     const rect = this.instance._groups[0][0].getBoundingClientRect()
     let [nextX, nextY] = this.options.position === positionType.RELATIVE ? [offsetX, offsetY] : [x, y] 
-    // 边界判断
+    // boundary judgement
     if (nextX + rect.width > document.body.clientWidth) {
       nextX -= rect.width + drift
     } else {

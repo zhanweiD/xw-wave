@@ -15,14 +15,12 @@ export const formatNumber = (text, config) => {
     }
     return text
   }
-
   // custom formatting
   const {
     percentage = false, // 0.1234 or 12.34%
     thousandth = false, // 1234 or 1,234
     decimalPlace = 8,
   } = config
-
   return d3.format(`${thousandth ? ',' : ''}.${decimalPlace}~${percentage ? '%' : 'f'}`)(text)
 }
 
@@ -39,7 +37,6 @@ export const overflowControl = (text, config) => {
     height = Infinity, // max display height
     fontSize = 12,
   } = config
-
   // width overflow: crop
   if (fontSize <= height && width < getTextWidth(text, fontSize)) {
     for (let i = text.length; i > 0; i--) {
@@ -49,11 +46,9 @@ export const overflowControl = (text, config) => {
       }
     }
   }
-  
   // height overflow: hide
   if (fontSize > height) {
     return null
   }
-  
   return text
 }

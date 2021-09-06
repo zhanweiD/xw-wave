@@ -2,19 +2,16 @@ import * as d3 from 'd3'
 import {cloneDeep} from 'lodash'
 import DataBase from './base'
 
-// 定义数据组合方式
 const modeType = {
   SUM: 'sum',
   PERCENTAGE: 'percentage',
 }
 
-// 定义操作对象
 const targetType = {
   ROW: 'row',
   COLUMN: 'column',
 }
 
-// 列表数据处理工具
 export default class TableList extends DataBase {
   constructor(tableList, options) {
     super(options)
@@ -23,16 +20,15 @@ export default class TableList extends DataBase {
   }
 
   /**
-   * 获取列表的一个子集，并定义组合方式
-   * @param {String|Array<String>} headers 数据列索引
-   * @param {TableList} options 数据列组合配置
-   * @returns {TableList} 返回一个新的列表实例
+   * get subset of the tableList without changing previous data
+   * @param {String|Array<String>} headers
+   * @param {TableList} options
+   * @returns {TableList} new tableList
    */
   select(headers, options = {}) {
     const {mode, target = targetType.ROW} = options
     const headerArray = Array.isArray(headers) ? headers : [headers]
     let data = cloneDeep(this.data.filter(({header}) => headerArray.includes(header)))
-    // 列求和的情况
     if (mode === modeType.SUM) {
       if (target === targetType.ROW) {
         let lists = data.map(({list}) => list).reduce((prev, cur, i) => {
@@ -50,7 +46,6 @@ export default class TableList extends DataBase {
         data = data.map(item => ({...item, list: [d3.sum(item.list)]}))
       }
     }
-    // 列计算百分比的情况
     if (mode === modeType.PERCENTAGE) {
       if (target === targetType.ROW) {
         const transposedTableList = this.transpose(data.map(({list}) => list))
@@ -66,29 +61,29 @@ export default class TableList extends DataBase {
         })
       }
     }
-    // HACK: 返回一个新的列表对象
+    // HACK: create a new tableList
     const result = new TableList([[]], this.options)
     result.data = data
     return result
   }
 
   /**
-   * 更新列表数据
-   * @param {Array<Array<Number|String>>} tableList 
-   * @param {Object} options 数据列配置
-   * @returns {TableList} 当前实例
+   * update tableList
+   * @param {Array<Array<Number|String>>} tableList
+   * @param {Object} options
+   * @returns {TableList}
    */
   update(tableList, options = {}) {
     if (!this.isLegalData('list', tableList)) {
-      this.log.error('列表数据结构错误', tableList)
+      this.log.error('TableList: Illegal data', tableList)
     } else {
-      // 类内部用对象表示数据
+      // new dataset
       const updateData = tableList[0].map((header, index) => ({
         ...options[header],
         list: tableList.slice(1).map(row => row[index]),
         header,
       }))
-      // 覆盖已有数据或者追加新的数据
+      // override
       updateData.forEach(item => {
         const index = this.data.findIndex(({header}) => item.header === header)
         if (index !== -1) {
@@ -102,14 +97,14 @@ export default class TableList extends DataBase {
   }
 
   /**
-   * 追加列表的一行
-   * @param {Array<Number|String>} rows 一些数据行
-   * @returns {TableList} 添加后的列表数据长度
+   * append rows to the list
+   * @param {Array<Number|String>} rows
+   * @returns {Number} number of data length
    */
   push(...rows) {
     rows.forEach(row => {
       if (row.length !== this.data.length) {
-        this.log.error('数据长度与当前列表不匹配', row)
+        this.log.error('TableList: Illegal data', row)
       } else {
         row.forEach((value, i) => this.data[i].list.push(value))
       }
@@ -118,9 +113,9 @@ export default class TableList extends DataBase {
   }
 
   /**
-   * 删除列表数据
-   * @param {String|Array<String>} headers 数据列索引
-   * @returns 删除的数据列
+   * remove rows from the list
+   * @param {String|Array<String>} headers
+   * @returns row that has been deleted
    */
   remove(headers) {
     const removedList = []
@@ -135,9 +130,9 @@ export default class TableList extends DataBase {
   }
 
   /**
-   * 连接多个 TableList
+   * concat tableLists without changing previous data
    * @param {TableList} tableList
-   * @returns {TableList} 连接后新的列表示实例
+   * @returns {TableList} new tableList
    */
   concat(...tableLists) {
     const newTableList = cloneDeep(this)
@@ -155,8 +150,8 @@ export default class TableList extends DataBase {
   }
 
   /**
-   * 获取列表数值范围
-   * @returns {Array} 返回列表的最小值和最大值
+   * get data range of current tableList
+   * @returns {Array} min and max
    */
   range() {
     const minValue = d3.min(this.data.map(({list, min}) => d3.min([min, d3.min(list)])))

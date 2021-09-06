@@ -2,25 +2,24 @@ import * as d3 from 'd3'
 import {cloneDeep} from 'lodash'
 import DataBase from './base'
 
-// 定义操作对象
 const targetType = {
   ROW: 'row',
   COLUMN: 'column',
 }
 
-// 列表数据处理工具，内部 data 数据依次为行标签、列标签、数值
 export default class Table extends DataBase {
   constructor(table, options) {
     super(options)
+    // rows & columns & values
     this.data = [[], [], []]
     this.update(table, options)
   }
 
   /**
-   * 获取表格的子集
-   * @param {Array<String>} rows 行标签
-   * @param {Array<String>} columns 列标签
-   * @returns {Table} 新的表格对象
+   * get subset of the table without changing previous data
+   * @param {Array<String>} rows
+   * @param {Array<String>} columns
+   * @returns {Table} new table
    */
   select(rows, columns) {
     const _rows = Array.isArray(rows) ? rows : [rows]
@@ -33,25 +32,23 @@ export default class Table extends DataBase {
         data[2].push(this.data[2][columnsIndex[j]][rowsIndex[i]])
       }
     }
-    // HACK: 返回一个新的列表对象
+    // HACK: create a new table
     const result = new Table([[], [], []], this.options)
     result.data = cloneDeep(data)
     return result
   }
 
   /**
-   * 更新列表数据
+   * update table
    * @param {Array<Array<Number|String>>} table 
-   * @param {Object} options 数据列配置
+   * @param {Object} options
    */
   update(table) {
-    // 列表到表格的数据转换
     if (!this.isLegalData('table', table) && this.isLegalData('tableList', table)) {
       table = this.tableListToTable(table)
     }
-    // 校验是否符合规范
     if (!this.isLegalData('table', table)) {
-      this.log.error('表格数据结构错误', table)
+      this.log.error('Table: Illegal data', table)
     } else {
       this.data = table
     }
@@ -59,15 +56,15 @@ export default class Table extends DataBase {
   }
 
   /**
-   * 追加列表的一行
-   * @param {Array<Number|String>} data 一些数据项
-   * @returns {Table} 添加后的列表数据长度
+   * append items to the list
+   * @param {Array<Number|String>} data
+   * @returns {Table} number of data length
    */
   push(target = targetType.ROW, ...data) {
     data.forEach(item => {
       if ((target === targetType.ROW && item.length !== this.data[0].length)
         || (target === targetType.COLUMN && item.length !== this.data[1].length)) {
-        this.log.error('数据长度与当前列表不匹配')
+        this.log.error('Table: Illegal data')
       } else {
         data.forEach(([dimension, ...values]) => {
           if (target === targetType.ROW) {
@@ -84,9 +81,9 @@ export default class Table extends DataBase {
   }
 
   /**
-   * 删除列表数据
-   * @param {String|Array<String>} headers 数据列索引
-   * @returns 删除的数据列
+   * remove items from the list
+   * @param {String|Array<String>} headers
+   * @returns items that have been deleted
    */
   remove(target = targetType.ROW, ...data) {
     const removedList = []
@@ -103,8 +100,8 @@ export default class Table extends DataBase {
   }
 
   /**
-   * 获取列表数值范围
-   * @returns {Array} 返回列表的最小值和最大值
+   * get data range of current table
+   * @returns {Array} min and max
    */
   range() {
     const min = d3.min(this.data[2].map(row => d3.min(row)))
@@ -113,7 +110,7 @@ export default class Table extends DataBase {
   }
 
   /**
-   * 计算数值在列表内的相对大小
+   * calculate the relative size of the value in the list
    * @returns {Array}
    */
   sort() {
@@ -129,7 +126,7 @@ export default class Table extends DataBase {
         }
       }
     }
-    // 返回二维数组形式的排序顺序
+    // order data
     order.forEach((value, i) => result[Math.floor(value / column)][value % column] = i)
     return result
   }

@@ -7,18 +7,17 @@ import Random from '../data/random'
 import Relation from '../data/relation'
 import createLog from '../util/create-log'
 
-// 图层是否依赖其他图层
 const isAxisLayer = layerType => layerType === 'axis'
 const isLegendLayer = layerType => layerType === 'legend'
+// normal means independent
 const isNormalLayer = layerType => !isAxisLayer(layerType) && !isLegendLayer(layerType)
 const dataBase = new DataBase()
 const log = createLog('src/wave/create')
 
-// 根据配置创建一个图层
 const createLayer = (wave, config) => {
   const {type, options, data, scale, style, animation, event} = config
   const layer = wave.createLayer(type, {...options, layout: wave.layout[options.layout]})
-  // 数据结构判断
+  // data structure judgement
   let dataSet = data
   if (type === 'legend') {
     dataSet = wave.layer.filter(({instance}) => instance.data instanceof TableList).map(({instance}) => instance)
@@ -37,37 +36,35 @@ const createLayer = (wave, config) => {
       dataSet = new TableList(dataBase.isTableList(data) ? data : Random.tableList(data))
     }
   } 
-  // 设置图层的数据，第二个参数为比例尺配置
   layer.setData(dataSet, {nice: scale})
-  // 设置图层的样式
   layer.setStyle(style)
-  // 设置图层的事件
-  event && Object.keys(event).forEach(eventName => layer.event.on(eventName, event[eventName]))
-  // 设置图层的动画
   layer.setAnimation(animation)
+  event && Object.keys(event).forEach(eventName => {
+    layer.event.on(eventName, event[eventName])
+  })
   return layer
 }
 
-// 根据配置创建一个新的图表
+// create a wave by schema
 const createWave = (schema, existedWave) => {
   const {brush, layers, ...initialConfig} = schema
   const wave = existedWave || new Wave(initialConfig)
-  // 有些层比较特殊，需要依赖其他图层的数据或者比例尺
+  // some special layers require data or scales from other layers
   const normalLayerConfigs = layers.filter(({type}) => isNormalLayer(type))
   const axisLayerConfig = layers.find(({type}) => isAxisLayer(type))
   const legendLayerConfig = layers.find(({type}) => isLegendLayer(type))
-  // 图层实例
+  // layer instance
   const normalLayers = normalLayerConfigs.map(layer => createLayer(wave, layer))
   const axisLayer = axisLayerConfig && createLayer(wave, axisLayerConfig)
-  // 坐标轴层会对现有图层进行比例尺融合
+  // axis layer control all scales
   axisLayerConfig && wave.bindCoordinate(axisLayer, normalLayers)
-  // 最后绘制依赖其他图层的图例图层
+  // legend layer is the last one
   legendLayerConfig && createLayer(wave, legendLayerConfig)
-  // 根据 schema 配置的顺序进行绘制
+  // draw in order with schema
   layers.map(({options}) => wave.layer.find(({id}) => id === options.id).instance.draw())
-  // 绘制之后添加添加笔刷，然后是动画和 tooltip
+  // create brush after draw
   brush && wave.createBrush({...brush, layout: wave.layout[brush.layout]})
-  // 默认开启动画，后面改成由 wave 统一管理
+  // TODO: throw and give control to users
   setTimeout(() => wave.layer.map(({instance}) => instance.playAnimation()))
   return wave
 }

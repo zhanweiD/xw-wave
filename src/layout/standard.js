@@ -1,4 +1,3 @@
-// 计算布局信息
 const getStandardLayout = brush => ({containerWidth, containerHeight, padding}) => {
   const brushHeight = brush ? containerHeight / 10 : 0
   const heightWithoutBrush = containerHeight - brushHeight
@@ -34,7 +33,6 @@ const getStandardLayout = brush => ({containerWidth, containerHeight, padding}) 
       right: containerWidth - padding[1],
     },
   }
-  // 计算衍生数据
   Object.keys(layout).forEach(area => {
     const {top, bottom, left, right} = layout[area]
     layout[area].width = right - left
