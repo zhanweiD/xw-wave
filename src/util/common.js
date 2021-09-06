@@ -1,7 +1,3 @@
-/**
- * some tinny functions that will be used by other functions
- */
-
 import chroma from 'chroma-js'
 import * as d3 from 'd3'
 
