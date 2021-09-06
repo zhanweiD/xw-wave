@@ -30,7 +30,7 @@ const coordinateType = {
   GEOGRAPHIC: 'geographic',
 }
 
-// 图表类主要用于管理图层
+// layer manager
 export default class Wave {
   #state = null
 
@@ -280,7 +280,6 @@ export default class Wave {
     }
   }
 
-  // redraw all layers
   draw(recalculate = false) {
     this.#layer.forEach(({instance}) => {
       recalculate && instance.setData()
@@ -289,7 +288,6 @@ export default class Wave {
     })
   }
 
-  // destroy all layers
   destroy() {
     this.#state = stateType.DESTROY
     while (this.#layer.length !== 0) {

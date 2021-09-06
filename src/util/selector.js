@@ -29,15 +29,6 @@ export default class Seletor {
     }
   }
 
-  setClassName(target, className) {
-    if (this.engine === engineType.SVG) {
-      target.attr('class', className)
-    }
-    if (this.engine === engineType.CANVAS) {
-      target.className = className
-    }
-  }
-
   getFirstChildByClassName(target, className) {
     if (this.engine === engineType.SVG) {
       const result = target.selectAll(`.${className}`)
@@ -50,12 +41,13 @@ export default class Seletor {
     return []
   }
 
-  createSubContainer(target) {
+  createSubContainer(target, className) {
     if (this.engine === engineType.SVG) {
-      return target.append('g')
+      return target.append('g').attr('class', className)
     }
     if (this.engine === engineType.CANVAS) {
       const group = new fabric.Group([], {subTargetCheck: true, hoverCursor: 'pointer'})
+      group.className = className
       target.addWithUpdate(group)
       return group
     }

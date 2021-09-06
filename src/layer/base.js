@@ -292,23 +292,20 @@ export default class LayerBase {
     const {engine} = selector
     // layer container preparation
     if (!this.root) {
-      this.root = selector.createSubContainer(this.options.root)
-      selector.setClassName(this.root, this.className)
+      this.root = selector.createSubContainer(this.options.root, this.className)
     }
     // sublayer container preparation
     const sublayerClassName = `${this.className}-${sublayer}`
     let sublayerContainer = selector.getFirstChildByClassName(this.root, sublayerClassName)
     if (!sublayerContainer) {
-      sublayerContainer = selector.createSubContainer(this.root)
-      selector.setClassName(sublayerContainer, sublayerClassName)
+      sublayerContainer = selector.createSubContainer(this.root, sublayerClassName)
     }
     // group container preparation: delete the redundant group in the last rendering
     for (let i = 0; i < Math.max(this.#backupData[sublayer].length, data.length); i++) {
       const groupClassName = `${sublayerClassName}-${i}`
       let groupContainer = selector.getFirstChildByClassName(sublayerContainer, groupClassName)
       if (i < data.length && !groupContainer) {
-        groupContainer = selector.createSubContainer(sublayerContainer)
-        selector.setClassName(groupContainer, groupClassName)
+        groupContainer = selector.createSubContainer(sublayerContainer, groupClassName)
       } else if (i >= data.length) {
         selector.remove(groupContainer)
       }
