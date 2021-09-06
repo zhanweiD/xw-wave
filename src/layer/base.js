@@ -107,8 +107,8 @@ export default class LayerBase {
     const scale = {nice}
     // the naming of the scale is fixed
     scaleTypes.forEach(type => {
-      // due to the axis layer control all the scale which from different layer
-      // scales which generate by layer itself has lowest priority
+      // Due to the axis layer control all the scale which from different layer.
+      // Scales which generate by layer itself has lowest priority.
       scale[type] = incomingScale[type] || currentScale[type] || defaultScale[type]
       // the brush changed the range of current scale that need to be remembered
       if (currentScale[type]?.brushed) {
@@ -172,8 +172,8 @@ export default class LayerBase {
     } else if (position === positionType.RIGHTBOTTOM) {
       positionY += fontSize
     }
-    // relocate position according to the 'writingMode'
-    // but still has a problem: font height
+    // Relocate position according to the 'writingMode'.
+    // But still has a problem: font height
     if (writingMode === 'vertical') {
       positionX += textWidth / 2
       positionY += -fontSize
@@ -194,22 +194,31 @@ export default class LayerBase {
 
   // initialize mouse event
   #createEvent = () => {
-    const {tooltip} = this.options
+    const {tooltip, engine} = this.options
     this.#backupEvent = {
       common: {},
-      // tooltip event
       tooltip: {
-        mouseover: (event, data) => tooltip.update({data, backup: this.#backupData}).show().move(event),
-        mousemove: event => tooltip.move(event),
+        mouseover: (event, data) => {
+          tooltip.update({
+            backup: this.#backupData,
+            data: engine === 'svg' ? data : event.target,
+          })
+          tooltip.show()
+          tooltip.move(engine === 'svg' ? event : event.e)
+        },
+        mousemove: event => tooltip.move(engine === 'svg' ? event : event.e),
         mouseout: () => tooltip.hide(),
       },
     }
     // basic mouse event
-    commonEvents.forEach(eventType => {
-      this.#backupEvent.common[eventType] = {}
-      const events = this.#backupEvent.common[eventType]
+    commonEvents.forEach(type => {
+      this.#backupEvent.common[type] = {}
+      const events = this.#backupEvent.common[type]
       this.sublayers.forEach(sublayer => {
-        events[sublayer] = (event, data) => this.event.fire(`${eventType}-${sublayer}`, {event, data})
+        events[sublayer] = (event, data) => this.event.fire(`${type}-${sublayer}`, {
+          data: engine === 'svg' ? data : event.target,
+          event: engine === 'svg' ? event : event.e,
+        })
       })
     })
   }
@@ -231,7 +240,10 @@ export default class LayerBase {
     const {engine} = this.selector
     if (engine === 'svg') {
       const els = this.root.selectAll(`.wave-basic-${sublayer}`).style('cursor', 'pointer')
-      commonEvents.forEach(eventType => els.on(`${eventType}.common`, this.#backupEvent.common[eventType][sublayer]))
+      commonEvents.forEach(type => els.on(`${type}.common`, this.#backupEvent.common[type][sublayer]))
+    } else if (engine === 'canvas') {
+      const els = this.root.getObjects().filter(({className}) => className === `wave-basic-${sublayer}`)
+      commonEvents.forEach(type => els.forEach(el => el.on(type, this.#backupEvent.common[type][sublayer])))
     }
   }
 
@@ -240,7 +252,10 @@ export default class LayerBase {
     const {engine} = this.selector
     if (engine === 'svg' && this.tooltipTargets.find(key => key === sublayer)) {
       const els = this.root.selectAll(`.wave-basic-${sublayer}`)
-      tooltipEvents.forEach(eventType => els.on(`${eventType}.tooltip`, this.#backupEvent.tooltip[eventType]))
+      tooltipEvents.forEach(type => els.on(`${type}.tooltip`, this.#backupEvent.tooltip[type]))
+    } else if (engine === 'canvas' && this.tooltipTargets.find(key => key === sublayer)) {
+      const els = this.root.getObjects().filter(({className}) => className === `wave-basic-${sublayer}`)
+      tooltipEvents.forEach(type => els.forEach(el => el.on(type, this.#backupEvent.tooltip[type])))
     }
   }
 
@@ -332,10 +347,10 @@ export default class LayerBase {
       }
     }
     // new elements need to register events
+    this.#setEvent(sublayer)
+    this.#setTooltip(sublayer)
     if (this.selector.engine === 'svg') {
-      this.#setEvent(sublayer)
       this.#setAnimation(sublayer)
-      this.#setTooltip(sublayer)
     }
   }
 

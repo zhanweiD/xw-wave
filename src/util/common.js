@@ -3,7 +3,6 @@
  */
 
 import chroma from 'chroma-js'
-
 import * as d3 from 'd3'
 
 /**
@@ -39,7 +38,7 @@ export const mergeAlpha = (color, opacity) => {
  * @param {*} target 
  * @param {Number} index 
  * @param {*} defaultValue 
- * @returns 
+ * @returns
  */
 export const getAttr = (target, index, defaultValue = null) => {
   if (Array.isArray(target)) {

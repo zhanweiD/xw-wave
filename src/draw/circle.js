@@ -64,7 +64,7 @@ export default function drawCircle({
       .style('transform-origin', d => `${d.position[0]}px ${d.position[1]}px`)
   }
   if (engine === 'canvas') {
-    configuredData.forEach((config, i) => {
+    configuredData.forEach(config => {
       const ellipse = new fabric.Ellipse({
         className: config.className,
         rx: config.rx,
@@ -75,13 +75,11 @@ export default function drawCircle({
         stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
+        source: config.source,
+        selectable: false,
       })
       // 覆盖或追加
-      if (container.getObjects().length <= i) {
-        container.addWithUpdate(ellipse)
-      } else {
-        container.item(i).set(ellipse)
-      }
+      container.add(ellipse)
     })
   }
 }

@@ -67,6 +67,8 @@ export default function drawText({
       .text(d => d.text)
       .attr('x', d => d.x)
       .attr('y', d => d.y)
+      .attr('mask', d => d.mask)
+      .attr('filter', d => d.filter)
       .attr('fill', d => d.fill)
       .attr('stroke', d => d.stroke)
       .attr('stroke-width', d => d.strokeWidth)
@@ -77,15 +79,13 @@ export default function drawText({
       .attr('font-size', d => d.fontSize)
       .attr('font-weight', d => d.fontWeight)
       .attr('writing-mode', d => d.writingMode)
-      .attr('mask', d => d.mask)
-      .attr('filter', d => d.filter)
+      .style('text-shadow', d => d.textShadow)
       .style('transform', d => `rotate(${d.rotation}deg)`)
       .style('transform-origin', d => d.transformOrigin)
-      .style('text-shadow', d => d.textShadow)
       .style('pointer-events', 'none')
   }
   if (engine === 'canvas') {
-    configuredData.forEach((config, i) => {
+    configuredData.forEach(config => {
       const text = new fabric.Text(config.text, {
         className: config.className,
         left: config.x,
@@ -99,14 +99,12 @@ export default function drawText({
         opacity: config.opacity,
         shadow: config.textShadow,
         originY: 'bottom',
+        selectable: false,
+        evented: false,
       })
       text.rotate(config.rotation)
       // 覆盖或追加
-      if (container.getObjects().length <= i) {
-        container.addWithUpdate(text)
-      } else {
-        container.item(i).set(text)
-      }
+      container.add(text)
     })
   }
 }

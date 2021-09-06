@@ -58,20 +58,18 @@ export default function drawLine({
       .style('pointer-events', 'none')
   }
   if (engine === 'canvas') {
-    configuredData.forEach((config, i) => {
+    configuredData.forEach(config => {
       const line = new fabric.Line([config.x1, config.y1, config.x2, config.y2], {
         className: config.className,
         stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeDashArray: String(config.strokeDasharray).split(' '),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
+        source: config.source,
+        selectable: false,
       })
       // 覆盖或追加
-      if (container.getObjects().length <= i) {
-        container.addWithUpdate(line)
-      } else {
-        container.item(i).set(line)
-      }
+      container.add(line)
     })
   }
 }

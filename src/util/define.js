@@ -130,7 +130,7 @@ const createDefs = ({container, schema, engine}) => {
  * @param {String} engine 
  * @returns {String|fabric.Gradient}
  */
-const makeGradientCreator = (container, engine) => ({type, direction, colors, ...other}) => {
+export const makeGradientCreator = (container, engine) => ({type, direction, colors, ...other}) => {
   const id = uuid()
   createDefs({
     container,
@@ -148,7 +148,6 @@ const makeGradientCreator = (container, engine) => ({type, direction, colors, ..
       }],
       radialGradient: type === 'radial' && [{
         id,
-        r: 0,
         r2: 1,
         ...other,
         stops: colors.map((color, i) => ({
@@ -162,4 +161,3 @@ const makeGradientCreator = (container, engine) => ({type, direction, colors, ..
 }
 
 export default createDefs
-export {makeGradientCreator}

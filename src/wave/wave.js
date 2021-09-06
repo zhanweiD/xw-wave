@@ -23,10 +23,8 @@ const brushType = {
 }
 
 const coordinateType = {
-  CARTESIAN_BAND_LINEAR: 'cartesian-band-linear',
-  CARTESIAN_LINEAR_LINEAR: 'cartesian-linear-linear',
-  POLAR_BAND_LINEAR: 'polar-band-linear',
-  CARTESIAN_POLAR: 'cartesian-polar',
+  POLAR: 'polar',
+  CARTESIAN: 'cartesian',
   GEOGRAPHIC: 'geographic',
 }
 
@@ -74,7 +72,7 @@ export default class Wave {
     baseFontSize = 1,
     engine = 'canvas',
     layout = Layout.standard(false),
-    coordinate = coordinateType.CARTESIAN_BAND_LINEAR,
+    coordinate = coordinateType.CARTESIAN,
   }) {
     // initialize some attr
     this.#state = stateType.INITILIZE
@@ -118,11 +116,9 @@ export default class Wave {
         .attr('height', this.containerHeight)
         .style('position', 'absolute')
       fabric.Object.prototype.objectCaching = false
-      const canvasRoot = new fabric.Canvas(canvas._groups[0][0], {selection: false})
-      this.#root = new fabric.Group([], {selectable: false, subTargetCheck: true})
+      this.#root = new fabric.Canvas(canvas._groups[0][0], {selection: false, hoverCursor: 'pointer'})
       this.#defs = []
-      canvasRoot.add(this.#root)
-      canvasRoot.defs = this.#defs
+      this.#root.defs = this.#defs
     }
     
     // initialize the layout
@@ -211,18 +207,18 @@ export default class Wave {
       const result = {}
       const {axis} = options
       // cartesian coordinate system
-      if (this.coordinate.search('cartesian') !== -1) {
+      if (this.coordinate.search(coordinateType.CARTESIAN) !== -1) {
         result.scaleX = scale.scaleX
         axis === 'main' && (result.scaleY = scale.scaleY)
         axis === 'minor' && (result.scaleYR = scale.scaleY)
       }
       // polar coordinate system
-      if (this.coordinate.search('polar') !== -1) {
+      if (this.coordinate.search(coordinateType.POLAR) !== -1) {
         result.scaleAngle = scale.scaleAngle
         result.scaleRadius = scale.scaleRadius
       }
       // geography coordinate system
-      if (this.coordinate.search('geographic') !== -1) {
+      if (this.coordinate.search(coordinateType.GEOGRAPHIC) !== -1) {
         result.scalePosition = scale.scalePosition
       }
       axisLayer.setData(null, result)
@@ -232,7 +228,7 @@ export default class Wave {
     layers.forEach(layer => {
       const scales = {...layer.scale, ...axisLayer.scale}
       // projection to normal scale
-      if (this.coordinate.search('geographic') !== -1) {
+      if (this.coordinate.search(coordinateType.GEOGRAPHIC) !== -1) {
         const scaleX = x => scales.scalePosition([x, 0])[0] - layer.options.layout.left
         const scaleY = y => scales.scalePosition([0, y])[1] - layer.options.layout.top
         layer.setData(null, {...scales, scaleX, scaleY})
