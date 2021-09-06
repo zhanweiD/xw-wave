@@ -32,22 +32,25 @@ export default class TitleDLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {left, top, height, right} = this.options.layout
-    const {leftIcon, mainColor, minorColor, circleSize} = this.#style
-    const [bigWidth, bigHeight] = [height * 0.35, height * 0.7]
-    const [smallWidth, smallHeight] = [height * 0.2, height * 0.4]
+    const {leftIcon, mainColor, minorColor, circleSize, arrow} = this.#style
+    const {strokeWidth} = arrow
+    // left width & left height
+    const [lw, lh] = [height * 0.35, height * 0.7]
+    // right width & right height
+    const [rw, rh] = [height * 0.2, height * 0.4]
     // arrows
     this.#arrowData = leftIcon === 'arrow' ? [{
-      points: createArrow(left, top + (height - bigHeight) / 2, bigWidth, bigHeight, 'left'),
+      points: createArrow(left + strokeWidth, top + (height - lh) / 2, lw, lh, 'left'),
       stroke: mainColor,
     }, {
-      points: createArrow(left + bigWidth, top + (height - bigHeight) / 2, bigWidth, bigHeight, 'left'),
+      points: createArrow(left + strokeWidth + lw, top + (height - lh) / 2, lw, lh, 'left'),
       stroke: mainColor,
     }] : []
     this.#arrowData.push({
-      points: createArrow(right - smallWidth * 2, top + (height - smallHeight) / 2, smallWidth, smallHeight, 'right'),
+      points: createArrow(right - strokeWidth - rw * 2, top + (height - rh) / 2, rw, rh, 'right'),
       stroke: minorColor,
     }, {
-      points: createArrow(right - smallWidth, top + (height - smallHeight) / 2, smallWidth, smallHeight, 'right'),
+      points: createArrow(right - strokeWidth - rw, top + (height - rh) / 2, rw, rh, 'right'),
       stroke: minorColor,
     })
     // point

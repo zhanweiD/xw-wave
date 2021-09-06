@@ -45,4 +45,5 @@ export default {
   titleC: (container, theme) => createSchema(container, theme, 'titleC'),
   titleD1: (container, theme) => createSchema(container, theme, 'titleD', {leftIcon: 'arrow'}),
   titleD2: (container, theme) => createSchema(container, theme, 'titleD', {leftIcon: 'point'}),
+  titleE: (container, theme) => createSchema(container, theme, 'titleE', {}),
 }
