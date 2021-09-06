@@ -57,7 +57,7 @@ export default function drawCurve({
       .attr('mask', d => d.mask)
   }
   if (engine === 'canvas') {
-    configuredData.forEach((config, i) => {
+    configuredData.forEach(config => {
       const path = new fabric.Path(config.path, {
         className: config.className,
         fill: null,
@@ -65,13 +65,11 @@ export default function drawCurve({
         strokeDashArray: String(config.strokeDasharray).trim().split(' ').map(Number),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
+        source: config.source,
+        selectable: false,
       })
       // 覆盖或追加
-      if (container.getObjects().length <= i) {
-        container.addWithUpdate(path)
-      } else {
-        container.item(i).set(path)
-      }
+      container.add(path)
     })
   }
 }

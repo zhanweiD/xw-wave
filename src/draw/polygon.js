@@ -59,20 +59,18 @@ export default function drawPolygon({
       .style('transform-origin', d => `${d.position[0]}px ${d.position[1]}px`)
   }
   if (engine === 'canvas') {
-    configuredData.forEach((config, i) => {
-      const rect = new fabric.Polygon(config.pointArray, {
+    configuredData.forEach(config => {
+      const polygon = new fabric.Polygon(config.pointArray, {
         className: config.className,
         fill: mergeAlpha(config.fill, config.fillOpacity),
         stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
+        source: config.source,
+        selectable: false,
       })
       // 覆盖或追加
-      if (container.getObjects().length <= i) {
-        container.addWithUpdate(rect)
-      } else {
-        container.item(i).set(rect)
-      }
+      container.add(polygon)
     })
   }
 }

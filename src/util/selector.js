@@ -3,7 +3,6 @@
  */
 
 import {select} from 'd3'
-import {fabric} from 'fabric'
 import createLog from './create-log'
 
 const engineType = {
@@ -29,46 +28,25 @@ export default class Seletor {
     }
   }
 
-  setClassName(target, className) {
-    if (this.engine === engineType.SVG) {
-      target.attr('class', className)
-    }
-    if (this.engine === engineType.CANVAS) {
-      target.className = className
-    }
-  }
-
   getFirstChildByClassName(target, className) {
     if (this.engine === engineType.SVG) {
       const result = target.selectAll(`.${className}`)
       return result.size() > 0 ? select(result._groups[0][0]) : null
     }
-    if (this.engine === engineType.CANVAS) {
-      const result = target.getObjects().filter(child => child.className === className)
-      return result.length > 0 ? result[0] : null
-    }
-    return []
+    return target
   }
 
-  createSubContainer(target) {
+  createSubContainer(target, className) {
     if (this.engine === engineType.SVG) {
-      return target.append('g')
+      return target.append('g').attr('class', className)
     }
-    if (this.engine === engineType.CANVAS) {
-      const group = new fabric.Group([])
-      target.addWithUpdate(group)
-      return group
-    }
-    return null
+    return target
   }
 
   remove(target) {
     if (this.engine === engineType.SVG) {
       return target.remove()
     }
-    if (this.engine === engineType.CANVAS) {
-      return target.group.remove(target)
-    }
-    return null
+    return target
   }
 }

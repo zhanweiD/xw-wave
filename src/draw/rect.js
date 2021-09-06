@@ -66,7 +66,7 @@ export default function drawText({
       .style('transform-origin', d => d.transformOrigin)
   }
   if (engine === 'canvas') {
-    configuredData.forEach((config, i) => {
+    configuredData.forEach(config => {
       const rect = new fabric.Rect({
         className: config.className,
         top: config.y,
@@ -77,13 +77,11 @@ export default function drawText({
         stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
+        source: config.source,
+        selectable: false,
       })
       // 覆盖或追加
-      if (container.getObjects().length <= i) {
-        container.addWithUpdate(rect)
-      } else {
-        container.item(i).set(rect)
-      }
+      container.add(rect)
     })
   }
 }

@@ -287,13 +287,6 @@ export default class TitleALayer extends LayerBase {
     this.drawBasic('curve', centerStreamerData, 'centerStreamer')
   }
 
-  #findAnimationTargets = sublayer => {
-    const container = this.root.getObjects().find(obj => obj.className === `${this.className}-${sublayer}`)
-    const groups = container.getObjects().map(obj => obj.getObjects())
-    const els = groups.reduce((prev, cur) => [...prev, ...cur], [])
-    return els
-  }
-
   // only for canvas
   playAnimation() {
     if (this.options.engine !== 'canvas') {
@@ -309,7 +302,7 @@ export default class TitleALayer extends LayerBase {
       duration: 3000,
       delay: 1000,
       color: chroma(mainColor).mix('#fff').brighten(),
-      targets: this.#findAnimationTargets('sideStreamer'),
+      targets: this.root.getObjects().filter(obj => obj.className === 'wave-basic-sideStreamer'),
       setTimer: timer => this.#animationTimer.side = timer,
       headEase: easeQuadOut,
       tailEase: easeQuadIn,
@@ -319,7 +312,7 @@ export default class TitleALayer extends LayerBase {
       duration: 1000,
       endDelay: 3000,
       color: chroma(mainColor).mix('#fff').brighten(),
-      targets: this.#findAnimationTargets('centerStreamer'),
+      targets: this.root.getObjects().filter(obj => obj.className === 'wave-basic-centerStreamer'),
       setTimer: timer => this.#animationTimer.center = timer,
       headEase: easePolyIn.exponent(2),
       tailEase: easePolyIn.exponent(3.5),
@@ -374,7 +367,7 @@ export default class TitleALayer extends LayerBase {
         target.strokeDashArray = strokeDashArray
       })
       // render and start next loop
-      this.root.canvas.renderAll()
+      this.root.renderAll()
       const isNextTimeCycle = Math.abs(time) < 10 ** -8 || Math.abs(time - duration) < 10 ** -8
       setTimer(setTimeout(animate, isNextTimeCycle ? endDelay + delay : timeStep))
     }

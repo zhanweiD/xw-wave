@@ -64,23 +64,21 @@ export default function drawArc({
       .style('outline', 'none')
   }
   if (engine === 'canvas') {
-    configuredData.forEach((config, i) => {
+    configuredData.forEach(config => {
       const path = new fabric.Path(config.path, {
         className: config.className,
         fill: mergeAlpha(config.fill, config.fillOpacity),
         stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
+        source: config.source,
+        selectable: false,
       })
       // 整体位移
       path.left += config.position[0]
       path.top += config.position[1]
       // 覆盖或追加
-      if (container.getObjects().length <= i) {
-        container.addWithUpdate(path)
-      } else {
-        container.item(i).set(path)
-      }
+      container.add(path)
     })
   }
 }
