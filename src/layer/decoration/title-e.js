@@ -107,7 +107,7 @@ export default class TitleDLayer extends LayerBase {
       ...this.#style.rect,
     }]
     const lineData = [{
-      position: this.#lineData.map(({x1, x2, y1, y2}) => [x1, y1, x2, y2]),
+      data: this.#lineData.map(({x1, x2, y1, y2}) => [x1, y1, x2, y2]),
       stroke: this.#lineData.map(({stroke}) => stroke),
       ...this.#style.line,
     }]

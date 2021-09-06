@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../util/common'
 
-// 绘制一组曲线
+// draw a group of curve
 export default function drawCurve({
   engine = 'svg',
   stroke = '#fff',
@@ -14,18 +14,18 @@ export default function drawCurve({
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
-  mapping = item => item, // 高级数据过滤函数
-  mask = null, // 遮罩
-  filter = null, // 滤镜
-  source = [], // 原始数据
-  position = [], // 位置 [[[x,y]]]
+  mapping = item => item,
+  mask = null,
+  filter = null,
+  source = [],
+  data = [], // [[[x, y]]]
   container,
   className,
 }) {
-  // 为每一个元素生成单独的配置 JSON 用于绘制
+  // make a path by points
   const lineGenerator = d3.line().x(d => d[0]).y(d => d[1])
   curve && lineGenerator.curve(d3[curve])
-  const configuredData = position.map((data, i) => ({
+  const configuredData = data.map((points, i) => ({
     className,
     stroke: getAttr(stroke, i),
     opacity: getAttr(opacity, i),
@@ -35,7 +35,7 @@ export default function drawCurve({
     filter: getAttr(filter, i),
     mask: getAttr(mask, i),
     strokeDasharray: getAttr(dasharray, i),
-    path: lineGenerator(data),
+    path: lineGenerator(points),
   }))
   if (engine === 'svg') {
     container.selectAll(`.${className}`)
@@ -68,7 +68,6 @@ export default function drawCurve({
         source: config.source,
         selectable: false,
       })
-      // 覆盖或追加
       container.add(path)
     })
   }

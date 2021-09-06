@@ -6,7 +6,7 @@ const writingModeMapping = {
   vertical: 'vertical-rl',
 }
 
-// 绘制一组文本
+// draw a group of text
 export default function drawText({
   engine = 'svg',
   fontFamily = '',
@@ -20,20 +20,19 @@ export default function drawText({
   strokeOpacity = 1,
   rotation = 0,
   textShadow = '2px 2px 2px rgba(0,0,0,0)',
-  writingMode = 'horizontal', // 文字方向 enumeration ['horizontal', 'vertical']
-  transformOrigin = null, // 影响动画和旋转
+  writingMode = 'horizontal', // 'horizontal' or 'vertical'
+  transformOrigin = null,
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
-  mapping = item => item, // 高级数据过滤函数
-  mask = null, // 遮罩
-  filter = null, // 滤镜
-  data = [], // 文字数据
-  position = [], // 直角坐标系坐标数据
-  container, // 容器父节点
-  className, // 用于定位 
+  mapping = item => item,
+  mask = null,
+  filter = null,
+  data = [], // array of string
+  position = [], // [[x, y]]
+  container,
+  className,
 }) {
-  // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((text, i) => ({
     text,
     className,
@@ -103,7 +102,6 @@ export default function drawText({
         evented: false,
       })
       text.rotate(config.rotation)
-      // 覆盖或追加
       container.add(text)
     })
   }

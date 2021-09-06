@@ -172,19 +172,19 @@ export default class LineLayer extends LayerBase {
   // 绘制
   draw() {
     const curveData = this.#curveData[0].map(({color}, index) => {
-      const position = this.#curveData.map(item => [
+      const data = this.#curveData.map(item => [
         item[index].x, 
         isNumber(item[index].value) && item[index].y,
       ])
-      return {position: this.#fallbackFilter(position), ...this.#style.curve, stroke: color}
+      return {data: this.#fallbackFilter(data), ...this.#style.curve, stroke: color}
     })
     const areaData = this.#areaData[0].map(({color}, index) => {
-      const position = this.#areaData.map(item => [
+      const data = this.#areaData.map(item => [
         item[index].x, 
         isNumber(item[index].value) && item[index].y0, 
         item[index].y1,
       ])
-      return {position: this.#fallbackFilter(position), ...this.#style.area, fill: color}
+      return {data: this.#fallbackFilter(data), ...this.#style.area, fill: color}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)

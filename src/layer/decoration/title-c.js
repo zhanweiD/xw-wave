@@ -101,7 +101,7 @@ export default class TitleCLayer extends LayerBase {
       ...this.#style.circle,
     }]
     const lineData = [{
-      position: [this.#lineData.points],
+      data: [this.#lineData.points],
       stroke: this.#lineData.stroke,
       ...this.#style.line,
     }]

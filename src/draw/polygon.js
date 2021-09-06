@@ -2,28 +2,27 @@ import {isArray} from 'lodash'
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../util/common'
 
-// 绘制一组多边形
+// draw a group of polygon
 export default function drawPolygon({
   engine = 'svg',
-  fill = '#fff', // 颜色
-  stroke = '#fff', // 描边
-  strokeWidth = 0, // 描边粗细
-  opacity = 1, // 不透明度
+  fill = '#fff',
+  stroke = '#fff',
+  strokeWidth = 0,
+  opacity = 1,
   fillOpacity = 1,
   strokeOpacity = 1,
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
-  mapping = item => item, // 高级数据过滤函数
-  mask = null, // 遮罩
-  filter = null, // 滤镜
-  source = [], // 原始数据
-  data = [], // 多边形二维坐标点
-  position = [], // 位置信息
-  container, // 容器父节点
-  className, // 用于定位
+  mapping = item => item,
+  mask = null,
+  filter = null,
+  source = [],
+  data = [], // [[[pointX, pointY]]]
+  position = [], // [[offsetX, offsetY]]
+  container,
+  className,
 }) {
-  // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((points, i) => ({
     className,
     fill: getAttr(fill, i),
@@ -69,7 +68,6 @@ export default function drawPolygon({
         source: config.source,
         selectable: false,
       })
-      // 覆盖或追加
       container.add(polygon)
     })
   }

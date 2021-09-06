@@ -158,7 +158,7 @@ export default class GaugeLayer extends LayerBase {
 
   draw() {
     const pointerData = [{
-      position: [[this.#pointerData.x1, this.#pointerData.y1, this.#pointerData.x2, this.#pointerData.y2]],
+      data: [[this.#pointerData.x1, this.#pointerData.y1, this.#pointerData.x2, this.#pointerData.y2]],
       ...this.#style.pointer,
     }]
     const circleData = [{
@@ -173,7 +173,7 @@ export default class GaugeLayer extends LayerBase {
       return {data, position, ...this.#style.arc, fill: color}
     })
     const lineData = [{
-      position: this.#lineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
+      data: this.#lineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
       ...this.#style.line,
     }]
     const labelText = this.#lineData.map(({labelTextData}) => labelTextData && ({

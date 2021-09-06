@@ -131,7 +131,7 @@ export default class EdgeBundleLayer extends LayerBase {
       return {data, position, source, ...this.#style.circle, fill}
     })
     const curveData = this.#curveData.map(({x1, y1, x2, y2, curveX, curveY, color}) => ({
-      position: [[[x1, y1], [curveX, curveY], [x2, y2]]],
+      data: [[[x1, y1], [curveX, curveY], [x2, y2]]],
       ...this.#style.curve,
       stroke: color,
     }))

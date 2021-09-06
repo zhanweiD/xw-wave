@@ -242,7 +242,7 @@ export default class AxisLayer extends LayerBase {
   draw() {
     const {scaleX, scaleXT, scaleY, scaleYR} = this.#scale
     const transformLineData = key => [{
-      position: this.#lineData[key].map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
+      data: this.#lineData[key].map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
       ...this.#style[key],
     }]
     const transformRadiusData = key => [{

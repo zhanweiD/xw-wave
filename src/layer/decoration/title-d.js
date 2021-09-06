@@ -64,7 +64,7 @@ export default class TitleDLayer extends LayerBase {
 
   draw() {
     const arrowData = [{
-      position: this.#arrowData.map(({points}) => points),
+      data: this.#arrowData.map(({points}) => points),
       stroke: this.#arrowData.map(({stroke}) => stroke),
       ...this.#style.arrow,
     }]

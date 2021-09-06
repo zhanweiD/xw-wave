@@ -3,7 +3,7 @@ import {isArray} from 'lodash'
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../util/common'
 
-// 绘制一组圆弧
+// draw a group of arc
 export default function drawArc({
   engine = 'svg',
   fill = '#fff',
@@ -15,16 +15,15 @@ export default function drawArc({
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
-  mapping = item => item, // 高级数据过滤函数
-  mask = null, // 遮罩
-  filter = null, // 滤镜
-  source = [], // 原始数据
-  data = [], // 圆弧出入角和内外半径数据
-  position = [], // 圆心位置
-  container, // 容器父节点
-  className, // 用于定位
+  mapping = item => item,
+  mask = null,
+  filter = null,
+  source = [],
+  data = [], // [[startAngle, endAngle, innerRadius, outerRadius]]
+  position = [], // [[centerX, centerY]]
+  container,
+  className,
 }) {
-  // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((value, i) => {
     const [startAngle, endAngle, innerRadius, outerRadius] = value
     const arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius)
@@ -74,10 +73,8 @@ export default function drawArc({
         source: config.source,
         selectable: false,
       })
-      // 整体位移
       path.left += config.position[0]
       path.top += config.position[1]
-      // 覆盖或追加
       container.add(path)
     })
   }

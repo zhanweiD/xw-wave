@@ -110,7 +110,7 @@ export default class AuxiliaryLayer extends LayerBase {
   // 绘制
   draw() {
     const lineData = [{
-      position: this.#lineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
+      data: this.#lineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
       ...this.#style.line,
     }]
     const textData = [{

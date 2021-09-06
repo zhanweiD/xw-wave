@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../util/common'
 
-// 绘制一组面积
+// draw a group of area
 export default function drawArea({
   engine = 'svg',
   fill = '#fff',
@@ -15,18 +15,18 @@ export default function drawArea({
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
-  mapping = item => item, // 高级数据过滤函数
-  mask = null, // 遮罩
-  filter = null, // 滤镜
-  source = [], // 原始数据
-  position = [], // 位置 [[[x,y0,y1]]]
+  mapping = item => item,
+  mask = null,
+  filter = null,
+  source = [],
+  data = [], // [[[x, y0, y1]]]
   container,
   className,
 }) {
-  // 为每一个元素生成单独的配置 JSON 用于绘制
+  // make a path by points
   const areaGenerator = d3.area().x(d => d[0]).y0(d => d[1]).y1(d => d[2])
   curve && areaGenerator.curve(d3[curve])
-  const configuredData = position.map((data, i) => ({
+  const configuredData = data.map((points, i) => ({
     className,
     fill: getAttr(fill, i),
     stroke: getAttr(stroke, i),
@@ -37,7 +37,7 @@ export default function drawArea({
     source: getAttr(source, i),
     filter: getAttr(filter, i),
     mask: getAttr(mask, i),
-    path: areaGenerator(data),
+    path: areaGenerator(points),
   }))
   if (engine === 'svg') {
     container.selectAll(`.${className}`)
@@ -69,7 +69,6 @@ export default function drawArea({
         source: config.source,
         selectable: false,
       })
-      // 覆盖或追加
       container.add(path)
     })
   }

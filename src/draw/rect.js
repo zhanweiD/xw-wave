@@ -2,29 +2,28 @@ import {isArray} from 'lodash'
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../util/common'
 
-// 绘制一组矩形
-export default function drawText({
+// draw a group of rect
+export default function drawRect({
   engine = 'svg',
-  fill = '#fff', // 可以是数组定义渐变色
-  stroke = '#fff', // 可以是数组定义渐变色
+  fill = '#fff',
+  stroke = '#fff',
   strokeWidth = 0,
   opacity = 1,
   fillOpacity = 1,
   strokeOpacity = 1,
-  transformOrigin = 'center', // 影响动画和旋转
+  transformOrigin = 'center',
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
-  mapping = item => item, // 高级数据过滤函数
-  mask = null, // 遮罩
-  filter = null, // 滤镜
-  source = [], // 原始数据
-  data = [], // 矩形宽高数据
-  position = [], // 直角坐标系坐标数据
-  container, // 容器父节点
-  className, // 用于定位
+  mapping = item => item,
+  mask = null,
+  filter = null,
+  source = [],
+  data = [], // [[width, height]]
+  position = [], // [[x, y]]
+  container,
+  className,
 }) {
-  // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((size, i) => {
     return {
       className,
@@ -80,7 +79,6 @@ export default function drawText({
         source: config.source,
         selectable: false,
       })
-      // 覆盖或追加
       container.add(rect)
     })
   }

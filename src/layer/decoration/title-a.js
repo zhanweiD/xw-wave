@@ -231,40 +231,40 @@ export default class TitleALayer extends LayerBase {
     const polygonData = []
     // center area
     const areaData = [{
-      position: [this.#data.centerArea.points],
+      data: [this.#data.centerArea.points],
       fill: this.#data.centerArea.fill,
       curve: 'curveMonotoneX',
       ...this.#style.centerArea,
     }]
     // center line
     curveData.push({
-      position: [this.#data.centerLine.points],
+      data: [this.#data.centerLine.points],
       stroke: this.#data.centerLine.stroke,
       curve: 'curveMonotoneX',
       ...this.#style.centerLine,
     })
     // center streamer line
     const centerStreamerData = [{
-      position: this.#data.centerStreamer.map(({points}) => points),
+      data: this.#data.centerStreamer.map(({points}) => points),
       stroke: null,
       ...this.#style.centerLine,
     }]
     // side top lines
     curveData.push({
-      position: this.#data.topLines.map(item => item.points),
+      data: this.#data.topLines.map(item => item.points),
       stroke: this.#data.topLines.map(item => item.stroke),
       ...this.#style.topLine,
     })
     // side middle lines
     const middleLineData = [{
-      position: this.#data.middleLines.map(item => item.points),
+      data: this.#data.middleLines.map(item => item.points),
       stroke: this.#data.middleLines.map(item => item.stroke),
       ...this.#style.middleLine,
     }]
     curveData.push(...middleLineData)
     // side bottom lines
     curveData.push({
-      position: this.#data.bottomLines.map(item => item.points),
+      data: this.#data.bottomLines.map(item => item.points),
       stroke: this.#data.bottomLines.map(item => item.stroke),
       ...this.#style.bottomLine,
     })

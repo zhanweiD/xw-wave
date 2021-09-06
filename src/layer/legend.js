@@ -323,7 +323,7 @@ export default class LegendLayer extends LayerBase {
       stroke: this.#data.circleData.map(({stroke}) => stroke),
     }]
     const lineData = [{
-      position: this.#data.lineData.map(({x1, x2, y1, y2}) => [x1, y1, x2, y2]),
+      data: this.#data.lineData.map(({x1, x2, y1, y2}) => [x1, y1, x2, y2]),
       strokeWidth: this.#data.lineData.map(({strokeWidth}) => strokeWidth),
       dasharray: this.#data.lineData.map(({dasharray}) => dasharray),
       ...this.#style.shape,

@@ -229,7 +229,7 @@ export default class TreeLayer extends LayerBase {
       return {data, source, position, transformOrigin, fill, ...this.#style.rect}
     })
     const curveData = this.#curveData.map(groupData => ({
-      position: groupData.map(({x1, y1, x2, y2}) => [[x1, y1], [x2, y2]]),
+      data: groupData.map(({x1, y1, x2, y2}) => [[x1, y1], [x2, y2]]),
       ...this.#style.curve,
       stroke: groupData.map(({color}) => color),
     }))

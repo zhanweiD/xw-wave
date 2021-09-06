@@ -2,29 +2,28 @@ import {isArray} from 'lodash'
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../util/common'
 
-// 绘制一组自定义路径
+// draw a group of path
 export default function drawPath({
   engine = 'svg',
-  fill = '#fff', // 颜色
-  stroke = '#fff', // 描边
-  strokeWidth = 1, // 描边粗细
-  opacity = 1, // 不透明度
+  fill = '#fff',
+  stroke = '#fff',
+  strokeWidth = 1,
+  opacity = 1,
   fillOpacity = 1,
   strokeOpacity = 1,
-  transformOrigin = null, // 影响动画和旋转
+  transformOrigin = null,
   enableUpdateAnimation = false,
   updateAnimationDuration = 2000,
   updateAnimationDelay = 0,
-  mapping = item => item, // 高级数据过滤函数
-  mask = null, // 遮罩
-  filter = null, // 滤镜
-  source = [], // 原始数据
-  data = [], // 数据需要适配生成器
-  position = [0, 0], // 图形相对位移
-  container, // 容器父节点
-  className, // 用于定位
+  mapping = item => item,
+  mask = null,
+  filter = null,
+  source = [],
+  data = [], // array of string
+  position = [0, 0], // offset position
+  container,
+  className,
 }) {
-  // 为每一个元素生成单独的配置 JSON 用于绘制
   const configuredData = data.map((path, i) => ({
     className,
     fill: getAttr(fill, i),
@@ -71,10 +70,8 @@ export default function drawPath({
         source: config.source,
         selectable: false,
       })
-      // 整体位移
       path.left += config.position[0]
       path.top += config.position[1]
-      // 覆盖或追加
       container.add(path)
     })
   }

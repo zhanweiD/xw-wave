@@ -1,7 +1,7 @@
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../util/common'
 
-// 绘制一组直线
+// draw a group of line
 export default function drawLine({
   engine = 'svg',
   stroke = '#fff',
@@ -12,16 +12,15 @@ export default function drawLine({
   enableUpdateAnimation = false,
   updateAnimationDuration = 1000,
   updateAnimationDelay = 0,
-  mapping = item => item, // 高级数据过滤函数
-  mask = null, // 遮罩
-  filter = null, // 滤镜
-  source = [], // 原始数据
-  position = [], // 位置 [[x1,y1,x2,y2]]
+  mapping = item => item,
+  mask = null,
+  filter = null,
+  source = [],
+  data = [], // [[x1, y1, x2, y2]]
   container,
   className,
 }) {
-  // 为每一个元素生成单独的配置 JSON 用于绘制
-  const configuredData = position.map((data, i) => ({
+  const configuredData = data.map((points, i) => ({
     className,
     stroke: getAttr(stroke, i),
     opacity: getAttr(opacity, i),
@@ -31,10 +30,10 @@ export default function drawLine({
     filter: getAttr(filter, i),
     mask: getAttr(mask, i),
     strokeDasharray: getAttr(dasharray, i),
-    x1: data[0],
-    y1: data[1],
-    x2: data[2],
-    y2: data[3],
+    x1: points[0],
+    y1: points[1],
+    x2: points[2],
+    y2: points[3],
   }))
   if (engine === 'svg') {
     container.selectAll(`.${className}`)
@@ -68,7 +67,6 @@ export default function drawLine({
         source: config.source,
         selectable: false,
       })
-      // 覆盖或追加
       container.add(line)
     })
   }
