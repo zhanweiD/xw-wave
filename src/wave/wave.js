@@ -116,8 +116,8 @@ export default class Wave {
         .attr('height', this.containerHeight)
         .style('position', 'absolute')
       fabric.Object.prototype.objectCaching = false
-      this.#root = new fabric.Canvas(canvas.nodes()[0], {selection: false, hoverCursor: 'pointer'})
       this.#defs = []
+      this.#root = new fabric.Canvas(canvas.nodes()[0], {selection: false, hoverCursor: 'pointer'})
       this.#root.defs = this.#defs
     }
     
@@ -171,6 +171,7 @@ export default class Wave {
       root: this.#root,
       engine: this.#engine,
       tooltip: this.#tooltip,
+      container: this.#container,
       baseFontSize: this.baseFontSize,
       containerWidth: this.containerWidth,
       containerHeight: this.containerHeight,

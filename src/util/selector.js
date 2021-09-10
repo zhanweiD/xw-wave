@@ -45,7 +45,7 @@ export default class Seletor {
 
   remove(target) {
     if (this.engine === engineType.SVG) {
-      return target.remove()
+      return target?.remove()
     }
     return target
   }
