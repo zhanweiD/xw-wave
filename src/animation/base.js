@@ -24,9 +24,9 @@ export default class AnimationBase {
   createTargets(key, context) {
     const targets = this.options[key]
     if (targets && typeof targets === 'string') { // class
-      merge(this.options, {className: targets, [key]: context.selectAll(targets)._groups[0]})
+      merge(this.options, {className: targets, [key]: context.selectAll(targets).nodes()})
     } else if (targets && targets.constructor.name === 'Selection') {
-      merge(this.options, {[key]: targets._groups[0]})
+      merge(this.options, {[key]: targets.nodes()})
     }
   }
 

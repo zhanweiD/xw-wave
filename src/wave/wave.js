@@ -81,7 +81,7 @@ export default class Wave {
 
     // initialize the wave width and height
     if (adjust) {
-      const rect = this.#container._groups[0][0].getBoundingClientRect()
+      const rect = this.#container.nodes()[0].getBoundingClientRect()
       this.containerWidth = rect.width
       this.containerHeight = rect.height
     } else {
@@ -116,7 +116,7 @@ export default class Wave {
         .attr('height', this.containerHeight)
         .style('position', 'absolute')
       fabric.Object.prototype.objectCaching = false
-      this.#root = new fabric.Canvas(canvas._groups[0][0], {selection: false, hoverCursor: 'pointer'})
+      this.#root = new fabric.Canvas(canvas.nodes()[0], {selection: false, hoverCursor: 'pointer'})
       this.#defs = []
       this.#root.defs = this.#defs
     }

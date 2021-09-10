@@ -30,7 +30,7 @@ const createGradient = (parentNode, {id, direction}) => {
     .attr('y', direction === directionType.TOP ? '100%' : '0%')
     .attr('width', isHorizontal ? '0%' : '100%')
     .attr('height', isVertical ? '0%' : '100%')
-  return targets._groups[0]
+  return targets.nodes()
 }
 
 // 擦除动画效果可参考折线入场
