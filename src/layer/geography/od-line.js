@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
 import LayerBase from '../base'
 
-// 默认样式
 const defaultStyle = {
   odLine: {
     fillOpacity: 0,
@@ -12,7 +11,6 @@ const defaultStyle = {
   },
 }
 
-// 默认的动画配置
 const defaultAnimation = {
   flyingObject: {
     loop: {
@@ -66,7 +64,7 @@ export default class ODLineLayer extends LayerBase {
     return path.toString()
   }
 
-  // 传入二维表
+  // tableList
   setData(data, scales) {
     this.#data = data || this.#data
     const headers = this.#data.data.map(({header}) => header)
@@ -75,7 +73,7 @@ export default class ODLineLayer extends LayerBase {
     const fromYIndex = headers.findIndex(header => header === 'fromY')
     const toXIndex = headers.findIndex(header => header === 'toX')
     const toYIndex = headers.findIndex(header => header === 'toY')
-    // 初始化比例尺
+    // initialize scale
     this.#scale = this.createScale({}, this.#scale, scales)
     const {scaleX, scaleY} = this.#scale
     if (scaleX && scaleY) {
@@ -87,7 +85,7 @@ export default class ODLineLayer extends LayerBase {
             {category: 'from', value: `(${fromX},${fromY})`},
             {category: 'to', value: `(${toX},${toY})`},
           ],
-          // 地理坐标转化为 svg 坐标后计算 path
+          // geo coordinates => svg coordinates
           data: this.#getPath(position),
           position,
         }
@@ -95,17 +93,13 @@ export default class ODLineLayer extends LayerBase {
     }
   }
 
-  // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {path} = this.#style.flyingObject
-    // 有飞行物设置
     if (path) {
-      this.#flyingObjectData = this.#odLineData.map(({position}) => ({
-        transformOrigin: `${position.fromX}px ${position.fromY}px`,
-        data: path,
-      }))
-      // 路径动画配置
+      // has flying object
+      this.#flyingObjectData = this.#odLineData.map(() => ({data: path}))
+      // animation for flying object
       this.setAnimation(defaultAnimation)
     }
   }
@@ -118,8 +112,6 @@ export default class ODLineLayer extends LayerBase {
     }]
     const flyingObjectData = [{
       data: this.#flyingObjectData.map(({data}) => data),
-      transform: this.#flyingObjectData.map(({transform}) => transform),
-      transformOrigin: this.#flyingObjectData.map(({transformOrigin}) => transformOrigin),
       ...this.#style.flyingObject,
     }]
     this.drawBasic('path', odLineData, 'odLine')

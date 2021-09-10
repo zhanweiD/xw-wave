@@ -70,7 +70,7 @@ export default class Wave {
     define = {},
     tooltip = {},
     baseFontSize = 1,
-    engine = 'canvas',
+    engine = 'svg',
     layout = Layout.standard(false),
     coordinate = coordinateType.CARTESIAN,
   }) {
