@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import chroma from 'chroma-js'
 import {fabric} from 'fabric'
 import {easeQuadIn, easeQuadOut, easePolyIn} from 'd3'
@@ -82,30 +81,30 @@ export default class TitleALayer extends LayerBase {
     const {lineGap, mainColor, minorColor} = this.#style
     const sqrt3 = Math.sqrt(3)
     // left area
-    const [al_left, al_right, al_top, al_bottom] = [left, left + width * 0.4, top + height * 0.2, top + height * 0.8]
-    const [al_width, al_height] = [al_right - al_left, al_bottom - al_top]
+    const [alLeft, alRight, alTop, alBottom] = [left, left + width * 0.4, top + height * 0.2, top + height * 0.8]
+    const [alWidth, alHeight] = [alRight - alLeft, alBottom - alTop]
     // center area
-    const [ac_left, ac_right, ac_top, ac_bottom] = [left + width * 0.4, left + width * 0.6, top, top + height * 0.9]
-    const [ac_width, ac_height] = [ac_right - ac_left, ac_bottom - ac_top]
+    const [acLeft, acRight, acTop, acBottom] = [left + width * 0.4, left + width * 0.6, top, top + height * 0.9]
+    const [acWidth, acHeight] = [acRight - acLeft, acBottom - acTop]
     // left top line
     const leftTopLinePoints = [
-      [al_right - lineGap, al_top + al_height / 3 - lineGap / sqrt3],
-      [al_right - (al_height / 3) * 2 * sqrt3 - lineGap / sqrt3, al_bottom - lineGap],
-      [al_left, al_bottom - lineGap],
+      [alRight - lineGap, alTop + alHeight / 3 - lineGap / sqrt3],
+      [alRight - (alHeight / 3) * 2 * sqrt3 - lineGap / sqrt3, alBottom - lineGap],
+      [alLeft, alBottom - lineGap],
     ]
     // left middle line
     const leftMiddleLinePoints = [
-      [al_right - (al_height / 3) * sqrt3, al_top],
-      [al_right, al_top + al_height / 3],
-      [al_right - (al_height / 3) * 2 * sqrt3, al_bottom],
-      [al_left, al_bottom],
+      [alRight - (alHeight / 3) * sqrt3, alTop],
+      [alRight, alTop + alHeight / 3],
+      [alRight - (alHeight / 3) * 2 * sqrt3, alBottom],
+      [alLeft, alBottom],
     ]
     // left bottom line
     const leftBottomLinePoints = [
-      [al_right + ac_width / 3, al_top + al_height / 3 + (lineGap / sqrt3) * 2],
-      [al_right, al_top + al_height / 3 + (lineGap / sqrt3) * 2],
-      [al_right - (al_height / 3) * 2 * sqrt3 + lineGap / sqrt3, al_bottom + lineGap],
-      [al_left + al_width / 2, al_bottom + lineGap],
+      [alRight + acWidth / 3, alTop + alHeight / 3 + (lineGap / sqrt3) * 2],
+      [alRight, alTop + alHeight / 3 + (lineGap / sqrt3) * 2],
+      [alRight - (alHeight / 3) * 2 * sqrt3 + lineGap / sqrt3, alBottom + lineGap],
+      [alLeft + alWidth / 2, alBottom + lineGap],
     ]
     // right lines
     const rightTopLinePoints = this.#symmetricMapping(leftTopLinePoints)
@@ -159,15 +158,15 @@ export default class TitleALayer extends LayerBase {
     }]
     // left light parallelograms
     const leftLightParallelograms = [
-      createParallelogram(al_left + al_width * 0.65, al_top, al_width / 15, al_height),
-      createParallelogram(al_left + al_width * 0.75, al_top, al_width / 20, al_height),
+      createParallelogram(alLeft + alWidth * 0.65, alTop, alWidth / 15, alHeight),
+      createParallelogram(alLeft + alWidth * 0.75, alTop, alWidth / 20, alHeight),
     ]
     // left dark parallelograms
     const leftDarkParallelograms = [
-      createParallelogram(al_left + al_width * 0.2, al_top, al_width / 15, al_height),
-      createParallelogram(al_left + al_width * 0.2 + al_width / 16, al_top, al_width / 15, al_height),
-      createParallelogram(al_left + al_width * 0.6, al_top, al_width / 10, al_height),
-      createParallelogram(al_left + al_width * 0.6 + al_width / 11, al_top, al_width / 10, al_height),
+      createParallelogram(alLeft + alWidth * 0.2, alTop, alWidth / 15, alHeight),
+      createParallelogram(alLeft + alWidth * 0.2 + alWidth / 16, alTop, alWidth / 15, alHeight),
+      createParallelogram(alLeft + alWidth * 0.6, alTop, alWidth / 10, alHeight),
+      createParallelogram(alLeft + alWidth * 0.6 + alWidth / 11, alTop, alWidth / 10, alHeight),
     ]
     // right parallelograms
     const rightLightParallelograms = leftLightParallelograms.map(value => this.#symmetricMapping(value))
@@ -183,9 +182,9 @@ export default class TitleALayer extends LayerBase {
     const coords = {x1: 0.5, x2: 0.5, y1: 1, y2: 1, r: 0, r2: 0.4}
     this.#data.centerArea = {
       points: [
-        [ac_left + ac_width * 0, ac_top + ac_height, ac_top + ac_height],
-        [ac_left + ac_width * 0.5, ac_top + ac_height, ac_top],
-        [ac_left + ac_width * 1, ac_top + ac_height, ac_top + ac_height],
+        [acLeft + acWidth * 0, acTop + acHeight, acTop + acHeight],
+        [acLeft + acWidth * 0.5, acTop + acHeight, acTop],
+        [acLeft + acWidth * 1, acTop + acHeight, acTop + acHeight],
       ],
       fill: createGradient({
         type: 'radial',
@@ -196,9 +195,9 @@ export default class TitleALayer extends LayerBase {
     // center line
     this.#data.centerLine = {
       points: [
-        [ac_left, ac_top + ac_height],
-        [ac_left + ac_width / 2, ac_top + ac_height - this.#style.centerLine.strokeWidth / 2],
-        [ac_left + ac_width, ac_top + ac_height],
+        [acLeft, acTop + acHeight],
+        [acLeft + acWidth / 2, acTop + acHeight - this.#style.centerLine.strokeWidth / 2],
+        [acLeft + acWidth, acTop + acHeight],
       ],
       stroke: createGradient({
         type: 'linear', 
@@ -209,17 +208,17 @@ export default class TitleALayer extends LayerBase {
     // center streamer line
     this.#data.centerStreamer = [{
       points: [
-        [ac_left + ac_width / 2, ac_top + ac_height - this.#style.centerLine.strokeWidth / 2],
-        [ac_left, ac_top + ac_height],
+        [acLeft + acWidth / 2, acTop + acHeight - this.#style.centerLine.strokeWidth / 2],
+        [acLeft, acTop + acHeight],
       ],
     }, {
       points: [
-        [ac_left + ac_width / 2, ac_top + ac_height - this.#style.centerLine.strokeWidth / 2],
-        [ac_left + ac_width, ac_top + ac_height],
+        [acLeft + acWidth / 2, acTop + acHeight - this.#style.centerLine.strokeWidth / 2],
+        [acLeft + acWidth, acTop + acHeight],
       ],
     }]
     // streamer length
-    this.#streamerLength.center = ac_width / 2
+    this.#streamerLength.center = acWidth / 2
     leftMiddleLinePoints.reduce((prev, cur) => {
       this.#streamerLength.side += Math.sqrt((prev[0] - cur[0]) ** 2 + (prev[1] - cur[1]) ** 2)
       return cur

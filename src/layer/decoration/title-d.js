@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import LayerBase from '../base'
 import {createArrow} from '../../util/shape'
 

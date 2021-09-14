@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import chroma from 'chroma-js'
 import LayerBase from '../base'
 import {createHexagon} from '../../util/shape'
@@ -41,35 +40,35 @@ export default class TitleBLayer extends LayerBase {
     const {active, polygon, mainColor, minorColor} = this.#style
     const {strokeWidth} = polygon
     // polygon outter area
-    const [po_left, po_right, po_top, po_bottom] = [
+    const [poLeft, poRight, poTop, poBottom] = [
       left + strokeWidth, 
       left + (height / 2) * Math.sqrt(3) - strokeWidth, 
       top + strokeWidth,
       top + height - strokeWidth,
     ]
-    const [po_width, po_height] = [
-      po_right - po_left, 
-      po_bottom - po_top,
+    const [poWidth, poHeight] = [
+      poRight - poLeft, 
+      poBottom - poTop,
     ]
     // polygon inner area
-    const [pi_left, pi_right, pi_top, pi_bottom] = [
-      po_left + strokeWidth * 0.75, 
-      po_right - strokeWidth * 0.75, 
-      po_top + strokeWidth * 0.75, 
-      po_bottom - strokeWidth * 0.75,
+    const [piLeft, piRight, piTop, piBottom] = [
+      poLeft + strokeWidth * 0.75, 
+      poRight - strokeWidth * 0.75, 
+      poTop + strokeWidth * 0.75, 
+      poBottom - strokeWidth * 0.75,
     ]
-    const [pi_width, pi_height] = [
-      pi_right - pi_left, 
-      pi_bottom - pi_top,
+    const [piWidth, piHeight] = [
+      piRight - piLeft, 
+      piBottom - piTop,
     ]
     // polygons with order
     this.#polygonData = [{
-      points: createHexagon(po_left, po_top, po_width, po_height),
+      points: createHexagon(poLeft, poTop, poWidth, poHeight),
       stroke: chroma(mainColor),
       strokeWidth,
       fill: '#000',
     }, {
-      points: createHexagon(pi_left, pi_top, pi_width, pi_height),
+      points: createHexagon(piLeft, piTop, piWidth, piHeight),
       fill: active ? chroma(mainColor).darken(2) : '#000',
       stroke: chroma(mainColor).alpha(0),
       strokeWidth: 0,
@@ -77,35 +76,35 @@ export default class TitleBLayer extends LayerBase {
     // decoration lines
     this.#lineData = active ? [{
       stroke: chroma(mainColor).brighten(),
-      x1: po_left,
-      y1: po_top,
-      x2: po_left + 5,
-      y2: po_top + 5,
+      x1: poLeft,
+      y1: poTop,
+      x2: poLeft + 5,
+      y2: poTop + 5,
     }, {
       stroke: chroma(mainColor).brighten(),
-      x1: po_left,
-      y1: po_bottom,
-      x2: po_left + 5,
-      y2: po_bottom - 5,
+      x1: poLeft,
+      y1: poBottom,
+      x2: poLeft + 5,
+      y2: poBottom - 5,
     }, {
       stroke: chroma(mainColor).brighten(),
-      x1: po_right,
-      y1: po_top,
-      x2: po_right - 5,
-      y2: po_top + 5,
+      x1: poRight,
+      y1: poTop,
+      x2: poRight - 5,
+      y2: poTop + 5,
     }, {
       stroke: chroma(mainColor).brighten(),
-      x1: po_right,
-      y1: po_bottom,
-      x2: po_right - 5,
-      y2: po_bottom - 5,
+      x1: poRight,
+      y1: poBottom,
+      x2: poRight - 5,
+      y2: poBottom - 5,
     }] : []
     // rect area
     this.#rectData = {
-      x: po_left + po_width / 2,
-      y: po_top + strokeWidth,
+      x: poLeft + poWidth / 2,
+      y: poTop + strokeWidth,
       width,
-      height: po_height - strokeWidth * 2,
+      height: poHeight - strokeWidth * 2,
       fill: createGradient({
         type: 'linear',
         direction: 'horizontal',

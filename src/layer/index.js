@@ -27,6 +27,7 @@ import TitleB from './decoration/title-b'
 import TitleC from './decoration/title-c'
 import TitleD from './decoration/title-d'
 import TitleE from './decoration/title-e'
+import BorderA from './decoration/border-a'
 
 export const layerMapping = {
   arc: Arc, // 圆弧
@@ -53,6 +54,7 @@ export const layerMapping = {
   titleC: TitleC, // 标题装饰
   titleD: TitleD, // 标题装饰
   titleE: TitleE, // 标题装饰
+  borderA: BorderA, // 边框装饰
 }
 
 export default {
@@ -80,4 +82,5 @@ export default {
   TitleC, // 标题装饰
   TitleD, // 标题装饰
   TitleE, // 标题装饰
+  BorderA, // 边框装饰
 }
