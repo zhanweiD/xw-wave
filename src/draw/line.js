@@ -1,5 +1,5 @@
 import {fabric} from 'fabric'
-import {mergeAlpha, getAttr} from '../util/common'
+import {mergeAlpha, getAttr} from '../utils/common'
 
 // draw a group of line
 export default function drawLine({

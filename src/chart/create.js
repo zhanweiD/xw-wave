@@ -5,7 +5,7 @@ import TableList from '../data/table-list'
 import Table from '../data/table'
 import Random from '../data/random'
 import Relation from '../data/relation'
-import createLog from '../util/create-log'
+import createLog from '../utils/create-log'
 
 const isAxisLayer = layerType => layerType === 'axis'
 const isLegendLayer = layerType => layerType === 'legend'

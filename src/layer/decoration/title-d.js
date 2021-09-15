@@ -1,5 +1,5 @@
 import LayerBase from '../base'
-import {createArrow} from '../../util/shape'
+import {createArrow} from '../../utils/shape'
 
 const defaultStyle = {
   circleSize: 10,

@@ -1,5 +1,5 @@
 import {isArray, isNumber} from 'lodash'
-import {formatNumber} from '../../util/format'
+import {formatNumber} from '../../utils/format'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
 

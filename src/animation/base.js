@@ -1,9 +1,8 @@
 import {merge} from 'lodash'
-import createEvent from '../util/create-event'
-import createLog from '../util/create-log'
-import uuid from '../util/uuid'
+import createEvent from '../utils/create-event'
+import createLog from '../utils/create-log'
+import uuid from '../utils/uuid'
 
-// 动画基类
 export default class AnimationBase {
   constructor(defaultOptions, incomingOptions, context) {
     this.isAnimationStart = false

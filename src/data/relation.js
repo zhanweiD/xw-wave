@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import DataBase from './base'
-import {formatNumber} from '../util/format'
+import {formatNumber} from '../utils/format'
 
 export default class Relation extends DataBase {
   constructor(nodeTableList, linkTableList, options) {

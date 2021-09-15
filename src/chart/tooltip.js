@@ -1,5 +1,5 @@
 import {isEqual, isArray, merge} from 'lodash'
-import createLog from '../util/create-log'
+import createLog from '../utils/create-log'
 
 const modeType = {
   SINGLE: 'single',

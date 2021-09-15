@@ -1,7 +1,7 @@
 import {Children, useRef, useEffect, useState} from 'react'
 import {range} from 'd3'
 import c from 'classnames'
-import ThemeConfig from '../util/theme'
+import ThemeConfig from '../utils/theme'
 import columnSchema from './column'
 import pieSchema from './pie'
 import radarSchema from './radar'
@@ -17,7 +17,7 @@ import treemapSchema from './treemap'
 import packSchema from './pack'
 import mapSchema from './map'
 import decoSchema from './decoration'
-import {createWave} from '../wave'
+import {createWave} from '../chart'
 import s from './demo.module.css'
 
 const themeMapping = {

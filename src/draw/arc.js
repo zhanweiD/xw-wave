@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 import {isArray} from 'lodash'
 import {fabric} from 'fabric'
-import {mergeAlpha, getAttr} from '../util/common'
+import {mergeAlpha, getAttr} from '../utils/common'
 
 // draw a group of arc
 export default function drawArc({

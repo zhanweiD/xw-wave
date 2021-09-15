@@ -1,8 +1,8 @@
 import chroma from 'chroma-js'
 import {fabric} from 'fabric'
 import {easeQuadIn, easeQuadOut, easePolyIn} from 'd3'
-import {createParallelogram} from '../../util/shape'
-import {range} from '../../util/common'
+import {createParallelogram} from '../../utils/shape'
+import {range} from '../../utils/common'
 import LayerBase from '../base'
 
 const defaultStyle = {

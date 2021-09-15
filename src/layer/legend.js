@@ -1,8 +1,8 @@
 import {sum, max, range} from 'd3'
 import {cloneDeep} from 'lodash'
 import LayerBase from './base'
-import getTextWidth from '../util/text-width'
-import {formatNumber} from '../util/format'
+import getTextWidth from '../utils/text-width'
+import {formatNumber} from '../utils/format'
 
 // 对齐方式
 const alignType = {

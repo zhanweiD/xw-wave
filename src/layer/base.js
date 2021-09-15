@@ -1,11 +1,11 @@
 import {isArray, isEqual, merge} from 'lodash'
 import Animation from '../animation'
-import {formatNumber} from '../util/format'
-import getTextWidth from '../util/text-width'
-import createEvent from '../util/create-event'
-import Selector from '../util/selector'
+import {formatNumber} from '../utils/format'
+import getTextWidth from '../utils/text-width'
+import createEvent from '../utils/create-event'
+import createLog from '../utils/create-log'
+import Selector from '../utils/selector'
 import basicMapping from '../draw'
-import createLog from '../util/create-log'
 
 // text position attached to the point
 const positionType = {

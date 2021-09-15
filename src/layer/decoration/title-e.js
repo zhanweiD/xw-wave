@@ -1,7 +1,7 @@
 import chroma from 'chroma-js'
 import LayerBase from '../base'
-import {createParallelogram} from '../../util/shape'
-import {range} from '../../util/common'
+import {createParallelogram} from '../../utils/shape'
+import {range} from '../../utils/common'
 
 const defaultStyle = {
   mainColor: 'rgb(255,165,0)',

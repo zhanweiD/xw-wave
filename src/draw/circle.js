@@ -1,6 +1,6 @@
 import {fabric} from 'fabric'
 import {isArray} from 'lodash'
-import {mergeAlpha, getAttr} from '../util/common'
+import {mergeAlpha, getAttr} from '../utils/common'
 
 // draw a group of ellipse
 export default function drawCircle({

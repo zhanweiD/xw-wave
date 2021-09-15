@@ -1,6 +1,6 @@
 import chroma from 'chroma-js'
 import LayerBase from '../base'
-import {createHexagon} from '../../util/shape'
+import {createHexagon} from '../../utils/shape'
 
 const defaultStyle = {
   active: true,

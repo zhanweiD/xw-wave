@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import {fabric} from 'fabric'
-import {mergeAlpha, getAttr} from '../util/common'
+import {mergeAlpha, getAttr} from '../utils/common'
 
 // draw a group of curve
 export default function drawCurve({

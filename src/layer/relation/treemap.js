@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import LayerBase from '../base'
-import {overflowControl} from '../../util/format'
+import {overflowControl} from '../../utils/format'
 
 // 平铺方式（d3内置）
 const tileType = {

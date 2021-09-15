@@ -1,5 +1,5 @@
 import {merge} from 'lodash'
-import createLog from '../util/create-log'
+import createLog from '../utils/create-log'
 
 // not database but base class of data processor
 export default class DataBase {

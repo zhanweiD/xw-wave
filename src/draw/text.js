@@ -1,5 +1,5 @@
 import {fabric} from 'fabric'
-import {mergeAlpha, getAttr} from '../util/common'
+import {mergeAlpha, getAttr} from '../utils/common'
 
 const writingModeMapping = {
   horizontal: 'horizontal-tb',

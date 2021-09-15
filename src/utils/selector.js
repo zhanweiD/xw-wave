@@ -13,7 +13,7 @@ const engineType = {
 export default class Seletor {
   constructor(engine) {
     this.engine = engine
-    this.log = createLog('src/util/selector')
+    this.log = createLog('src/utils/selector')
     if (engine !== engineType.SVG && engine !== engineType.CANVAS) {
       this.log.error('Selector: Wrong engine type')
     }

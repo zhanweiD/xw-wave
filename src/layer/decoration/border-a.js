@@ -1,4 +1,4 @@
-import {createKnuckle} from '../../util/shape'
+import {createKnuckle} from '../../utils/shape'
 import LayerBase from '../base'
 
 const defaultStyle = {

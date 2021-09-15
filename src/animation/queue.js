@@ -7,7 +7,7 @@ import EmptyAnimation from './empty'
 import MoveAnimation from './move'
 import BreatheAnimation from './breathe'
 import EraseAnimation from './erase'
-import createUuid from '../util/uuid'
+import createUuid from '../utils/uuid'
 import PathAnimation from './path'
 
 const mapping = {
