@@ -1,7 +1,6 @@
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../utils/common'
 
-// draw a group of line
 export default function drawLine({
   engine = 'svg',
   stroke = '#fff',
@@ -36,7 +35,8 @@ export default function drawLine({
     y2: points[3],
   }))
   if (engine === 'svg') {
-    container.selectAll(`.${className}`)
+    container
+      .selectAll(`.${className}`)
       .data(configuredData.map(item => mapping(item)))
       .join('line')
       .attr('class', d => d.className)

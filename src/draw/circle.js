@@ -2,7 +2,6 @@ import {fabric} from 'fabric'
 import {isArray} from 'lodash'
 import {mergeAlpha, getAttr} from '../utils/common'
 
-// draw a group of ellipse
 export default function drawCircle({
   engine = 'svg',
   fill = '#fff',
@@ -41,7 +40,8 @@ export default function drawCircle({
     ry: size[1],
   }))
   if (engine === 'svg') {
-    container.selectAll(`.${className}`)
+    container
+      .selectAll(`.${className}`)
       .data(configuredData.map(item => mapping(item)))
       .join('ellipse')
       .attr('class', d => d.className)

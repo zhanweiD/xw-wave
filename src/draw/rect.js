@@ -2,7 +2,6 @@ import {isArray} from 'lodash'
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../utils/common'
 
-// draw a group of rect
 export default function drawRect({
   engine = 'svg',
   fill = '#fff',
@@ -44,7 +43,8 @@ export default function drawRect({
     }
   })
   if (engine === 'svg') {
-    container.selectAll(`.${className}`)
+    container
+      .selectAll(`.${className}`)
       .data(configuredData.map(item => mapping(item)))
       .join('rect')
       .attr('class', d => d.className)

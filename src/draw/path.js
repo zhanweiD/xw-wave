@@ -2,7 +2,6 @@ import {isArray} from 'lodash'
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../utils/common'
 
-// draw a group of path
 export default function drawPath({
   engine = 'svg',
   fill = '#fff',
@@ -40,7 +39,8 @@ export default function drawPath({
     path,
   }))
   if (engine === 'svg') {
-    container.selectAll(`.${className}`)
+    container
+      .selectAll(`.${className}`)
       .data(configuredData.map(item => mapping(item)))
       .join('path')
       .attr('class', d => d.className)

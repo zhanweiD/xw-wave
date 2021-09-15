@@ -70,5 +70,17 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "webpack --progress --config ./scripts/build.js  --mode production"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

@@ -6,7 +6,6 @@ const writingModeMapping = {
   vertical: 'vertical-rl',
 }
 
-// draw a group of text
 export default function drawText({
   engine = 'svg',
   fontFamily = '',
@@ -40,7 +39,7 @@ export default function drawText({
     fontFamily,
     fontWeight,
     x: position[i][0],
-    y: position[i][1],
+    y: position[i][1] + (engine === 'svg' ? -fontSize * 0.2 : fontSize * 0.2),
     fill: getAttr(fill, i),
     stroke: getAttr(stroke, i),
     opacity: getAttr(opacity, i),
@@ -54,9 +53,9 @@ export default function drawText({
     transformOrigin: getAttr(transformOrigin, i),
     writingMode: writingModeMapping[writingMode],
   }))
-
   if (engine === 'svg') {
-    container.selectAll(`.${className}`)
+    container
+      .selectAll(`.${className}`)
       .data(configuredData.map(item => mapping(item)))
       .join('text')
       .attr('class', d => d.className)

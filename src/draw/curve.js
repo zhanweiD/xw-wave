@@ -2,7 +2,6 @@ import * as d3 from 'd3'
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../utils/common'
 
-// draw a group of curve
 export default function drawCurve({
   engine = 'svg',
   stroke = '#fff',
@@ -23,7 +22,10 @@ export default function drawCurve({
   className,
 }) {
   // make a path by points
-  const lineGenerator = d3.line().x(d => d[0]).y(d => d[1])
+  const lineGenerator = d3
+    .line()
+    .x(d => d[0])
+    .y(d => d[1])
   curve && lineGenerator.curve(d3[curve])
   const configuredData = data.map((points, i) => ({
     className,
@@ -38,7 +40,8 @@ export default function drawCurve({
     path: lineGenerator(points),
   }))
   if (engine === 'svg') {
-    container.selectAll(`.${className}`)
+    container
+      .selectAll(`.${className}`)
       .data(configuredData.map(item => mapping(item)))
       .join('path')
       .attr('class', d => d.className)

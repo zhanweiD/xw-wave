@@ -3,7 +3,6 @@ import {isArray} from 'lodash'
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../utils/common'
 
-// draw a group of arc
 export default function drawArc({
   engine = 'svg',
   fill = '#fff',
@@ -43,7 +42,8 @@ export default function drawArc({
     }
   })
   if (engine === 'svg') {
-    container.selectAll(`.${className}`)
+    container
+      .selectAll(`.${className}`)
       .data(configuredData.map(item => mapping(item)))
       .join('path')
       .attr('class', d => d.className)

@@ -2,7 +2,6 @@ import {isArray} from 'lodash'
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../utils/common'
 
-// draw a group of polygon
 export default function drawPolygon({
   engine = 'svg',
   fill = '#fff',
@@ -39,7 +38,8 @@ export default function drawPolygon({
     position: isArray(position) && isArray(position[0]) ? position[i] : position,
   }))
   if (engine === 'svg') {
-    container.selectAll(`.${className}`)
+    container
+      .selectAll(`.${className}`)
       .data(configuredData.map(item => mapping(item)))
       .join('polygon')
       .attr('class', d => d.className)

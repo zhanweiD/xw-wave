@@ -2,7 +2,6 @@ import * as d3 from 'd3'
 import {fabric} from 'fabric'
 import {mergeAlpha, getAttr} from '../utils/common'
 
-// draw a group of area
 export default function drawArea({
   engine = 'svg',
   fill = '#fff',
@@ -24,7 +23,11 @@ export default function drawArea({
   className,
 }) {
   // make a path by points
-  const areaGenerator = d3.area().x(d => d[0]).y0(d => d[1]).y1(d => d[2])
+  const areaGenerator = d3
+    .area()
+    .x(d => d[0])
+    .y0(d => d[1])
+    .y1(d => d[2])
   curve && areaGenerator.curve(d3[curve])
   const configuredData = data.map((points, i) => ({
     className,
@@ -40,7 +43,8 @@ export default function drawArea({
     path: areaGenerator(points),
   }))
   if (engine === 'svg') {
-    container.selectAll(`.${className}`)
+    container
+      .selectAll(`.${className}`)
       .data(configuredData.map(item => mapping(item)))
       .join('path')
       .attr('class', d => d.className)
