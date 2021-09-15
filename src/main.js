@@ -5,10 +5,4 @@ import Animation from './animation'
 import Layout from './layout'
 
 export default Wave
-export {
-  Data,
-  Layer,
-  Layout,
-  Animation,
-  createWave,
-}
+export {Data, Layer, Layout, Animation, createWave}
