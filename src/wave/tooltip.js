@@ -160,7 +160,7 @@ export default class Tooltip {
 
   move({x, y, offsetX, offsetY}) {
     const drift = 10
-    const rect = this.instance._groups[0][0].getBoundingClientRect()
+    const rect = this.instance.nodes()[0].getBoundingClientRect()
     let [nextX, nextY] = this.options.position === positionType.RELATIVE ? [offsetX, offsetY] : [x, y] 
     // boundary judgement
     if (nextX + rect.width > document.body.clientWidth) {

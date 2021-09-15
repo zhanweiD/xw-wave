@@ -1,7 +1,6 @@
 import anime from 'animejs'
 import AnimationBase from './base'
 
-// 默认参数
 const defaultOptions = {
   delay: 0,
   duration: 2000,
@@ -11,7 +10,7 @@ const defaultOptions = {
 export default class PathAnimation extends AnimationBase {
   constructor(options, context) {
     super(defaultOptions, options, context)
-    // 额外转换 path 对象
+    // extra targets
     this.createTargets('path', context)
   }
 
@@ -23,8 +22,10 @@ export default class PathAnimation extends AnimationBase {
       duration,
       delay,
       loop,
+      // translate must before at rotate
       translateX: animePath('x'),
       translateY: animePath('y'),
+      rotate: animePath('angle'),
       update: this.process.bind(this),
       loopBegin: this.start.bind(this),
       loopComplete: this.end.bind(this),

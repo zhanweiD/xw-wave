@@ -31,7 +31,7 @@ export default class Seletor {
   getFirstChildByClassName(target, className) {
     if (this.engine === engineType.SVG) {
       const result = target.selectAll(`.${className}`)
-      return result.size() > 0 ? select(result._groups[0][0]) : null
+      return result.size() > 0 ? select(result.nodes()[0]) : null
     }
     return target
   }
@@ -45,7 +45,7 @@ export default class Seletor {
 
   remove(target) {
     if (this.engine === engineType.SVG) {
-      return target.remove()
+      return target?.remove()
     }
     return target
   }

@@ -61,6 +61,24 @@ const createSchema = (container, theme, layout) => {
           },
         },
       },
+      // 热力
+      {
+        type: 'heatmap',
+        options: {
+          id: 'heatmap',
+          layout: 'main',
+        },
+        data: [
+          ['x', 'y', 'value'],
+          [100, 30, 100],
+          [115, 25, 200],
+          [120, 20, 300],
+          [110, 35, 400],
+          [110, 25, 500],
+        ],
+        style: {
+        },
+      },
       // 飞线抛物线
       {
         type: 'odLine',

@@ -19,7 +19,7 @@ export default class ScrollAnimation extends AnimationBase {
     // 复制一份相同的元素，使得滚动动画连续
     if (clone) {
       // 复制的元素也是动画的移动对象
-      const extraNodes = d3.selectAll(targets).clone(false)._groups[0]
+      const extraNodes = d3.selectAll(targets).clone(false).nodes()
       this.options.targets = Array.from(targets).concat(Array.from(extraNodes))
       // 统一在原来列表的末端追加复制的元素
       anime({

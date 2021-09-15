@@ -45,7 +45,7 @@ export default class BreatheAnimation extends AnimationBase {
   play() {
     const {targets, delay, duration, loop} = this.options
     this.instance = anime({
-      targets: [this.targets._groups[0], targets],
+      targets: [this.targets.nodes(), targets],
       duration,
       delay,
       loop,
@@ -63,6 +63,6 @@ export default class BreatheAnimation extends AnimationBase {
     this.extraNode.remove()
     this.isAnimationAvailable = false
     this.event.fire('destroy')
-    anime.remove([this.targets._groups[0], this.options.targets])
+    anime.remove([this.targets.nodes(), this.options.targets])
   }
 }

@@ -86,7 +86,7 @@ const createGradient = (parentNode, {id, direction, color, opacity}) => {
       .attr(attributes[0], isLeftOrTop ? '100%' : '-100%')
       .attr(attributes[1], isLeftOrTop ? '200%' : '0%')
   }
-  return insertOffsets(targets, {color, opacity})._groups[0]
+  return insertOffsets(targets, {color, opacity}).nodes()
 }
 
 export default class ScanAnimation extends AnimationBase {

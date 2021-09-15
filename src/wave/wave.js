@@ -70,7 +70,7 @@ export default class Wave {
     define = {},
     tooltip = {},
     baseFontSize = 1,
-    engine = 'canvas',
+    engine = 'svg',
     layout = Layout.standard(false),
     coordinate = coordinateType.CARTESIAN,
   }) {
@@ -81,7 +81,7 @@ export default class Wave {
 
     // initialize the wave width and height
     if (adjust) {
-      const rect = this.#container._groups[0][0].getBoundingClientRect()
+      const rect = this.#container.nodes()[0].getBoundingClientRect()
       this.containerWidth = rect.width
       this.containerHeight = rect.height
     } else {
@@ -116,8 +116,8 @@ export default class Wave {
         .attr('height', this.containerHeight)
         .style('position', 'absolute')
       fabric.Object.prototype.objectCaching = false
-      this.#root = new fabric.Canvas(canvas._groups[0][0], {selection: false, hoverCursor: 'pointer'})
       this.#defs = []
+      this.#root = new fabric.Canvas(canvas.nodes()[0], {selection: false, hoverCursor: 'pointer'})
       this.#root.defs = this.#defs
     }
     
@@ -171,6 +171,7 @@ export default class Wave {
       root: this.#root,
       engine: this.#engine,
       tooltip: this.#tooltip,
+      container: this.#container,
       baseFontSize: this.baseFontSize,
       containerWidth: this.containerWidth,
       containerHeight: this.containerHeight,

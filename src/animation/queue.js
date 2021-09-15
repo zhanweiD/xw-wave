@@ -149,7 +149,7 @@ export default class AnimationQueue extends AnimationBase {
   play() {
     if (this.isAnimationStart || !this.isAnimationAvailable) {
       this.isAnimationStart && this.log.warn('The animation is already started!')
-      !this.isAnimationAvailable && this.log.error('The animation is not available!')
+      !this.isAnimationAvailable && this.log.warn('The animation is not available!')
     } else {
       // reconnect and play
       !this.isReady && this.queue.length > 1 && this.connect()

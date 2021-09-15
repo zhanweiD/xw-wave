@@ -21,6 +21,7 @@ import Pack from './relation/pack'
 // 地理图层
 import BaseMap from './geography/base-map'
 import ODLine from './geography/od-line'
+import Heatmap from './geography/heatmap'
 // 装饰图层
 import TitleA from './decoration/title-a'
 import TitleB from './decoration/title-b'
@@ -37,6 +38,7 @@ export const layerMapping = {
   chord: Chord, // 和弦图
   edgeBundle: EdgeBundle, // 边缘捆图
   gauge: Gauge, // 仪表盘
+  heatmap: Heatmap, // 热力
   legend: Legend, // 图例
   line: Line, // 折线
   matrix: Matrix, // 矩阵
@@ -65,6 +67,7 @@ export default {
   Chord, // 和弦图
   EdgeBundle, // 边缘捆图
   Gauge, // 仪表盘
+  Heatmap, // 热力
   Legend, // 图例
   Line, // 折线
   Matrix, // 矩阵
