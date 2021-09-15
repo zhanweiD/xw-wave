@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import chroma from 'chroma-js'
 import LayerBase from '../base'
 
@@ -37,7 +36,7 @@ export default class TitleCLayer extends LayerBase {
     const {left, top, width, height, right, bottom} = layout
     const {circleSize, line, mainColor, minorColor} = this.#style
     // left area
-    const [al_left, al_right, al_top, al_bottom] = [
+    const [alLeft, alRight, alTop, alBottom] = [
       left + circleSize * 2, 
       left + height - circleSize * 2, 
       top + circleSize * 2,
@@ -46,23 +45,23 @@ export default class TitleCLayer extends LayerBase {
     // decoration circle
     this.#circleData = [{
       fill: minorColor,
-      cx: al_left,
-      cy: al_top,
+      cx: alLeft,
+      cy: alTop,
       r: circleSize / 2,
     }, {
       fill: minorColor,
-      cx: al_left,
-      cy: al_bottom,
+      cx: alLeft,
+      cy: alBottom,
       r: circleSize / 2,
     }, {
       fill: minorColor,
-      cx: al_right,
-      cy: al_top,
+      cx: alRight,
+      cy: alTop,
       r: circleSize / 2,
     }, {
       fill: minorColor,
-      cx: al_right,
-      cy: al_bottom,
+      cx: alRight,
+      cy: alBottom,
       r: circleSize / 2,
     }]
     // rect area

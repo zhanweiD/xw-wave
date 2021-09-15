@@ -32,7 +32,7 @@ export const createHexagon = (left, top, width, height) => [
 ]
 
 /**
- * create a left arrow which not exceed the area
+ * create an arrow which not exceed the area
  * @param {Number} left 
  * @param {Number} top 
  * @param {Number} width 
@@ -51,4 +51,33 @@ export const createArrow = (left, top, width, height, direction) => {
       [left + width, top + height / 2],
       [left, top + height],
     ]
+}
+
+/**
+ * create a knuckle which not exceed the area
+ * @param {Number} left 
+ * @param {Number} top 
+ * @param {Number} width 
+ * @param {Number} height
+ * @param {String} direction
+ * @returns {Array<Number} curve points
+ */
+export const createKnuckle = (left, top, width, height, direction) => {
+  return direction === 'left-top' ? [
+    [left, top + height],
+    [left, top],
+    [left + width, top],
+  ] : direction === 'right-top' ? [
+    [left, top],
+    [left + width, top],
+    [left + width, top + height],
+  ] : direction === 'right-bottom' ? [
+    [left + width, top],
+    [left + width, top + height],
+    [left, top + height],
+  ] : direction === 'left-bottom' ? [
+    [left + width, top + height],
+    [left, top + height],
+    [left, top],
+  ] : []
 }

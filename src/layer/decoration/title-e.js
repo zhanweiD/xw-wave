@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import chroma from 'chroma-js'
 import LayerBase from '../base'
 import {createParallelogram} from '../../util/shape'
