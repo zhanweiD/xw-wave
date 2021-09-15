@@ -42,6 +42,8 @@ export default class HeatmapLayer extends LayerBase {
     this.className = 'wave-heatmap'
     this.#instance = h337.create({container: container.node()})
     this.event.on('destroy', () => container.selectAll('.heatmap-canvas').remove())
+    // no events
+    container.selectAll('.heatmap-canvas').style('pointer-events', 'none')
   }
 
   setData(data, scales) {

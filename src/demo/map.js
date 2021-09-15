@@ -20,7 +20,10 @@ const createSchema = (container, theme, layout) => {
     layout,
     // 声明坐标系
     coordinate: 'geographic',
-    // 图层数据，下标顺序代表绘制顺序
+    // 有热力图层需要指定 position，暂不清楚原因
+    tooltip: {
+      position: 'relative',
+    },
     layers: [
       // 标题文字图层
       {

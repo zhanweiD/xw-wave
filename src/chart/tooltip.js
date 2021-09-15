@@ -44,6 +44,7 @@ export default class Tooltip {
       .style('position', 'absolute')
       .style('overflow', 'hidden')
       .style('display', 'none')
+      .style('z-index', 999)
       .style('left', 0)
       .style('top', 0)
     // blurred background
