@@ -1,7 +1,7 @@
 import {Children, useRef, useEffect, useState} from 'react'
 import {range} from 'd3'
 import c from 'classnames'
-import ThemeConfig from '../utils/theme'
+import ThemeConfig from './theme'
 import columnSchema from './column'
 import pieSchema from './pie'
 import radarSchema from './radar'
