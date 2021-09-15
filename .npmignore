@@ -4,4 +4,4 @@
 # src/index.js
 # src/index.css
 # src/.*
-!dist
+!dist/**
