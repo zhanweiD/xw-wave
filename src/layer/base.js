@@ -262,6 +262,7 @@ export default class LayerBase {
   // register the animation events after render
   #setAnimation = sublayer => {
     let isFirstPlay = true
+    const {engine} = this.options
     const {options} = this.#backupAnimation
     // destroy previous animation to free resource
     if (this.#backupAnimation[sublayer]) {
@@ -280,8 +281,8 @@ export default class LayerBase {
     const targets = `.wave-basic-${sublayer}`
     // create enter & loop animation and connect them
     isFirstPlay && animationQueue.push('queue', enterQueue)
-    isFirstPlay && enter && enterQueue.push(enter.type, {...enter, targets}, this.root)
-    loop && loopQueue.push(loop.type, {...loop, targets}, this.root)
+    isFirstPlay && enter && enterQueue.push(enter.type, {...enter, targets, engine}, this.root)
+    loop && loopQueue.push(loop.type, {...loop, targets, engine}, this.root)
     this.#backupAnimation[sublayer] = animationQueue.push('queue', loopQueue)
     // register the animation events
     this.#backupAnimation[sublayer].event.on('start', d => this.event.fire(`${sublayer}-animation-start`, d))
@@ -354,7 +355,6 @@ export default class LayerBase {
     }
   }
 
-  // destroy the layer
   destroy() {
     this.sublayers.forEach(name => this.#backupAnimation[name]?.destroy())
     this.selector.remove(this.root)
