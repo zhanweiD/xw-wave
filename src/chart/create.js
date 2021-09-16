@@ -20,7 +20,7 @@ const createLayer = (wave, config) => {
   // data structure judgement
   let dataSet = data
   if (type === 'legend') {
-    dataSet = wave.layer.filter(({instance}) => instance.data instanceof TableList).map(({instance}) => instance)
+    dataSet = wave.layer.map(({instance}) => instance)
   } else if (dataBase.isTable(data) || data?.type === 'table') {
     dataSet = new Table(dataBase.isTable(data) ? data : Random.table(data))
   } else if (isArray(data) && data.length === 2 && dataBase.isRelation(data[0], data[1])) {
