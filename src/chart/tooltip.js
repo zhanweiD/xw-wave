@@ -6,14 +6,8 @@ const modeType = {
   GOURP: 'group',
 }
 
-const positionType = {
-  ABSOLUTE: 'absolute',
-  RELATIVE: 'relative',
-}
-
 const defaultOptions = {
   mode: modeType.SINGLE,
-  position: positionType.ABSOLUTE,
   pointSize: 10,
   titleSize: 14,
   titleColor: '#383d41',
@@ -41,7 +35,7 @@ export default class Tooltip {
       .append('div')
       .attr('class', 'wave-tooltip')
       .style('border-radius', '2px')
-      .style('position', 'absolute')
+      .style('position', 'fixed')
       .style('overflow', 'hidden')
       .style('display', 'none')
       .style('z-index', 999)
@@ -72,9 +66,9 @@ export default class Tooltip {
 
   /**
    * create tooltip list from element's data
-   * @param {Object} data 
-   * @param {Object} backup 
-   * @returns 
+   * @param {Object} data
+   * @param {Object} backup
+   * @returns
    */
   #getListData = (data, backup) => {
     let list = null
@@ -159,23 +153,22 @@ export default class Tooltip {
     return this
   }
 
-  move({x, y, offsetX, offsetY}) {
+  move({pageX, pageY}) {
     const drift = 10
     const rect = this.instance.nodes()[0].getBoundingClientRect()
-    let [nextX, nextY] = this.options.position === positionType.RELATIVE ? [offsetX, offsetY] : [x, y] 
     // boundary judgement
-    if (nextX + rect.width > document.body.clientWidth) {
-      nextX -= rect.width + drift
+    if (pageX + rect.width > document.body.clientWidth) {
+      pageX -= rect.width + drift
     } else {
-      nextX += drift
+      pageX += drift
     }
-    if (nextY + rect.height > document.body.clientHeight) {
-      nextY -= rect.height + drift
+    if (pageY + rect.height > document.body.clientHeight) {
+      pageY -= rect.height + drift
     } else {
-      nextY += drift
+      pageY += drift
     }
-    this.instance.style('left', `${nextX}px`).style('top', `${nextY}px`)
-    this.lastPosition = {x: nextX, y: nextY}
+    this.instance.style('left', `${pageX}px`).style('top', `${pageY}px`)
+    this.lastPosition = {x: pageX, y: pageY}
     return this
   }
 
