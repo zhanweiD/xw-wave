@@ -52,12 +52,11 @@ export default function drawCurve({
       .attr('stroke-width', d => d.strokeWidth)
       .attr('stroke-dasharray', d => d.strokeDasharray)
       .attr('stroke-opacity', d => d.strokeOpacity)
-      .attr('stroke-linecap', 'round')
-      .attr('d', d => d.path)
-      .attr('fill', 'none')
       .attr('opacity', d => d.opacity)
       .attr('filter', d => d.filter)
       .attr('mask', d => d.mask)
+      .attr('d', d => d.path)
+      .attr('fill', 'none')
   }
   if (engine === 'canvas') {
     configuredData.forEach(config => {

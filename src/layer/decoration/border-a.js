@@ -1,6 +1,16 @@
 import {createKnuckle} from '../../utils/shape'
 import LayerBase from '../base'
 
+const modeType = {
+  CUBE: 'cube',
+  KNUCKLE: 'knuckle',
+  BRACKET: 'bracket',
+}
+
+const defaultOptions = {
+  mode: modeType.BRACKET,
+}
+
 const defaultStyle = {
   shapeSize: 10,
   shape: {
@@ -23,25 +33,35 @@ export default class BorderALayer extends LayerBase {
   }
 
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['shape'])
+    super({...defaultOptions, ...layerOptions}, waveOptions, ['shape'])
     this.className = 'wave-border-a'
   }
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {layout} = this.options
+    const {layout, mode} = this.options
     const {left, top, width, height} = layout
     const {shape, shapeSize} = this.style
+    // change strokeWidth for cube
+    if (mode === modeType.CUBE) {
+      shape.strokeWidth = shapeSize * 2
+    }
     const {strokeWidth} = shape
-    const innerLeft = left + shapeSize + strokeWidth / 2
-    const innerTop = top + shapeSize + strokeWidth / 2
-    const innerRight = left + width - shapeSize - strokeWidth / 2
-    const innerBottom = top + height - shapeSize - strokeWidth / 2
+    // change verticalLength for bracket
+    let verticalLength = shapeSize
+    if (mode === modeType.BRACKET) {
+      verticalLength = (height - strokeWidth) / 2
+    }
+    const innerLeft = left + strokeWidth / 2
+    const innerTop = top + strokeWidth / 2
+    const innerRight = left + width - strokeWidth / 2
+    const innerBottom = top + height - strokeWidth / 2
+    // border consists of 4 polylines
     this.#data = [
-      createKnuckle(innerLeft - shapeSize, innerTop - shapeSize, shapeSize, shapeSize, 'left-top'),
-      createKnuckle(innerRight, innerTop - shapeSize, shapeSize, shapeSize, 'right-top'),
-      createKnuckle(innerRight, innerBottom, shapeSize, shapeSize, 'right-bottom'),
-      createKnuckle(innerLeft - shapeSize, innerBottom, shapeSize, shapeSize, 'left-bottom'),
+      createKnuckle(innerLeft, innerTop, shapeSize, verticalLength + 0.1, 'left-top'),
+      createKnuckle(innerRight - shapeSize, innerTop, shapeSize, verticalLength + 0.1, 'right-top'),
+      createKnuckle(innerRight - shapeSize, innerBottom - verticalLength, shapeSize, verticalLength, 'right-bottom'),
+      createKnuckle(innerLeft, innerBottom - verticalLength, shapeSize, verticalLength, 'left-bottom'),
     ]
   }
 
