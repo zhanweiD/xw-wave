@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
 import LayerBase from '../base'
 
-// 默认样式
 const defaultStyle = {
   block: {},
   text: {},
@@ -38,7 +37,7 @@ export default class BaseMapLayer extends LayerBase {
     this.tooltipTargets = ['block']
   }
 
-  // 数据为标准的 GeoJSON
+  // data is GeoJSON
   setData(data, scales) {
     this.#data = data || this.#data
     const {top, left, width, height} = this.options.layout
@@ -51,7 +50,6 @@ export default class BaseMapLayer extends LayerBase {
     }))
   }
 
-  // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     this.#textData = this.#data.features.map(({properties, geometry}) => this.createText({
@@ -63,7 +61,6 @@ export default class BaseMapLayer extends LayerBase {
     }))
   }
 
-  // 绘制地图
   draw() {
     const blockData = [{
       data: this.#blockData.map(({geometry}) => this.#path(geometry)),
