@@ -9,6 +9,7 @@ import createDefs, {makeGradientCreator} from '../utils/define'
 import {layerMapping} from '../layer'
 import Tooltip from './tooltip'
 import Layout from '../layout'
+import AxisLayer from '../layer/axis'
 
 const stateType = {
   INITILIZE: 'initilize',
@@ -28,7 +29,6 @@ const coordinateType = {
   GEOGRAPHIC: 'geographic',
 }
 
-// layer manager
 export default class Wave {
   #state = null
 
@@ -176,6 +176,7 @@ export default class Wave {
       containerWidth: this.containerWidth,
       containerHeight: this.containerHeight,
       createGradient: makeGradientCreator(this.#defs, this.#engine),
+      bindCoordinate: this.bindCoordinate.bind(this),
       getColor: this.getColor.bind(this),
     }
     // generate a layer by layer type
@@ -202,8 +203,11 @@ export default class Wave {
    * @param {AxisLayer} axisLayer
    * @param {LayerBase} layers
    */
-  bindCoordinate(axisLayer, layers) {
-    layers = layers.filter(layer => layer.scale)
+  bindCoordinate() {
+    const axisLayer = this.#layer.find(({instance}) => instance instanceof AxisLayer)?.instance
+    const layers = this.#layer
+      .map(({instance}) => instance.scale && !(instance instanceof AxisLayer) && instance)
+      .filter(Boolean)
     layers.forEach(({scale, options}) => {
       const result = {}
       const {axis} = options

@@ -3,29 +3,28 @@ import {cloneDeep} from 'lodash'
 import LayerBase from './base'
 import getTextWidth from '../utils/text-width'
 import {formatNumber} from '../utils/format'
+import TableList from '../data/table-list'
+import DataBase from '../data/base'
+import AxisLayer from './axis'
 
-// 对齐方式
 const alignType = {
   START: 'start',
   MIDDLE: 'middle',
   END: 'end',
 }
 
-// 排列方向
 const directionType = {
-  HORIZONTAL: 'horizontal', // 水平排列
-  VERTICAL: 'vertical', // 垂直排列
+  HORIZONTAL: 'horizontal',
+  VERTICAL: 'vertical',
 }
 
-// 图例形状
 const shapeType = {
-  RECT: 'rect', // 矩形
-  CIRCLE: 'circle', // 圆形
-  BROKENLINE: 'broken-line', // 折线
-  DOTTEDLINE: 'dotted-line', // 虚线
+  RECT: 'rect',
+  CIRCLE: 'circle',
+  BROKENLINE: 'broken-line',
+  DOTTEDLINE: 'dotted-line',
 }
 
-// 默认样式
 const defaultStyle = {
   align: alignType.END,
   verticalAlign: alignType.START,
@@ -42,21 +41,21 @@ const defaultStyle = {
 
 export default class LegendLayer extends LayerBase {
   #data = {
-    // 原始数据
+    // origin data
     text: [],
     shape: [],
     textColors: [],
     shapeColors: [],
-    // 绘制数据
+    // draw data
     textData: [],
     rectData: [],
     circleData: [],
     lineData: [],
-    // 交互遮罩
+    // interactive mask
     interactiveData: [],
   } 
 
-  #layers = null
+  #layers = []
 
   #isFiltering = false
 
@@ -70,32 +69,30 @@ export default class LegendLayer extends LayerBase {
     return this.#style
   }
 
-  // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions, ['text', 'circle', 'rect', 'interactive', 'line'])
     this.className = 'wave-legend'
   }
 
-  // 图例过滤逻辑
-  #filter = () => {
-    // 备份用于恢复数据
+  #filter = layers => {
+    // backup data
     const colors = cloneDeep(this.#data.shapeColors)
-    const originData = cloneDeep(this.#layers.map(layer => layer.data))
-    const counts = this.#layers.map(({data}) => data.get('legendData')?.list.length)
-    const filterTypes = this.#layers.map(({data}) => data.get('legendData')?.filter)
+    const originData = cloneDeep(layers.map(layer => layer.data))
+    const counts = layers.map(({data}) => data.get('legendData')?.list.length)
+    const filterTypes = layers.map(({data}) => data.get('legendData')?.filter)
     const active = new Array(this.#data.shapeColors.length).fill(true)
     const disableColor = '#E2E3E588'
-    // 数据筛选
+    // register filter handler
     this.event.off('click-interactive')
     this.event.on('click-interactive', object => {
       const {index} = object.data.source
       const layerIndex = counts.findIndex((v, i) => sum(counts.slice(0, i + 1)) > index)
       const startIndex = counts.slice(0, layerIndex).reduce((prev, cur) => prev + cur, 0)
       const data = originData[layerIndex]
-      const layer = this.#layers[layerIndex]
-      // 图层需要手动开启过滤支持
+      const layer = layers[layerIndex]
+      // layer needs specify the filter type
       if (!filterTypes[layerIndex]) return
-      // 更新图例状态
+      // update legend status
       if (!active[index]) {
         active[index] = true
         this.#data.shapeColors[index] = colors[index]
@@ -106,10 +103,10 @@ export default class LegendLayer extends LayerBase {
         this.#data.textColors[index] = disableColor
       }
       try {
-        // 表示当前图层重绘制来自于图例过滤
+        // isFiltering means redraw caused by legend event
         this.#isFiltering = true
         let filteredData = data
-        // 根据第一列的值过滤行
+        // filter rows by value of first column
         if (filterTypes[layerIndex] === 'row') {
           const order = {type: 'row', mapping: {}}
           const mapping = range(startIndex, startIndex + counts[layerIndex]).map(i => active[i])
@@ -118,7 +115,7 @@ export default class LegendLayer extends LayerBase {
           data.data[0].list.forEach((dimension, i) => order.mapping[dimension] = i)
           filteredData.options.order = order
         }
-        // 根据第一行的值过滤列
+        // filter columns by value of first row
         if (filterTypes[layerIndex] === 'column') {
           const order = {type: 'column', mapping: {}}
           const subData = data.data.filter((v, i) => (!i || active[startIndex + i - 1]))
@@ -126,43 +123,34 @@ export default class LegendLayer extends LayerBase {
           data.data.slice(1).map(({header}) => header).forEach((header, i) => order.mapping[header] = i)
           filteredData.options.order = order
         }
-        // 更新图层
+        // update layer
         layer.setData(filteredData)
         layer.setStyle()
         layer.draw()
-        // 更新图例
+        // update legend layer
         this.setStyle()
         this.draw()
       } catch (error) {
-        this.warn('图例数据过滤错误\n', error)
+        this.log.warn('Legend Data filtering error', error)
       }
     })
   }
 
-  // 更新图层数据并重绘
-  #refresh = () => {
-    if (!this.#isFiltering) {
-      this.setData()
-      this.setStyle()
-      this.draw()
-    }
-  }
-
   /**
-   * 传入图例数据
-   * @param {Array<LayerBase>} layers 图层数组 
+   * set legend data after other layers has been initialized
+   * @param {Array<LayerBase>} layers
    */
   setData(layers) {
     this.#isFiltering = false
     this.#layers = layers || this.#layers
-    // 初始化文字数据和图形颜色
+    // initialize
     this.#data.text = []
     this.#data.shape = []
     this.#data.textColors = []
     this.#data.shapeColors = []
-    // 图例数据一般由图层自己控制
+    // layer custom legend data
     this.#layers.forEach(layer => {
-      if (layer.data.get('legendData')) {
+      if (layer.data instanceof DataBase && layer.data.get('legendData')) {
         const {shape, list} = layer.data.get('legendData')
         this.#data.shape.push(...new Array(list.length).fill(shape))
         this.#data.text.push(...list.map(({label}) => label))
@@ -170,14 +158,21 @@ export default class LegendLayer extends LayerBase {
         this.#data.textColors.push(...new Array(list.length).fill('white'))
       } 
     })
-    // 生命周期绑定
-    if (layers) {
-      this.#filter()
-      this.#layers.forEach(layer => layer.event.on('draw', this.#refresh))
+    // legend layer changes with other layer changed
+    if (this.#layers) {
+      const axisLayer = this.#layers.find(layer => layer instanceof AxisLayer)
+      this.#filter(this.#layers.filter(layer => layer.data instanceof TableList))
+      axisLayer?.event.on('draw', () => {
+        if (!this.#isFiltering) {
+          this.setData()
+          this.setStyle()
+          this.draw()
+        }
+      })
     }
   }
 
-  // 坐标为文字左侧中点
+  // position is the midpoint on the left side of the text
   #createShape = ({shape, x, y, size, color}) => {
     if (shape === shapeType.RECT) {
       this.#data.rectData.push({
@@ -230,7 +225,6 @@ export default class LegendLayer extends LayerBase {
     }
   }
 
-  // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {align, verticalAlign, direction, shapeSize, offset, gap} = this.#style
@@ -239,12 +233,12 @@ export default class LegendLayer extends LayerBase {
     const [inner, outer] = gap
     const maxHeight = max([shapeSize, fontSize])
     const shapeWidth = shapeSize * 2
-    // 清空衍生数据
+    // initialize
     this.#data.rectData = []
     this.#data.circleData = []
     this.#data.lineData = []
     this.#data.textData = []
-    // 先确定文字数据
+    // calculate text data considering the shape area
     const textData = this.#data.text.map(value => formatNumber(value, format))
     const textWidths = textData.map(value => getTextWidth(value, fontSize))
     if (direction === directionType.HORIZONTAL) {
@@ -264,7 +258,7 @@ export default class LegendLayer extends LayerBase {
         value,
       }))
     }
-    // 根据 align 整体移动文字
+    // move text data by align type
     let [totalWidth, totalHeight] = [0, 0]
     if (direction === directionType.HORIZONTAL) {
       const {x, value} = this.#data.textData[this.#data.textData.length - 1]
@@ -283,7 +277,7 @@ export default class LegendLayer extends LayerBase {
       y: y + offset[1] + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0),
       value,
     }))
-    // 图形固定在文字左侧
+    // shapes are fixed at the left of text
     this.#data.shape.forEach((value, i) => this.#createShape({
       shape: value,
       size: shapeSize,
@@ -291,7 +285,7 @@ export default class LegendLayer extends LayerBase {
       y: this.#data.textData[i].y - fontSize / 2,
       color: this.#data.shapeColors[i],
     }))
-    // 确定点击区域
+    // generate clickable area
     this.#data.interactiveData = this.#data.textData.map(({x, y, value}, i) => ({
       x: x - shapeWidth - inner,
       y: y - fontSize / 2 - maxHeight / 2,
