@@ -49,9 +49,9 @@ export default class ZoomAnimation extends AnimationBase {
       duration: duration * 0.8,
       delay: anime.stagger(duration / this.#elementNumber / 5, {start: delay}),
       loop,
-      update: this.process.bind(this),
-      loopBegin: this.start.bind(this),
-      loopComplete: this.end.bind(this),
+      update: this.process,
+      loopBegin: this.start,
+      loopComplete: this.end,
       scaleX: [
         judgeScaleValue(mode, direction)[0],
         judgeScaleValue(mode === modeType.SHOW ? modeType.HIDE : modeType.SHOW, direction)[0],

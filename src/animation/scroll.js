@@ -57,9 +57,9 @@ export default class ScrollAnimation extends AnimationBase {
         opacity: 1,
         duration: 0,
       }],
-      update: this.process.bind(this),
-      loopBegin: this.start.bind(this),
-      loopComplete: this.end.bind(this),
+      update: this.process,
+      loopBegin: this.start,
+      loopComplete: this.end,
       easing: 'linear',
     })
   }

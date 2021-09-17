@@ -25,9 +25,9 @@ export default class FadeAnimation extends AnimationBase {
       duration,
       delay,
       loop,
-      update: this.process.bind(this),
-      loopBegin: this.start.bind(this),
-      loopComplete: this.end.bind(this),
+      update: this.process,
+      loopBegin: this.start,
+      loopComplete: this.end,
       opacity: mode === modeType.SHOW ? [0, 1] : [1, 0],
       easing: 'linear',
     })

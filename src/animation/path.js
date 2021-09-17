@@ -26,9 +26,9 @@ export default class PathAnimation extends AnimationBase {
       translateX: animePath('x'),
       translateY: animePath('y'),
       rotate: animePath('angle'),
-      update: this.process.bind(this),
-      loopBegin: this.start.bind(this),
-      loopComplete: this.end.bind(this),
+      update: this.process,
+      loopBegin: this.start,
+      loopComplete: this.end,
       easing: 'linear',
     })
   }

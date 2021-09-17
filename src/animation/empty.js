@@ -28,9 +28,9 @@ export default class EmptyAnimation extends AnimationBase {
       this.instance = anime({
         duration,
         loop,
-        update: this.process.bind(this),
-        loopBegin: this.start.bind(this),
-        loopComplete: this.end.bind(this),
+        update: this.process,
+        loopBegin: this.start,
+        loopComplete: this.end,
       })
     }
   }

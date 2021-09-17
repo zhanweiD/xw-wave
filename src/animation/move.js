@@ -24,9 +24,9 @@ export default class MoveAnimation extends AnimationBase {
       delay,
       loop,
       easing,
-      update: this.process.bind(this),
-      loopBegin: this.start.bind(this),
-      loopComplete: this.end.bind(this),
+      update: this.process,
+      loopBegin: this.start,
+      loopComplete: this.end,
       translateX: positionX,
       translateY: positionY,
     })

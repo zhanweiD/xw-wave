@@ -58,9 +58,9 @@ export default class BreatheAnimation extends AnimationBase {
       loop,
       opacity: [1, 0, 1],
       stdDeviation: [0, 10, 0],
-      update: this.process.bind(this),
-      loopBegin: this.start.bind(this),
-      loopComplete: this.end.bind(this),
+      update: this.process,
+      loopBegin: this.start,
+      loopComplete: this.end,
       easing: 'linear',
     })
   }
