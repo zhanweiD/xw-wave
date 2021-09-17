@@ -50,7 +50,7 @@ export default class LayerBase {
 
   #catchError = () => {
     // basic life cycles
-    const lifeCycles = ['setData', 'setStyle', 'draw', 'drawBasic']
+    const lifeCycles = ['setData', 'setStyle', 'draw', 'destroy', 'drawBasic']
     // safe call
     lifeCycles.forEach(name => {
       const that = this
@@ -377,6 +377,5 @@ export default class LayerBase {
   destroy() {
     this.sublayers.forEach(name => this.#backupAnimation[name]?.destroy())
     this.selector.remove(this.root)
-    this.event.fire('destroy')
   }
 }
