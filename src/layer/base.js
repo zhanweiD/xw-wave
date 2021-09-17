@@ -45,6 +45,25 @@ export default class LayerBase {
     this.event = createEvent('src/layer/base')
     this.sublayers.forEach(name => this.#backupData[name] = [])
     this.selector = new Selector(this.options.engine)
+    this.#catchError()
+  }
+
+  #catchError = () => {
+    // basic life cycles
+    const lifeCycles = ['setData', 'setStyle', 'draw', 'drawBasic']
+    // safe call
+    lifeCycles.forEach(name => {
+      const that = this
+      const fn = that[name]
+      that[name] = (...parameter) => {
+        try {
+          fn.call(that, ...parameter)
+          that.event.fire(name, {...parameter})
+        } catch (error) {
+          this.log.error('Layer life cycle call exception', error)
+        }
+      }
+    })
   }
 
   setData() { 

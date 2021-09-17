@@ -3,7 +3,6 @@ import chroma from 'chroma-js'
 import {fabric} from 'fabric'
 import createUuid from '../utils/uuid'
 import createLog from '../utils/create-log'
-import catchError from '../utils/catch-error'
 import createEvent from '../utils/create-event'
 import createDefs, {makeGradientCreator} from '../utils/define'
 import Layer, {layerMapping} from '../layer'
@@ -184,11 +183,6 @@ export default class Wave {
     // wave will save the layer for easy management 
     this.#state = stateType.READY
     this.#layer.push({type, id: layerId, instance: layer})
-    // catch layer's life cycle
-    catchError(layer, error => {
-      this.#state = stateType.WARN
-      this.log.error('Wave: Layer life cycle call exception', error)
-    })
     // register destroy event
     layer.event.on('destroy', () => {
       const index = this.#layer.findIndex(({id}) => id === layerId)
