@@ -1,13 +1,11 @@
 import anime from 'animejs'
 import AnimationBase from './base'
 
-// 类型常量
 const modeType = {
   SHOW: 'fadeIn',
   HIDE: 'fadeOut',
 }
 
-// 默认参数
 const defaultOptions = {
   delay: 0,
   duration: 2000,
@@ -33,12 +31,9 @@ export default class FadeAnimation extends AnimationBase {
       opacity: mode === modeType.SHOW ? [0, 1] : [1, 0],
       easing: 'linear',
     })
-    this.event.fire('play')
   }
 
   destroy() {
     anime.remove(this.options.targets)
-    this.isAnimationAvailable = false
-    this.event.fire('destroy')
   }
 }

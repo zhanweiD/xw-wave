@@ -2,14 +2,12 @@ import anime from 'animejs'
 import * as d3 from 'd3'
 import AnimationBase from './base'
 
-// 默认参数
 const defaultOptions = {
   delay: 0,
   duration: 2000,
   loop: false,
 }
 
-// 光晕滤镜
 const createFilter = (parentNode, {id}) => {
   const filter = parentNode.append('filter')
     .attr('id', `url(#breathe-${id})`)
@@ -34,18 +32,27 @@ const createFilter = (parentNode, {id}) => {
 }
 
 export default class BreatheAnimation extends AnimationBase {
+  #extraNode = null
+
+  #targets = null
+
   constructor(options, context) {
     super(defaultOptions, options, context)
-    this.extraNode = context.append('defs')
-    this.targets = createFilter(this.extraNode, {id: this.id})
-    // 给元素添加光晕滤镜
+    // append the filter to element
     d3.selectAll(this.options.targets).attr('filter', `url(#breathe-${this.id})`)
+    this.init()
+  }
+
+  init() {
+    const {context} = this.options
+    this.#extraNode = context.append('defs')
+    this.#targets = createFilter(this.#extraNode, {id: this.id})
   }
 
   play() {
     const {targets, delay, duration, loop} = this.options
     this.instance = anime({
-      targets: [this.targets.nodes(), targets],
+      targets: [this.#targets.nodes(), targets],
       duration,
       delay,
       loop,
@@ -56,13 +63,10 @@ export default class BreatheAnimation extends AnimationBase {
       loopComplete: this.end.bind(this),
       easing: 'linear',
     })
-    this.event.fire('play')
   }
 
   destroy() {
-    this.extraNode.remove()
-    this.isAnimationAvailable = false
-    this.event.fire('destroy')
-    anime.remove([this.targets.nodes(), this.options.targets])
+    anime.remove([this.#targets.nodes(), this.options.targets])
+    this.#extraNode.remove()
   }
 }

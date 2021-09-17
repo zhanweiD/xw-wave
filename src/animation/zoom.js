@@ -1,20 +1,17 @@
 import anime from 'animejs'
 import AnimationBase from './base'
 
-// 类型常量
 const modeType = {
   SHOW: 'enlarge',
   HIDE: 'narrow',
 }
 
-// 方向常量
 const directions = {
   HORIZONTAL: 'horizontal',
   VERTICAL: 'vertical',
   BOTH: 'both',
 }
 
-// 默认参数
 const defaultOptions = {
   delay: 500,
   duration: 2000,
@@ -26,7 +23,7 @@ const defaultOptions = {
 const judgeScaleValue = (mode, direction) => {
   let values = []
   const [min, max] = [0.0001, 1]
-  // 方向判断
+  // direction judgement
   if (direction === directions.HORIZONTAL) {
     values = (mode === modeType.SHOW ? [min, max] : [max, max])
   } else if (direction === directions.VERTICAL) {
@@ -37,11 +34,12 @@ const judgeScaleValue = (mode, direction) => {
   return values
 }
 
-// 比例缩放动画
 export default class ZoomAnimation extends AnimationBase {
+  #elementNumber = null
+
   constructor(options, context) {
     super(defaultOptions, options, context)
-    this.elementNumber = this.options.targets.length
+    this.#elementNumber = this.options.targets.length
   }
 
   play() {
@@ -49,7 +47,7 @@ export default class ZoomAnimation extends AnimationBase {
     this.instance = anime({
       targets,
       duration: duration * 0.8,
-      delay: anime.stagger(duration / this.elementNumber / 5, {start: delay}),
+      delay: anime.stagger(duration / this.#elementNumber / 5, {start: delay}),
       loop,
       update: this.process.bind(this),
       loopBegin: this.start.bind(this),
@@ -63,12 +61,9 @@ export default class ZoomAnimation extends AnimationBase {
         judgeScaleValue(mode === modeType.SHOW ? modeType.HIDE : modeType.SHOW, direction)[1],
       ],
     })
-    this.event.fire('play')
   }
 
   destroy() {
     anime.remove(this.options.targets)
-    this.isAnimationAvailable = false
-    this.event.fire('destroy')
   }
 }

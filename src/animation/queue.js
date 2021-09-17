@@ -147,33 +147,21 @@ export default class AnimationQueue extends AnimationBase {
   }
 
   play() {
-    if (this.isAnimationStart || !this.isAnimationAvailable) {
-      this.isAnimationStart && this.log.warn('The animation is already started!')
-      !this.isAnimationAvailable && this.log.warn('The animation is not available!')
-    } else {
-      // reconnect and play
-      !this.isReady && this.queue.length > 1 && this.connect()
-      this.queue[0].instance.play()
-    }
-    this.event.fire('play')
-    return this
+    !this.isReady && this.queue.length > 1 && this.connect()
+    this.queue[0].instance.play()
   }
 
   end() {
-    this.event.fire('end')
-    this.isAnimationStart = false
     if (this.isAnimationAvailable && this.options.loop && this.queue.length > 1) {
       this.queue.forEach(({instance}) => {
         instance.destroy()
-        instance.isAnimationAvailable = true
+        instance.init()
       })
       this.play()
     }
   }
 
   destroy() {
-    this.isAnimationAvailable = false
     this.queue.forEach(({instance}) => instance.destroy())
-    this.event.fire('destroy')
   }
 }

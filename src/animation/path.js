@@ -31,12 +31,9 @@ export default class PathAnimation extends AnimationBase {
       loopComplete: this.end.bind(this),
       easing: 'linear',
     })
-    this.event.fire('play')
   }
 
   destroy() {
     anime.remove(this.options.targets)
-    this.isAnimationAvailable = false
-    this.event.fire('destroy')
   }
 }

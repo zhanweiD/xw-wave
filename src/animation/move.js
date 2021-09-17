@@ -1,7 +1,6 @@
 import anime from 'animejs'
 import AnimationBase from './base'
 
-// 默认参数
 const defaultOptions = {
   delay: 0,
   duration: 1000,
@@ -10,6 +9,7 @@ const defaultOptions = {
   easing: 'linear',
 }
 
+// TODO: fix loop
 export default class MoveAnimation extends AnimationBase {
   constructor(options, context) {
     super(defaultOptions, options, context)
@@ -30,12 +30,9 @@ export default class MoveAnimation extends AnimationBase {
       translateX: positionX,
       translateY: positionY,
     })
-    this.event.fire('play')
   }
 
   destroy() {
     anime.remove(this.options.targets)
-    this.isAnimationAvailable = false
-    this.event.fire('destroy')
   }
 }
