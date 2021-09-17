@@ -1,5 +1,4 @@
 import Layout from '../layout'
-import {chinaGeoJSON} from './mock'
 
 // 柱状图配置数据生成
 const createSchema = (container, theme, layout) => {
@@ -53,11 +52,14 @@ const createSchema = (container, theme, layout) => {
           id: 'baseMap',
           layout: 'main',
         },
-        data: chinaGeoJSON,
+        data: 100000,
         style: {
           block: {
             fill: 'skyblue',
           },
+        },
+        event: {
+          'click-block': d => console.log(d),
         },
       },
       // 热力

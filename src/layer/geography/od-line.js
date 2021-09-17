@@ -81,10 +81,13 @@ export default class ODLineLayer extends LayerBase {
         const [fromX, fromY, toX, toY] = [d[fromXIndex], d[fromYIndex], d[toXIndex], d[toYIndex]]
         const position = {fromX: scaleX(fromX), fromY: scaleY(fromY), toX: scaleX(toX), toY: scaleY(toY)}
         return {
-          source: [
-            {category: 'from', value: `(${fromX},${fromY})`},
-            {category: 'to', value: `(${toX},${toY})`},
-          ],
+          source: [{
+            category: 'from',
+            value: `(${fromX},${fromY})`,
+          }, {
+            category: 'to', 
+            value: `(${toX},${toY})`,
+          }],
           // geo coordinates => svg coordinates
           data: this.#getPath(position),
           position,

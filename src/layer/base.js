@@ -40,7 +40,7 @@ export default class LayerBase {
     this.tooltipTargets = []
     this.root = null
     this.className = null
-    this.#createEvent()
+    this.#initializeEvent()
     this.log = createLog('src/layer/base')
     this.event = createEvent('src/layer/base')
     this.sublayers.forEach(name => this.#backupData[name] = [])
@@ -193,7 +193,7 @@ export default class LayerBase {
   }
 
   // initialize mouse event
-  #createEvent = () => {
+  #initializeEvent = () => {
     const {tooltip, engine} = this.options
     this.#backupEvent = {
       common: {},

@@ -1,19 +1,34 @@
 import * as d3 from 'd3'
 import LayerBase from '../base'
 
+// official data from online, key is block code
+const getUrl = key => `http://cdn.dtwave.com/waveview/geojson/${key}.json`
+
 const defaultStyle = {
   block: {},
   text: {},
 }
 
 export default class BaseMapLayer extends LayerBase {
-  #data = {}
+  #data = {
+    type: 'FeatureCollection',
+    features: [],
+  }
 
-  #scale = {}
+  // out of visible area
+  #scale = {
+    scalePosition: ([x, y]) => [-x, -y],
+  }
 
   #path = null
 
-  #blockData = {}
+  #parentCode = []
+
+  #backgroundRectData = {}
+
+  #chinaBlocks = []
+
+  #blockData = []
 
   #textData = []
 
@@ -32,22 +47,56 @@ export default class BaseMapLayer extends LayerBase {
   }
 
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['block', 'text'])
+    super(layerOptions, waveOptions, ['block', 'background', 'text'])
     this.className = 'wave-base-map'
     this.tooltipTargets = ['block']
+    // means load data success
+    this.isReady = false
+    // get all blocks of china
+    fetch(getUrl('all')).then(res => res.json()).then(data => this.#chinaBlocks = data)
   }
 
-  // data is GeoJSON
+  #refresh = data => {
+    this.setData(data)
+    this.setStyle()
+    this.draw()
+  }
+
+  // data is GeoJSON or block code
   setData(data, scales) {
-    this.#data = data || this.#data
-    const {top, left, width, height} = this.options.layout
-    const projection = d3.geoMercator().fitExtent([[left, top], [width, height]], this.#data)
-    this.#path = d3.geoPath(projection)
-    this.#scale = this.createScale({scalePosition: projection}, this.#scale, scales)
-    this.#blockData = this.#data.features.map(({geometry, properties}) => ({
-      source: Object.entries(properties).map(([category, value]) => ({category, value})),
-      geometry,
-    }))
+    // block code: use online resource
+    if (typeof data === 'number') {
+      // wait for block data
+      if (this.#chinaBlocks.length) {
+        const children = this.#chinaBlocks.filter(({parent}) => parent === data)
+        if (children.length) {
+          Promise.all(children.map(({adcode}) => new Promise((resolve, reject) => {
+            fetch(getUrl(adcode))
+              .then(res => res.json())
+              .then(json => resolve(json))
+              .catch(e => reject(e))
+          }))).then(list => {
+            const dataSet = list.reduce((prev, cur) => [...prev, ...cur.features], [])
+            this.#refresh({type: 'FeatureCollection', features: dataSet})
+          })
+        }
+      } else {
+        setTimeout(() => this.setData(data), 100)
+      }
+    } else if (data) {
+      this.#data = data || this.#data
+      const {top, left, width, height} = this.options.layout 
+      const projection = d3.geoMercator().fitExtent([[left, top], [width, height]], this.#data)
+      this.#path = d3.geoPath(projection)
+      this.#scale = this.createScale({scalePosition: projection}, {}, scales)
+      // drill up background block
+      this.#backgroundRectData = {x: left, y: top, width, height}
+      // drill down map block
+      this.#blockData = this.#data.features.map(({geometry, properties}) => ({
+        source: Object.entries(properties).map(([category, value]) => ({category, value})),
+        geometry,
+      }))
+    }
   }
 
   setStyle(style) {
@@ -72,7 +121,30 @@ export default class BaseMapLayer extends LayerBase {
       position: this.#textData.map(({x, y}) => [x, y]),
       ...this.#style.text,
     }]
+    const rectData = [{
+      data: [[this.#backgroundRectData.width, this.#backgroundRectData.height]],
+      position: [[this.#backgroundRectData.x, this.#backgroundRectData.y]],
+      fill: 'rgba(0,0,0,0)',
+    }]
+    this.drawBasic('rect', rectData, 'background')
     this.drawBasic('path', blockData, 'block')
     this.drawBasic('text', textData)
+    // reset coordinate system
+    if (this.#blockData.length) {
+      this.options.bindCoordinate({redraw: true})
+    }
+    // drill up on the map
+    this.event.off('click-background', 'private')
+    this.event.on('click-background', () => {
+      const parentCode = this.#parentCode.pop()
+      parentCode && this.#refresh(parentCode)
+    }, 'private')
+    // drill down on the map
+    this.event.off('click-block', 'private')
+    this.event.on('click-block', ({data}) => {
+      const blockCode = data.source.find(({category}) => category === 'adcode')?.value
+      this.#parentCode.push(data.source.find(({category}) => category === 'parent')?.value?.adcode)
+      this.#refresh(blockCode)
+    }, 'private')
   }
 }

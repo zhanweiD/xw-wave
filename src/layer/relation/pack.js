@@ -1,12 +1,10 @@
 import * as d3 from 'd3'
 import LayerBase from '../base'
 
-// 默认选项
 const defaultOptions = {
   zoom: false,
 }
 
-// 默认样式
 const defaultStyle = {
   padding: 0,
   circle: {},
@@ -30,27 +28,24 @@ export default class PackLayer extends LayerBase {
     return this.#style
   }
 
-  // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super({...defaultOptions, ...layerOptions}, waveOptions, ['circle', 'text'])
     this.className = `wave${this.options.zoom ? '-zoom-' : '-'}pack`
     this.tooltipTargets = ['circle']
   }
 
-  // 传入表格关系型数据
   setData(relation) {
     this.#data = relation || this.#data
     const root = {name: 'root', children: this.#data.data.nodes.filter(({level}) => level === 0)}
     this.#data.set('treeData', d3.hierarchy(root).sum(d => d.value).sort((a, b) => b.value - a.value))
     this.#data.set('maxHeight', d3.max(this.#data.get('treeData').descendants().map(({height}) => height + 1)))
-    // 初始视角
+    // origin config for zoom
     const {width, height} = this.options.layout
     this.#data.set('view', [width, height])
     this.#data.set('offset', [0, 0])
     this.#data.set('k', 1)
   }
 
-  // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {left, top} = this.options.layout
@@ -58,7 +53,7 @@ export default class PackLayer extends LayerBase {
     const pack = d3.pack().size(this.#data.get('view')).padding(padding)
     const nodes = pack(this.#data.get('treeData')).descendants()
     const [offsetX, offsetY] = this.#data.get('offset')
-    // 原始绘图数据
+    // origin circle data
     this.#circleData = nodes.map(({x, y, r, height, data}) => ({
       cx: x + left + offsetX,
       cy: y + top + offsetY,
@@ -66,20 +61,19 @@ export default class PackLayer extends LayerBase {
       height,
       r,
     }))
-    // 根据高度进行分类
+    // classify circles by height
     this.#circleData = d3.range(0, this.#data.get('maxHeight')).map(value => {
       return this.#circleData.filter(({height}) => height === value)
     }).reverse()
-    // 颜色跟随深度
+    // color is related to height
     const colors = this.getColor(this.#circleData.length, circle.fill)
     this.#circleData.forEach((groupData, i) => groupData.forEach(item => (item.color = colors[i])))
-    // 标签文字数据
+    // label data
     this.#textData = this.#circleData.map(groupData => groupData.map(({cx, cy, value}) => this.createText({
       x: cx, y: cy, value, style: text, position: 'center',
     })))
   }
 
-  // 绘制
   draw() {
     const circleData = this.#circleData.map(groupData => {
       const data = groupData.map(({r}) => [r, r])
@@ -93,29 +87,30 @@ export default class PackLayer extends LayerBase {
       const position = groupData.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
-    // 只展示最里层文字防遮挡
+    // only show the innermost label to prevent occlusion
     this.drawBasic('circle', circleData)
     this.drawBasic('text', textData.slice(textData.length - 1))
-    // 内置缩放事件
+    // private zoom event
     if (this.options.zoom && this.options.engine === 'svg') {
-      this.root.selectAll('.wave-basic-circle').on('click', this.#zoom)
+      this.event.off('click-circle', 'private')
+      this.event.on('click-circle', this.#zoom, 'private')
     }
   }
 
-  #zoom = (event, data) => {
+  #zoom = ({data}) => {
     const {cx, cy, rx, ry} = data
     const {left, top, width, height} = this.options.layout
     const prevK = this.#data.get('k')
     const nextK = (Math.min(width, height) / (rx + ry)) * prevK
-    // 移动目标到中心
+    // move the target circle to the center of the container
     const [prevX, prevY] = this.#data.get('offset')
     const nextX = (width / 2 - (cx - prevX - left) / prevK) * nextK - (width * (nextK - 1)) / 2
     const nextY = (height / 2 - (cy - prevY - top) / prevK) * nextK - (height * (nextK - 1)) / 2
-    // 更新数据
+    // update data
     this.#data.set('k', nextK)
     this.#data.set('offset', [nextX, nextY])
     this.#data.set('view', [width * nextK, height * nextK])
-    // 范围计算和绘制
+    // redraw
     this.setStyle()
     this.draw()
   }
