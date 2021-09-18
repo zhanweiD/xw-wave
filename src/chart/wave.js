@@ -111,7 +111,7 @@ export default class Wave {
       this.#root = new fabric.Canvas(canvas.nodes()[0], {selection: false, hoverCursor: 'pointer'})
       this.#root.defs = this.#defs
     }
-    
+
     // initialize the layout
     this.#layout = layout({
       containerWidth: this.containerWidth,
@@ -170,7 +170,7 @@ export default class Wave {
     // generate a layer by layer type
     const layer = new layerMapping[type](options, context)
     const layerId = options.id || createUuid()
-    // wave will save the layer for easy management 
+    // wave will save the layer for easy management
     this.#state = stateType.READY
     this.#layer.push({type, id: layerId, instance: layer})
     // register destroy event
@@ -203,7 +203,7 @@ export default class Wave {
         scales.scaleX = scale.scaleX
         if (axis === 'minor') {
           scales.scaleYR = scale.scaleY
-        } else { // default main
+        } else {
           scales.scaleY = scale.scaleY
         }
       }
@@ -227,14 +227,14 @@ export default class Wave {
         const scaleY = y => scales.scaleY(y) - layer.options.layout.top
         layer.setData(null, {...scales, scaleX, scaleY})
         layer.setStyle()
-        // draw baseMap layer will stuck in infinite loop
+        // attention that draw baseMap layer will stuck in infinite loop
         redraw && !isBaseMapLayer(layer) && layer.draw()
       } else {
         const scaleY = layer.options.axis === 'minor' ? scales.scaleYR : scales.scaleY
         layer.setData(null, {...scales, scaleY})
         layer.setStyle()
         redraw && layer.draw()
-      }  
+      }
     })
   }
 
@@ -254,11 +254,15 @@ export default class Wave {
         const {selection} = event
         const total = isHorizontal ? width : height
         const scale = isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
-        if (prevRange[i] === null) prevRange[i] = scale.range()
-        const zoomFactor = total / ((selection[1] - selection[0]) || 1)
+        // initialize
+        if (prevRange[i] === null) {
+          prevRange[i] = scale.range()
+        }
+        const zoomFactor = total / (selection[1] - selection[0] || 1)
         const nextRange = [prevRange[i][0], prevRange[i][0] + (prevRange[i][1] - prevRange[i][0]) * zoomFactor]
         const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
         scale.range(nextRange.map(value => value - offset))
+        // mark scale with brush so that layer base can merge scales correctly
         scale.brushed = true
         instance.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
         instance.setStyle()
@@ -266,8 +270,11 @@ export default class Wave {
       })
       // create brush instance
       const [brushX1, brushX2, brushY1, brushY2] = [left, left + width, top, top + height]
-      const brush = (isHorizontal ? d3.brushX() : d3.brushY())
-      brush.extent([[brushX1, brushY1], [brushX2, brushY2]]).on('brush', brushed)
+      const brush = isHorizontal ? d3.brushX() : d3.brushY()
+      brush.on('brush', brushed).extent([
+        [brushX1, brushY1],
+        [brushX2, brushY2],
+      ])
       // initialize brush area
       const brushDOM = this.#root.append('g').attr('class', 'wave-brush').call(brush)
       brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
