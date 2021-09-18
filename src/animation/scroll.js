@@ -11,8 +11,11 @@ const defaultOptions = {
   loop: true,
 }
 
-// TODO: append init
 export default class ScrollAnimation extends AnimationBase {
+  #elementNumber = null
+
+  #active = null
+
   constructor(options, context) {
     super(defaultOptions, options, context)
     const {clone, offset, reverse, targets} = this.options
@@ -36,8 +39,8 @@ export default class ScrollAnimation extends AnimationBase {
         duration: 0,
       })
     }
-    this.elementNumber = this.options.targets.length
-    this.active = reverse ? this.elementNumber - 1 : 0
+    this.#elementNumber = this.options.targets.length
+    this.#active = reverse ? this.#elementNumber - 1 : 0
   }
 
   play() {
@@ -49,11 +52,11 @@ export default class ScrollAnimation extends AnimationBase {
       keyframes: [{
         translateX: `${reverse ? '+=' : '-='}${offset[0]}`,
         translateY: `${reverse ? '+=' : '-='}${offset[1]}`,
-        opacity: (el, i) => (this.active === i ? 0 : 1),
+        opacity: (el, i) => (this.#active === i ? 0 : 1),
         duration,
       }, {
-        translateX: (el, i, len) => (this.active === i ? `${reverse ? '-=' : '+='}${offset[0] * len}` : '+=0'),
-        translateY: (el, i, len) => (this.active === i ? `${reverse ? '-=' : '+='}${offset[1] * len}` : '+=0'),
+        translateX: (el, i, len) => (`${reverse ? '-=' : '+='}${this.#active === i ? offset[0] * len : 0}`),
+        translateY: (el, i, len) => (`${reverse ? '-=' : '+='}${this.#active === i ? offset[1] * len : 0}`),
         opacity: 1,
         duration: 0,
       }],
@@ -65,13 +68,15 @@ export default class ScrollAnimation extends AnimationBase {
   }
 
   end() {
-    this.active = !this.options.reverse
-      ? (this.active + 1) % this.elementNumber
-      : (this.active + this.elementNumber - 1) % this.elementNumber
+    this.#active = !this.options.reverse
+      ? (this.#active + 1) % this.#elementNumber
+      : (this.#active + this.#elementNumber - 1) % this.#elementNumber
     this.isAnimationAvailable && this.options.loop && this.play()
   }
 
   destroy() {
+    const {delay, duration} = this.options
+    this.instance?.seek(delay + duration)
     anime.remove(this.options.targets)
   }
 }

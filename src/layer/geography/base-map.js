@@ -15,7 +15,7 @@ export default class BaseMapLayer extends LayerBase {
     features: [],
   }
 
-  // out of visible area
+  // initial hide
   #scale = {
     scalePosition: ([x, y]) => [-x, -y],
   }
@@ -53,7 +53,10 @@ export default class BaseMapLayer extends LayerBase {
     // means load data success
     this.isReady = false
     // get all blocks of china
-    fetch(getUrl('all')).then(res => res.json()).then(data => this.#chinaBlocks = data)
+    fetch(getUrl('all'))
+      .then(res => res.json())
+      .then(data => this.#chinaBlocks = data)
+      .catch(e => this.log.error('Fetch map data failed', e))
   }
 
   #refresh = data => {
@@ -70,15 +73,18 @@ export default class BaseMapLayer extends LayerBase {
       if (this.#chinaBlocks.length) {
         const children = this.#chinaBlocks.filter(({parent}) => parent === data)
         if (children.length) {
-          Promise.all(children.map(({adcode}) => new Promise((resolve, reject) => {
-            fetch(getUrl(adcode))
-              .then(res => res.json())
-              .then(json => resolve(json))
-              .catch(e => reject(e))
-          }))).then(list => {
-            const dataSet = list.reduce((prev, cur) => [...prev, ...cur.features], [])
-            this.#refresh({type: 'FeatureCollection', features: dataSet})
-          })
+          Promise
+            .all(children.map(({adcode}) => new Promise((resolve, reject) => {
+              fetch(getUrl(adcode))
+                .then(res => res.json())
+                .then(json => resolve(json))
+                .catch(e => reject(e))
+            })))
+            .then(list => {
+              const dataSet = list.reduce((prev, cur) => [...prev, ...cur.features], [])
+              this.#refresh({type: 'FeatureCollection', features: dataSet})
+            })
+            .catch(e => this.log.error('Fetch map data failed', e))
         }
       } else {
         setTimeout(() => this.setData(data), 100)

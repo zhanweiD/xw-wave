@@ -34,6 +34,8 @@ export default class FadeAnimation extends AnimationBase {
   }
 
   destroy() {
+    const {delay, duration} = this.options
+    this.instance?.seek(delay + duration)
     anime.remove(this.options.targets)
   }
 }

@@ -71,6 +71,8 @@ export default class EraseAnimation extends AnimationBase {
   }
 
   destroy() {
+    const {delay, duration} = this.options
+    this.instance?.seek(delay + duration)
     anime.remove(this.#targets)
     this.#extraNode.remove()
   }

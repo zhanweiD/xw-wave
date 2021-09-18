@@ -25,11 +25,11 @@ const judgeScaleValue = (mode, direction) => {
   const [min, max] = [0.0001, 1]
   // direction judgement
   if (direction === directions.HORIZONTAL) {
-    values = (mode === modeType.SHOW ? [min, max] : [max, max])
+    values = mode === modeType.SHOW ? [min, max] : [max, max]
   } else if (direction === directions.VERTICAL) {
-    values = (mode === modeType.SHOW ? [max, min] : [max, max])
+    values = mode === modeType.SHOW ? [max, min] : [max, max]
   } else if (direction === directions.BOTH) {
-    values = (mode === modeType.SHOW ? [min, min] : [max, max])
+    values = mode === modeType.SHOW ? [min, min] : [max, max]
   }
   return values
 }
@@ -64,6 +64,8 @@ export default class ZoomAnimation extends AnimationBase {
   }
 
   destroy() {
+    const {delay, duration} = this.options
+    this.instance?.seek(delay + duration)
     anime.remove(this.options.targets)
   }
 }

@@ -34,6 +34,7 @@ export default class PathAnimation extends AnimationBase {
   }
 
   destroy() {
+    this.instance?.seek(0)
     anime.remove(this.options.targets)
   }
 }

@@ -66,6 +66,7 @@ export default class BreatheAnimation extends AnimationBase {
   }
 
   destroy() {
+    this.instance?.seek(0)
     anime.remove([this.#targets.nodes(), this.options.targets])
     this.#extraNode.remove()
   }

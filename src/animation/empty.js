@@ -37,7 +37,7 @@ export default class EmptyAnimation extends AnimationBase {
 
   destroy() {
     if (this.options.mode === modeType.TIMER) {
-      this.instance.remove()
+      anime.remove(this.instance)
     }
   }
 }

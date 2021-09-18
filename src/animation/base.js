@@ -21,7 +21,7 @@ export default class AnimationBase {
   // transform targets
   createTargets(key, context) {
     const targets = this.options[key]
-    if (targets && typeof targets === 'string') { // class
+    if (targets && typeof targets === 'string') {
       merge(this.options, {className: targets, [key]: context.selectAll(targets).nodes()})
     } else if (targets && targets.constructor.name === 'Selection') {
       merge(this.options, {[key]: targets.nodes()})
@@ -33,32 +33,32 @@ export default class AnimationBase {
     const lifeCycles = ['init', 'play', 'start', 'process', 'end', 'destroy']
     // start catch error
     lifeCycles.forEach(name => {
-      const that = this
-      const fn = that[name] || (() => null)
-      that[name] = (...parameter) => {
+      const instance = this
+      const fn = instance[name] || (() => null)
+      instance[name] = (...parameter) => {
         try {
           if (name === 'init') {
             this.isAnimationAvailable = true
           } else if (name === 'play') {
-            if (!that.isAnimationAvailable) {
-              that.log.warn('The animation is not available!')
+            if (!instance.isAnimationAvailable) {
+              instance.log.warn('The animation is not available!')
               return
-            } 
-            if (that.isAnimationStart) {
-              that.log.warn('The animation is already started!')
+            }
+            if (instance.isAnimationStart) {
+              instance.log.warn('The animation is already started!')
               return
             }
           } else if (name === 'start') {
-            that.isAnimationStart = true
+            instance.isAnimationStart = true
           } else if (name === 'end') {
-            that.isAnimationStart = false
+            instance.isAnimationStart = false
           } else if (name === 'destroy') {
             this.isAnimationAvailable = false
           }
-          fn.call(that, ...parameter)
-          that.event.fire(name, {...parameter})
+          fn.call(instance, ...parameter)
+          instance.event.fire(name, {...parameter})
         } catch (error) {
-          that.log.error('Animation life cycle call exception', error)
+          instance.log.error('Animation life cycle call exception', error)
         }
       }
     })

@@ -139,6 +139,7 @@ export default class ScanAnimation extends AnimationBase {
   }
 
   destroy() {
+    this.instance?.seek(0)
     anime.remove(this.targets)
     this.#extraNode.remove()
     this.#lights?.remove()
