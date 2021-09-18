@@ -6,6 +6,7 @@ import createLog from '../utils/create-log'
 import createEvent from '../utils/create-event'
 import createDefs, {makeGradientCreator} from '../utils/define'
 import Layer, {layerMapping} from '../layer'
+import {coordinateType} from '../layer/axis'
 import Tooltip from './tooltip'
 import Layout from '../layout'
 
@@ -19,12 +20,6 @@ const stateType = {
 const brushType = {
   HORIZONTAL: 'horizontal',
   VERTICAL: 'vertical',
-}
-
-const coordinateType = {
-  POLAR: 'polar',
-  CARTESIAN: 'cartesian',
-  GEOGRAPHIC: 'geographic',
 }
 
 export default class Wave {
@@ -69,7 +64,6 @@ export default class Wave {
     tooltip = {},
     engine = 'svg',
     layout = Layout.standard(false),
-    coordinate = coordinateType.CARTESIAN,
   }) {
     // initialize some attr
     this.#state = stateType.INITILIZE
@@ -127,7 +121,6 @@ export default class Wave {
 
     // initialize other attr
     this.theme = theme
-    this.coordinate = coordinate
     this.log = createLog('src/wave/wave')
     this.event = createEvent('src/wave/wave')
     this.#tooltip = new Tooltip(this.#container, tooltip)
@@ -194,26 +187,33 @@ export default class Wave {
    * @param {LayerBase} layers
    */
   bindCoordinate({redraw = false}) {
-    const axisLayer = this.#layer.find(({instance}) => instance instanceof Layer.Axis)?.instance
+    const isAxisLayer = instance => instance instanceof Layer.Axis
+    const isBaseMapLayer = instance => instance instanceof Layer.BaseMap
+    const axisLayer = this.#layer.find(({instance}) => isAxisLayer(instance))?.instance
+    const {type} = axisLayer.options
     const layers = this.#layer
-      .map(({instance}) => instance.scale && !(instance instanceof Layer.Axis) && instance)
-      .filter(Boolean)
+      .filter(({instance}) => instance.scale && !isAxisLayer(instance))
+      .map(({instance}) => instance)
     // merge scales
     layers.forEach(layer => {
       const {scale, options} = layer
       const {axis} = options
       const scales = {}
-      if (this.coordinate.search(coordinateType.CARTESIAN) !== -1) {
+      if (type.search(coordinateType.CARTESIAN) !== -1) {
         scales.scaleX = scale.scaleX
-        axis === 'main' && (scales.scaleY = scale.scaleY)
-        axis === 'minor' && (scales.scaleYR = scale.scaleY)
+        if (axis === 'minor') {
+          scales.scaleYR = scale.scaleY
+        } else { // default main
+          scales.scaleY = scale.scaleY
+        }
       }
-      if (this.coordinate.search(coordinateType.POLAR) !== -1) {
+      if (type.search(coordinateType.POLAR) !== -1) {
         scales.scaleAngle = scale.scaleAngle
         scales.scaleRadius = scale.scaleRadius
       }
-      if (this.coordinate.search(coordinateType.GEOGRAPHIC) !== -1 && layer instanceof Layer.BaseMap) {
-        scales.scalePosition = scale.scalePosition
+      if (type.search(coordinateType.GEOGRAPHIC) !== -1 && isBaseMapLayer(layer)) {
+        scales.scaleX = scale.scaleX
+        scales.scaleY = scale.scaleY
       }
       axisLayer.setData(null, scales)
       axisLayer.setStyle()
@@ -222,13 +222,13 @@ export default class Wave {
     layers.forEach(layer => {
       const scales = {...layer.scale, ...axisLayer.scale}
       // projection to normal scale
-      if (this.coordinate.search(coordinateType.GEOGRAPHIC) !== -1) {
-        const scaleX = x => scales.scalePosition([x, 0])[0] - layer.options.layout.left
-        const scaleY = y => scales.scalePosition([0, y])[1] - layer.options.layout.top
+      if (type.search(coordinateType.GEOGRAPHIC) !== -1) {
+        const scaleX = x => scales.scaleX(x) - layer.options.layout.left
+        const scaleY = y => scales.scaleY(y) - layer.options.layout.top
         layer.setData(null, {...scales, scaleX, scaleY})
         layer.setStyle()
         // draw baseMap layer will stuck in infinite loop
-        redraw && !(layer instanceof Layer.BaseMap) && layer.draw()
+        redraw && !isBaseMapLayer(layer) && layer.draw()
       } else {
         const scaleY = layer.options.axis === 'minor' ? scales.scaleYR : scales.scaleY
         layer.setData(null, {...scales, scaleY})

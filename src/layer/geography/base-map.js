@@ -15,9 +15,9 @@ export default class BaseMapLayer extends LayerBase {
     features: [],
   }
 
-  // initial hide
   #scale = {
-    scalePosition: ([x, y]) => [-x, -y],
+    scaleX: x => -x,
+    scaleY: y => -y,
   }
 
   #path = null
@@ -94,7 +94,11 @@ export default class BaseMapLayer extends LayerBase {
       const {top, left, width, height} = this.options.layout 
       const projection = d3.geoMercator().fitExtent([[left, top], [width, height]], this.#data)
       this.#path = d3.geoPath(projection)
-      this.#scale = this.createScale({scalePosition: projection}, {}, scales)
+      // transform scales
+      this.#scale = this.createScale({
+        scaleX: x => projection([x, 0])[0],
+        scaleY: y => projection([0, y])[1],
+      }, {}, scales)
       // drill up background block
       this.#backgroundRectData = {x: left, y: top, width, height}
       // drill down map block

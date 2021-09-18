@@ -21,7 +21,7 @@ const positionType = {
 }
 
 // some constants
-export const scaleTypes = ['scaleX', 'scaleY', 'scaleXT', 'scaleYR', 'scaleAngle', 'scaleRadius', 'scalePosition']
+export const scaleTypes = ['scaleX', 'scaleY', 'scaleXT', 'scaleYR', 'scaleAngle', 'scaleRadius']
 export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown']
 export const tooltipEvents = ['mouseover', 'mouseout', 'mousemove']
 

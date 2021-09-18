@@ -3,7 +3,7 @@ import {merge} from 'lodash'
 import LayerBase, {scaleTypes} from './base'
 import Scale from '../data/scale'
 
-const coordinateType = {
+export const coordinateType = {
   GEOGRAPHIC: 'geographic',
   CARTESIAN: 'cartesian',
   POLAR: 'polar',
@@ -125,28 +125,29 @@ export default class AxisLayer extends LayerBase {
 
   // merge scales from different layers
   #merge = scales => {
+    const coordinate = this.options.type
     merge(this.#scale.nice, scales.nice)
     scaleTypes.forEach(type => {
       // no define
       if (!scales[type]) return
       // new scale
-      if (!this.#scale[type] || type === 'scalePosition') {
+      if (!this.#scale[type] || coordinate === coordinateType.GEOGRAPHIC) {
         this.#scale[type] = scales[type]
       }
       // merge scale
-      if (this.#scale[type].type === 'linear') {
-        const [current, incoming] = [this.#scale[type].domain(), scales[type].domain()]
-        if (current[0] > current[1] !== incoming[0] > incoming[1]) {
-          this.log.warn('Layers scale does not match', {current, incoming})
-        } else {
-          const isReverse = current[0] > current[1]
-          const start = isReverse ? Math.max(current[0], incoming[0]) : Math.min(current[0], incoming[0])
-          const end = isReverse ? Math.min(current[1], incoming[1]) : Math.max(current[1], incoming[1])
-          this.#scale[type].domain([start, end])
+      if (coordinate !== coordinateType.GEOGRAPHIC) {
+        if (this.#scale[type].type === 'linear') {
+          const [current, incoming] = [this.#scale[type].domain(), scales[type].domain()]
+          if (current[0] > current[1] !== incoming[0] > incoming[1]) {
+            this.log.warn('Layers scale does not match', {current, incoming})
+          } else {
+            const isReverse = current[0] > current[1]
+            const start = isReverse ? Math.max(current[0], incoming[0]) : Math.min(current[0], incoming[0])
+            const end = isReverse ? Math.min(current[1], incoming[1]) : Math.max(current[1], incoming[1])
+            this.#scale[type].domain([start, end])
+          }
         }
-      }
-      // nice merged scale: nice function must idempotent
-      if (type !== 'scalePosition') {
+        // nice merged scale: nice function must idempotent
         this.#scale[type] = new Scale({
           type: this.#scale[type].type,
           domain: this.#scale[type].domain(),
