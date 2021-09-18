@@ -162,6 +162,8 @@ export default class AnimationQueue extends AnimationBase {
   }
 
   destroy() {
-    this.queue.forEach(({instance}) => instance.destroy())
+    this.queue.forEach(({instance}) => {
+      instance.isAnimationAvailable && instance.destroy()
+    })
   }
 }

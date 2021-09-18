@@ -74,7 +74,6 @@ export default class LayerBase {
     this.log.warn('LayerBase: The subclass does not implemented the setStyle method')
   }
 
-  // play all animations
   playAnimation() {
     this.sublayers.forEach(type => this.#backupAnimation[type]?.play())
   }
@@ -146,15 +145,7 @@ export default class LayerBase {
    * @returns correct styles
    */
   createStyle(defaultStyle, currentStyle, incomingStyle = {}) {
-    const {baseFontSize} = this.options
     const style = merge({}, defaultStyle, currentStyle, incomingStyle)
-    const keys = Object.keys(incomingStyle)
-    // multiply the baseFontSize (not save yet)
-    keys.forEach(key => {
-      if (key.search(/text/i) !== -1 && style[key].fontSize) {
-        style[key].fontSize *= baseFontSize
-      }
-    })
     return style
   }
 

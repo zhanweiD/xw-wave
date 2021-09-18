@@ -67,7 +67,6 @@ export default class Wave {
     theme = [],
     define = {},
     tooltip = {},
-    baseFontSize = 1,
     engine = 'svg',
     layout = Layout.standard(false),
     coordinate = coordinateType.CARTESIAN,
@@ -129,7 +128,6 @@ export default class Wave {
     // initialize other attr
     this.theme = theme
     this.coordinate = coordinate
-    this.baseFontSize = baseFontSize
     this.log = createLog('src/wave/wave')
     this.event = createEvent('src/wave/wave')
     this.#tooltip = new Tooltip(this.#container, tooltip)
@@ -170,7 +168,6 @@ export default class Wave {
       engine: this.#engine,
       tooltip: this.#tooltip,
       container: this.#container,
-      baseFontSize: this.baseFontSize,
       containerWidth: this.containerWidth,
       containerHeight: this.containerHeight,
       createGradient: makeGradientCreator(this.#defs, this.#engine),
