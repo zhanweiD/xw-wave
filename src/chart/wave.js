@@ -3,13 +3,11 @@ import chroma from 'chroma-js'
 import {fabric} from 'fabric'
 import createUuid from '../utils/uuid'
 import createLog from '../utils/create-log'
-import catchError from '../utils/catch-error'
 import createEvent from '../utils/create-event'
 import createDefs, {makeGradientCreator} from '../utils/define'
-import {layerMapping} from '../layer'
+import Layer, {layerMapping} from '../layer'
 import Tooltip from './tooltip'
 import Layout from '../layout'
-import AxisLayer from '../layer/axis'
 
 const stateType = {
   INITILIZE: 'initilize',
@@ -185,11 +183,6 @@ export default class Wave {
     // wave will save the layer for easy management 
     this.#state = stateType.READY
     this.#layer.push({type, id: layerId, instance: layer})
-    // catch layer's life cycle
-    catchError(layer, error => {
-      this.#state = stateType.WARN
-      this.log.error('Wave: Layer life cycle call exception', error)
-    })
     // register destroy event
     layer.event.on('destroy', () => {
       const index = this.#layer.findIndex(({id}) => id === layerId)
@@ -203,30 +196,29 @@ export default class Wave {
    * @param {AxisLayer} axisLayer
    * @param {LayerBase} layers
    */
-  bindCoordinate() {
-    const axisLayer = this.#layer.find(({instance}) => instance instanceof AxisLayer)?.instance
+  bindCoordinate({redraw = false}) {
+    const axisLayer = this.#layer.find(({instance}) => instance instanceof Layer.Axis)?.instance
     const layers = this.#layer
-      .map(({instance}) => instance.scale && !(instance instanceof AxisLayer) && instance)
+      .map(({instance}) => instance.scale && !(instance instanceof Layer.Axis) && instance)
       .filter(Boolean)
-    layers.forEach(({scale, options}) => {
-      const result = {}
+    // merge scales
+    layers.forEach(layer => {
+      const {scale, options} = layer
       const {axis} = options
-      // cartesian coordinate system
+      const scales = {}
       if (this.coordinate.search(coordinateType.CARTESIAN) !== -1) {
-        result.scaleX = scale.scaleX
-        axis === 'main' && (result.scaleY = scale.scaleY)
-        axis === 'minor' && (result.scaleYR = scale.scaleY)
+        scales.scaleX = scale.scaleX
+        axis === 'main' && (scales.scaleY = scale.scaleY)
+        axis === 'minor' && (scales.scaleYR = scale.scaleY)
       }
-      // polar coordinate system
       if (this.coordinate.search(coordinateType.POLAR) !== -1) {
-        result.scaleAngle = scale.scaleAngle
-        result.scaleRadius = scale.scaleRadius
+        scales.scaleAngle = scale.scaleAngle
+        scales.scaleRadius = scale.scaleRadius
       }
-      // geography coordinate system
-      if (this.coordinate.search(coordinateType.GEOGRAPHIC) !== -1) {
-        result.scalePosition = scale.scalePosition
+      if (this.coordinate.search(coordinateType.GEOGRAPHIC) !== -1 && layer instanceof Layer.BaseMap) {
+        scales.scalePosition = scale.scalePosition
       }
-      axisLayer.setData(null, result)
+      axisLayer.setData(null, scales)
       axisLayer.setStyle()
     })
     // axis will merge all scales and give them to every layer
@@ -237,11 +229,15 @@ export default class Wave {
         const scaleX = x => scales.scalePosition([x, 0])[0] - layer.options.layout.left
         const scaleY = y => scales.scalePosition([0, y])[1] - layer.options.layout.top
         layer.setData(null, {...scales, scaleX, scaleY})
+        layer.setStyle()
+        // draw baseMap layer will stuck in infinite loop
+        redraw && !(layer instanceof Layer.BaseMap) && layer.draw()
       } else {
         const scaleY = layer.options.axis === 'minor' ? scales.scaleYR : scales.scaleY
         layer.setData(null, {...scales, scaleY})
-      }
-      layer.setStyle()
+        layer.setStyle()
+        redraw && layer.draw()
+      }  
     })
   }
 
@@ -279,14 +275,6 @@ export default class Wave {
       const brushDOM = this.#root.append('g').attr('class', 'wave-brush').call(brush)
       brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
     }
-  }
-
-  draw(recalculate = false) {
-    this.#layer.forEach(({instance}) => {
-      recalculate && instance.setData()
-      recalculate && instance.setStyle()
-      instance.draw()
-    })
   }
 
   destroy() {

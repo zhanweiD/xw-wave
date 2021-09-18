@@ -40,11 +40,30 @@ export default class LayerBase {
     this.tooltipTargets = []
     this.root = null
     this.className = null
-    this.#createEvent()
+    this.#initializeEvent()
     this.log = createLog('src/layer/base')
     this.event = createEvent('src/layer/base')
     this.sublayers.forEach(name => this.#backupData[name] = [])
     this.selector = new Selector(this.options.engine)
+    this.#catchError()
+  }
+
+  #catchError = () => {
+    // basic life cycles
+    const lifeCycles = ['setData', 'setStyle', 'draw', 'destroy', 'drawBasic']
+    // safe call
+    lifeCycles.forEach(name => {
+      const that = this
+      const fn = that[name]
+      that[name] = (...parameter) => {
+        try {
+          fn.call(that, ...parameter)
+          that.event.fire(name, {...parameter})
+        } catch (error) {
+          this.log.error('Layer life cycle call exception', error)
+        }
+      }
+    })
   }
 
   setData() { 
@@ -193,7 +212,7 @@ export default class LayerBase {
   }
 
   // initialize mouse event
-  #createEvent = () => {
+  #initializeEvent = () => {
     const {tooltip, engine} = this.options
     this.#backupEvent = {
       common: {},
@@ -358,6 +377,5 @@ export default class LayerBase {
   destroy() {
     this.sublayers.forEach(name => this.#backupAnimation[name]?.destroy())
     this.selector.remove(this.root)
-    this.event.fire('destroy')
   }
 }

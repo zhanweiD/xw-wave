@@ -1,11 +1,17 @@
 import anime from 'animejs'
 import AnimationBase from './base'
 
-// 默认参数
+const modeType = {
+  ABSOLUTE: 'absolute',
+  RELATIVE: 'relative',
+}
+
 const defaultOptions = {
+  mode: modeType.RELATIVE,
   delay: 0,
   duration: 1000,
-  position: [0, 0],
+  offsetX: 0,
+  offsetY: 0,
   loop: false,
   easing: 'linear',
 }
@@ -16,26 +22,24 @@ export default class MoveAnimation extends AnimationBase {
   }
 
   play() {
-    const {targets, delay, duration, loop, position, easing} = this.options
-    const [positionX, positionY] = position
+    const {targets, delay, duration, loop, mode, offsetX, offsetY, easing} = this.options
     this.instance = anime({
       targets,
       duration,
       delay,
       loop,
       easing,
-      update: this.process.bind(this),
-      loopBegin: this.start.bind(this),
-      loopComplete: this.end.bind(this),
-      translateX: positionX,
-      translateY: positionY,
+      update: this.process,
+      loopBegin: this.start,
+      loopComplete: this.end,
+      translateX: mode === modeType.ABSOLUTE ? offsetX : `+=${offsetX}`,
+      translateY: mode === modeType.ABSOLUTE ? offsetY : `+=${offsetY}`,
     })
-    this.event.fire('play')
   }
 
   destroy() {
+    const {delay, duration} = this.options
+    this.instance?.seek(delay + duration)
     anime.remove(this.options.targets)
-    this.isAnimationAvailable = false
-    this.event.fire('destroy')
   }
 }

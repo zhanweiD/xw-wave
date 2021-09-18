@@ -26,17 +26,15 @@ export default class PathAnimation extends AnimationBase {
       translateX: animePath('x'),
       translateY: animePath('y'),
       rotate: animePath('angle'),
-      update: this.process.bind(this),
-      loopBegin: this.start.bind(this),
-      loopComplete: this.end.bind(this),
+      update: this.process,
+      loopBegin: this.start,
+      loopComplete: this.end,
       easing: 'linear',
     })
-    this.event.fire('play')
   }
 
   destroy() {
+    this.instance?.seek(0)
     anime.remove(this.options.targets)
-    this.isAnimationAvailable = false
-    this.event.fire('destroy')
   }
 }

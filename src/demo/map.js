@@ -1,5 +1,4 @@
 import Layout from '../layout'
-import {chinaGeoJSON} from './mock'
 
 // 柱状图配置数据生成
 const createSchema = (container, theme, layout) => {
@@ -20,10 +19,6 @@ const createSchema = (container, theme, layout) => {
     layout,
     // 声明坐标系
     coordinate: 'geographic',
-    // 有热力图层需要指定 position，暂不清楚原因
-    tooltip: {
-      position: 'relative',
-    },
     layers: [
       // 标题文字图层
       {
@@ -57,11 +52,14 @@ const createSchema = (container, theme, layout) => {
           id: 'baseMap',
           layout: 'main',
         },
-        data: chinaGeoJSON,
+        data: 100000,
         style: {
           block: {
             fill: 'skyblue',
           },
+        },
+        event: {
+          'click-block': d => console.log(d),
         },
       },
       // 热力

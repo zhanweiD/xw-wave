@@ -145,7 +145,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
             type: 'scan',
             delay: 2000,
             duration: 3000,
-            color: 'rgba(255,255,255,0.9)',
+            color: 'rgb(255,255,255)',
             direction: 'right',
             scope: 'stroke',
           },

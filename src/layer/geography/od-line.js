@@ -15,7 +15,7 @@ const defaultAnimation = {
   flyingObject: {
     loop: {
       type: 'path',
-      path: '.wave-basic-odLine',
+      path: '.wave-basic-line',
     },
   },
 }
@@ -44,12 +44,12 @@ export default class ODLineLayer extends LayerBase {
   }
 
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['odLine', 'flyingObject', 'text'])
-    this.tooltipTargets = ['odLine']
-    this.className = 'wave-od-line'
+    super(layerOptions, waveOptions, ['line', 'flyingObject', 'text'])
+    this.tooltipTargets = ['line']
+    this.className = 'wave-odLine'
   }
 
-  // 根据两点绘制一条二次贝塞尔曲线
+  // quadratic bezier curve
   #getPath = ({fromX, fromY, toX, toY, arc = 0.5}) => {
     const path = d3.path()
     const [deltaX, deltaY] = [toX - fromX, toY - fromY]
@@ -81,10 +81,13 @@ export default class ODLineLayer extends LayerBase {
         const [fromX, fromY, toX, toY] = [d[fromXIndex], d[fromYIndex], d[toXIndex], d[toYIndex]]
         const position = {fromX: scaleX(fromX), fromY: scaleY(fromY), toX: scaleX(toX), toY: scaleY(toY)}
         return {
-          source: [
-            {category: 'from', value: `(${fromX},${fromY})`},
-            {category: 'to', value: `(${toX},${toY})`},
-          ],
+          source: [{
+            category: 'from',
+            value: `(${fromX},${fromY})`,
+          }, {
+            category: 'to', 
+            value: `(${toX},${toY})`,
+          }],
           // geo coordinates => svg coordinates
           data: this.#getPath(position),
           position,
@@ -114,7 +117,7 @@ export default class ODLineLayer extends LayerBase {
       data: this.#flyingObjectData.map(({data}) => data),
       ...this.#style.flyingObject,
     }]
-    this.drawBasic('path', odLineData, 'odLine')
+    this.drawBasic('path', odLineData, 'line')
     this.drawBasic('path', flyingObjectData, 'flyingObject')
   }
 }

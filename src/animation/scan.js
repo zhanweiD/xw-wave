@@ -2,7 +2,6 @@ import anime from 'animejs'
 import chroma from 'chroma-js'
 import AnimationBase from './base'
 
-// 方向常量
 const directions = {
   TOP: 'top',
   BOTTOM: 'bottom',
@@ -12,14 +11,13 @@ const directions = {
   INNER: 'inner',
 }
 
-// 渐变作用域
+// choose which scope to scan
 const scopes = {
   FILL: 'fill',
   STROKE: 'stroke',
   BOTH: 'both',
 }
 
-// 默认参数
 const defaultOptions = {
   delay: 1000, 
   duration: 3000, 
@@ -30,7 +28,7 @@ const defaultOptions = {
   loop: true,
 }
 
-// 根据方向确定要变换的 svg 属性
+// target attributes of svg
 const getAttributes = direction => {
   let attributes
   if (direction === directions.LEFT || direction === directions.RIGHT) {
@@ -43,7 +41,7 @@ const getAttributes = direction => {
   return attributes
 }
 
-// 渐变效果
+// gradient offset
 const insertOffsets = (gradient, {color, opacity}) => {
   const minColor = chroma(color).alpha(0)
   const maxColor = chroma(color).alpha(opacity)
@@ -62,7 +60,6 @@ const insertOffsets = (gradient, {color, opacity}) => {
   return gradient
 }
 
-// 创建横向渐变或者径向渐变，以及模糊效果
 const createGradient = (parentNode, {id, direction, color, opacity}) => {
   let targets
   const attributes = getAttributes(direction)
@@ -90,55 +87,62 @@ const createGradient = (parentNode, {id, direction, color, opacity}) => {
 }
 
 export default class ScanAnimation extends AnimationBase {
+  #extraNode = null
+
+  #targets = null
+
+  #lights = null
+
   constructor(options, context) {
     super(defaultOptions, options, context)
-    const {direction, color, opacity} = this.options
-    this.extraNode = context.append('defs')
-    this.targets = createGradient(this.extraNode, {id: this.id, direction, color, opacity})
-    this.isAnimationFirstPlay = true
+    this.init()
+  }
+
+  init() {
+    const {direction, context, color, opacity} = this.options
+    this.#extraNode = context.append('defs')
+    this.#targets = createGradient(this.#extraNode, {id: this.id, direction, color, opacity})
   }
 
   play() {
-    const {delay, duration, direction, scope, loop, className, context} = this.options
-    const attributes = getAttributes(direction)
+    const {delay, duration, direction, loop, className, scope, context} = this.options
     const isLeftOrTop = direction === directions.LEFT || direction === directions.TOP
+    const attributes = getAttributes(direction)
     const configs = {
-      targets: this.targets,
+      targets: this.#targets,
       duration,
       delay,
       loop,
-      update: this.process.bind(this),
-      loopBegin: this.start.bind(this),
-      loopComplete: this.end.bind(this),
+      update: this.process,
+      loopBegin: this.start,
+      loopComplete: this.end,
       easing: 'linear',
     }
-    // 首次执行添加渐变实例
-    if (this.isAnimationFirstPlay) {
-      this.isAnimationFirstPlay = false
-      this.lights = context.selectAll(className).clone(false)
+    // scan object
+    if (!this.#lights) {
+      this.#lights = context.selectAll(className).clone(false)
         .attr('class', 'scanAnimation-clone')
         .attr('filter', `url(#scan-filter-${this.id}`)
         .attr('stroke', scope !== scopes.FILL ? `url(#scan-${this.id})` : '')
         .style('fill', scope !== scopes.STROKE ? `url(#scan-${this.id})` : '')
         .style('pointer-events', 'none')
     }
-    // 变换的动画属性
+    // changed attributes of svg
     if (attributes.length === 2) {
       configs[attributes[0]] = isLeftOrTop ? ['100%', '-100%'] : ['-100%', '100%']
       configs[attributes[1]] = isLeftOrTop ? ['200%', '0%'] : ['0%', '200%']
     } else if (attributes[0] === 'r') {
       configs[attributes[0]] = direction === directions.INNER ? ['300%', '0%'] : ['0%', '300%']
     }
-    // 开始执行
+    // play animation
     this.instance = anime(configs)
-    this.event.fire('play')
   }
 
   destroy() {
+    this.instance?.seek(0)
     anime.remove(this.targets)
-    this.event.fire('destroy')
-    this.isAnimationAvailable = false
-    this.lights?.remove()
-    this.extraNode.remove()
+    this.#extraNode.remove()
+    this.#lights?.remove()
+    this.#lights = null
   }
 }

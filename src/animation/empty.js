@@ -1,20 +1,18 @@
 import anime from 'animejs'
 import AnimationBase from './base'
 
-// 类型常量
 const modeType = {
   FUNCTION: 'funtion',
   TIMER: 'timer',
 }
 
-// 默认参数
 const defaultOptions = {
   duration: 0,
   mode: modeType.FUNCTION,
   loop: false,
 }
 
-// 空动画对象，用于执行中间函数或其他功能
+// empty animation is useful for event
 export default class EmptyAnimation extends AnimationBase {
   constructor(options, context) {
     super(defaultOptions, options, context)
@@ -30,17 +28,16 @@ export default class EmptyAnimation extends AnimationBase {
       this.instance = anime({
         duration,
         loop,
-        update: this.process.bind(this),
-        loopBegin: this.start.bind(this),
-        loopComplete: this.end.bind(this),
+        update: this.process,
+        loopBegin: this.start,
+        loopComplete: this.end,
       })
     }
-    this.event.fire('play')
   }
 
   destroy() {
-    this.isAnimationAvailable = false
-    this.options.mode === modeType.TIMER && this.instance.remove()
-    this.event.fire('destroy')
+    if (this.options.mode === modeType.TIMER) {
+      anime.remove(this.instance)
+    }
   }
 }

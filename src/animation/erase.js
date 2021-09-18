@@ -2,7 +2,6 @@ import anime from 'animejs'
 import * as d3 from 'd3'
 import AnimationBase from './base'
 
-// 类型常量
 const directionType = {
   TOP: 'top',
   LEFT: 'left',
@@ -10,7 +9,6 @@ const directionType = {
   BOTTOM: 'bottom',
 }
 
-// 默认参数
 const defaultOptions = {
   delay: 0,
   duration: 2000,
@@ -18,7 +16,7 @@ const defaultOptions = {
   loop: false,
 }
 
-// 创建擦除动画所需的元素
+// create elements for erase animation
 const createGradient = (parentNode, {id, direction}) => {
   const isHorizontal = direction === directionType.LEFT || direction === directionType.RIGHT
   const isVertical = direction === directionType.TOP || direction === directionType.BOTTOM
@@ -33,14 +31,22 @@ const createGradient = (parentNode, {id, direction}) => {
   return targets.nodes()
 }
 
-// 擦除动画效果可参考折线入场
+// see line enter animation
 export default class EraseAnimation extends AnimationBase {
+  #extraNode = null
+
+  #targets = null
+
   constructor(options, context) {
     super(defaultOptions, options, context)
-    const {direction, targets} = this.options
-    this.extraNode = context.append('defs')
-    this.targets = createGradient(this.extraNode, {id: this.id, direction})
-    // 给元素设定裁剪区域
+    this.init()
+  }
+
+  init() {
+    const {direction, targets, context} = this.options
+    this.#extraNode = context.append('defs')
+    this.#targets = createGradient(this.#extraNode, {id: this.id, direction})
+    // important attributes
     d3.selectAll(targets).attr('clip-path', `url(#erase-${this.id})`)
   }
 
@@ -49,25 +55,25 @@ export default class EraseAnimation extends AnimationBase {
     const isHorizontal = direction === directionType.LEFT || direction === directionType.RIGHT
     const isVertical = direction === directionType.TOP || direction === directionType.BOTTOM
     this.instance = anime({
-      targets: this.targets,
+      targets: this.#targets,
       duration,
       delay,
       loop,
-      update: this.process.bind(this),
-      loopBegin: this.start.bind(this),
-      loopComplete: this.end.bind(this),
+      update: this.process,
+      loopBegin: this.start,
+      loopComplete: this.end,
       x: direction === directionType.LEFT ? ['100%', '0%'] : '0%',
       y: direction === directionType.TOP ? ['100%', '0%'] : '0%',
       width: isHorizontal ? ['0%', '100%'] : '100%',
       height: isVertical ? ['0%', '100%'] : '100%',
       easing: 'linear',
     })
-    this.event.fire('play')
   }
 
   destroy() {
-    anime.remove(this.targets)
-    this.isAnimationAvailable = false
-    this.event.fire('destroy')
+    const {delay, duration} = this.options
+    this.instance?.seek(delay + duration)
+    anime.remove(this.#targets)
+    this.#extraNode.remove()
   }
 }

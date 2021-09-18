@@ -130,7 +130,7 @@ export default class AxisLayer extends LayerBase {
       // no define
       if (!scales[type]) return
       // new scale
-      if (!this.#scale[type]) {
+      if (!this.#scale[type] || type === 'scalePosition') {
         this.#scale[type] = scales[type]
       }
       // merge scale

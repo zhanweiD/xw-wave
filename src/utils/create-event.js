@@ -6,29 +6,42 @@ const createEvent = (privateName = '') => {
   let cache = {}
 
   const event = {
-    on(name, fn, remark) {
+    on(name, fn, category) {
       if (typeof name === 'string' && typeof fn === 'function') {
         const prefixedName = rename(name)
         cache[prefixedName] = cache[prefixedName] || []
-        fn.remark = remark
+        fn.category = category
         cache[prefixedName].push(fn)
       }
     },
 
-    once(name, fn, remark) {
+    once(name, fn, category) {
       if (typeof name === 'string' && typeof fn === 'function') {
         const prefixedName = rename(name)
         cache[prefixedName] = cache[prefixedName] || []
-        fn.remark = remark
+        fn.category = category
         fn.isOnceDone = false
         cache[prefixedName].push(fn)
       }
     },
 
-    off(name, fn) {
+    off(name, fn, category) {
       const prefixedName = rename(name)
-      if (!fn) {
+      // swap
+      if (typeof fn === 'string') {
+        [fn, category] = [category, fn]
+      }
+      if (!fn && !category) {
         delete cache[prefixedName]
+      } else if (category) {
+        const fns = cache[prefixedName] || []
+        const targets = fns.filter(item => item.category === category)
+        for (let i = 0; i < targets.length; i++) {
+          fns.splice(fns.indexOf(targets[i]), 1)
+        }
+        if (!fns.length) {
+          delete cache[prefixedName]
+        }
       } else {
         const fns = cache[prefixedName] || []
         fns.splice(fns.indexOf(fn), 1)
