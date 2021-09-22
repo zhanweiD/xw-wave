@@ -49,7 +49,7 @@ export default function drawText({
     filter: getAttr(filter, i),
     mask: getAttr(mask, i),
     rotation: getAttr(rotation, i),
-    shadow: getAttr(shadow, i),
+    shadow: getShadow(getAttr(shadow, i)),
     transformOrigin: getAttr(transformOrigin, i),
     writingMode: writingModeMapping[writingMode],
   }))
@@ -104,4 +104,15 @@ export default function drawText({
       container.add(text)
     })
   }
+}
+
+const getShadow = shadow => {
+  if (typeof shadow === 'object') {
+    const {color = '#000', offset = [0, 0], blur = 0, disable = false} = shadow
+    if (!disable) {
+      return `${offset[0]}px ${offset[1]}px ${blur}px ${color}`
+    }
+    return null
+  }
+  return shadow
 }

@@ -33,6 +33,7 @@ const defaultStyle = {
     offset: [0, 5],
   },
   curve: {
+    curve: false,
     strokeWidth: 2,
   },
   point: {
@@ -169,13 +170,14 @@ export default class LineLayer extends LayerBase {
       ])
       return {data: this.#fallbackFilter(data), ...this.#style.curve, stroke: color}
     })
+    const {curve} = this.#style.curve
     const areaData = this.#areaData[0].map(({color}, index) => {
       const data = this.#areaData.map(item => [
         item[index].x, 
         isNumber(item[index].value) && item[index].y0, 
         item[index].y1,
       ])
-      return {data: this.#fallbackFilter(data), ...this.#style.area, fill: color}
+      return {data: this.#fallbackFilter(data), ...this.#style.area, curve, fill: color}
     })
     const textData = this.#textData.map(groupData => {
       const data = groupData.map(({value}) => value)

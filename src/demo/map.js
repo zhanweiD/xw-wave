@@ -42,8 +42,7 @@ const createSchema = (container, theme, layout) => {
           layout: 'main',
           type: 'geographic',
         },
-        style: {
-        },
+        style: {},
       },
       // 地图底图
       {
@@ -56,6 +55,11 @@ const createSchema = (container, theme, layout) => {
         style: {
           block: {
             fill: 'skyblue',
+          },
+          text: {
+            shadow: {
+              blur: 4,
+            },
           },
         },
         event: {
@@ -77,8 +81,7 @@ const createSchema = (container, theme, layout) => {
           [110, 35, 400],
           [110, 25, 500],
         ],
-        style: {
-        },
+        style: {},
       },
       // 飞线抛物线
       {
