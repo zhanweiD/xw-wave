@@ -2,26 +2,22 @@ import {isNumber} from 'lodash'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
 
-// 元素组合方式
 const modeType = {
-  DEFAULT: 'default', // 覆盖
-  STACK: 'stack', // 堆叠
+  DEFAULT: 'default', // cover
+  STACK: 'stack', // stack line
 }
 
-// 数据异常处理方式
 const fallbackType = {
-  ZERO: 'zero', // 置为零
-  CONTINUE: 'continue', // 保持连接
-  BREAK: 'break', // 中断
+  ZERO: 'zero', // set value as zero
+  CONTINUE: 'continue', // keep connect
+  BREAK: 'break', // break off
 }
 
-// 默认选项
 const defaultOptions = {
   mode: modeType.DEFAULT,
   fallback: fallbackType.BREAK,
 }
 
-// 文字方向
 const labelPositionType = {
   CENTER: 'center',
   TOP: 'top',
@@ -30,9 +26,8 @@ const labelPositionType = {
   LEFT: 'left',
 }
 
-// 默认样式
 const defaultStyle = {
-  circleSize: 5,
+  pointSize: 5,
   labelPosition: labelPositionType.TOP,
   text: {
     offset: [0, 5],
@@ -40,7 +35,7 @@ const defaultStyle = {
   curve: {
     strokeWidth: 2,
   },
-  circle: {
+  point: {
     fill: 'white',
     strokeWidth: 2,
   },
@@ -60,7 +55,7 @@ export default class LineLayer extends LayerBase {
 
   #textData = []
 
-  #circleData = []
+  #pointData = []
 
   #areaData = []
 
@@ -76,22 +71,20 @@ export default class LineLayer extends LayerBase {
     return this.#style
   }
 
-  // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['curve', 'circle', 'area', 'text'])
+    super({...defaultOptions, ...layerOptions}, waveOptions, ['curve', 'point', 'area', 'text'])
     const {mode} = this.options
     this.className = `wave-${mode}-curve`
-    this.tooltipTargets = ['circle']
+    this.tooltipTargets = ['point']
   }
 
-  // 传入列表类，第一列数据要求为维度数据列
   setData(tableList, scales) {
     this.#data = tableList || this.#data
     const {mode, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     const {width, height, top, left} = layout
-    // 初始化比例尺
+    // initialize scales
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'band',
@@ -104,7 +97,7 @@ export default class LineLayer extends LayerBase {
         range: [height, 0],
       }),
     }, this.#scale, scales)
-    // 计算基础数据
+    // basic data of curve
     const {scaleX, scaleY} = this.#scale
     this.#curveData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
       value,
@@ -113,7 +106,7 @@ export default class LineLayer extends LayerBase {
       x: left + scaleX(dimension) + scaleX.bandwidth() / 2,
       y: isNumber(value) ? top + scaleY(value) : top + height,
     })))
-    // 堆叠柱状数据变更
+    // transform data to stack line
     if (mode === modeType.STACK) {
       this.#curveData.forEach(groupData => groupData.forEach((item, i) => {
         i !== 0 && (item.y = groupData[i - 1].y - (scaleY(0) + top - item.y))
@@ -121,28 +114,27 @@ export default class LineLayer extends LayerBase {
     }
   }
 
-  // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {layout, mode} = this.options
-    const {labelPosition, circleSize, text, curve} = this.#style
+    const {labelPosition, pointSize, text, curve} = this.#style
     const {top, height} = layout
-    // 颜色跟随主题
+    // get the color for each line
     const colors = this.getColor(this.#curveData[0].length, curve.stroke)
     this.#curveData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
-    // 标签文字数据
+    // line label
     this.#textData = this.#curveData.map(groupData => groupData.map(({value, x, y}) => {
       return this.createText({x, y, value, position: labelPosition, style: text})
     }))
-    // 圆点数据
-    this.#circleData = this.#curveData.map(groupData => groupData.map(item => ({...item, r: circleSize / 2})))
-    // 面积数据
+    // point data
+    this.#pointData = this.#curveData.map(groupData => groupData.map(item => ({...item, r: pointSize / 2})))
+    // area data
     this.#areaData = this.#curveData.map((groupData, i) => groupData.map(({y, ...item}, j) => ({
       y0: y,
       y1: mode === modeType.STACK && j !== 0 ? this.#curveData[i][j - 1].y : height + top,
       ...item,
     })))
-    // 图层自定义图例数据
+    // legend data of line layer
     this.#data.set('legendData', {
       list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
       shape: 'broken-line',
@@ -150,7 +142,7 @@ export default class LineLayer extends LayerBase {
     })
   }
 
-  // 数据异常时重构数据
+  // data exception handling
   #fallbackFilter = position => {
     const {scaleY} = this.#scale
     const {fallback, layout} = this.options
@@ -169,7 +161,6 @@ export default class LineLayer extends LayerBase {
     return null
   }
 
-  // 绘制
   draw() {
     const curveData = this.#curveData[0].map(({color}, index) => {
       const data = this.#curveData.map(item => [
@@ -191,16 +182,16 @@ export default class LineLayer extends LayerBase {
       const position = groupData.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
-    const circleData = this.#circleData.map(groupData => {
+    const pointData = this.#pointData.map(groupData => {
       const data = groupData.map(({r}) => [r, r])
       const position = groupData.map(({x, y}) => [x, y])
       const stroke = groupData.map(({color}) => color)
       const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
-      return {data, position, source, ...this.#style.circle, stroke}
+      return {data, position, source, ...this.#style.point, stroke}
     })
     this.drawBasic('area', areaData)
     this.drawBasic('curve', curveData)
-    this.drawBasic('circle', circleData)
+    this.drawBasic('circle', pointData, 'point')
     this.drawBasic('text', textData)
   }
 }

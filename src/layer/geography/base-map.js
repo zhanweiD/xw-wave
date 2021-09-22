@@ -134,7 +134,7 @@ export default class BaseMapLayer extends LayerBase {
     const rectData = [{
       data: [[this.#backgroundRectData.width, this.#backgroundRectData.height]],
       position: [[this.#backgroundRectData.x, this.#backgroundRectData.y]],
-      fill: 'rgba(0,0,0,0)',
+      fillOpacity: 0,
     }]
     this.drawBasic('rect', rectData, 'background')
     this.drawBasic('path', blockData, 'block')

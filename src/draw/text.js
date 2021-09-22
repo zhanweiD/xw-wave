@@ -18,7 +18,7 @@ export default function drawText({
   fillOpacity = 1,
   strokeOpacity = 1,
   rotation = 0,
-  textShadow = '2px 2px 2px rgba(0,0,0,0)',
+  shadow = '2px 2px 2px rgba(0,0,0,0)',
   writingMode = 'horizontal', // 'horizontal' or 'vertical'
   transformOrigin = null,
   enableUpdateAnimation = false,
@@ -49,7 +49,7 @@ export default function drawText({
     filter: getAttr(filter, i),
     mask: getAttr(mask, i),
     rotation: getAttr(rotation, i),
-    textShadow: getAttr(textShadow, i),
+    shadow: getAttr(shadow, i),
     transformOrigin: getAttr(transformOrigin, i),
     writingMode: writingModeMapping[writingMode],
   }))
@@ -77,7 +77,7 @@ export default function drawText({
       .attr('font-size', d => d.fontSize)
       .attr('font-weight', d => d.fontWeight)
       .attr('writing-mode', d => d.writingMode)
-      .style('text-shadow', d => d.textShadow)
+      .style('text-shadow', d => d.shadow)
       .style('transform', d => `rotate(${d.rotation}deg)`)
       .style('transform-origin', d => d.transformOrigin)
       .style('pointer-events', 'none')
@@ -95,7 +95,7 @@ export default function drawText({
         stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
-        shadow: config.textShadow,
+        shadow: config.shadow,
         originY: 'bottom',
         selectable: false,
         evented: false,

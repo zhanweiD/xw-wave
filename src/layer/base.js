@@ -146,6 +146,13 @@ export default class LayerBase {
    */
   createStyle(defaultStyle, currentStyle, incomingStyle = {}) {
     const style = merge({}, defaultStyle, currentStyle, incomingStyle)
+    // transform shadow attribute
+    Object.keys(style).forEach(key => {
+      if (typeof style[key]?.shadow === 'object') {
+        const {color = '#000', offset = [0, 0], blur = 0} = style[key].shadow
+        style[key].shadow = `${offset[0]}px ${offset[1]}px ${blur}px ${color}`
+      }
+    })
     return style
   }
 
@@ -352,7 +359,11 @@ export default class LayerBase {
           options.updateAnimationDelay = delay
         }
         // draw basic elements using draw functions
-        !options.hide && basicMapping[type](options)
+        basicMapping[type](options.hide ? {
+          engine: options.engine,
+          className: options.className, 
+          container: options.container,
+        } : options)
         // backup data
         this.#backupData[sublayer][i] = data[i]
       }
