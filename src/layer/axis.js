@@ -96,11 +96,15 @@ export default class AxisLayer extends LayerBase {
   }
 
   #textData = {
+    // origin
+    positionX: [],
+    positionY: [],
+    positionXT: [],
+    positionYR: [],
+    // draw data
     textX: [],
     textY: [],
-    // top label for axis x
     textXT: [],
-    // right label for axis y
     textYR: [],
     textAngle: [],
     textRadius: [],
@@ -177,8 +181,8 @@ export default class AxisLayer extends LayerBase {
     const positionXT = getPosition(type, this.#scale.scaleXT).map(mappingX)
     this.#lineData.lineAxisX.push(...positionX.slice(0, 1), ...positionXT.slice(0, 1))
     this.#lineData.lineTickX.push(...positionX.slice(1), ...positionXT.slice(1))
-    this.#textData.textX = positionX
-    this.#textData.textXT = positionXT
+    this.#textData.positionX = positionX
+    this.#textData.positionXT = positionXT
     // axis y line and label
     const mappingY = ([label, value]) => ({
       value: label,
@@ -191,8 +195,8 @@ export default class AxisLayer extends LayerBase {
     const positionYR = getPosition(type, this.#scale.scaleYR).map(mappingY)
     this.#lineData.lineAxisY.push(...positionY.slice(0, 1), ...positionYR.slice(0, 1))
     this.#lineData.lineTickY.push(...positionY.slice(1), ...positionYR.slice(1))
-    this.#textData.textY = positionY
-    this.#textData.textYR = positionYR
+    this.#textData.positionY = positionY
+    this.#textData.positionYR = positionYR
     // axis angle line and label
     const positionAngle = getPosition(type, this.#scale.scaleAngle)
     const maxRadius = this.#scale.scaleRadius?.range()[1] || Math.max(width / 2, height / 2)
@@ -219,20 +223,20 @@ export default class AxisLayer extends LayerBase {
     const {labelOffset, textX, textY, textAngle, textRadius} = this.#style
     const offset = labelOffset
     // The label of main x is directly below the axis line
-    this.#textData.textX = this.#textData.textX.map(({value, x2, y2}) => {
+    this.#textData.textX = this.#textData.positionX.map(({value, x2, y2}) => {
       return this.createText({x: x2, y: y2, position: 'bottom', value, style: textX, offset})
     })
     // The label of minor x is directly above the axis line
-    this.#textData.textXT = this.#textData.textXT.map(({value, x1, y1}) => {
+    this.#textData.textXT = this.#textData.positionXT.map(({value, x1, y1}) => {
       return this.createText({x: x1, y: y1, position: 'top', value, style: textX, offset})
     })
     // The label of main y is at the bottom left of the line
-    this.#textData.textY = this.#textData.textY.map(({value, x1, y1}) => {
+    this.#textData.textY = this.#textData.positionY.map(({value, x1, y1}) => {
       const position = this.#scale.scaleY?.type === 'linear' ? 'right-bottom' : 'right'
       return this.createText({x: x1, y: y1, position, value, style: textY})
     })
     // The label of minor y is at the bottom right of the line
-    this.#textData.textYR = this.#textData.textYR.map(({value, x2, y2}) => {
+    this.#textData.textYR = this.#textData.positionYR.map(({value, x2, y2}) => {
       return this.createText({x: x2, y: y2, position: 'left-bottom', value, style: textY})
     })
     // The label of angle axis is at the extension of the line
