@@ -34,7 +34,6 @@ const defaultStyle = {
   shapeSize: 12,
   shape: {},
   text: {
-    fill: 'white',
     fontSize: 12,
   },
 }
@@ -96,7 +95,7 @@ export default class LegendLayer extends LayerBase {
       if (!active[index]) {
         active[index] = true
         this.#data.shapeColors[index] = colors[index]
-        this.#data.textColors[index] = 'white'
+        this.#data.textColors[index] = this.#style.text.fill || 'white'
       } else {
         active[index] = false
         this.#data.shapeColors[index] = disableColor
@@ -162,13 +161,14 @@ export default class LegendLayer extends LayerBase {
     if (this.#layers) {
       const axisLayer = this.#layers.find(layer => layer instanceof AxisLayer)
       this.#filter(this.#layers.filter(layer => layer.data instanceof TableList))
+      axisLayer?.event.off('draw', 'legend')
       axisLayer?.event.on('draw', () => {
         if (!this.#isFiltering) {
           this.setData()
           this.setStyle()
           this.draw()
         }
-      })
+      }, 'legend')
     }
   }
 
@@ -326,8 +326,8 @@ export default class LegendLayer extends LayerBase {
     const textData = this.#data.textData.map(({value, x, y}, i) => ({
       data: [value],
       position: [[x, y]],
-      ...this.#style.text,
       fill: this.#data.textColors[i],
+      ...this.#style.text,
     }))
     this.drawBasic('rect', rectData)
     this.drawBasic('circle', circleData)

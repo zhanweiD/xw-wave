@@ -254,7 +254,6 @@ export default class AxisLayer extends LayerBase {
 
   draw() {
     const {type} = this.options
-    const [isCartesian, isPolar] = [type === coordinateType.CARTESIAN, type === coordinateType.POLAR]
     const {scaleX, scaleXT, scaleY, scaleYR} = this.#scale
     const transformLineData = key => [{
       data: this.#lineData[key].map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
@@ -270,21 +269,24 @@ export default class AxisLayer extends LayerBase {
       position: this.#textData[key].map(({x, y}) => [x, y]),
       ...this.#style[style || key],
     }]
-    if (scaleX?.type === 'linear' || scaleXT?.type === 'linear') {
-      isCartesian && this.drawBasic('line', transformLineData('lineAxisX'), 'lineAxisX')
-      isCartesian && this.drawBasic('line', transformLineData('lineTickX'), 'lineTickX')
+    if (type === coordinateType.CARTESIAN) {
+      if (scaleX?.type === 'linear' || scaleXT?.type === 'linear') {
+        this.drawBasic('line', transformLineData('lineAxisX'), 'lineAxisX')
+        this.drawBasic('line', transformLineData('lineTickX'), 'lineTickX')
+      }
+      if (scaleY?.type === 'linear' || scaleYR?.type === 'linear') {
+        this.drawBasic('line', transformLineData('lineAxisY'), 'lineAxisY')
+        this.drawBasic('line', transformLineData('lineTickY'), 'lineTickY')
+      }
+      this.drawBasic('text', transformTextData('textX'), 'textX')
+      this.drawBasic('text', transformTextData('textY'), 'textY')
+      this.drawBasic('text', transformTextData('textXT', 'textX'), 'textXT')
+      this.drawBasic('text', transformTextData('textYR', 'textY'), 'textYR')
+    } else if (type === coordinateType.POLAR) {
+      this.drawBasic('line', transformLineData('lineAngle'), 'lineAngle')
+      this.drawBasic('circle', transformRadiusData('lineRadius'), 'lineRadius')
+      this.drawBasic('text', transformTextData('textAngle'), 'textAngle')
+      this.drawBasic('text', transformTextData('textRadius'), 'textRadius')
     }
-    if (scaleY?.type === 'linear' || scaleYR?.type === 'linear') {
-      isCartesian && this.drawBasic('line', transformLineData('lineAxisY'), 'lineAxisY')
-      isCartesian && this.drawBasic('line', transformLineData('lineTickY'), 'lineTickY')
-    }
-    isCartesian && this.drawBasic('text', transformTextData('textX'), 'textX')
-    isCartesian && this.drawBasic('text', transformTextData('textY'), 'textY')
-    isCartesian && this.drawBasic('text', transformTextData('textXT', 'textX'), 'textXT')
-    isCartesian && this.drawBasic('text', transformTextData('textYR', 'textY'), 'textYR')
-    isPolar && this.drawBasic('line', transformLineData('lineAngle'), 'lineAngle')
-    isPolar && this.drawBasic('circle', transformRadiusData('lineRadius'), 'lineRadius')
-    isPolar && this.drawBasic('text', transformTextData('textAngle'), 'textAngle')
-    isPolar && this.drawBasic('text', transformTextData('textRadius'), 'textRadius')
   }
 }

@@ -69,6 +69,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           gap: [5, 10],
           text: {
             fontSize: 12,
+            // fill: 'red',
           },
         },
       },
