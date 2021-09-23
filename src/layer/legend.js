@@ -272,7 +272,7 @@ export default class LegendLayer extends LayerBase {
     const [isVerticalMiddle, isVerticalEnd] = [verticalAlign === alignType.MIDDLE, verticalAlign === alignType.END]
     this.#data.textData = this.#data.textData.map(({x, y, value}) => ({
       x: x + offset[0] + (isHorizontalMiddle ? offsetX / 2 : isHorizontalEnd ? offsetX : 0),
-      y: y + offset[1] + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0),
+      y: y - offset[1] + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0),
       value,
     }))
     // shapes are fixed at the left of text

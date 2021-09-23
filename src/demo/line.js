@@ -21,7 +21,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
   // 提示
   tooltip: {
     mode: 'group',
-  },  
+  },
   // 图层数据，下标顺序代表绘制顺序
   layers: [
     // 标题文字图层
@@ -48,11 +48,12 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
       style: {
         align: 'end',
         verticalAlign: 'start',
-        direction: 'horizontal', 
+        direction: 'horizontal',
         pointSize: 8,
         gap: [5, 10],
         text: {
           fontSize: 12,
+          // fill: 'red',
         },
       },
     },
@@ -95,8 +96,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         count: 5,
         zero: mode === 'stack' || hasArea,
       },
-      style: {
-      },
+      style: {},
     },
     // 折线图层
     {
@@ -110,7 +110,7 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
       },
       data: {
         type: 'tableList',
-        mode: 'normal', 
+        mode: 'normal',
         row: 6,
         column: 3,
         mu: 500,
@@ -126,13 +126,11 @@ const createSchema = (container, theme, layout, mode, hasArea, curve) => ({
         area: {
           hide: !hasArea,
           fillOpacity: 0.5,
-          curve,
         },
         text: {
           fontSize: 10,
         },
-        point: {
-        },
+        point: {},
       },
       animation: {
         curve: {

@@ -110,7 +110,7 @@ const getShadow = shadow => {
   if (typeof shadow === 'object') {
     const {color = '#000', offset = [0, 0], blur = 0, hide = false} = shadow
     if (!hide) {
-      return `${offset[0]}px ${offset[1]}px ${blur}px ${color}`
+      return `${offset[0]}px ${-offset[1]}px ${blur}px ${color}`
     }
     return null
   }
