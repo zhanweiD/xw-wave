@@ -144,17 +144,15 @@ export default class BaseMapLayer extends LayerBase {
       this.options.bindCoordinate({redraw: true})
     }
     // drill up on the map
-    this.event.off('click-background', 'private')
-    this.event.on('click-background', () => {
+    this.event.onWithOff('click-background', 'private', () => {
       const parentCode = this.#parentCode.pop()
       parentCode && this.#refresh(parentCode)
-    }, 'private')
+    })
     // drill down on the map
-    this.event.off('click-block', 'private')
-    this.event.on('click-block', ({data}) => {
+    this.event.onWithOff('click-block', 'private', ({data}) => {
       const blockCode = data.source.find(({category}) => category === 'adcode')?.value
       this.#parentCode.push(data.source.find(({category}) => category === 'parent')?.value?.adcode)
       this.#refresh(blockCode)
-    }, 'private')
+    })
   }
 }

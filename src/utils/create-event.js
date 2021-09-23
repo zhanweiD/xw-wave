@@ -6,6 +6,15 @@ const createEvent = (privateName = '') => {
   let cache = {}
 
   const event = {
+    onWithOff(name, category, fn) {
+      // swap
+      if (typeof category === 'function') {
+        [fn, category] = [category, fn]
+      }
+      this.off(name, fn, category)
+      this.on(name, fn, category)
+    },
+
     on(name, fn, category) {
       if (typeof name === 'string' && typeof fn === 'function') {
         const prefixedName = rename(name)

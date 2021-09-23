@@ -44,7 +44,7 @@ const chartMapping = {
 }
 
 export default function Example() {
-  const [chart, setChart] = useState('map')
+  const [chart, setChart] = useState('radar')
   const [theme, setTheme] = useState('duskUniverse')
   const [fallbackWaves, setFallbackWaves] = useState([])
   const containerStyle = {background: ThemeConfig[theme].background}

@@ -92,8 +92,7 @@ export default class PackLayer extends LayerBase {
     this.drawBasic('text', textData.slice(textData.length - 1))
     // private zoom event
     if (this.options.zoom && this.options.engine === 'svg') {
-      this.event.off('click-circle', 'private')
-      this.event.on('click-circle', this.#zoom, 'private')
+      this.event.onWithOff('click-circle', 'private', this.#zoom)
     }
   }
 

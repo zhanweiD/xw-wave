@@ -82,8 +82,7 @@ export default class LegendLayer extends LayerBase {
     const active = new Array(this.#data.shapeColors.length).fill(true)
     const disableColor = '#E2E3E588'
     // register filter handler
-    this.event.off('click-interactive')
-    this.event.on('click-interactive', object => {
+    this.event.onWithOff('click-interactive', object => {
       const {index} = object.data.source
       const layerIndex = counts.findIndex((v, i) => sum(counts.slice(0, i + 1)) > index)
       const startIndex = counts.slice(0, layerIndex).reduce((prev, cur) => prev + cur, 0)
@@ -161,14 +160,13 @@ export default class LegendLayer extends LayerBase {
     if (this.#layers) {
       const axisLayer = this.#layers.find(layer => layer instanceof AxisLayer)
       this.#filter(this.#layers.filter(layer => layer.data instanceof TableList))
-      axisLayer?.event.off('draw', 'legend')
-      axisLayer?.event.on('draw', () => {
+      axisLayer?.event.onWithOff('draw', 'legend', () => {
         if (!this.#isFiltering) {
           this.setData()
           this.setStyle()
           this.draw()
         }
-      }, 'legend')
+      })
     }
   }
 
