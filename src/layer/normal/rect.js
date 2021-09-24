@@ -3,29 +3,25 @@ import {formatNumber} from '../../utils/format'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
 
-// 映射的图表类型
 const waveType = {
-  COLUMN: 'column', // 柱状图
-  BAR: 'bar', // 条形图
+  COLUMN: 'column', // histogram
+  BAR: 'bar', // bar
 }
 
-// 元素组合方式
 const modeType = {
-  GROUP: 'group', // 分组
-  STACK: 'stack', // 堆叠
-  INTERVAL: 'interval', // 区间
-  WATERFALL: 'waterfall', // 瀑布
-  DEFAULT: 'default', // 覆盖
-  PERCENTAGE: 'percentage', // 百分比
+  GROUP: 'group',
+  STACK: 'stack',
+  INTERVAL: 'interval',
+  WATERFALL: 'waterfall',
+  DEFAULT: 'default', // cover
+  PERCENTAGE: 'percentage',
 }
 
-// 默认选项
 const defaultOptions = {
   type: waveType.COLUMN,
   mode: modeType.DEFAULT,
 }
 
-// 标签是显示在矩形外部还是矩形内部
 const labelPositionType = {
   CENTER: 'center',
   TOPINNER: 'top-inner',
@@ -38,7 +34,6 @@ const labelPositionType = {
   LEFTOUTER: 'left-outer',
 }
 
-// 默认样式
 const defaultStyle = {
   fixedLength: null,
   paddingInner: 0,
@@ -76,7 +71,6 @@ export default class RectLayer extends LayerBase {
     return this.#style
   }
 
-  // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'bgRect', 'text'])
     const {type, mode} = this.options
@@ -84,14 +78,14 @@ export default class RectLayer extends LayerBase {
     this.tooltipTargets = ['rect']
   }
 
-  // 过滤数据
+  // filter tableList
   #filter = data => {
     const {mode} = this.options
-    // 区间图固定列数3列
+    // interval needs 3 columns
     if (mode === modeType.INTERVAL) {
       return data.select(data.data.map(({header}) => header).slice(0, 3))
     }
-    // 瀑布图固定列数2列，且需要添加总合行
+    // waterfall needs 2 columns and the extra sum column
     if (mode === modeType.WATERFALL) {
       const result = data.select(data.data.map(({header}) => header).slice(0, 2))
       result.push(['总和', result.select(result.data[1].header, {mode: 'sum', target: 'column'}).range()[1]])
@@ -100,17 +94,15 @@ export default class RectLayer extends LayerBase {
     return data
   }
 
-  // 第一列数据要求为维度数据列
   setData(tableList, scales) {
     const {type} = this.options
     this.#data = (tableList && this.#filter(tableList)) || this.#data
-    // 调用不同的方法生成基础绘图数据
     if (type === waveType.COLUMN) {
       this.#setColumnData(scales)
     } else if (type === waveType.BAR) {
       this.#setBarData(scales)
     }
-    // 根据模式转换绘图数据
+    // change data according mode type
     this.#transform()
   }
 
@@ -119,7 +111,7 @@ export default class RectLayer extends LayerBase {
     const {mode, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
-    // 初始化比例尺
+    // initialize scales
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'band',
@@ -133,7 +125,7 @@ export default class RectLayer extends LayerBase {
         range: [layout.height, 0],
       }),
     }, this.#scale, scales)
-    // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
+    // origin data of columns
     const {scaleX, scaleY} = this.#scale
     this.#rectData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
       value,
@@ -144,7 +136,7 @@ export default class RectLayer extends LayerBase {
       width: scaleX.bandwidth(),
       height: Math.abs(scaleY(value) - scaleY(0)),
     })))
-    // 矩形背景
+    // rect background data
     this.#bgRectData = pureTableList.map(([dimension]) => [{
       x: layout.left + scaleX(dimension),
       y: layout.top,
@@ -153,12 +145,11 @@ export default class RectLayer extends LayerBase {
     }])
   }
 
-  // 条形数据生成
   #setBarData = scales => {
     const {mode, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
-    // 初始化比例尺
+    // initialize scales
     this.#scale = this.createScale({
       scaleX: new Scale({
         type: 'linear',
@@ -172,7 +163,7 @@ export default class RectLayer extends LayerBase {
         range: [0, layout.height],
       }),
     }, this.#scale, scales)
-    // 根据比例尺计算原始坐标和宽高，原始坐标为每个柱子的左上角
+    // origin data of bars
     const {scaleX, scaleY} = this.#scale
     this.#rectData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
       value,
@@ -183,7 +174,7 @@ export default class RectLayer extends LayerBase {
       height: scaleY.bandwidth(),
       width: Math.abs(scaleX(value) - scaleX(0)),
     })))
-    // 矩形背景
+    // rect background data
     this.#bgRectData = pureTableList.map(([dimension]) => [{
       x: layout.left,
       y: layout.top + scaleY(dimension),
@@ -192,11 +183,10 @@ export default class RectLayer extends LayerBase {
     }])
   }
 
-  // 数据变换
   #transform = () => {
     let transformedData = this.#rectData
     const {type, mode, layout} = this.options
-    // 百分比模式需要采用堆叠的计算逻辑
+    // percentage needs the help of stacking algorithm
     if (mode === modeType.PERCENTAGE) {
       transformedData.forEach(groupData => {
         const total = groupData.reduce((prev, cur) => prev + cur.value, 0)
@@ -212,7 +202,7 @@ export default class RectLayer extends LayerBase {
         })
       })
     }
-    // 堆叠数据变更，百分比是特殊的堆叠
+    // stacking algorithm
     if (mode === modeType.STACK || mode === modeType.PERCENTAGE) {
       if (type === waveType.COLUMN) {
         transformedData.forEach(groupData => groupData.forEach((item, i) => {
@@ -224,7 +214,7 @@ export default class RectLayer extends LayerBase {
         }))
       }
     }
-    // 分组数据变更
+    // grouping algorithm
     if (mode === modeType.GROUP) {
       const columnNumber = transformedData[0].length
       if (type === waveType.COLUMN) {
@@ -239,7 +229,7 @@ export default class RectLayer extends LayerBase {
         }))
       }
     }
-    // 区间数据变更
+    // interval algorithm
     if (mode === modeType.INTERVAL) {
       transformedData = transformedData.map(groupData => {
         const [data1, data2] = [groupData[0], groupData[1]]
@@ -257,20 +247,20 @@ export default class RectLayer extends LayerBase {
         return groupData
       })
     }
-    // 瀑布数据变更，最后一列为总值
+    // interval algorithm
     if (mode === modeType.WATERFALL) {
       if (type === waveType.COLUMN) {
         transformedData.forEach((groupData, i) => groupData.forEach(item => {
           i !== 0 && (item.y = transformedData[i - 1][0].y - item.height)
         }))
-        // 最后一个柱子需要特殊处理
+        // the last column needs special treatment
         const {y, height} = transformedData[transformedData.length - 1][0]
         transformedData[transformedData.length - 1][0].y = y + height
       } else if (type === waveType.BAR) {
         transformedData.forEach((groupData, i) => groupData.forEach(item => {
           i !== 0 && (item.x = transformedData[i - 1][0].x + transformedData[i - 1][0].width)
         }))
-        // 最后一个柱子需要特殊处理
+        // the last column needs special treatment
         const {x, width} = transformedData[transformedData.length - 1][0]
         transformedData[transformedData.length - 1][0].x = x - width
       }
@@ -278,10 +268,9 @@ export default class RectLayer extends LayerBase {
     this.#rectData = transformedData
   }
 
-  // 获取标签坐标
   #getLabelData = ({x, y, width, height, value, labelPosition}) => {
     const {labelOffset, text} = this.#style
-    // 计算标签的水平位置
+    // figure out label position data
     let [position, positionX, positionY] = ['default', null, null]
     if (labelPosition === labelPositionType.LEFTOUTER || labelPosition === labelPositionType.LEFTINNER) {
       [positionX, positionY] = [x, y + height / 2]
@@ -302,12 +291,11 @@ export default class RectLayer extends LayerBase {
     return this.createText({x: positionX, y: positionY, value, style: text, position, offset: labelOffset})
   }
 
-  // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {labelPosition, paddingInner, fixedLength, rect} = this.#style
     const {type, mode} = this.options
-    // 颜色跟随主题
+    // get colors
     if (this.#rectData[0]?.length > 1) {
       const colors = this.getColor(this.#rectData[0].length, rect.fill)
       this.#rectData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
@@ -315,7 +303,7 @@ export default class RectLayer extends LayerBase {
       const colors = this.getColor(this.#rectData.length, rect.fill)
       this.#rectData.forEach((groupData, i) => (groupData[0].color = colors[i]))
     }
-    // 计算柱子占整个 bandwidth 的比值
+    // horizontal scaling ratio
     this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, width, height, ...other}) => {
       const totalPadding = paddingInner * (type === waveType.COLUMN ? width : height)
       return {
@@ -326,7 +314,7 @@ export default class RectLayer extends LayerBase {
         ...other,
       }
     }))
-    // 固定矩形长度，一般用作标记
+    // fixed rect length usually be used as mark
     if (isNumber(fixedLength)) {
       this.#rectData.forEach(groupData => groupData.forEach(item => {
         if (type === waveType.COLUMN) {
@@ -338,17 +326,17 @@ export default class RectLayer extends LayerBase {
         }
       }))
     }
-    // 标签文字数据
+    // label data
     this.#textData = this.#rectData.map(groupData => {
       const result = []
       const positionMin = isArray(labelPosition) ? labelPosition[0] : labelPosition
       const positionMax = isArray(labelPosition) ? labelPosition[1] : labelPosition
       groupData.forEach(({value, percentage, ...data}) => {
-        // 单值标签
+        // single label
         if (!isArray(value)) {
           result.push(this.#getLabelData({
             ...data,
-            value: percentage || value, // 兼容百分比模式
+            value: percentage || value, // compatible percentage mode
             labelPosition: value > 0 ? positionMax : positionMin,
           }))
         } else {
@@ -360,7 +348,7 @@ export default class RectLayer extends LayerBase {
       })
       return result
     })
-    // 图层自定义图例数据
+    // legend data of rect layer
     const colors = this.getColor(this.#rectData[0].length, rect.fill)
     this.#data.set('legendData', mode !== modeType.INTERVAL && mode !== modeType.WATERFALL ? {
       list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
@@ -369,7 +357,6 @@ export default class RectLayer extends LayerBase {
     } : null)
   }
 
-  // 绘制
   draw() {
     const {type} = this.options
     const rectData = this.#rectData.map(groupData => {

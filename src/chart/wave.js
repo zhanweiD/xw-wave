@@ -182,6 +182,23 @@ export default class Wave {
   }
 
   /**
+   * update the layer
+   * @param {String} id 
+   * @param {Object} schema layer config
+   */
+  updateLayer(id, {data, scale, style, animation}) {
+    const layer = this.#layers.find(item => item.id === id)?.instance
+    if (layer) {
+      layer.setAnimation(animation)
+      layer.setData(data, scale)
+      layer.setStyle(style)
+      layer.draw()
+    } else {
+      this.log.warn('Failed to update the layer: Invalid ID', {id})
+    }
+  }
+
+  /**
    * bind coordinate after layer's setData done
    * @param {AxisLayer} axisLayer
    * @param {LayerBase} layers
