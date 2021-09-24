@@ -20,7 +20,7 @@ const createLayer = (wave, config) => {
   // data structure judgement
   let dataSet = data
   if (type === 'legend') {
-    dataSet = wave.layer.map(({instance}) => instance)
+    dataSet = wave.layers.map(({instance}) => instance)
   } else if (dataBase.isTable(data) || data?.type === 'table') {
     dataSet = new Table(dataBase.isTable(data) ? data : Random.table(data))
   } else if (isArray(data) && data.length === 2 && dataBase.isRelation(data[0], data[1])) {
@@ -35,13 +35,13 @@ const createLayer = (wave, config) => {
     } else {
       dataSet = new TableList(dataBase.isTableList(data) ? data : Random.tableList(data))
     }
-  } 
+  }
   layer.setData(dataSet, {nice: scale})
   layer.setStyle(style)
   layer.setAnimation(animation)
-  event && Object.keys(event).forEach(eventName => {
-    layer.event.on(eventName, event[eventName])
-  })
+  if (event) {
+    Object.keys(event).forEach(eventName => layer.event.on(eventName, event[eventName]))
+  }
   return layer
 }
 
@@ -61,11 +61,11 @@ const createWave = (schema, existedWave) => {
   // legend layer is the last one
   legendLayerConfig && createLayer(wave, legendLayerConfig)
   // draw in order with schema
-  layers.map(({options}) => wave.layer.find(({id}) => id === options.id).instance.draw())
+  layers.map(({options}) => wave.layers.find(({id}) => id === options.id).instance.draw())
   // create brush after draw
   brush && wave.createBrush({...brush, layout: wave.layout[brush.layout]})
   // TODO: throw and give control to users
-  setTimeout(() => wave.layer.map(({instance}) => instance.playAnimation()))
+  setTimeout(() => wave.layers.map(({instance}) => instance.playAnimation()))
   return wave
 }
 

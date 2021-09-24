@@ -39,7 +39,7 @@ export default class Wave {
 
   #tooltip = null
 
-  #layer = []
+  #layers = []
 
   get state() {
     return this.#state
@@ -49,8 +49,8 @@ export default class Wave {
     return this.#layout
   }
 
-  get layer() {
-    return this.#layer
+  get layers() {
+    return this.#layers
   }
 
   constructor({
@@ -172,11 +172,11 @@ export default class Wave {
     const layerId = options.id || createUuid()
     // wave will save the layer for easy management
     this.#state = stateType.READY
-    this.#layer.push({type, id: layerId, instance: layer})
+    this.#layers.push({type, id: layerId, instance: layer})
     // register destroy event
     layer.event.on('destroy', () => {
-      const index = this.#layer.findIndex(({id}) => id === layerId)
-      this.#layer.splice(index, 1)
+      const index = this.#layers.findIndex(({id}) => id === layerId)
+      this.#layers.splice(index, 1)
     })
     return layer
   }
@@ -189,9 +189,9 @@ export default class Wave {
   bindCoordinate({redraw = false}) {
     const isAxisLayer = instance => instance instanceof Layer.Axis
     const isBaseMapLayer = instance => instance instanceof Layer.BaseMap
-    const axisLayer = this.#layer.find(({instance}) => isAxisLayer(instance))?.instance
+    const axisLayer = this.#layers.find(({instance}) => isAxisLayer(instance))?.instance
     const {type} = axisLayer.options
-    const layers = this.#layer
+    const layers = this.#layers
       .filter(({instance}) => instance.scale && !isAxisLayer(instance))
       .map(({instance}) => instance)
     // merge scales
@@ -247,7 +247,7 @@ export default class Wave {
       const {type, layout, targets} = options
       const {width, height, left, top} = layout
       const isHorizontal = type === brushType.HORIZONTAL
-      const layers = this.#layer.filter(({id}) => targets.find(item => item === id))
+      const layers = this.#layers.filter(({id}) => targets.find(item => item === id))
       const prevRange = new Array(layers.length).fill(null)
       // brush will change range of scale
       const brushed = event => layers.forEach(({instance}, i) => {
@@ -283,8 +283,8 @@ export default class Wave {
 
   destroy() {
     this.#state = stateType.DESTROY
-    while (this.#layer.length !== 0) {
-      this.#layer[0].instance.destroy()
+    while (this.#layers.length !== 0) {
+      this.#layers[0].instance.destroy()
     }
   }
 }
