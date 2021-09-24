@@ -16,10 +16,10 @@ export const createParallelogram = (left, top, width, height, angle = 45) => [
 
 /**
  * create a hexagon which not exceed the area
- * @param {Number} left 
- * @param {Number} top 
- * @param {Number} width 
- * @param {Number} height 
+ * @param {Number} left
+ * @param {Number} top
+ * @param {Number} width
+ * @param {Number} height
  * @returns {Array<Number} polygon points
  */
 export const createHexagon = (left, top, width, height) => [
@@ -33,11 +33,11 @@ export const createHexagon = (left, top, width, height) => [
 
 /**
  * create an arrow which not exceed the area
- * @param {Number} left 
- * @param {Number} top 
- * @param {Number} width 
+ * @param {Number} left
+ * @param {Number} top
+ * @param {Number} width
  * @param {Number} height
- * @param {String} direction left or right 
+ * @param {String} direction left or right
  * @returns {Array<Number} curve points
  */
 export const createArrow = (left, top, width, height, direction) => {
@@ -55,9 +55,9 @@ export const createArrow = (left, top, width, height, direction) => {
 
 /**
  * create a knuckle which not exceed the area
- * @param {Number} left 
- * @param {Number} top 
- * @param {Number} width 
+ * @param {Number} left
+ * @param {Number} top
+ * @param {Number} width
  * @param {Number} height
  * @param {String} direction
  * @returns {Array<Number} curve points

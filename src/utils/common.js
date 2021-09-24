@@ -3,20 +3,21 @@ import * as d3 from 'd3'
 
 /**
  * the output range contains 'stop'.
- * @param {*} start 
- * @param {*} end 
- * @param {*} step 
+ * @param {*} start
+ * @param {*} end
+ * @param {*} step
  * @param {*} toFixed dicimal number
  */
 export const range = (start, end, step, toFixed = 8) => {
-  return d3.range(start, end + (step > 0 ? 1 : -1) * 10 ** -(toFixed + 2), step)
+  return d3
+    .range(start, end + (step > 0 ? 1 : -1) * 10 ** -(toFixed + 2), step)
     .map(v => Number(Number(v).toFixed(toFixed)))
 }
 
 /**
  * combining color and opacity and check for errors
- * @param {String} color 
- * @param {Number} opacity 
+ * @param {String} color
+ * @param {Number} opacity
  */
 export const mergeAlpha = (color, opacity) => {
   try {
@@ -31,9 +32,9 @@ export const mergeAlpha = (color, opacity) => {
 
 /**
  * get real attr from target (such as array or itself)
- * @param {*} target 
- * @param {Number} index 
- * @param {*} defaultValue 
+ * @param {*} target
+ * @param {Number} index
+ * @param {*} defaultValue
  * @returns
  */
 export const getAttr = (target, index, defaultValue = null) => {

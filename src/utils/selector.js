@@ -24,7 +24,7 @@ export default class Seletor {
       target.attr('display', visible ? 'block' : 'none')
     }
     if (this.engine === engineType.CANVAS) {
-      target.visible = visible 
+      target.visible = visible
     }
   }
 
