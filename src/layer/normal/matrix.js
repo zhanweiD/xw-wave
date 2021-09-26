@@ -122,14 +122,14 @@ export default class MatrixLayer extends LayerBase {
       domain: d3.range(0, maxValue - minValue, 1),
       range: this.getColor(maxValue - minValue + 1, circle.fill),
     })
-    this.#rectData.forEach(groupData => groupData.forEach(item => {
+    this.#rectData.forEach(group => group.forEach(item => {
       item.color = scaleRectColor(Math.round(item.value - minValue))
     }))
-    this.#circleData.forEach(groupData => groupData.forEach(item => {
+    this.#circleData.forEach(group => group.forEach(item => {
       item.color = scaleCircleColor(Math.round(item.value - minValue))
     }))
     // 标签文字数据
-    this.#textData = this.#data.get('textData').map(groupData => groupData.map(item => this.createText({
+    this.#textData = this.#data.get('textData').map(group => group.map(item => this.createText({
       ...item, style: text, position: 'center',
     })))
     // 圆形的大小随数值大小变化
@@ -144,7 +144,7 @@ export default class MatrixLayer extends LayerBase {
         domain: this.#data.range(),
         range: [min, max],
       })
-      this.#circleData.forEach(groupData => groupData.forEach(item => {
+      this.#circleData.forEach(group => group.forEach(item => {
         item.r = scale(item.value)
       }))
     }
@@ -153,23 +153,23 @@ export default class MatrixLayer extends LayerBase {
   // 绘制
   draw() {
     const {shape} = this.options
-    const rectData = this.#rectData.map(groupData => {
-      const data = groupData.map(({width, height}) => [width, height])
-      const source = groupData.map(({dimension, value}) => ({dimension, value}))
-      const position = groupData.map(({x, y}) => [x, y])
-      const fill = groupData.map(({color}) => color)
+    const rectData = this.#rectData.map(group => {
+      const data = group.map(({width, height}) => [width, height])
+      const source = group.map(({dimension, value}) => ({dimension, value}))
+      const position = group.map(({x, y}) => [x, y])
+      const fill = group.map(({color}) => color)
       return {data, source, position, ...this.#style.rect, fill}
     })
-    const circleData = this.#circleData.map(groupData => {
-      const data = groupData.map(({r}) => [r, r])
-      const position = groupData.map(({cx, cy}) => [cx, cy])
-      const source = groupData.map(({dimension, value}) => ({dimension, value}))
-      const fill = groupData.map(({color}) => color)
+    const circleData = this.#circleData.map(group => {
+      const data = group.map(({r}) => [r, r])
+      const position = group.map(({cx, cy}) => [cx, cy])
+      const source = group.map(({dimension, value}) => ({dimension, value}))
+      const fill = group.map(({color}) => color)
       return {data, source, position, ...this.#style.circle, fill}
     })
-    const textData = this.#textData.map(groupData => {
-      const data = groupData.map(({value}) => value)
-      const position = groupData.map(({x, y}) => [x, y])
+    const textData = this.#textData.map(group => {
+      const data = group.map(({value}) => value)
+      const position = group.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
     shape === shapeType.RECT && this.drawBasic('rect', rectData)

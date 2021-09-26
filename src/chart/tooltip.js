@@ -82,8 +82,8 @@ export default class Tooltip {
       try {
         const {dimension} = data.source
         const elType = data.className.split('-')[2]
-        const groupData = backup[elType].filter(({source}) => isEqual(source[0].dimension, dimension))[0]
-        const {source, fill, stroke} = groupData
+        const group = backup[elType].filter(({source}) => isEqual(source[0].dimension, dimension))[0]
+        const {source, fill, stroke} = group
         list = source.map((item, i) => ({...item, pointColor: isArray(fill) ? fill[i] : stroke[i]}))
       } catch (error) {
         this.log.warn('Tooltip: The layer does not support group mode', error)

@@ -106,7 +106,6 @@ export default class RectLayer extends LayerBase {
     this.#transform()
   }
 
-  // 柱状数据生成
   #setColumnData = scales => {
     const {mode, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
@@ -188,10 +187,10 @@ export default class RectLayer extends LayerBase {
     const {type, mode, layout} = this.options
     // percentage needs the help of stacking algorithm
     if (mode === modeType.PERCENTAGE) {
-      transformedData.forEach(groupData => {
-        const total = groupData.reduce((prev, cur) => prev + cur.value, 0)
-        const percentages = groupData.map(({value}) => value / total)
-        groupData.forEach((item, i) => {
+      transformedData.forEach(group => {
+        const total = group.reduce((prev, cur) => prev + cur.value, 0)
+        const percentages = group.map(({value}) => value / total)
+        group.forEach((item, i) => {
           item.percentage = formatNumber(percentages[i], {decimalPlace: 4})
           if (type === waveType.COLUMN) {
             item.y = item.y + item.height - layout.height * percentages[i]
@@ -205,12 +204,12 @@ export default class RectLayer extends LayerBase {
     // stacking algorithm
     if (mode === modeType.STACK || mode === modeType.PERCENTAGE) {
       if (type === waveType.COLUMN) {
-        transformedData.forEach(groupData => groupData.forEach((item, i) => {
-          i !== 0 && (item.y = groupData[i - 1].y - item.height)
+        transformedData.forEach(group => group.forEach((item, i) => {
+          i !== 0 && (item.y = group[i - 1].y - item.height)
         }))
       } else if (type === waveType.BAR) {
-        transformedData.forEach(groupData => groupData.forEach((item, i) => {
-          i !== 0 && (item.x = groupData[i - 1].x + groupData[i - 1].width)
+        transformedData.forEach(group => group.forEach((item, i) => {
+          i !== 0 && (item.x = group[i - 1].x + group[i - 1].width)
         }))
       }
     }
@@ -218,21 +217,21 @@ export default class RectLayer extends LayerBase {
     if (mode === modeType.GROUP) {
       const columnNumber = transformedData[0].length
       if (type === waveType.COLUMN) {
-        transformedData.forEach(groupData => groupData.forEach((item, i) => {
+        transformedData.forEach(group => group.forEach((item, i) => {
           item.width /= columnNumber
-          i !== 0 && (item.x = groupData[i - 1].x + groupData[i - 1].width)
+          i !== 0 && (item.x = group[i - 1].x + group[i - 1].width)
         }))
       } else if (type === waveType.BAR) {
-        transformedData.forEach(groupData => groupData.forEach((item, i) => {
+        transformedData.forEach(group => group.forEach((item, i) => {
           item.height /= columnNumber
-          i !== 0 && (item.y = groupData[i - 1].y + groupData[i - 1].height)
+          i !== 0 && (item.y = group[i - 1].y + group[i - 1].height)
         }))
       }
     }
     // interval algorithm
     if (mode === modeType.INTERVAL) {
-      transformedData = transformedData.map(groupData => {
-        const [data1, data2] = [groupData[0], groupData[1]]
+      transformedData = transformedData.map(group => {
+        const [data1, data2] = [group[0], group[1]]
         const [min, max] = [Math.min(data1.value, data2.value), Math.max(data1.value, data2.value)]
         if (type === waveType.COLUMN) {
           const y = Math.min(data1.y, data2.y)
@@ -244,20 +243,20 @@ export default class RectLayer extends LayerBase {
           const width = Math.abs(data1.x + data1.width - data2.x - data2.width)
           return [{...data1, x, width, value: [min, max]}]
         }
-        return groupData
+        return group
       })
     }
     // interval algorithm
     if (mode === modeType.WATERFALL) {
       if (type === waveType.COLUMN) {
-        transformedData.forEach((groupData, i) => groupData.forEach(item => {
+        transformedData.forEach((group, i) => group.forEach(item => {
           i !== 0 && (item.y = transformedData[i - 1][0].y - item.height)
         }))
         // the last column needs special treatment
         const {y, height} = transformedData[transformedData.length - 1][0]
         transformedData[transformedData.length - 1][0].y = y + height
       } else if (type === waveType.BAR) {
-        transformedData.forEach((groupData, i) => groupData.forEach(item => {
+        transformedData.forEach((group, i) => group.forEach(item => {
           i !== 0 && (item.x = transformedData[i - 1][0].x + transformedData[i - 1][0].width)
         }))
         // the last column needs special treatment
@@ -298,13 +297,13 @@ export default class RectLayer extends LayerBase {
     // get colors
     if (this.#rectData[0]?.length > 1) {
       const colors = this.getColor(this.#rectData[0].length, rect.fill)
-      this.#rectData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
+      this.#rectData.forEach(group => group.forEach((item, i) => item.color = colors[i]))
     } else if (this.#rectData[0]?.length === 1) {
       const colors = this.getColor(this.#rectData.length, rect.fill)
-      this.#rectData.forEach((groupData, i) => (groupData[0].color = colors[i]))
+      this.#rectData.forEach((group, i) => (group[0].color = colors[i]))
     }
     // horizontal scaling ratio
-    this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, width, height, ...other}) => {
+    this.#rectData = this.#rectData.map(group => group.map(({x, y, width, height, ...other}) => {
       const totalPadding = paddingInner * (type === waveType.COLUMN ? width : height)
       return {
         x: type === waveType.COLUMN ? x + totalPadding / 2 : x,
@@ -316,7 +315,7 @@ export default class RectLayer extends LayerBase {
     }))
     // fixed rect length usually be used as mark
     if (isNumber(fixedLength)) {
-      this.#rectData.forEach(groupData => groupData.forEach(item => {
+      this.#rectData.forEach(group => group.forEach(item => {
         if (type === waveType.COLUMN) {
           if (item.value < 0) item.y += item.height - fixedLength
           item.height = fixedLength
@@ -327,11 +326,11 @@ export default class RectLayer extends LayerBase {
       }))
     }
     // label data
-    this.#textData = this.#rectData.map(groupData => {
+    this.#textData = this.#rectData.map(group => {
       const result = []
       const positionMin = isArray(labelPosition) ? labelPosition[0] : labelPosition
       const positionMax = isArray(labelPosition) ? labelPosition[1] : labelPosition
-      groupData.forEach(({value, percentage, ...data}) => {
+      group.forEach(({value, percentage, ...data}) => {
         // single label
         if (!isArray(value)) {
           result.push(this.#getLabelData({
@@ -359,22 +358,22 @@ export default class RectLayer extends LayerBase {
 
   draw() {
     const {type} = this.options
-    const rectData = this.#rectData.map(groupData => {
-      const data = groupData.map(({width, height}) => [width, height])
-      const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
-      const position = groupData.map(({x, y}) => [x, y])
-      const fill = groupData.map(({color}) => color)
+    const rectData = this.#rectData.map(group => {
+      const data = group.map(({width, height}) => [width, height])
+      const source = group.map(({dimension, category, value}) => ({dimension, category, value}))
+      const position = group.map(({x, y}) => [x, y])
+      const fill = group.map(({color}) => color)
       const transformOrigin = type === waveType.COLUMN ? 'bottom' : 'left'
       return {data, source, position, transformOrigin, ...this.#style.rect, fill}
     })
-    const bgRect = this.#bgRectData.map(groupData => {
-      const data = groupData.map(({width, height}) => [width, height])
-      const position = groupData.map(({x, y}) => [x, y])
+    const bgRect = this.#bgRectData.map(group => {
+      const data = group.map(({width, height}) => [width, height])
+      const position = group.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.bgRect}
     })
-    const textData = this.#textData.map(groupData => {
-      const data = groupData.map(({value}) => value)
-      const position = groupData.map(({x, y}) => [x, y])
+    const textData = this.#textData.map(group => {
+      const data = group.map(({value}) => value)
+      const position = group.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
     this.drawBasic('rect', bgRect, 'bgRect')

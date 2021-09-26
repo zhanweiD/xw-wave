@@ -1,21 +1,21 @@
+import {isNumber} from 'lodash'
 import Scale from '../../data/scale'
 import LayerBase from '../base'
 
-// 默认样式
 const defaultStyle = {
-  circleSize: [5, 5],
-  circle: {},
+  pointSize: [5, 5],
+  point: {},
   text: {},
 }
 
 export default class ScatterLayer extends LayerBase {
   #data = []
-  
+
   #scale = {}
 
   #style = defaultStyle
 
-  #circleData = []
+  #pointData = []
 
   #textData = []
 
@@ -31,14 +31,13 @@ export default class ScatterLayer extends LayerBase {
     return this.#style
   }
 
-  // 初始化默认值
   constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['circle', 'text'])
+    super(layerOptions, waveOptions, ['point', 'text'])
     this.className = 'wave-scatter'
-    this.tooltipTargets = ['circle']
+    this.tooltipTargets = ['point']
   }
 
-  // 列数据的字段是固定的
+  // headers of tableList is
   setData(data, scales) {
     this.#data = data || this.#data
     const {left, top, width, height} = this.options.layout
@@ -48,21 +47,25 @@ export default class ScatterLayer extends LayerBase {
     const yIndex = headers.findIndex(header => header === 'y')
     const valueIndex = headers.findIndex(header => header === 'value')
     const categoryIndex = headers.findIndex(header => header === 'category')
-    // 初始化比例尺
-    this.#scale = this.createScale({
-      scaleX: new Scale({
-        type: 'linear',
-        domain: this.#data.select(headers.slice(1, 2)).range(),
-        range: [0, width],
-      }),
-      scaleY: new Scale({
-        type: 'linear',
-        domain: this.#data.select(headers.slice(2, 3)).range(),
-        range: [height, 0],
-      }),
-    }, this.#scale, scales)
-    // 计算点的基础数据
-    const circleData = pureTableList.map((item, i) => ({
+    // initialize scales
+    this.#scale = this.createScale(
+      {
+        scaleX: new Scale({
+          type: 'linear',
+          domain: this.#data.select(headers.slice(1, 2)).range(),
+          range: [0, width],
+        }),
+        scaleY: new Scale({
+          type: 'linear',
+          domain: this.#data.select(headers.slice(2, 3)).range(),
+          range: [height, 0],
+        }),
+      },
+      this.#scale,
+      scales
+    )
+    // point data
+    const pointData = pureTableList.map((item, i) => ({
       value: item[valueIndex],
       category: item[categoryIndex],
       cx: left + this.#scale.scaleX(item[xIndex]),
@@ -72,67 +75,63 @@ export default class ScatterLayer extends LayerBase {
         category: header,
       })),
     }))
-    // 数据根据第一列的名称分组
-    const categorys = Array.from(new Set(circleData.map(({category}) => category)))
-    this.#circleData = new Array(categorys.length).fill(null).map(() => [])
-    circleData.forEach(uncategorizedData => {
+    // group data according the first column
+    const categorys = Array.from(new Set(pointData.map(({category}) => category)))
+    this.#pointData = new Array(categorys.length).fill(null).map(() => [])
+    pointData.forEach(uncategorizedData => {
       const index = categorys.findIndex(category => category === uncategorizedData.category)
-      this.#circleData[index].push(uncategorizedData)
+      this.#pointData[index].push(uncategorizedData)
     })
   }
 
-  // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {circleSize, text, circle} = this.#style
-    // 颜色跟随主题
-    const colors = this.getColor(this.#circleData.length, circle.fill)
-    this.#circleData.forEach((groupData, i) => groupData.forEach(item => item.color = colors[i]))
-    // 圆点大小数据
+    const {pointSize, text, point} = this.#style
+    // get colors
+    const colors = this.getColor(this.#pointData.length, point.fill)
+    this.#pointData.forEach((group, i) => group.forEach(item => (item.color = colors[i])))
+    // inject point size data
     const valueIndex = this.#data.data.findIndex(({header}) => header === 'value')
     const scaleSize = new Scale({
       type: 'linear',
       domain: valueIndex !== -1 ? this.#data.select('value').range() : [],
-      range: circleSize.map(value => value / 2),
+      range: pointSize.map(value => value / 2),
     })
-    this.#circleData = this.#circleData.map(groupData => groupData.map(({value, ...others}) => ({
+    this.#pointData = this.#pointData.map(group => group.map(({value, ...others}) => ({
       value,
-      r: value !== undefined ? scaleSize(value) : circleSize[0] / 2,
+      r: isNumber(value) ? scaleSize(value) : pointSize[0] / 2,
       ...others,
     })))
-    // 标签文字数据
-    this.#textData = this.#circleData.map(groupData => groupData.map(({cx, cy, value}) => {
-      return this.createText({
-        x: cx, 
-        y: cy, 
-        value,
-        style: text,
-        position: 'center',
-      })
-    }))
-    // 图层自定义图例数据
+    // label data
+    this.#textData = this.#pointData.map(group => group.map(({cx, cy, value}) => this.createText({
+      x: cx,
+      y: cy,
+      value,
+      style: text,
+      position: 'center',
+    })))
+    // legend data of scatter layer
     this.#data.set('legendData', {
-      list: this.#circleData.map((item, i) => ({label: item[0].category, color: colors[i]})),
+      list: this.#pointData.map((item, i) => ({label: item[0].category, color: colors[i]})),
       shape: 'circle',
       filter: 'row',
     })
   }
 
-  // 绘制
   draw() {
-    const circleData = this.#circleData.map(groupData => {
-      const data = groupData.map(({r}) => [r, r])
-      const position = groupData.map(({cx, cy}) => [cx, cy])
-      const source = groupData.map(item => item.source)
-      const fill = groupData.map(({color}) => color)
-      return {data, source, position, ...this.#style.circle, fill}
+    const pointData = this.#pointData.map(group => {
+      const data = group.map(({r}) => [r, r])
+      const position = group.map(({cx, cy}) => [cx, cy])
+      const source = group.map(item => item.source)
+      const fill = group.map(({color}) => color)
+      return {data, source, position, ...this.#style.point, fill}
     })
-    const textData = this.#textData.map(groupData => {
-      const position = groupData.map(({x, y}) => [x, y])
-      const data = groupData.map(({value}) => value)
+    const textData = this.#textData.map(group => {
+      const position = group.map(({x, y}) => [x, y])
+      const data = group.map(({value}) => value)
       return {data, position, ...this.#style.text}
     })
-    this.drawBasic('circle', circleData)
+    this.drawBasic('circle', pointData, 'point')
     this.drawBasic('text', textData)
   }
 }

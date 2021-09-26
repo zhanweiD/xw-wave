@@ -109,8 +109,8 @@ export default class LineLayer extends LayerBase {
     })))
     // transform data to stack line
     if (mode === modeType.STACK) {
-      this.#curveData.forEach(groupData => groupData.forEach((item, i) => {
-        i !== 0 && (item.y = groupData[i - 1].y - (scaleY(0) + top - item.y))
+      this.#curveData.forEach(group => group.forEach((item, i) => {
+        i !== 0 && (item.y = group[i - 1].y - (scaleY(0) + top - item.y))
       }))
     }
   }
@@ -122,15 +122,15 @@ export default class LineLayer extends LayerBase {
     const {top, height} = layout
     // get the color for each line
     const colors = this.getColor(this.#curveData[0].length, curve.stroke)
-    this.#curveData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
+    this.#curveData.forEach(group => group.forEach((item, i) => item.color = colors[i]))
     // line label
-    this.#textData = this.#curveData.map(groupData => groupData.map(({value, x, y}) => {
+    this.#textData = this.#curveData.map(group => group.map(({value, x, y}) => {
       return this.createText({x, y, value, position: labelPosition, style: text})
     }))
     // point data
-    this.#pointData = this.#curveData.map(groupData => groupData.map(item => ({...item, r: pointSize / 2})))
+    this.#pointData = this.#curveData.map(group => group.map(item => ({...item, r: pointSize / 2})))
     // area data
-    this.#areaData = this.#curveData.map((groupData, i) => groupData.map(({y, ...item}, j) => ({
+    this.#areaData = this.#curveData.map((group, i) => group.map(({y, ...item}, j) => ({
       y0: y,
       y1: mode === modeType.STACK && j !== 0 ? this.#curveData[i][j - 1].y : height + top,
       ...item,
@@ -179,16 +179,16 @@ export default class LineLayer extends LayerBase {
       ])
       return {data: this.#fallbackFilter(data), ...this.#style.area, curve, fill: color}
     })
-    const textData = this.#textData.map(groupData => {
-      const data = groupData.map(({value}) => value)
-      const position = groupData.map(({x, y}) => [x, y])
+    const textData = this.#textData.map(group => {
+      const data = group.map(({value}) => value)
+      const position = group.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
-    const pointData = this.#pointData.map(groupData => {
-      const data = groupData.map(({r}) => [r, r])
-      const position = groupData.map(({x, y}) => [x, y])
-      const stroke = groupData.map(({color}) => color)
-      const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
+    const pointData = this.#pointData.map(group => {
+      const data = group.map(({r}) => [r, r])
+      const position = group.map(({x, y}) => [x, y])
+      const stroke = group.map(({color}) => color)
+      const source = group.map(({dimension, category, value}) => ({dimension, category, value}))
       return {data, position, source, ...this.#style.point, stroke}
     })
     this.drawBasic('area', areaData)

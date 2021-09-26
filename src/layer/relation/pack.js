@@ -67,24 +67,24 @@ export default class PackLayer extends LayerBase {
     }).reverse()
     // color is related to height
     const colors = this.getColor(this.#circleData.length, circle.fill)
-    this.#circleData.forEach((groupData, i) => groupData.forEach(item => (item.color = colors[i])))
+    this.#circleData.forEach((group, i) => group.forEach(item => (item.color = colors[i])))
     // label data
-    this.#textData = this.#circleData.map(groupData => groupData.map(({cx, cy, value}) => this.createText({
+    this.#textData = this.#circleData.map(group => group.map(({cx, cy, value}) => this.createText({
       x: cx, y: cy, value, style: text, position: 'center',
     })))
   }
 
   draw() {
-    const circleData = this.#circleData.map(groupData => {
-      const data = groupData.map(({r}) => [r, r])
-      const position = groupData.map(({cx, cy}) => [cx, cy])
-      const source = groupData.map(({value}) => ({value}))
-      const fill = groupData.map(({color}) => color)
+    const circleData = this.#circleData.map(group => {
+      const data = group.map(({r}) => [r, r])
+      const position = group.map(({cx, cy}) => [cx, cy])
+      const source = group.map(({value}) => ({value}))
+      const fill = group.map(({color}) => color)
       return {data, position, source, ...this.#style.circle, fill}
     })
-    const textData = this.#textData.map(groupData => {
-      const data = groupData.map(({value}) => value)
-      const position = groupData.map(({x, y}) => [x, y])
+    const textData = this.#textData.map(group => {
+      const data = group.map(({value}) => value)
+      const position = group.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
     // only show the innermost label to prevent occlusion

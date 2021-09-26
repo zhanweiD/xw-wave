@@ -161,12 +161,12 @@ export default class TreeLayer extends LayerBase {
     })]
     // 横竖坐标转换
     if (type === directionType.VERTICAL) {
-      this.#circleData = this.#circleData.map(groupData => groupData.map(({cx, cy, ...other}) => ({
+      this.#circleData = this.#circleData.map(group => group.map(({cx, cy, ...other}) => ({
         cx: cy - layout.top + layout.left,
         cy: cx - layout.left + layout.top, 
         ...other,
       })))
-      this.#curveData = this.#curveData.map(groupData => groupData.map(({x1, y1, x2, y2, ...other}) => ({
+      this.#curveData = this.#curveData.map(group => group.map(({x1, y1, x2, y2, ...other}) => ({
         ...other,
         x1: y1 - layout.top + layout.left,
         y1: x1 - layout.left + layout.top,
@@ -179,12 +179,12 @@ export default class TreeLayer extends LayerBase {
       const keys = Array.from(new Set(this.#curveData[0].map(({x1, y1}) => `${x1}${y1}`)))
       this.#curveData = keys.map(key => this.#curveData[0].filter(({x1, y1}) => `${x1}${y1}` === key))
       // 重构线的数据，注意前面计算的数据是从叶子到根
-      this.#curveData = this.#curveData.map(groupData => {
-        const {x1, x2, y1, y2} = groupData[0]
+      this.#curveData = this.#curveData.map(group => {
+        const {x1, x2, y1, y2} = group[0]
         const medianX = type === directionType.VERTICAL ? x1 : (x1 + x2) / 2
         const medianY = type === directionType.HORIZONTAL ? y1 : (y1 + y2) / 2
-        const masterLine = {...groupData[0], x2: medianX, y2: medianY}
-        const slaveLines = groupData.map(({...other}) => ({
+        const masterLine = {...group[0], x2: medianX, y2: medianY}
+        const slaveLines = group.map(({...other}) => ({
           ...other, 
           x1: medianX, 
           y1: medianY,
@@ -193,11 +193,11 @@ export default class TreeLayer extends LayerBase {
       })
     }
     // 标签文字数据
-    this.#textData = this.#circleData.map((groupData, i) => {
+    this.#textData = this.#circleData.map((group, i) => {
       const isSpecial = (labelPosition === labelPositionType.OUTER && i === 0)
         || (labelPosition === labelPositionType.INNER && i === this.#circleData.length - 1)
       if (type === directionType.HORIZONTAL) {
-        return groupData.map(({cx, cy, r, name}) => this.createText({
+        return group.map(({cx, cy, r, name}) => this.createText({
           x: isSpecial ? cx + r + labelOffset : cx - r - labelOffset,
           y: cy,
           position: isSpecial ? 'right' : 'left',
@@ -206,7 +206,7 @@ export default class TreeLayer extends LayerBase {
         }))
       }
       if (type === directionType.VERTICAL) {
-        return groupData.map(({cx, cy, r, name}) => this.createText({
+        return group.map(({cx, cy, r, name}) => this.createText({
           x: cx,
           y: isSpecial ? cy + r + labelOffset : cy - r - labelOffset,
           position: isSpecial ? 'bottom' : 'top',
@@ -220,22 +220,22 @@ export default class TreeLayer extends LayerBase {
 
   // 绘制
   draw() {
-    const circleData = this.#circleData.map(groupData => {
-      const source = groupData.map(({dimension, name, value}) => ({dimension, category: name, value}))
-      const data = groupData.map(({r}) => [r, r])
-      const position = groupData.map(({cx, cy}) => [cx, cy])
-      const fill = groupData.map(({color}) => color)
+    const circleData = this.#circleData.map(group => {
+      const source = group.map(({dimension, name, value}) => ({dimension, category: name, value}))
+      const data = group.map(({r}) => [r, r])
+      const position = group.map(({cx, cy}) => [cx, cy])
+      const fill = group.map(({color}) => color)
       const transformOrigin = 'center'
       return {data, source, position, transformOrigin, fill, ...this.#style.rect}
     })
-    const curveData = this.#curveData.map(groupData => ({
-      data: groupData.map(({x1, y1, x2, y2}) => [[x1, y1], [x2, y2]]),
+    const curveData = this.#curveData.map(group => ({
+      data: group.map(({x1, y1, x2, y2}) => [[x1, y1], [x2, y2]]),
       ...this.#style.curve,
-      stroke: groupData.map(({color}) => color),
+      stroke: group.map(({color}) => color),
     }))
-    const textData = this.#textData.map(groupData => {
-      const data = groupData.map(({value}) => value)
-      const position = groupData.map(({x, y}) => [x, y])
+    const textData = this.#textData.map(group => {
+      const data = group.map(({value}) => value)
+      const position = group.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
     this.drawBasic('curve', curveData)

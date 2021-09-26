@@ -127,9 +127,9 @@ export default class TreemapLayer extends LayerBase {
       ...this.#style.rect,
       fill: this.#rectData.map(({color}) => color),
     }]
-    const textData = this.#textData.map(groupData => {
-      const data = groupData.map(({value}) => value)
-      const position = groupData.map(({x, y}) => [x, y])
+    const textData = this.#textData.map(group => {
+      const data = group.map(({value}) => value)
+      const position = group.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
     this.drawBasic('rect', rectData)

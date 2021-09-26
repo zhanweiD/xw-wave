@@ -118,10 +118,10 @@ export default class ChordLayer extends LayerBase {
       ...this.#style.arc,
       fill: this.#arcData.map(({color}) => color),
     }]
-    const ribbonData = this.#ribbonData.map(groupData => {
-      const data = groupData.map(item => item.data)
-      const fill = groupData.map(({color}) => color)
-      const position = groupData.map(item => item.position)
+    const ribbonData = this.#ribbonData.map(group => {
+      const data = group.map(item => item.data)
+      const fill = group.map(({color}) => color)
+      const position = group.map(item => item.position)
       return {data, position, ...this.#style.ribbon, fill}
     })
     const textData = [{

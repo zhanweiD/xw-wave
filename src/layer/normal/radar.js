@@ -92,10 +92,10 @@ export default class RadarLayer extends LayerBase {
     }))
     // 堆叠雷达图数据变更
     if (mode === modeType.STACK) {
-      this.#polygonData.forEach(groupData => groupData.forEach((item, i) => {
+      this.#polygonData.forEach(group => group.forEach((item, i) => {
         if (i !== 0) {
-          item.x = groupData[i - 1].x + item.x - polygonCenter.x
-          item.y = groupData[i - 1].y + item.y - polygonCenter.y
+          item.x = group[i - 1].x + item.x - polygonCenter.x
+          item.y = group[i - 1].y + item.y - polygonCenter.y
         }
       }))
     }
@@ -108,13 +108,13 @@ export default class RadarLayer extends LayerBase {
     // 颜色跟随主题
     const fillColors = this.getColor(this.#polygonData[0].length, polygon.fill)
     const strokeColors = this.getColor(this.#polygonData[0].length, polygon.stroke)
-    this.#polygonData.forEach(groupData => groupData.forEach((item, i) => {
+    this.#polygonData.forEach(group => group.forEach((item, i) => {
       item.fillColor = fillColors[i]
       item.strokeColor = strokeColors[i]
     }))
     // 圆点数据依赖多边形数据
-    this.#circleData = this.#polygonData.map(groupData => {
-      return groupData.map(({x, y, ...others}) => ({
+    this.#circleData = this.#polygonData.map(group => {
+      return group.map(({x, y, ...others}) => ({
         ...others,
         cx: x,
         cy: y,
@@ -122,7 +122,7 @@ export default class RadarLayer extends LayerBase {
       }))
     })
     // 标签文字数据
-    this.#textData = this.#polygonData.map(groupData => groupData.map(({value, x, y, angle}) => {
+    this.#textData = this.#polygonData.map(group => group.map(({value, x, y, angle}) => {
       const isRight = Math.abs(angle % (2 * Math.PI)) < Math.PI
       return this.createText({value, x, y, style: this.#style.text, position: isRight ? 'right' : 'left'})
     }))
@@ -141,16 +141,16 @@ export default class RadarLayer extends LayerBase {
       const data = this.#polygonData.map(item => [item[index].x, item[index].y])
       return {data: [data], position, ...this.#style.polygon, fill: fillColor, stroke: strokeColor}
     }).reverse()
-    const circleData = this.#circleData.map(groupData => {
-      const data = groupData.map(({r}) => [r, r])
-      const position = groupData.map(({cx, cy}) => [cx, cy])
-      const fill = groupData.map(({fillColor}) => fillColor)
-      const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
+    const circleData = this.#circleData.map(group => {
+      const data = group.map(({r}) => [r, r])
+      const position = group.map(({cx, cy}) => [cx, cy])
+      const fill = group.map(({fillColor}) => fillColor)
+      const source = group.map(({dimension, category, value}) => ({dimension, category, value}))
       return {data, position, source, ...this.#style.circle, fill}
     })
-    const textData = this.#textData.map(groupData => {
-      const data = groupData.map(({value}) => value)
-      const position = groupData.map(({x, y}) => [x, y])
+    const textData = this.#textData.map(group => {
+      const data = group.map(({value}) => value)
+      const position = group.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
     this.drawBasic('polygon', polygonData)

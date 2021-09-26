@@ -134,7 +134,7 @@ const createSchema = (container, theme, layout, mode) => ({
       },
       data: createScatterData({isBubble: mode === 'bubble'}),
       style: {
-        circleSize: mode === 'bubble' ? [10, 30] : [5, 5],
+        pointSize: mode === 'bubble' ? [10, 30] : [5, 5],
         text: {
           hide: true,
           fontSize: 10,

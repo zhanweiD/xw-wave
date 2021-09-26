@@ -168,9 +168,9 @@ export default class ArcLayer extends LayerBase {
     })))
     // 堆叠的夜莺玫瑰图
     if (mode === modeType.STACK) {
-      this.#arcData.forEach(groupData => groupData.forEach((item, i) => {
+      this.#arcData.forEach(group => group.forEach((item, i) => {
         if (i !== 0) {
-          item.innerRadius = groupData[i - 1].outerRadius
+          item.innerRadius = group[i - 1].outerRadius
           item.outerRadius = item.innerRadius + item.outerRadius - innerRadius
         }
       }))
@@ -178,7 +178,7 @@ export default class ArcLayer extends LayerBase {
     // 颜色跟随主题
     if (this.#arcData[0]?.length > 1) {
       const colors = this.getColor(this.#arcData[0].length, arc.fill)
-      this.#arcData.forEach(groupData => groupData.forEach((item, i) => item.color = colors[i]))
+      this.#arcData.forEach(group => group.forEach((item, i) => item.color = colors[i]))
       this.#data.set('legendData', {
         list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
         filter: 'column',
@@ -186,7 +186,7 @@ export default class ArcLayer extends LayerBase {
       })
     } else if (this.#arcData[0]?.length === 1) {
       const colors = this.getColor(this.#arcData.length, arc.fill)
-      this.#arcData.forEach((groupData, i) => (groupData[0].color = colors[i]))
+      this.#arcData.forEach((group, i) => (group[0].color = colors[i]))
       this.#data.set('legendData', {
         list: pureTableList.map((item, i) => ({label: item[0], color: colors[i]})),
         filter: 'row',
@@ -194,24 +194,24 @@ export default class ArcLayer extends LayerBase {
       })
     }
     // 标签文字数据
-    this.#textData = this.#arcData.map(groupData => {
-      return groupData.map(data => this.#getLabelData({...data}))
+    this.#textData = this.#arcData.map(group => {
+      return group.map(data => this.#getLabelData({...data}))
     })
   }
 
   draw() {
-    const arcData = this.#arcData.map(groupData => {
-      const data = groupData.map(({startAngle, endAngle, innerRadius, outerRadius}) => [
+    const arcData = this.#arcData.map(group => {
+      const data = group.map(({startAngle, endAngle, innerRadius, outerRadius}) => [
         startAngle, endAngle, innerRadius, outerRadius,
       ])
-      const source = groupData.map(({dimension, category, value}) => ({dimension, category, value}))
-      const position = groupData.map(({x, y}) => [x, y])
-      const fill = groupData.map(({color}) => color)
+      const source = group.map(({dimension, category, value}) => ({dimension, category, value}))
+      const position = group.map(({x, y}) => [x, y])
+      const fill = group.map(({color}) => color)
       return {data, position, source, ...this.#style.arc, fill}
     })
-    const textData = this.#textData.map(groupData => {
-      const data = groupData.map(({value}) => value)
-      const position = groupData.map(({x, y}) => [x, y])
+    const textData = this.#textData.map(group => {
+      const data = group.map(({value}) => value)
+      const position = group.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
     this.drawBasic('arc', arcData)

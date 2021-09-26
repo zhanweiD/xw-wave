@@ -150,20 +150,20 @@ export default class SankeyLayer extends LayerBase {
       }))
     })
     // 堆叠柱子数据变更
-    this.#rectData.forEach(groupData => groupData.forEach((item, i) => {
-      i !== 0 && (item.y = groupData[i - 1].y + groupData[i - 1].height + nodeGap)
+    this.#rectData.forEach(group => group.forEach((item, i) => {
+      i !== 0 && (item.y = group[i - 1].y + group[i - 1].height + nodeGap)
     }))
     // 对齐调整节点的位置
-    this.#rectData.forEach(groupData => {
-      const tailNode = groupData[groupData.length - 1]
+    this.#rectData.forEach(group => {
+      const tailNode = group[group.length - 1]
       if (type === directionType.HORIZONTAL) {
         const offset = layout.top + layout.height - tailNode.y - tailNode.height
         const moveY = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
-        groupData.forEach(item => item.y += moveY)
+        group.forEach(item => item.y += moveY)
       } else if (type === directionType.VERTICAL) {
         const offset = layout.top + layout.width - tailNode.y - tailNode.height
         const moveX = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
-        groupData.forEach(item => item.y += moveX)
+        group.forEach(item => item.y += moveX)
       }
     })
     // 丝带数据
@@ -190,7 +190,7 @@ export default class SankeyLayer extends LayerBase {
     })
     // 横竖坐标转换
     if (type === directionType.VERTICAL) {
-      this.#rectData = this.#rectData.map(groupData => groupData.map(({x, y, height, width, ...other}) => ({
+      this.#rectData = this.#rectData.map(group => group.map(({x, y, height, width, ...other}) => ({
         width: height, 
         height: width,
         x: y - layout.top + layout.left,
@@ -210,10 +210,10 @@ export default class SankeyLayer extends LayerBase {
       }))
     }
     // 标签文字数据
-    this.#textData = this.#rectData.map((groupData, i) => {
+    this.#textData = this.#rectData.map((group, i) => {
       const isLast = i === this.#rectData.length - 1
       if (type === directionType.HORIZONTAL) {
-        return groupData.map(({x, y, width, height, name, value}) => this.createText({
+        return group.map(({x, y, width, height, name, value}) => this.createText({
           x: isLast ? x - labelOffset : x + width + labelOffset,
           y: y + height / 2,
           value: `${name}(${value})`,
@@ -222,7 +222,7 @@ export default class SankeyLayer extends LayerBase {
         }))
       }
       if (type === directionType.VERTICAL) {
-        return groupData.map(({x, y, width, height, name, value}) => this.createText({
+        return group.map(({x, y, width, height, name, value}) => this.createText({
           x: x + width / 2,
           y: isLast ? y - labelOffset : y + height + labelOffset,
           value: `${name}(${value})`,
@@ -236,11 +236,11 @@ export default class SankeyLayer extends LayerBase {
 
   // 绘制
   draw() {
-    const rectData = this.#rectData.map(groupData => {
-      const data = groupData.map(({width, height}) => [width, height])
-      const source = groupData.map(({dimension, name, value}) => ({dimension, category: name, value}))
-      const position = groupData.map(({x, y}) => [x, y])
-      const fill = groupData.map(({color}) => color)
+    const rectData = this.#rectData.map(group => {
+      const data = group.map(({width, height}) => [width, height])
+      const source = group.map(({dimension, name, value}) => ({dimension, category: name, value}))
+      const position = group.map(({x, y}) => [x, y])
+      const fill = group.map(({color}) => color)
       const transformOrigin = 'center'
       return {data, source, position, transformOrigin, ...this.#style.rect, fill}
     })
@@ -248,9 +248,9 @@ export default class SankeyLayer extends LayerBase {
       const data = [this.#getPath([x1, y1, x3, y3, x4, y4, x2, y2])]
       return {data, ...this.#style.ribbon, fill: color}
     })
-    const textData = this.#textData.map(groupData => {
-      const data = groupData.map(({value}) => value)
-      const position = groupData.map(({x, y}) => [x, y])
+    const textData = this.#textData.map(group => {
+      const data = group.map(({value}) => value)
+      const position = group.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
     this.drawBasic('rect', rectData)
