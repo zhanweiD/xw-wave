@@ -46,5 +46,5 @@ const getFacetLayout = (row, column) => ({containerWidth, containerHeight, paddi
   })
   return layout
 }
-  
+
 export default getFacetLayout

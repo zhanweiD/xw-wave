@@ -183,7 +183,7 @@ export default class Wave {
 
   /**
    * update the layer
-   * @param {String} id 
+   * @param {String} id
    * @param {Object} schema layer config
    */
   updateLayer(id, {data, scale, style, animation}) {

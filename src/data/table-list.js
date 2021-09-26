@@ -31,17 +31,21 @@ export default class TableList extends DataBase {
     let data = cloneDeep(this.data.filter(({header}) => headerArray.includes(header)))
     if (mode === modeType.SUM) {
       if (target === targetType.ROW) {
-        let lists = data.map(({list}) => list).reduce((prev, cur, i) => {
-          const latest = i === 1 ? [prev] : [...prev]
-          return latest.concat([latest[i - 1].map((value, j) => d3.sum([value, cur[j]]))])
-        })
+        let lists = data
+          .map(({list}) => list)
+          .reduce((prev, cur, i) => {
+            const latest = i === 1 ? [prev] : [...prev]
+            return latest.concat([latest[i - 1].map((value, j) => d3.sum([value, cur[j]]))])
+          })
         lists = data.length === 1 ? [lists] : lists
-        data = [{
-          header: data.map(({header}) => header).join('-'),
-          list: lists.length > 0 ? lists[lists.length - 1] : [],
-          min: d3.min(lists.map(list => d3.min(list))),
-          max: d3.max(lists.map(list => d3.max(list))),
-        }]
+        data = [
+          {
+            header: data.map(({header}) => header).join('-'),
+            list: lists.length > 0 ? lists[lists.length - 1] : [],
+            min: d3.min(lists.map(list => d3.min(list))),
+            max: d3.max(lists.map(list => d3.max(list))),
+          },
+        ]
       } else if (target === targetType.COLUMN) {
         data = data.map(item => ({...item, list: [d3.sum(item.list)]}))
       }
@@ -123,7 +127,7 @@ export default class TableList extends DataBase {
     headerArray.forEach(header => {
       const index = this.data.findIndex(item => item.header === header)
       if (index !== -1) {
-        removedList.concat(this.data.splice(index, 1)) 
+        removedList.concat(this.data.splice(index, 1))
       }
     })
     return removedList

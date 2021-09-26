@@ -40,7 +40,7 @@ export default class Table extends DataBase {
 
   /**
    * update table
-   * @param {Array<Array<Number|String>>} table 
+   * @param {Array<Array<Number|String>>} table
    * @param {Object} options
    */
   update(table) {
@@ -62,8 +62,10 @@ export default class Table extends DataBase {
    */
   push(target = targetType.ROW, ...data) {
     data.forEach(item => {
-      if ((target === targetType.ROW && item.length !== this.data[0].length)
-        || (target === targetType.COLUMN && item.length !== this.data[1].length)) {
+      if (
+        (target === targetType.ROW && item.length !== this.data[0].length)
+        || (target === targetType.COLUMN && item.length !== this.data[1].length)
+      ) {
         this.log.error('Table: Illegal data')
       } else {
         data.forEach(([dimension, ...values]) => {
@@ -73,7 +75,7 @@ export default class Table extends DataBase {
           } else if (target === targetType.COLUMN) {
             this.data[1].push(dimension)
             this.data[2].forEach(rowArray => rowArray.push(...values))
-          } 
+          }
         })
       }
     })
@@ -127,7 +129,7 @@ export default class Table extends DataBase {
       }
     }
     // order data
-    order.forEach((value, i) => result[Math.floor(value / column)][value % column] = i)
+    order.forEach((value, i) => (result[Math.floor(value / column)][value % column] = i))
     return result
   }
 }

@@ -12,20 +12,24 @@ export default class DataBase {
   }
 
   isTableList = tableList => {
-    if (!Array.isArray(tableList) 
-      || tableList.length === 0 
+    if (
+      !Array.isArray(tableList)
+      || tableList.length === 0
       || tableList.findIndex(item => !Array.isArray(item)) !== -1
-      || new Set(tableList.map(item => item.length)).size !== 1) {
+      || new Set(tableList.map(item => item.length)).size !== 1
+    ) {
       return false
     }
     return true
   }
 
   isTable = table => {
-    if (!Array.isArray(table) 
-      || table.length < 3 
+    if (
+      !Array.isArray(table)
+      || table.length < 3
       || table.findIndex(item => !Array.isArray(item)) !== -1
-      || !this.isTableList(table[2])) {
+      || !this.isTableList(table[2])
+    ) {
       return false
     }
     return true
@@ -45,10 +49,14 @@ export default class DataBase {
     try {
       const rows = Array.from(new Set(tableList.slice(1).map(item => item[0])))
       const columns = Array.from(new Set(tableList.slice(1).map(item => item[1])))
-      return [rows, columns, rows.map(row => columns.map(column => {
-        const target = tableList.find(item => item[0] === row && item[1] === column)
-        return target ? target[2] : 0
-      }))]
+      return [
+        rows,
+        columns,
+        rows.map(row => columns.map(column => {
+          const target = tableList.find(item => item[0] === row && item[1] === column)
+          return target ? target[2] : 0
+        })),
+      ]
     } catch (error) {
       this.log.error('DataBase: failed to transform tableList to table', error)
       return tableList
@@ -67,10 +75,14 @@ export default class DataBase {
       const valueIndex = linkTableList[0].findIndex(key => key === 'value')
       const nodeIds = Array.from(new Set(nodeTableList.slice(1).map(item => item[idIndex])))
       const nodeNames = nodeIds.map(id => nodeTableList.find(item => item[idIndex] === id)[nameIndex])
-      return [nodeNames, nodeNames, nodeIds.map(row => nodeIds.map(column => {
-        const target = linkTableList.find(item => item[fromIndex] === row && item[toIndex] === column)
-        return target ? target[valueIndex] : 0
-      }))]
+      return [
+        nodeNames,
+        nodeNames,
+        nodeIds.map(row => nodeIds.map(column => {
+          const target = linkTableList.find(item => item[fromIndex] === row && item[toIndex] === column)
+          return target ? target[valueIndex] : 0
+        })),
+      ]
     } catch (error) {
       this.log.error('DataBase: failed to transform relation to table\n', error)
       return [nodeTableList, linkTableList]
@@ -80,10 +92,10 @@ export default class DataBase {
   isLegalData(type, ...data) {
     if (type === 'list') {
       return this.isTableList(...data)
-    } 
+    }
     if (type === 'table') {
       return this.isTable(...data)
-    } 
+    }
     if (type === 'relation') {
       return this.isRelation(...data)
     }
@@ -92,7 +104,7 @@ export default class DataBase {
 
   /**
    * matrix transpose
-   * @param {Array<Array<Number|String>>} tableList 
+   * @param {Array<Array<Number|String>>} tableList
    * @returns {Array<Array<Number|String>>} 转置后的列表
    */
   transpose(tableList) {

@@ -21,7 +21,10 @@ export default class Relation extends DataBase {
     } else {
       const findNode = key => nodeTableList[0].findIndex(value => value === key)
       const [nodeIdIndex, nodeNameIndex, nodeValueIndex, nodeCategoryIndex] = [
-        findNode('id'), findNode('name'), findNode('value'), findNode('category'),
+        findNode('id'),
+        findNode('name'),
+        findNode('value'),
+        findNode('category'),
       ]
       // nodes data
       this.data.nodes = nodeTableList.slice(1).map(item => ({
@@ -34,7 +37,10 @@ export default class Relation extends DataBase {
       }))
       const findLink = key => linkTableList[0].findIndex(value => value === key)
       const [linkFromIndex, linkToIndex, linkValueIndex, linkCategoryIndex] = [
-        findLink('from'), findLink('to'), findLink('value'), findNode('category'),
+        findLink('from'),
+        findLink('to'),
+        findLink('value'),
+        findNode('category'),
       ]
       // links data
       this.data.links = linkTableList.slice(1).map(item => ({
@@ -60,8 +66,8 @@ export default class Relation extends DataBase {
   #computeLevel = () => {
     const level = {}
     const comeleted = {}
-    this.data.nodes.forEach(({id}) => comeleted[id] = false)
-    this.data.nodes.forEach(({id}) => level[id] = -1)
+    this.data.nodes.forEach(({id}) => (comeleted[id] = false))
+    this.data.nodes.forEach(({id}) => (level[id] = -1))
     // fint the root node of the current node
     const findRoot = id => {
       const current = this.data.nodes.find(node => node.id === id)
@@ -85,20 +91,21 @@ export default class Relation extends DataBase {
         level[id] = 0
       }
       // update based on link
-      nextIds.length && nextIds.forEach(nextId => {
-        if (level[nextId] === -1) {
-          level[nextId] = level[id] + 1
-        } else if (level[nextId] - level[id] !== 1) {
-          // update all ancestor nodes of the child node when different
-          parents.map(prevId => level[prevId] += level[nextId] - level[id] - 1)
-        }
-        // recursive calculation
-        updateLevel(nextId, parents)
-      })
+      nextIds.length
+        && nextIds.forEach(nextId => {
+          if (level[nextId] === -1) {
+            level[nextId] = level[id] + 1
+          } else if (level[nextId] - level[id] !== 1) {
+            // update all ancestor nodes of the child node when different
+            parents.map(prevId => (level[prevId] += level[nextId] - level[id] - 1))
+          }
+          // recursive calculation
+          updateLevel(nextId, parents)
+        })
     }
     this.data.links.forEach(({to}) => findRoot(to))
     this.data.roots.forEach(root => updateLevel(root, []))
-    this.data.nodes.map(node => node.level = level[node.id])
+    this.data.nodes.map(node => (node.level = level[node.id]))
     // clean redundant nodes
     const findNode = id => this.data.nodes.find(item => item.id === id)
     this.data.nodes.forEach(({parents, children}, i) => {

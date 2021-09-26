@@ -226,7 +226,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
     },
     style: {
       labelPosition: 'top',
-      line: {
+      curve: {
         strokeWidth: 2,
       },
       area: {

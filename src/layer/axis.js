@@ -49,8 +49,8 @@ const defaultStyle = {
 /**
  * get position array for the line
  * @param {String} type coordinate type
- * @param {*} targetScale 
- * @returns 
+ * @param {*} targetScale
+ * @returns
  */
 const getPosition = (type, targetScale) => {
   const position = []
@@ -61,7 +61,7 @@ const getPosition = (type, targetScale) => {
     })
   } else if (targetScale?.type === 'linear') {
     const [min, max] = targetScale.domain()
-    d3.range(min, max + 10 ** -8, (max - min) / (targetScale.nice.count)).forEach(label => {
+    d3.range(min, max + 10 ** -8, (max - min) / targetScale.nice.count).forEach(label => {
       position.push([label, targetScale(label)])
     })
   }
@@ -167,8 +167,8 @@ export default class AxisLayer extends LayerBase {
     const {type, layout, containerWidth} = this.options
     const {left, top, width, height} = layout
     // clear data
-    Object.keys(this.#lineData).map(key => this.#lineData[key] = [])
-    Object.keys(this.#textData).map(key => this.#textData[key] = [])
+    Object.keys(this.#lineData).map(key => (this.#lineData[key] = []))
+    Object.keys(this.#textData).map(key => (this.#textData[key] = []))
     // axis x line and label
     const mappingX = ([label, value]) => ({
       value: label,
@@ -200,22 +200,26 @@ export default class AxisLayer extends LayerBase {
     // axis angle line and label
     const positionAngle = getPosition(type, this.#scale.scaleAngle)
     const maxRadius = this.#scale.scaleRadius?.range()[1] || Math.max(width / 2, height / 2)
-    this.#lineData.lineAngle.push(...positionAngle.map(([label, value]) => ({
-      value: label,
-      angle: value,
-      x1: left + width / 2,
-      y1: top + height / 2,
-      x2: left + width / 2 + Math.sin((value / 180) * Math.PI) * maxRadius,
-      y2: top + height / 2 - Math.cos((value / 180) * Math.PI) * maxRadius,
-    })))
+    this.#lineData.lineAngle.push(
+      ...positionAngle.map(([label, value]) => ({
+        value: label,
+        angle: value,
+        x1: left + width / 2,
+        y1: top + height / 2,
+        x2: left + width / 2 + Math.sin((value / 180) * Math.PI) * maxRadius,
+        y2: top + height / 2 - Math.cos((value / 180) * Math.PI) * maxRadius,
+      }))
+    )
     // axis radius circle and label
     const positionRadius = getPosition(type, this.#scale.scaleRadius)
-    this.#lineData.lineRadius.push(...positionRadius.map(([label, value]) => ({
-      value: label,
-      cx: left + width / 2,
-      cy: top + height / 2,
-      r: value,
-    })))
+    this.#lineData.lineRadius.push(
+      ...positionRadius.map(([label, value]) => ({
+        value: label,
+        cx: left + width / 2,
+        cy: top + height / 2,
+        r: value,
+      }))
+    )
   }
 
   setStyle(style) {
@@ -255,20 +259,26 @@ export default class AxisLayer extends LayerBase {
   draw() {
     const {type} = this.options
     const {scaleX, scaleXT, scaleY, scaleYR} = this.#scale
-    const transformLineData = key => [{
-      data: this.#lineData[key].map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
-      ...this.#style[key],
-    }]
-    const transformRadiusData = key => [{
-      data: this.#lineData[key].map(({r}) => [r, r]),
-      position: this.#lineData[key].map(({cx, cy}) => [cx, cy]),
-      ...this.#style[key],
-    }]
-    const transformTextData = (key, style) => [{
-      data: this.#textData[key].map(({value}) => value),
-      position: this.#textData[key].map(({x, y}) => [x, y]),
-      ...this.#style[style || key],
-    }]
+    const transformLineData = key => [
+      {
+        data: this.#lineData[key].map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
+        ...this.#style[key],
+      },
+    ]
+    const transformRadiusData = key => [
+      {
+        data: this.#lineData[key].map(({r}) => [r, r]),
+        position: this.#lineData[key].map(({cx, cy}) => [cx, cy]),
+        ...this.#style[key],
+      },
+    ]
+    const transformTextData = (key, style) => [
+      {
+        data: this.#textData[key].map(({value}) => value),
+        position: this.#textData[key].map(({x, y}) => [x, y]),
+        ...this.#style[style || key],
+      },
+    ]
     if (type === coordinateType.CARTESIAN) {
       if (scaleX?.type === 'linear' || scaleXT?.type === 'linear') {
         this.drawBasic('line', transformLineData('lineAxisX'), 'lineAxisX')

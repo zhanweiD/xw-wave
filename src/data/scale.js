@@ -60,11 +60,16 @@ export default function Scale({type, domain, range, nice = defaultNice}) {
     const totalLength = range[1] - range[0]
     const padding = (totalLength * nice.paddingInner) / domain.data[0].list.length
     const availableLength = totalLength * (1 - nice.paddingInner)
-    const mappingArray = domain.data[1].list.reduce((prev, cur, index) => {
-      const startAngle = prev[index].endAngle + padding
-      const endAngle = startAngle + availableLength * cur
-      return [...prev, {startAngle, endAngle}]
-    }, [{endAngle: -padding}]).slice(1)
+    const mappingArray = domain.data[1].list
+      .reduce(
+        (prev, cur, index) => {
+          const startAngle = prev[index].endAngle + padding
+          const endAngle = startAngle + availableLength * cur
+          return [...prev, {startAngle, endAngle}]
+        },
+        [{endAngle: -padding}]
+      )
+      .slice(1)
     type = 'ordinal'
     scale = d3.scaleOrdinal().domain(domain.data[0].list).range(mappingArray)
   }
@@ -109,7 +114,7 @@ export const niceScale = (scale, tickNumber) => {
       end += tickNumber
     } else {
       start -= tickNumber
-      end += tickNumber  
+      end += tickNumber
     }
   }
   // order
@@ -125,7 +130,7 @@ export const niceScale = (scale, tickNumber) => {
     // the blank ratio at the top of the chart
     const spaceThreshold = 0
     // step to ensure that the chart will not overflow
-    let step = Math.ceil(distance / (tickNumber) / level) * level
+    let step = Math.ceil(distance / tickNumber / level) * level
     const newStart = Math.floor(start / step) * step
     let newEnd = newStart + tickNumber * step
     // too much blank

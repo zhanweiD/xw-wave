@@ -43,7 +43,7 @@ export default class LayerBase {
     this.#initializeEvent()
     this.log = createLog('src/layer/base')
     this.event = createEvent('src/layer/base')
-    this.sublayers.forEach(name => this.#backupData[name] = [])
+    this.sublayers.forEach(name => (this.#backupData[name] = []))
     this.selector = new Selector(this.options.engine)
     this.#catchError()
   }
@@ -66,21 +66,21 @@ export default class LayerBase {
     })
   }
 
-  setData() { 
+  setData() {
     this.log.warn('LayerBase: The subclass does not implemented the setData method')
   }
 
-  setStyle() { 
+  setStyle() {
     this.log.warn('LayerBase: The subclass does not implemented the setStyle method')
   }
 
   playAnimation() {
     this.sublayers.forEach(type => this.#backupAnimation[type]?.play())
   }
-  
+
   /**
    * merge animation config
-   * @param {*} options 
+   * @param {*} options
    */
   setAnimation(options) {
     merge(this.#backupAnimation, {options})
@@ -102,7 +102,7 @@ export default class LayerBase {
       const colorMapping = {}
       const {type, mapping} = order
       const colors = getColor(Math.max(...Object.values(mapping)) + 1, customColors)
-      Object.keys(mapping).forEach(key => colorMapping[key] = colors[mapping[key]])
+      Object.keys(mapping).forEach(key => (colorMapping[key] = colors[mapping[key]]))
       // row & column has different vision
       const finalColors = type === 'column'
         ? data.slice(1).map(({header}) => colorMapping[header])
@@ -196,7 +196,7 @@ export default class LayerBase {
     return {
       x: positionX,
       y: positionY,
-      value: formattedText, 
+      value: formattedText,
       transformOrigin: `${x}px ${y}px`,
       textWidth,
     }
@@ -342,7 +342,9 @@ export default class LayerBase {
       if (!isEqual(this.#backupData[sublayer][i], data[i])) {
         const groupClassName = `${sublayerClassName}-${i}`
         const groupContainer = selector.getFirstChildByClassName(sublayerContainer, groupClassName)
-        const options = {...data[i], engine, className: `wave-basic-${sublayer}`, container: groupContainer}
+        const options = {engine, className: `wave-basic-${sublayer}`, container: groupContainer}
+        // filter
+        !data[i].hide && merge(options, data[i])
         // first play will close the update animation
         options.enableUpdateAnimation = false
         if (this.#backupData[sublayer][i] && this.#backupAnimation.options[sublayer]) {
@@ -352,11 +354,7 @@ export default class LayerBase {
           options.updateAnimationDelay = delay
         }
         // draw basic elements using draw functions
-        basicMapping[type](options.hide ? {
-          engine: options.engine,
-          className: options.className, 
-          container: options.container,
-        } : options)
+        basicMapping[type](options)
         // backup data
         this.#backupData[sublayer][i] = data[i]
       }

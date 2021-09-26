@@ -52,7 +52,7 @@ export default class LegendLayer extends LayerBase {
     lineData: [],
     // interactive mask
     interactiveData: [],
-  } 
+  }
 
   #layers = []
 
@@ -109,16 +109,19 @@ export default class LegendLayer extends LayerBase {
           const order = {type: 'row', mapping: {}}
           const mapping = range(startIndex, startIndex + counts[layerIndex]).map(i => active[i])
           filteredData = data.select(data.data.map(({header}) => header))
-          filteredData.data.forEach(item => item.list = item.list.filter((v, j) => mapping[j]))
-          data.data[0].list.forEach((dimension, i) => order.mapping[dimension] = i)
+          filteredData.data.forEach(item => (item.list = item.list.filter((v, j) => mapping[j])))
+          data.data[0].list.forEach((dimension, i) => (order.mapping[dimension] = i))
           filteredData.options.order = order
         }
         // filter columns by value of first row
         if (filterTypes[layerIndex] === 'column') {
           const order = {type: 'column', mapping: {}}
-          const subData = data.data.filter((v, i) => (!i || active[startIndex + i - 1]))
+          const subData = data.data.filter((v, i) => !i || active[startIndex + i - 1])
           filteredData = data.select(subData.map(({header}) => header))
-          data.data.slice(1).map(({header}) => header).forEach((header, i) => order.mapping[header] = i)
+          data.data
+            .slice(1)
+            .map(({header}) => header)
+            .forEach((header, i) => (order.mapping[header] = i))
           filteredData.options.order = order
         }
         // update layer
@@ -154,7 +157,7 @@ export default class LegendLayer extends LayerBase {
         this.#data.text.push(...list.map(({label}) => label))
         this.#data.shapeColors.push(...list.map(({color}) => color))
         this.#data.textColors.push(...new Array(list.length).fill('white'))
-      } 
+      }
     })
     // legend layer changes with other layer changed
     if (this.#layers) {
@@ -188,21 +191,24 @@ export default class LegendLayer extends LayerBase {
         fill: color,
       })
     } else if (shape === shapeType.BROKENLINE) {
-      this.#data.lineData.push({
-        x1: x - size * 2,
-        x2: x - (size / 2) * 3,
-        y1: y,
-        y2: y,
-        strokeWidth: size / 5,
-        stroke: color,
-      }, {
-        x1: x - size / 2,
-        x2: x,
-        y1: y,
-        y2: y,
-        strokeWidth: size / 5,
-        stroke: color,
-      })
+      this.#data.lineData.push(
+        {
+          x1: x - size * 2,
+          x2: x - (size / 2) * 3,
+          y1: y,
+          y2: y,
+          strokeWidth: size / 5,
+          stroke: color,
+        },
+        {
+          x1: x - size / 2,
+          x2: x,
+          y1: y,
+          y2: y,
+          strokeWidth: size / 5,
+          stroke: color,
+        }
+      )
       this.#data.circleData.push({
         cx: x - size,
         cy: y,
@@ -294,33 +300,41 @@ export default class LegendLayer extends LayerBase {
   }
 
   draw() {
-    const rectData = [{
-      data: this.#data.rectData.map(({width, height}) => [width, height]),
-      position: this.#data.rectData.map(({x, y}) => [x, y]),
-      ...this.#style.shape,
-      fill: this.#data.rectData.map(({fill}) => fill),
-    }]
-    const interactiveData = [{
-      data: this.#data.interactiveData.map(({width, height}) => [width, height]),
-      position: this.#data.interactiveData.map(({x, y}) => [x, y]),
-      source: this.#data.interactiveData.map(({source}) => source),
-      fillOpacity: 0,
-    }]
-    const circleData = [{
-      data: this.#data.circleData.map(({r}) => [r, r]),
-      position: this.#data.circleData.map(({cx, cy}) => [cx, cy]),
-      strokeWidth: this.#data.circleData.map(({strokeWidth}) => strokeWidth),
-      ...this.#style.shape,
-      fill: this.#data.circleData.map(({fill}) => fill),
-      stroke: this.#data.circleData.map(({stroke}) => stroke),
-    }]
-    const lineData = [{
-      data: this.#data.lineData.map(({x1, x2, y1, y2}) => [x1, y1, x2, y2]),
-      strokeWidth: this.#data.lineData.map(({strokeWidth}) => strokeWidth),
-      dasharray: this.#data.lineData.map(({dasharray}) => dasharray),
-      ...this.#style.shape,
-      stroke: this.#data.lineData.map(({stroke}) => stroke),
-    }]
+    const rectData = [
+      {
+        data: this.#data.rectData.map(({width, height}) => [width, height]),
+        position: this.#data.rectData.map(({x, y}) => [x, y]),
+        ...this.#style.shape,
+        fill: this.#data.rectData.map(({fill}) => fill),
+      },
+    ]
+    const interactiveData = [
+      {
+        data: this.#data.interactiveData.map(({width, height}) => [width, height]),
+        position: this.#data.interactiveData.map(({x, y}) => [x, y]),
+        source: this.#data.interactiveData.map(({source}) => source),
+        fillOpacity: 0,
+      },
+    ]
+    const circleData = [
+      {
+        data: this.#data.circleData.map(({r}) => [r, r]),
+        position: this.#data.circleData.map(({cx, cy}) => [cx, cy]),
+        strokeWidth: this.#data.circleData.map(({strokeWidth}) => strokeWidth),
+        ...this.#style.shape,
+        fill: this.#data.circleData.map(({fill}) => fill),
+        stroke: this.#data.circleData.map(({stroke}) => stroke),
+      },
+    ]
+    const lineData = [
+      {
+        data: this.#data.lineData.map(({x1, x2, y1, y2}) => [x1, y1, x2, y2]),
+        strokeWidth: this.#data.lineData.map(({strokeWidth}) => strokeWidth),
+        dasharray: this.#data.lineData.map(({dasharray}) => dasharray),
+        ...this.#style.shape,
+        stroke: this.#data.lineData.map(({stroke}) => stroke),
+      },
+    ]
     const textData = this.#data.textData.map(({value, x, y}, i) => ({
       data: [value],
       position: [[x, y]],
