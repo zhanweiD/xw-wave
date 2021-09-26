@@ -48,7 +48,7 @@ const defaultStyle = {
 
 export default class RectLayer extends LayerBase {
   #data = null
-  
+
   #scale = {}
 
   #style = defaultStyle
@@ -111,19 +111,25 @@ export default class RectLayer extends LayerBase {
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     // initialize scales
-    this.#scale = this.createScale({
-      scaleX: new Scale({
-        type: 'band',
-        domain: this.#data.select(headers[0]).data[0].list,
-        range: [0, layout.width],
-      }),
-      scaleY: new Scale({
-        type: 'linear',
-        domain: mode === modeType.PERCENTAGE ? [0, 1] 
-          : this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
-        range: [layout.height, 0],
-      }),
-    }, this.#scale, scales)
+    this.#scale = this.createScale(
+      {
+        scaleX: new Scale({
+          type: 'band',
+          domain: this.#data.select(headers[0]).data[0].list,
+          range: [0, layout.width],
+        }),
+        scaleY: new Scale({
+          type: 'linear',
+          domain:
+            mode === modeType.PERCENTAGE
+              ? [0, 1]
+              : this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
+          range: [layout.height, 0],
+        }),
+      },
+      this.#scale,
+      scales
+    )
     // origin data of columns
     const {scaleX, scaleY} = this.#scale
     this.#rectData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
@@ -136,12 +142,14 @@ export default class RectLayer extends LayerBase {
       height: Math.abs(scaleY(value) - scaleY(0)),
     })))
     // rect background data
-    this.#bgRectData = pureTableList.map(([dimension]) => [{
-      x: layout.left + scaleX(dimension),
-      y: layout.top,
-      width: scaleX.bandwidth(),
-      height: layout.height,
-    }])
+    this.#bgRectData = pureTableList.map(([dimension]) => [
+      {
+        x: layout.left + scaleX(dimension),
+        y: layout.top,
+        width: scaleX.bandwidth(),
+        height: layout.height,
+      },
+    ])
   }
 
   #setBarData = scales => {
@@ -149,19 +157,25 @@ export default class RectLayer extends LayerBase {
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     // initialize scales
-    this.#scale = this.createScale({
-      scaleX: new Scale({
-        type: 'linear',
-        domain: mode === modeType.PERCENTAGE ? [0, 1] 
-          : this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
-        range: [0, layout.width],
-      }),
-      scaleY: new Scale({
-        type: 'band',
-        domain: this.#data.select(headers[0]).data[0].list,
-        range: [0, layout.height],
-      }),
-    }, this.#scale, scales)
+    this.#scale = this.createScale(
+      {
+        scaleX: new Scale({
+          type: 'linear',
+          domain:
+            mode === modeType.PERCENTAGE
+              ? [0, 1]
+              : this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
+          range: [0, layout.width],
+        }),
+        scaleY: new Scale({
+          type: 'band',
+          domain: this.#data.select(headers[0]).data[0].list,
+          range: [0, layout.height],
+        }),
+      },
+      this.#scale,
+      scales
+    )
     // origin data of bars
     const {scaleX, scaleY} = this.#scale
     this.#rectData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
@@ -174,12 +188,14 @@ export default class RectLayer extends LayerBase {
       width: Math.abs(scaleX(value) - scaleX(0)),
     })))
     // rect background data
-    this.#bgRectData = pureTableList.map(([dimension]) => [{
-      x: layout.left,
-      y: layout.top + scaleY(dimension),
-      width: layout.width,
-      height: scaleY.bandwidth(),
-    }])
+    this.#bgRectData = pureTableList.map(([dimension]) => [
+      {
+        x: layout.left,
+        y: layout.top + scaleY(dimension),
+        width: layout.width,
+        height: scaleY.bandwidth(),
+      },
+    ])
   }
 
   #transform = () => {
@@ -297,7 +313,7 @@ export default class RectLayer extends LayerBase {
     // get colors
     if (this.#rectData[0]?.length > 1) {
       const colors = this.getColor(this.#rectData[0].length, rect.fill)
-      this.#rectData.forEach(group => group.forEach((item, i) => item.color = colors[i]))
+      this.#rectData.forEach(group => group.forEach((item, i) => (item.color = colors[i])))
     } else if (this.#rectData[0]?.length === 1) {
       const colors = this.getColor(this.#rectData.length, rect.fill)
       this.#rectData.forEach((group, i) => (group[0].color = colors[i]))
@@ -333,27 +349,34 @@ export default class RectLayer extends LayerBase {
       group.forEach(({value, percentage, ...data}) => {
         // single label
         if (!isArray(value)) {
-          result.push(this.#getLabelData({
-            ...data,
-            value: percentage || value, // compatible percentage mode
-            labelPosition: value > 0 ? positionMax : positionMin,
-          }))
+          result.push(
+            this.#getLabelData({
+              ...data,
+              value: percentage || value, // compatible percentage mode
+              labelPosition: value > 0 ? positionMax : positionMin,
+            })
+          )
         } else {
           result.push(
             this.#getLabelData({...data, value: value[0], labelPosition: positionMin}),
-            this.#getLabelData({...data, value: value[1], labelPosition: positionMax}),
-          ) 
+            this.#getLabelData({...data, value: value[1], labelPosition: positionMax})
+          )
         }
       })
       return result
     })
     // legend data of rect layer
     const colors = this.getColor(this.#rectData[0].length, rect.fill)
-    this.#data.set('legendData', mode !== modeType.INTERVAL && mode !== modeType.WATERFALL ? {
-      list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
-      filter: 'column',
-      shape: 'rect',
-    } : null)
+    this.#data.set(
+      'legendData',
+      mode !== modeType.INTERVAL && mode !== modeType.WATERFALL
+        ? {
+          list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
+          filter: 'column',
+          shape: 'rect',
+        }
+        : null
+    )
   }
 
   draw() {

@@ -81,13 +81,16 @@ export default class ODLineLayer extends LayerBase {
         const [fromX, fromY, toX, toY] = [d[fromXIndex], d[fromYIndex], d[toXIndex], d[toYIndex]]
         const position = {fromX: scaleX(fromX), fromY: scaleY(fromY), toX: scaleX(toX), toY: scaleY(toY)}
         return {
-          source: [{
-            category: 'from',
-            value: `(${fromX},${fromY})`,
-          }, {
-            category: 'to', 
-            value: `(${toX},${toY})`,
-          }],
+          source: [
+            {
+              category: 'from',
+              value: `(${fromX},${fromY})`,
+            },
+            {
+              category: 'to',
+              value: `(${toX},${toY})`,
+            },
+          ],
           // geo coordinates => svg coordinates
           data: this.#getPath(position),
           position,
@@ -108,15 +111,19 @@ export default class ODLineLayer extends LayerBase {
   }
 
   draw() {
-    const odLineData = [{
-      data: this.#odLineData.map(({data}) => data),
-      source: this.#odLineData.map(({source}) => source),
-      ...this.#style.odLine,
-    }]
-    const flyingObjectData = [{
-      data: this.#flyingObjectData.map(({data}) => data),
-      ...this.#style.flyingObject,
-    }]
+    const odLineData = [
+      {
+        data: this.#odLineData.map(({data}) => data),
+        source: this.#odLineData.map(({source}) => source),
+        ...this.#style.odLine,
+      },
+    ]
+    const flyingObjectData = [
+      {
+        data: this.#flyingObjectData.map(({data}) => data),
+        ...this.#style.flyingObject,
+      },
+    ]
     this.drawBasic('path', odLineData, 'line')
     this.drawBasic('path', flyingObjectData, 'flyingObject')
   }

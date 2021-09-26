@@ -111,51 +111,60 @@ export default class TitleALayer extends LayerBase {
     const rightMiddleLinePoints = this.#symmetricMapping(leftMiddleLinePoints)
     const rightBottomLinePoints = this.#symmetricMapping(leftBottomLinePoints)
     // group lines
-    this.#data.topLines = [{
-      points: leftTopLinePoints,
-      stroke: createGradient({
-        type: 'linear', 
-        direction: 'horizontal', 
-        colors: range(0, 1, 0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.1 ? 0.5 : alpha)),
-      }),
-    }, {
-      points: rightTopLinePoints,
-      stroke: createGradient({
-        type: 'linear', 
-        direction: 'horizontal', 
-        colors: range(1, 0, -0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.1 ? 0.5 : alpha)),
-      }),
-    }]
-    this.#data.middleLines = [{
-      points: leftMiddleLinePoints,
-      stroke: createGradient({
-        type: 'linear', 
-        direction: 'horizontal', 
-        colors: range(0, 1, 0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.1 ? 1 : alpha)),
-      }),
-    }, {
-      points: rightMiddleLinePoints,
-      stroke: createGradient({
-        type: 'linear', 
-        direction: 'horizontal', 
-        colors: range(1, 0, -0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.1 ? 1 : alpha)),
-      }),
-    }]
-    this.#data.bottomLines = [{
-      points: leftBottomLinePoints,
-      stroke: createGradient({
-        type: 'linear', 
-        direction: 'horizontal', 
-        colors: range(0, 1, 0.1).map(alpha => chroma(minorColor).alpha((0.5 - Math.abs(alpha - 0.5)) * 2)),
-      }),
-    }, {
-      points: rightBottomLinePoints,
-      stroke: createGradient({
-        type: 'linear', 
-        direction: 'horizontal', 
-        colors: range(0, 1, 0.1).map(alpha => chroma(minorColor).alpha((0.5 - Math.abs(alpha - 0.5)) * 2)),
-      }),
-    }]
+    this.#data.topLines = [
+      {
+        points: leftTopLinePoints,
+        stroke: createGradient({
+          type: 'linear',
+          direction: 'horizontal',
+          colors: range(0, 1, 0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.1 ? 0.5 : alpha)),
+        }),
+      },
+      {
+        points: rightTopLinePoints,
+        stroke: createGradient({
+          type: 'linear',
+          direction: 'horizontal',
+          colors: range(1, 0, -0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.1 ? 0.5 : alpha)),
+        }),
+      },
+    ]
+    this.#data.middleLines = [
+      {
+        points: leftMiddleLinePoints,
+        stroke: createGradient({
+          type: 'linear',
+          direction: 'horizontal',
+          colors: range(0, 1, 0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.1 ? 1 : alpha)),
+        }),
+      },
+      {
+        points: rightMiddleLinePoints,
+        stroke: createGradient({
+          type: 'linear',
+          direction: 'horizontal',
+          colors: range(1, 0, -0.1).map(alpha => chroma(mainColor).alpha(alpha > 0.1 ? 1 : alpha)),
+        }),
+      },
+    ]
+    this.#data.bottomLines = [
+      {
+        points: leftBottomLinePoints,
+        stroke: createGradient({
+          type: 'linear',
+          direction: 'horizontal',
+          colors: range(0, 1, 0.1).map(alpha => chroma(minorColor).alpha((0.5 - Math.abs(alpha - 0.5)) * 2)),
+        }),
+      },
+      {
+        points: rightBottomLinePoints,
+        stroke: createGradient({
+          type: 'linear',
+          direction: 'horizontal',
+          colors: range(0, 1, 0.1).map(alpha => chroma(minorColor).alpha((0.5 - Math.abs(alpha - 0.5)) * 2)),
+        }),
+      },
+    ]
     // left light parallelograms
     const leftLightParallelograms = [
       createParallelogram(alLeft + alWidth * 0.65, alTop, alWidth / 15, alHeight),
@@ -200,23 +209,26 @@ export default class TitleALayer extends LayerBase {
         [acLeft + acWidth, acTop + acHeight],
       ],
       stroke: createGradient({
-        type: 'linear', 
-        direction: 'horizontal', 
+        type: 'linear',
+        direction: 'horizontal',
         colors: range(0, 1, 0.1).map(alpha => chroma(minorColor).alpha((0.5 - Math.abs(alpha - 0.5)) * 2)),
       }),
     }
     // center streamer line
-    this.#data.centerStreamer = [{
-      points: [
-        [acLeft + acWidth / 2, acTop + acHeight - this.#style.centerLine.strokeWidth / 2],
-        [acLeft, acTop + acHeight],
-      ],
-    }, {
-      points: [
-        [acLeft + acWidth / 2, acTop + acHeight - this.#style.centerLine.strokeWidth / 2],
-        [acLeft + acWidth, acTop + acHeight],
-      ],
-    }]
+    this.#data.centerStreamer = [
+      {
+        points: [
+          [acLeft + acWidth / 2, acTop + acHeight - this.#style.centerLine.strokeWidth / 2],
+          [acLeft, acTop + acHeight],
+        ],
+      },
+      {
+        points: [
+          [acLeft + acWidth / 2, acTop + acHeight - this.#style.centerLine.strokeWidth / 2],
+          [acLeft + acWidth, acTop + acHeight],
+        ],
+      },
+    ]
     // streamer length
     this.#streamerLength.center = acWidth / 2
     leftMiddleLinePoints.reduce((prev, cur) => {
@@ -229,12 +241,14 @@ export default class TitleALayer extends LayerBase {
     const curveData = []
     const polygonData = []
     // center area
-    const areaData = [{
-      data: [this.#data.centerArea.points],
-      fill: this.#data.centerArea.fill,
-      curve: 'curveMonotoneX',
-      ...this.#style.centerArea,
-    }]
+    const areaData = [
+      {
+        data: [this.#data.centerArea.points],
+        fill: this.#data.centerArea.fill,
+        curve: 'curveMonotoneX',
+        ...this.#style.centerArea,
+      },
+    ]
     // center line
     curveData.push({
       data: [this.#data.centerLine.points],
@@ -243,11 +257,13 @@ export default class TitleALayer extends LayerBase {
       ...this.#style.centerLine,
     })
     // center streamer line
-    const centerStreamerData = [{
-      data: this.#data.centerStreamer.map(({points}) => points),
-      stroke: null,
-      ...this.#style.centerLine,
-    }]
+    const centerStreamerData = [
+      {
+        data: this.#data.centerStreamer.map(({points}) => points),
+        stroke: null,
+        ...this.#style.centerLine,
+      },
+    ]
     // side top lines
     curveData.push({
       data: this.#data.topLines.map(item => item.points),
@@ -255,11 +271,13 @@ export default class TitleALayer extends LayerBase {
       ...this.#style.topLine,
     })
     // side middle lines
-    const middleLineData = [{
-      data: this.#data.middleLines.map(item => item.points),
-      stroke: this.#data.middleLines.map(item => item.stroke),
-      ...this.#style.middleLine,
-    }]
+    const middleLineData = [
+      {
+        data: this.#data.middleLines.map(item => item.points),
+        stroke: this.#data.middleLines.map(item => item.stroke),
+        ...this.#style.middleLine,
+      },
+    ]
     curveData.push(...middleLineData)
     // side bottom lines
     curveData.push({
@@ -302,7 +320,7 @@ export default class TitleALayer extends LayerBase {
       delay: 1000,
       color: chroma(mainColor).mix('#fff').brighten(),
       targets: this.root.getObjects().filter(obj => obj.className === 'wave-basic-sideStreamer'),
-      setTimer: timer => this.#animationTimer.side = timer,
+      setTimer: timer => (this.#animationTimer.side = timer),
       headEase: easeQuadOut,
       tailEase: easeQuadIn,
       distance: this.#streamerLength.side,
@@ -312,7 +330,7 @@ export default class TitleALayer extends LayerBase {
       endDelay: 3000,
       color: chroma(mainColor).mix('#fff').brighten(),
       targets: this.root.getObjects().filter(obj => obj.className === 'wave-basic-centerStreamer'),
-      setTimer: timer => this.#animationTimer.center = timer,
+      setTimer: timer => (this.#animationTimer.center = timer),
       headEase: easePolyIn.exponent(2),
       tailEase: easePolyIn.exponent(3.5),
       distance: this.#streamerLength.center,
@@ -322,7 +340,7 @@ export default class TitleALayer extends LayerBase {
   #playStreamerAnimation = ({
     delay = 0,
     endDelay = 0,
-    duration = 1000, 
+    duration = 1000,
     color,
     targets,
     distance,
@@ -335,13 +353,13 @@ export default class TitleALayer extends LayerBase {
     const {createGradient} = this.options
     // initilaize gradient
     const strokeLeft = createGradient({
-      type: 'linear', 
-      direction: 'horizontal', 
+      type: 'linear',
+      direction: 'horizontal',
       colors: [chroma(color).alpha(1), chroma(color).alpha(0)],
     })
     const strokeRight = createGradient({
-      type: 'linear', 
-      direction: 'horizontal', 
+      type: 'linear',
+      direction: 'horizontal',
       colors: [chroma(color).alpha(0), chroma(color).alpha(1)],
     })
     const animate = () => {
@@ -352,7 +370,7 @@ export default class TitleALayer extends LayerBase {
         0,
         distance * tailOffset,
         distance * (headOffset - tailOffset),
-        distance * (1 - headOffset), 
+        distance * (1 - headOffset),
       ]
       // change gradient
       strokeLeft.coords.x1 = 1 - headOffset

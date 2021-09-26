@@ -38,41 +38,57 @@ export default class TitleDLayer extends LayerBase {
     // right width & right height
     const [rw, rh] = [height * 0.2, height * 0.4]
     // arrows
-    this.#arrowData = leftIcon === 'arrow' ? [{
-      points: createArrow(left + strokeWidth, top + (height - lh) / 2, lw, lh, 'left'),
-      stroke: mainColor,
-    }, {
-      points: createArrow(left + strokeWidth + lw, top + (height - lh) / 2, lw, lh, 'left'),
-      stroke: mainColor,
-    }] : []
-    this.#arrowData.push({
-      points: createArrow(right - strokeWidth - rw * 2, top + (height - rh) / 2, rw, rh, 'right'),
-      stroke: minorColor,
-    }, {
-      points: createArrow(right - strokeWidth - rw, top + (height - rh) / 2, rw, rh, 'right'),
-      stroke: minorColor,
-    })
+    this.#arrowData = leftIcon === 'arrow'
+      ? [
+        {
+          points: createArrow(left + strokeWidth, top + (height - lh) / 2, lw, lh, 'left'),
+          stroke: mainColor,
+        },
+        {
+          points: createArrow(left + strokeWidth + lw, top + (height - lh) / 2, lw, lh, 'left'),
+          stroke: mainColor,
+        },
+      ]
+      : []
+    this.#arrowData.push(
+      {
+        points: createArrow(right - strokeWidth - rw * 2, top + (height - rh) / 2, rw, rh, 'right'),
+        stroke: minorColor,
+      },
+      {
+        points: createArrow(right - strokeWidth - rw, top + (height - rh) / 2, rw, rh, 'right'),
+        stroke: minorColor,
+      }
+    )
     // point
-    this.#pointData = leftIcon === 'point' ? [{
-      r: circleSize / 2,
-      cx: circleSize / 2,
-      cy: top + height / 2,
-      fill: minorColor,
-    }] : []
+    this.#pointData = leftIcon === 'point'
+      ? [
+        {
+          r: circleSize / 2,
+          cx: circleSize / 2,
+          cy: top + height / 2,
+          fill: minorColor,
+        },
+      ]
+      : []
   }
 
   draw() {
-    const arrowData = [{
-      data: this.#arrowData.map(({points}) => points),
-      stroke: this.#arrowData.map(({stroke}) => stroke),
-      ...this.#style.arrow,
-    }]
-    const pointData = [{
-      position: this.#pointData.map(({cx, cy}) => [cx, cy]),
-      data: this.#pointData.map(({r}) => [r, r]),
-      fill: this.#pointData.map(({fill}) => fill),
-      ...this.#style.point,
-    }]
+    const arrowData = [
+      {
+        data: this.#arrowData.map(({points}) => points),
+        stroke: this.#arrowData.map(({stroke}) => stroke),
+        ...this.#style.arrow,
+      },
+    ]
+    const pointData = [
+      {
+        position: this.#pointData.map(({cx, cy}) => [cx, cy]),
+        data: this.#pointData.map(({r}) => [r, r]),
+        fill: this.#pointData.map(({fill}) => fill),
+        ...this.#style.point,
+      },
+    ]
     this.drawBasic('curve', arrowData, 'arrow')
     this.drawBasic('circle', pointData, 'point')
   }

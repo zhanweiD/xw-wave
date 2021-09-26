@@ -1,31 +1,27 @@
 import LayerBase from '../base'
 import Scale from '../../data/scale'
 
-// 映射的图表类型
+// chart type
 const waveType = {
-  PIE: 'pie', // 饼
-  NIGHTINGALEROSE: 'nightingaleRose', // 南丁格尔玫瑰
+  PIE: 'pie',
+  NIGHTINGALEROSE: 'nightingaleRose',
 }
 
-// 元素组合方式
 const modeType = {
-  DEFAULT: 'default', // 覆盖
-  STACK: 'stack', // 堆叠
+  DEFAULT: 'default', // cover
+  STACK: 'stack',
 }
 
-// 数值标签位置
 const labelPositionType = {
   INNER: 'inner',
   OUTER: 'outer',
 }
 
-// 默认选项
 const defaultOptions = {
   type: waveType.PIE,
   mode: modeType.DEFAULT,
 }
 
-// 默认样式
 const defaultStyle = {
   innerRadius: 0,
   labelOffset: 5,
@@ -36,7 +32,7 @@ const defaultStyle = {
 
 export default class ArcLayer extends LayerBase {
   #data = null
-  
+
   #scale = {}
 
   #style = defaultStyle
@@ -57,15 +53,14 @@ export default class ArcLayer extends LayerBase {
     return this.#style
   }
 
-  // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super({...defaultOptions, ...layerOptions}, waveOptions, ['arc', 'text'])
     const {type, mode} = this.options
     this.className = `wave-${mode}-${type}`
     this.tooltipTargets = ['arc']
   }
-  
-  // 非堆叠夜莺玫瑰图固定列数为2列
+
+  // filter number of columns
   #filterData = data => {
     const {type, mode} = this.options
     if (type === waveType.PIE || mode === modeType.DEFAULT) {
@@ -74,10 +69,6 @@ export default class ArcLayer extends LayerBase {
     return data
   }
 
-  /**
-   * 传入列表类，第一列数据要求为维度数据列
-   * @param {TableList} tableList 列表
-   */
   setData(tableList, scales) {
     this.#data = (tableList && this.#filterData(tableList)) || this.#data
     const {type, mode, layout} = this.options
@@ -86,53 +77,61 @@ export default class ArcLayer extends LayerBase {
     const labels = this.#data.select(headers[0])
     const maxRadius = Math.min(width, height) / 2
     this.#scale.scaleAngle = null
-    // 饼图的比例尺
+    // initialize scales of pie
     if (type === waveType.PIE) {
       const percentages = this.#data.select(headers[1], {mode: 'percentage', target: 'column'})
-      this.#scale = this.createScale({
-        scaleAngle: new Scale({
-          type: 'angle',
-          domain: labels.concat(percentages),
-          range: [0, 360],
-        }),
-        scaleRadius: new Scale({
-          type: 'quantize',
-          domain: [-Infinity, Infinity],
-          range: [maxRadius],
-        }),
-      }, this.#scale, scales)
+      this.#scale = this.createScale(
+        {
+          scaleAngle: new Scale({
+            type: 'angle',
+            domain: labels.concat(percentages),
+            range: [0, 360],
+          }),
+          scaleRadius: new Scale({
+            type: 'quantize',
+            domain: [-Infinity, Infinity],
+            range: [maxRadius],
+          }),
+        },
+        this.#scale,
+        scales
+      )
     }
-    // 夜莺玫瑰图的比例尺
+    // initialize scales of nightingaleRose
     if (type === waveType.NIGHTINGALEROSE) {
       const percentages = this.#data.select(headers[1])
       percentages.data[0].list = percentages.data[0].list.map(() => 1 / percentages.data[0].list.length)
-      this.#scale = this.createScale({
-        scaleAngle: new Scale({
-          type: 'angle',
-          domain: labels.concat(percentages),
-          range: [0, 360],
-        }),
-        scaleRadius: new Scale({
-          type: 'linear',
-          domain: mode === modeType.STACK
-            ? [0, this.#data.select(headers.slice(1), {mode: 'sum', target: 'row'}).range()[1]]
-            : [0, this.#data.select(headers.slice(1)).range()[1]],
-          range: [0, maxRadius],
-        }),
-      }, this.#scale, scales)
+      this.#scale = this.createScale(
+        {
+          scaleAngle: new Scale({
+            type: 'angle',
+            domain: labels.concat(percentages),
+            range: [0, 360],
+          }),
+          scaleRadius: new Scale({
+            type: 'linear',
+            domain:
+              mode === modeType.STACK
+                ? [0, this.#data.select(headers.slice(1), {mode: 'sum', target: 'row'}).range()[1]]
+                : [0, this.#data.select(headers.slice(1)).range()[1]],
+            range: [0, maxRadius],
+          }),
+        },
+        this.#scale,
+        scales
+      )
     }
   }
 
-  // 获取标签坐标
   #getLabelData = ({value, x, y, innerRadius, outerRadius, startAngle, endAngle}) => {
     const {text, labelPosition, labelOffset} = this.#style
-    // 计算圆弧中心点，svg 是从 90 度开始顺时针画的，需要匹配 Math 的计算逻辑
+    // Calculate the center point of the arc, the svg is drawn clockwise from 90 degrees
     if (labelPosition === labelPositionType.INNER) {
       const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, (innerRadius + outerRadius) / 2]
       const [centerX, centerY] = [x + Math.sin(angle) * r, y - Math.cos(angle) * r]
       return this.createText({x: centerX, y: centerY, value, style: text, position: 'center'})
-    } 
-    // 计算文字相对坐标
+    }
+    // Calculate the relative position of the label
     if (labelPosition === labelPositionType.OUTER) {
       const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, outerRadius + labelOffset]
       const [relativeX, relativeY] = [x + Math.sin(angle) * r, y - Math.cos(angle) * r]
@@ -142,7 +141,6 @@ export default class ArcLayer extends LayerBase {
     return null
   }
 
-  // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {type, mode, layout} = this.options
@@ -152,11 +150,11 @@ export default class ArcLayer extends LayerBase {
     const headers = this.#data.data.map(({header}) => header)
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const arcCenter = {x: left + width / 2, y: top + height / 2}
-    // 根据内半径重制半径比例尺值域
+    // innerRadius affect the scale
     if (type === waveType.NIGHTINGALEROSE) {
       scaleRadius.range([innerRadius, scaleRadius.range()[1]])
     }
-    // 圆弧基础数据
+    // basic data of arc
     this.#arcData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
       value,
       dimension,
@@ -166,7 +164,7 @@ export default class ArcLayer extends LayerBase {
       ...scaleAngle(dimension),
       ...arcCenter,
     })))
-    // 堆叠的夜莺玫瑰图
+    // stacked nightingaleRose transformation
     if (mode === modeType.STACK) {
       this.#arcData.forEach(group => group.forEach((item, i) => {
         if (i !== 0) {
@@ -175,10 +173,10 @@ export default class ArcLayer extends LayerBase {
         }
       }))
     }
-    // 颜色跟随主题
+    // get colors
     if (this.#arcData[0]?.length > 1) {
       const colors = this.getColor(this.#arcData[0].length, arc.fill)
-      this.#arcData.forEach(group => group.forEach((item, i) => item.color = colors[i]))
+      this.#arcData.forEach(group => group.forEach((item, i) => (item.color = colors[i])))
       this.#data.set('legendData', {
         list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
         filter: 'column',
@@ -193,7 +191,7 @@ export default class ArcLayer extends LayerBase {
         shape: 'rect',
       })
     }
-    // 标签文字数据
+    // label data
     this.#textData = this.#arcData.map(group => {
       return group.map(data => this.#getLabelData({...data}))
     })
@@ -202,7 +200,10 @@ export default class ArcLayer extends LayerBase {
   draw() {
     const arcData = this.#arcData.map(group => {
       const data = group.map(({startAngle, endAngle, innerRadius, outerRadius}) => [
-        startAngle, endAngle, innerRadius, outerRadius,
+        startAngle,
+        endAngle,
+        innerRadius,
+        outerRadius,
       ])
       const source = group.map(({dimension, category, value}) => ({dimension, category, value}))
       const position = group.map(({x, y}) => [x, y])

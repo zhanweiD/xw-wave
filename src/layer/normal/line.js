@@ -47,7 +47,7 @@ const defaultStyle = {
 
 export default class LineLayer extends LayerBase {
   #data = null
-  
+
   #scale = {}
 
   #style = defaultStyle
@@ -86,18 +86,22 @@ export default class LineLayer extends LayerBase {
     const headers = this.#data.data.map(({header}) => header)
     const {width, height, top, left} = layout
     // initialize scales
-    this.#scale = this.createScale({
-      scaleX: new Scale({
-        type: 'band',
-        domain: this.#data.select(headers[0]).data[0].list,
-        range: [0, width],
-      }),
-      scaleY: new Scale({
-        type: 'linear',
-        domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
-        range: [height, 0],
-      }),
-    }, this.#scale, scales)
+    this.#scale = this.createScale(
+      {
+        scaleX: new Scale({
+          type: 'band',
+          domain: this.#data.select(headers[0]).data[0].list,
+          range: [0, width],
+        }),
+        scaleY: new Scale({
+          type: 'linear',
+          domain: this.#data.select(headers.slice(1), {mode: mode === 'stack' && 'sum'}).range(),
+          range: [height, 0],
+        }),
+      },
+      this.#scale,
+      scales
+    )
     // basic data of curve
     const {scaleX, scaleY} = this.#scale
     this.#curveData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
@@ -122,7 +126,7 @@ export default class LineLayer extends LayerBase {
     const {top, height} = layout
     // get the color for each line
     const colors = this.getColor(this.#curveData[0].length, curve.stroke)
-    this.#curveData.forEach(group => group.forEach((item, i) => item.color = colors[i]))
+    this.#curveData.forEach(group => group.forEach((item, i) => (item.color = colors[i])))
     // line label
     this.#textData = this.#curveData.map(group => group.map(({value, x, y}) => {
       return this.createText({x, y, value, position: labelPosition, style: text})
@@ -148,10 +152,10 @@ export default class LineLayer extends LayerBase {
     const {scaleY} = this.#scale
     const {fallback, layout} = this.options
     if (fallback === fallbackType.BREAK) {
-      return position.reduce((prev, cur) => (cur[1]
-        ? [...prev.slice(0, prev.length - 1), [...prev[prev.length - 1], cur]] 
-        : [...prev, []]),
-      [[]])
+      return position.reduce(
+        (prev, cur) => (cur[1] ? [...prev.slice(0, prev.length - 1), [...prev[prev.length - 1], cur]] : [...prev, []]),
+        [[]]
+      )
     }
     if (fallback === fallbackType.CONTINUE) {
       return [position.filter(item => Boolean(item[1]))]
@@ -164,17 +168,14 @@ export default class LineLayer extends LayerBase {
 
   draw() {
     const curveData = this.#curveData[0].map(({color}, index) => {
-      const data = this.#curveData.map(item => [
-        item[index].x, 
-        isNumber(item[index].value) && item[index].y,
-      ])
+      const data = this.#curveData.map(item => [item[index].x, isNumber(item[index].value) && item[index].y])
       return {data: this.#fallbackFilter(data), ...this.#style.curve, stroke: color}
     })
     const {curve} = this.#style.curve
     const areaData = this.#areaData[0].map(({color}, index) => {
       const data = this.#areaData.map(item => [
-        item[index].x, 
-        isNumber(item[index].value) && item[index].y0, 
+        item[index].x,
+        isNumber(item[index].value) && item[index].y0,
         item[index].y1,
       ])
       return {data: this.#fallbackFilter(data), ...this.#style.area, curve, fill: color}

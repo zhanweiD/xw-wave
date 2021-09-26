@@ -2,18 +2,15 @@ import * as d3 from 'd3'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
 
-// 映射的图表类型
 const shapeType = {
-  RECT: 'rect', // 矩形
-  CIRCLE: 'circle', // 圆形
+  RECT: 'rect',
+  CIRCLE: 'circle',
 }
 
-// 默认选项
 const defaultOptions = {
   shape: shapeType.DEFAULT,
 }
 
-// 默认样式
 const defaultStyle = {
   circleSize: ['auto', 'auto'],
   circle: {},
@@ -23,7 +20,7 @@ const defaultStyle = {
 
 export default class MatrixLayer extends LayerBase {
   #data = null
-  
+
   #scale = {}
 
   #style = defaultStyle
@@ -46,7 +43,6 @@ export default class MatrixLayer extends LayerBase {
     return this.#style
   }
 
-  // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'circle', 'text'])
     const {shape} = this.options
@@ -54,29 +50,33 @@ export default class MatrixLayer extends LayerBase {
     this.tooltipTargets = ['rect', 'circle']
   }
 
-  // 传入列表类，前两列为维度数据列
+  // tableList has two dimensions
   setData(table, scales) {
     this.#data = table || this.#data
     const {shape, layout} = this.options
     const {left, top, width, height} = layout
     const [rows, columns, pureTable] = [this.#data.data[0], this.#data.data[1], this.#data.data[2]]
-    // 初始化比例尺
-    this.#scale = this.createScale({
-      scaleX: new Scale({
-        type: 'band',
-        domain: columns,
-        range: [0, width],
-      }),
-      scaleY: new Scale({
-        type: 'band',
-        domain: rows,
-        range: [0, height],
-      }),
-    }, this.#scale, scales)
-    // 计算基础数据
+    // initialize scales
+    this.#scale = this.createScale(
+      {
+        scaleX: new Scale({
+          type: 'band',
+          domain: columns,
+          range: [0, width],
+        }),
+        scaleY: new Scale({
+          type: 'band',
+          domain: rows,
+          range: [0, height],
+        }),
+      },
+      this.#scale,
+      scales
+    )
+    // calculate basic data
     const {scaleX, scaleY} = this.#scale
     const [bandwidthX, bandwidthY] = [scaleX.bandwidth(), scaleY.bandwidth()]
-    // 根据比例尺计算原始矩形坐标和数据，原始坐标为左上角
+    // origin rect data
     if (shape === shapeType.RECT) {
       this.#rectData = pureTable.map((values, i) => values.map((value, j) => ({
         value,
@@ -87,7 +87,7 @@ export default class MatrixLayer extends LayerBase {
         height: bandwidthY,
       })))
     }
-    // 圆形数据
+    // origin circle data
     if (shape === shapeType.CIRCLE) {
       this.#circleData = pureTable.map((values, i) => values.map((value, j) => ({
         value,
@@ -97,21 +97,23 @@ export default class MatrixLayer extends LayerBase {
         r: Math.min(bandwidthX, bandwidthY) / 2,
       })))
     }
-    // 文字数据
-    this.#data.set('textData', pureTable.map((values, i) => values.map((value, j) => ({
-      x: left + scaleX(columns[j]) + bandwidthX / 2,
-      y: top + scaleY(rows[i]) + bandwidthY / 2,
-      value,
-    }))))
+    // label data
+    this.#data.set(
+      'textData',
+      pureTable.map((values, i) => values.map((value, j) => ({
+        x: left + scaleX(columns[j]) + bandwidthX / 2,
+        y: top + scaleY(rows[i]) + bandwidthY / 2,
+        value,
+      })))
+    )
   }
 
-  // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {shape} = this.options
     const [minValue, maxValue] = this.#data.range()
     const {circleSize, rect, circle, text} = this.#style
-    // 颜色和数值有关
+    // color is related with value
     const scaleRectColor = new Scale({
       type: 'ordinal',
       domain: d3.range(0, maxValue - minValue, 1),
@@ -128,11 +130,13 @@ export default class MatrixLayer extends LayerBase {
     this.#circleData.forEach(group => group.forEach(item => {
       item.color = scaleCircleColor(Math.round(item.value - minValue))
     }))
-    // 标签文字数据
+    // label data
     this.#textData = this.#data.get('textData').map(group => group.map(item => this.createText({
-      ...item, style: text, position: 'center',
+      ...item,
+      style: text,
+      position: 'center',
     })))
-    // 圆形的大小随数值大小变化
+    // circle size is related with value
     if (shape === shapeType.CIRCLE) {
       let [min, max] = circleSize
       const [bandwidthX, bandwidthY] = [this.#scale.scaleX.bandwidth(), this.#scale.scaleY.bandwidth()]
@@ -150,7 +154,6 @@ export default class MatrixLayer extends LayerBase {
     }
   }
 
-  // 绘制
   draw() {
     const {shape} = this.options
     const rectData = this.#rectData.map(group => {

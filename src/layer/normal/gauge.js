@@ -2,7 +2,6 @@ import {range} from 'd3'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
 
-// 默认样式
 const defaultStyle = {
   step: [2, 10],
   valueGap: 10,
@@ -51,25 +50,25 @@ export default class GaugeLayer extends LayerBase {
     this.className = 'wave-gauge'
   }
 
-  // 仪表盘的数据为对象
+  // special data
   setData(data = {}) {
     this.#data.value = data.value
     this.#data.label = data.label
-    // 校验 fragments 是否合法
+    // check the fragments is legal or not
     if (data.fragments) {
       try {
         data.fragments.forEach(item => {
           const [min, max] = [item[0], item[1]]
-          if (min > max) throw new Error('数据格式错误')
+          if (min > max) throw new Error('data structure wrong')
         })
         data.fragments.reduce((prev, cur) => {
-          if (prev[1] > cur[0]) throw new Error('数据格式错误')
+          if (prev[1] > cur[0]) throw new Error('data structure wrong')
           return cur
         })
         this.#data = {
           ...this.#data,
           fragments: data.fragments,
-          minValue: data.fragments[0][0], 
+          minValue: data.fragments[0][0],
           maxValue: data.fragments[data.fragments.length - 1][1],
         }
       } catch (error) {
@@ -78,7 +77,6 @@ export default class GaugeLayer extends LayerBase {
     }
   }
 
-  // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {left, top, width, height} = this.options.layout
@@ -93,9 +91,9 @@ export default class GaugeLayer extends LayerBase {
       domain: [minValue, maxValue],
       range: [startAngle, endAngle],
     })
-    // 指针圆点数据
+    // dot data of pointer
     this.#circleData = {cx: arcCenter.x, cy: arcCenter.y, r: pointerSize / 2}
-    // 指针矩形数据
+    // pointer data
     const length = maxRadius - arcWidth - tickSize / 0.618 - (tickText.fontSize || tickSize * 2)
     const pointerAngle = (scaleAngle(value) / 180) * Math.PI
     this.#pointerData = {
@@ -104,7 +102,7 @@ export default class GaugeLayer extends LayerBase {
       x2: this.#circleData.cx + length * Math.sin(pointerAngle),
       y2: this.#circleData.cy - length * Math.cos(pointerAngle),
     }
-    // 弧形坐标轴弧线数据
+    // arc axis curve data
     this.#arcData = fragments.map(([min, max], i) => ({
       ...arcCenter,
       innerRadius: maxRadius - arcWidth,
@@ -113,7 +111,7 @@ export default class GaugeLayer extends LayerBase {
       endAngle: scaleAngle(max),
       color: colors[i],
     }))
-    // 弧形坐标轴刻度数据（附加文本坐标数据）
+    // arc axis tick data width label data
     this.#lineData = range(minValue, maxValue + 1, step[0]).map((number, i) => {
       const isBigTick = (i * step[0]) % step[1] === 0 && step[0] !== step[1]
       const angle = (scaleAngle(number) / 180) * Math.PI
@@ -125,30 +123,32 @@ export default class GaugeLayer extends LayerBase {
       const outerRadius = maxRadius - arcWidth - 5
       const [x1, y1] = [computeX(innerRadius), computeY(innerRadius)]
       const [x2, y2] = [computeX(outerRadius), computeY(outerRadius)]
-      // 刻度标签数据
-      const tickTextData = isBigTick && this.createText({
-        x: computeX(innerRadius - tickSize),
-        y: computeY(innerRadius - tickSize),
-        value: number,
-        position: 'center',
-        style: tickText,
-      })
-      // 找分类的中心点
+      // tick label data
+      const tickTextData = isBigTick
+        && this.createText({
+          x: computeX(innerRadius - tickSize),
+          y: computeY(innerRadius - tickSize),
+          value: number,
+          position: 'center',
+          style: tickText,
+        })
+      // find the fragment if it is the center of arc
       const fragment = fragments.find(([min, max]) => {
         const offsetNumber = (min + max) / 2 - number
         return offsetNumber < step[0] && offsetNumber >= 0
       })
-      // 分类标签数据
-      const labelTextData = fragment && this.createText({
-        x: computeX(maxRadius + (labelText?.fontSize || 12)),
-        y: computeY(maxRadius + (labelText?.fontSize || 12)),
-        value: fragment[2],
-        position: isLeft ? 'left' : isRight ? 'right' : 'center',
-        style: labelText,
-      })
+      // fragment label data
+      const labelTextData = fragment
+        && this.createText({
+          x: computeX(maxRadius + (labelText?.fontSize || 12)),
+          y: computeY(maxRadius + (labelText?.fontSize || 12)),
+          value: fragment[2],
+          position: isLeft ? 'left' : isRight ? 'right' : 'center',
+          style: labelText,
+        })
       return {number, x1, y1, x2, y2, labelTextData, tickTextData}
     })
-    // 数值文字数据
+    // pointer label data
     const [x, y] = [arcCenter.x, arcCenter.y + valueGap + valueText.fontSize]
     this.#valueTextData = [
       this.createText({value, position: 'center', ...arcCenter, style: valueText}),
@@ -157,38 +157,52 @@ export default class GaugeLayer extends LayerBase {
   }
 
   draw() {
-    const pointerData = [{
-      data: [[this.#pointerData.x1, this.#pointerData.y1, this.#pointerData.x2, this.#pointerData.y2]],
-      ...this.#style.pointer,
-    }]
-    const circleData = [{
-      data: [[this.#circleData.r, this.#circleData.r]],
-      position: [[this.#circleData.cx, this.#circleData.cy]],
-      ...this.#style.circle,
-    }]
     const arcData = this.#arcData.map(item => {
       const {x, y, startAngle, endAngle, innerRadius, outerRadius, color} = item
       const data = [[startAngle, endAngle, innerRadius, outerRadius]]
       const position = [[x, y]]
       return {data, position, ...this.#style.arc, fill: color}
     })
-    const lineData = [{
-      data: this.#lineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
-      ...this.#style.line,
-    }]
-    const labelText = this.#lineData.map(({labelTextData}) => labelTextData && ({
-      data: [labelTextData.value],
-      position: [[labelTextData.x, labelTextData.y]],
-      ...this.#style.labelText,
-    })).filter(Boolean)
-    const tickText = this.#lineData.map(({tickTextData}) => tickTextData && ({
-      data: [tickTextData.value],
-      position: [[tickTextData.x, tickTextData.y]],
-      ...this.#style.tickText,
-    })).filter(Boolean)
+    const pointerData = [
+      {
+        data: [[this.#pointerData.x1, this.#pointerData.y1, this.#pointerData.x2, this.#pointerData.y2]],
+        ...this.#style.pointer,
+      },
+    ]
+    const circleData = [
+      {
+        data: [[this.#circleData.r, this.#circleData.r]],
+        position: [[this.#circleData.cx, this.#circleData.cy]],
+        ...this.#style.circle,
+      },
+    ]
+    const lineData = [
+      {
+        data: this.#lineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
+        ...this.#style.line,
+      },
+    ]
+    const labelText = this.#lineData
+      .map(
+        ({labelTextData}) => labelTextData && {
+          data: [labelTextData.value],
+          position: [[labelTextData.x, labelTextData.y]],
+          ...this.#style.labelText,
+        }
+      )
+      .filter(Boolean)
+    const tickText = this.#lineData
+      .map(
+        ({tickTextData}) => tickTextData && {
+          data: [tickTextData.value],
+          position: [[tickTextData.x, tickTextData.y]],
+          ...this.#style.tickText,
+        }
+      )
+      .filter(Boolean)
     const valueText = this.#valueTextData.map(({x, y, value}) => ({
       data: [value],
-      position: [[x, y]], 
+      position: [[x, y]],
       ...this.#style.valueText,
     }))
     this.drawBasic('arc', arcData)

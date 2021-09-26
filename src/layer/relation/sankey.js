@@ -2,25 +2,21 @@ import * as d3 from 'd3'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
 
-// 对齐方式
 const alignType = {
   START: 'start',
   MIDDLE: 'middle',
   END: 'end',
 }
 
-// 排列方向
 const directionType = {
   HORIZONTAL: 'horizontal',
   VERTICAL: 'vertical',
 }
 
-// 默认选项
 const defaultOptions = {
   type: directionType.HORIZONTAL,
 }
 
-// 默认样式
 const defaultStyle = {
   nodeWidth: 5,
   nodeGap: 5,
@@ -39,7 +35,7 @@ const defaultStyle = {
 
 export default class SankeyLayer extends LayerBase {
   #data = null
-  
+
   #scale = {}
 
   #rectData = []
@@ -62,7 +58,6 @@ export default class SankeyLayer extends LayerBase {
     return this.#style
   }
 
-  // 初始化默认值
   constructor(layerOptions, waveOptions) {
     super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'ribbon', 'text'])
     const {type} = this.options
@@ -70,32 +65,38 @@ export default class SankeyLayer extends LayerBase {
     this.tooltipTargets = ['rect']
   }
 
-  // 传入表格关系型数据
   setData(relation, scales) {
     this.#data = relation || this.#data
     const {nodes} = this.#data.data
     const {type, layout} = this.options
     const {width, height} = layout
     const levels = d3.range(0, d3.max(nodes.map(({level}) => level)) + 1)
-    this.#scale = this.createScale({
-      scaleX: new Scale({
-        type: 'band',
-        domain: levels,
-        range: type === directionType.HORIZONTAL ? [0, width] : [0, height],
-        nice: scales?.nice,
-      }),
-      scaleY: new Scale({
-        type: 'linear',
-        domain: [0, 1],
-        range: type === directionType.HORIZONTAL ? [0, height] : [0, width],
-      }),
-    }, this.#scale, scales)
-    // 根据层级分组节点
+    this.#scale = this.createScale(
+      {
+        scaleX: new Scale({
+          type: 'band',
+          domain: levels,
+          range: type === directionType.HORIZONTAL ? [0, width] : [0, height],
+          nice: scales?.nice,
+        }),
+        scaleY: new Scale({
+          type: 'linear',
+          domain: [0, 1],
+          range: type === directionType.HORIZONTAL ? [0, height] : [0, width],
+        }),
+      },
+      this.#scale,
+      scales
+    )
+    // group data according the level
     this.#data.set('levels', levels)
-    this.#data.set('groups', levels.map(value => nodes.filter(({level}) => level === value)))
+    this.#data.set(
+      'groups',
+      levels.map(value => nodes.filter(({level}) => level === value))
+    )
   }
 
-  // 绘制两条三次贝塞尔曲线闭合
+  // ribbon path data
   #getPath = data => {
     const {type} = this.options
     const [x1, y1, x2, y2, x3, y3, x4, y4] = data
@@ -118,7 +119,6 @@ export default class SankeyLayer extends LayerBase {
     return null
   }
 
-  // 覆盖默认图层样式
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {links} = this.#data.data
@@ -126,17 +126,17 @@ export default class SankeyLayer extends LayerBase {
     const {labelOffset, nodeGap, ribbonGap, align, text, rect} = this.#style
     const isHorizontal = type === directionType.HORIZONTAL
     const [levels, groups] = [this.#data.get('levels'), this.#data.get('groups')]
-    // 计算包括间隙在内的理论最大数值
+    // Calculate the theoretical maximum value including the gap
     const maxNumbers = levels.map(level => {
       const totalNumber = d3.sum(groups[level].map(({value}) => value))
       const gapLength = (groups[level].length - 1) * nodeGap
       const ratio = totalNumber / ((isHorizontal ? layout.height : layout.width) - gapLength)
       return totalNumber + gapLength * ratio
     })
-    // 更新比例尺定义域和值域
+    // update scales
     this.#scale.scaleY.domain([0, d3.max(maxNumbers)])
     const {scaleX, scaleY} = this.#scale
-    // 基础矩形数据
+    // basic rect data
     this.#rectData = groups.map(groupedNodes => {
       const colors = this.getColor(groupedNodes.length, rect.fill)
       return groupedNodes.map((item, i) => ({
@@ -144,29 +144,30 @@ export default class SankeyLayer extends LayerBase {
         x: layout.left + scaleX(item.level),
         width: scaleX.bandwidth(),
         height: scaleY(item.value),
-        ribbonLength: [0, 0], // 用于计算左右边叠加的宽度
+        // this attribute is used to calculate the with of left and right side overlay
+        ribbonLength: [0, 0],
         color: colors[i],
         ...item,
       }))
     })
-    // 堆叠柱子数据变更
+    // stacked rect data
     this.#rectData.forEach(group => group.forEach((item, i) => {
       i !== 0 && (item.y = group[i - 1].y + group[i - 1].height + nodeGap)
     }))
-    // 对齐调整节点的位置
+    // move rect node according align value
     this.#rectData.forEach(group => {
       const tailNode = group[group.length - 1]
       if (type === directionType.HORIZONTAL) {
         const offset = layout.top + layout.height - tailNode.y - tailNode.height
         const moveY = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
-        group.forEach(item => item.y += moveY)
+        group.forEach(item => (item.y += moveY))
       } else if (type === directionType.VERTICAL) {
         const offset = layout.top + layout.width - tailNode.y - tailNode.height
         const moveX = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
-        group.forEach(item => item.y += moveX)
+        group.forEach(item => (item.y += moveX))
       }
     })
-    // 丝带数据
+    // ribbon data
     const rects = this.#rectData.reduce((prev, cur) => [...prev, ...cur])
     this.#ribbonData = links.map(({from, to, value}) => {
       const length = scaleY(value)
@@ -188,13 +189,13 @@ export default class SankeyLayer extends LayerBase {
         color: createGradient({type: 'linear', direction: type, colors: [fromNode.color, toNode.color]}),
       }
     })
-    // 横竖坐标转换
+    // horizontal => vertical
     if (type === directionType.VERTICAL) {
       this.#rectData = this.#rectData.map(group => group.map(({x, y, height, width, ...other}) => ({
-        width: height, 
+        width: height,
         height: width,
         x: y - layout.top + layout.left,
-        y: x - layout.left + layout.top, 
+        y: x - layout.left + layout.top,
         ...other,
       })))
       this.#ribbonData = this.#ribbonData.map(({x1, y1, x2, y2, x3, y3, x4, y4, ...other}) => ({
@@ -206,10 +207,10 @@ export default class SankeyLayer extends LayerBase {
         x3: y3 - layout.top + layout.left,
         y3: x3 - layout.left + layout.top,
         x4: y4 - layout.top + layout.left,
-        y4: x4 - layout.left + layout.top, 
+        y4: x4 - layout.left + layout.top,
       }))
     }
-    // 标签文字数据
+    // label data
     this.#textData = this.#rectData.map((group, i) => {
       const isLast = i === this.#rectData.length - 1
       if (type === directionType.HORIZONTAL) {
@@ -234,7 +235,6 @@ export default class SankeyLayer extends LayerBase {
     })
   }
 
-  // 绘制
   draw() {
     const rectData = this.#rectData.map(group => {
       const data = group.map(({width, height}) => [width, height])

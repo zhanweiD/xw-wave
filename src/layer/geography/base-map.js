@@ -55,7 +55,7 @@ export default class BaseMapLayer extends LayerBase {
     // get all blocks of china
     fetch(getUrl('all'))
       .then(res => res.json())
-      .then(data => this.#chinaBlocks = data)
+      .then(data => (this.#chinaBlocks = data))
       .catch(e => this.log.error('Fetch map data failed', e))
   }
 
@@ -73,13 +73,15 @@ export default class BaseMapLayer extends LayerBase {
       if (this.#chinaBlocks.length) {
         const children = this.#chinaBlocks.filter(({parent}) => parent === data)
         if (children.length) {
-          Promise
-            .all(children.map(({adcode}) => new Promise((resolve, reject) => {
-              fetch(getUrl(adcode))
-                .then(res => res.json())
-                .then(json => resolve(json))
-                .catch(e => reject(e))
-            })))
+          Promise.all(
+            children.map(
+              ({adcode}) => new Promise((resolve, reject) => {
+                fetch(getUrl(adcode))
+                  .then(res => resolve(res.json()))
+                  .catch(e => reject(e))
+              })
+            )
+          )
             .then(list => {
               const dataSet = list.reduce((prev, cur) => [...prev, ...cur.features], [])
               this.#refresh({type: 'FeatureCollection', features: dataSet})
@@ -87,18 +89,30 @@ export default class BaseMapLayer extends LayerBase {
             .catch(e => this.log.error('Fetch map data failed', e))
         }
       } else {
+        // retry
         setTimeout(() => this.setData(data), 100)
       }
     } else if (data) {
       this.#data = data || this.#data
-      const {top, left, width, height} = this.options.layout 
-      const projection = d3.geoMercator().fitExtent([[left, top], [width, height]], this.#data)
+      const {top, left, width, height} = this.options.layout
+      const projection = d3.geoMercator().fitExtent(
+        [
+          [left, top],
+          [width, height],
+        ],
+        this.#data
+      )
       this.#path = d3.geoPath(projection)
       // transform scales
-      this.#scale = this.createScale({
-        scaleX: x => projection([x, 0])[0],
-        scaleY: y => projection([0, y])[1],
-      }, {}, scales)
+      this.#scale = this.createScale(
+        {
+          scaleX: x => projection([x, 0])[0],
+          scaleY: y => projection([0, y])[1],
+        },
+        // give empty because default is useless
+        {},
+        scales
+      )
       // drill up background block
       this.#backgroundRectData = {x: left, y: top, width, height}
       // drill down map block
@@ -121,21 +135,27 @@ export default class BaseMapLayer extends LayerBase {
   }
 
   draw() {
-    const blockData = [{
-      data: this.#blockData.map(({geometry}) => this.#path(geometry)),
-      source: this.#blockData.map(({source}) => source),
-      ...this.#style.block,
-    }]
-    const textData = [{
-      data: this.#textData.map(({value}) => value),
-      position: this.#textData.map(({x, y}) => [x, y]),
-      ...this.#style.text,
-    }]
-    const rectData = [{
-      data: [[this.#backgroundRectData.width, this.#backgroundRectData.height]],
-      position: [[this.#backgroundRectData.x, this.#backgroundRectData.y]],
-      fillOpacity: 0,
-    }]
+    const blockData = [
+      {
+        data: this.#blockData.map(({geometry}) => this.#path(geometry)),
+        source: this.#blockData.map(({source}) => source),
+        ...this.#style.block,
+      },
+    ]
+    const textData = [
+      {
+        data: this.#textData.map(({value}) => value),
+        position: this.#textData.map(({x, y}) => [x, y]),
+        ...this.#style.text,
+      },
+    ]
+    const rectData = [
+      {
+        data: [[this.#backgroundRectData.width, this.#backgroundRectData.height]],
+        position: [[this.#backgroundRectData.x, this.#backgroundRectData.y]],
+        fillOpacity: 0,
+      },
+    ]
     this.drawBasic('rect', rectData, 'background')
     this.drawBasic('path', blockData, 'block')
     this.drawBasic('text', textData)

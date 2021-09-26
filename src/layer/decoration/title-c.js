@@ -37,33 +37,38 @@ export default class TitleCLayer extends LayerBase {
     const {circleSize, line, mainColor, minorColor} = this.#style
     // left area
     const [alLeft, alRight, alTop, alBottom] = [
-      left + circleSize * 2, 
-      left + height - circleSize * 2, 
+      left + circleSize * 2,
+      left + height - circleSize * 2,
       top + circleSize * 2,
       top + height - circleSize * 2,
     ]
     // decoration circle
-    this.#circleData = [{
-      fill: minorColor,
-      cx: alLeft,
-      cy: alTop,
-      r: circleSize / 2,
-    }, {
-      fill: minorColor,
-      cx: alLeft,
-      cy: alBottom,
-      r: circleSize / 2,
-    }, {
-      fill: minorColor,
-      cx: alRight,
-      cy: alTop,
-      r: circleSize / 2,
-    }, {
-      fill: minorColor,
-      cx: alRight,
-      cy: alBottom,
-      r: circleSize / 2,
-    }]
+    this.#circleData = [
+      {
+        fill: minorColor,
+        cx: alLeft,
+        cy: alTop,
+        r: circleSize / 2,
+      },
+      {
+        fill: minorColor,
+        cx: alLeft,
+        cy: alBottom,
+        r: circleSize / 2,
+      },
+      {
+        fill: minorColor,
+        cx: alRight,
+        cy: alTop,
+        r: circleSize / 2,
+      },
+      {
+        fill: minorColor,
+        cx: alRight,
+        cy: alBottom,
+        r: circleSize / 2,
+      },
+    ]
     // rect area
     this.#rectData = {
       x: left + height,
@@ -93,23 +98,29 @@ export default class TitleCLayer extends LayerBase {
   }
 
   draw() {
-    const circleData = [{
-      position: this.#circleData.map(({cx, cy}) => [cx, cy]),
-      data: this.#circleData.map(({r}) => [r, r]),
-      fill: this.#circleData.map(({fill}) => fill),
-      ...this.#style.circle,
-    }]
-    const lineData = [{
-      data: [this.#lineData.points],
-      stroke: this.#lineData.stroke,
-      ...this.#style.line,
-    }]
-    const rectData = [{
-      data: [[this.#rectData.width, this.#rectData.height]],
-      position: [[this.#rectData.x, this.#rectData.y]],
-      fill: this.#rectData.fill,
-      ...this.#style.rect,
-    }]
+    const circleData = [
+      {
+        position: this.#circleData.map(({cx, cy}) => [cx, cy]),
+        data: this.#circleData.map(({r}) => [r, r]),
+        fill: this.#circleData.map(({fill}) => fill),
+        ...this.#style.circle,
+      },
+    ]
+    const lineData = [
+      {
+        data: [this.#lineData.points],
+        stroke: this.#lineData.stroke,
+        ...this.#style.line,
+      },
+    ]
+    const rectData = [
+      {
+        data: [[this.#rectData.width, this.#rectData.height]],
+        position: [[this.#rectData.x, this.#rectData.y]],
+        fill: this.#rectData.fill,
+        ...this.#style.rect,
+      },
+    ]
     this.drawBasic('rect', rectData)
     this.drawBasic('curve', lineData)
     this.drawBasic('circle', circleData)

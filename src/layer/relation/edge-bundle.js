@@ -15,7 +15,7 @@ const defaultStyle = {
 
 export default class EdgeBundleLayer extends LayerBase {
   #data = null
-  
+
   #scale = {}
 
   #curveData = {}
@@ -52,11 +52,15 @@ export default class EdgeBundleLayer extends LayerBase {
     const root = {name: 'root', children: this.#data.data.nodes}
     // hierarchy needs formatted children
     this.#data.data.nodes.forEach(node => delete node.children)
-    const nodes = d3.cluster().size([360, maxRadius]).separation((a, b) => {
-      const v1 = Math.log(a.data.value) * Math.log(a.data.value) || 1
-      const v2 = Math.log(b.data.value) * Math.log(b.data.value) || 1
-      return v1 > v2 ? v1 : v2
-    })(d3.hierarchy(root)).leaves()
+    const nodes = d3
+      .cluster()
+      .size([360, maxRadius])
+      .separation((a, b) => {
+        const v1 = Math.log(a.data.value) * Math.log(a.data.value) || 1
+        const v2 = Math.log(b.data.value) * Math.log(b.data.value) || 1
+        return v1 > v2 ? v1 : v2
+      })(d3.hierarchy(root))
+      .leaves()
     // link data
     this.#curveData = this.#data.data.links.map(({from, to}) => {
       const source = nodes.find(({data}) => data.name === from)
@@ -71,11 +75,13 @@ export default class EdgeBundleLayer extends LayerBase {
     // transform node data to circle data
     const categorys = Array.from(new Set(nodes.map(({data}) => data.category)))
     this.#circleData = categorys.map(category => {
-      return nodes.filter(({data}) => data.category === category).map(({data, x, y}) => {
-        const [angle, radius] = [(x / 180) * Math.PI, y]
-        const [cx, cy] = [Math.sin(angle) * radius + centerX, centerY - Math.cos(angle) * radius]
-        return {source: data, cx, cy, angle, radius}
-      })
+      return nodes
+        .filter(({data}) => data.category === category)
+        .map(({data, x, y}) => {
+          const [angle, radius] = [(x / 180) * Math.PI, y]
+          const [cx, cy] = [Math.sin(angle) * radius + centerX, centerY - Math.cos(angle) * radius]
+          return {source: data, cx, cy, angle, radius}
+        })
     })
     // some derived data
     this.#data.set('maxValue', d3.max(nodes.map(({data}) => data.value)))
@@ -100,9 +106,9 @@ export default class EdgeBundleLayer extends LayerBase {
     // colors for nodes and links
     const categorys = this.#data.get('categorys')
     const circleColors = this.getColor(categorys.length, circle.fill)
-    this.#circleData.forEach(group => group.forEach((item => {
+    this.#circleData.forEach(group => group.forEach(item => {
       item.color = circleColors[categorys.findIndex(value => value === item.source.category)]
-    })))
+    }))
     const curveColors = this.getColor(categorys.length, curve.fill)
     this.#curveData.forEach(item => {
       item.color = curveColors[categorys.findIndex(value => value === item.category)]
@@ -118,7 +124,7 @@ export default class EdgeBundleLayer extends LayerBase {
         data.x += Math.sin(angle) * (data.textWidth / 2)
         data.y += Math.sin(angle - Math.PI / 2) * (data.textWidth / 2)
       }
-      return {...data, angle: ((angle / Math.PI) * 180 - (angle > Math.PI ? 270 : 90))}
+      return {...data, angle: (angle / Math.PI) * 180 - (angle > Math.PI ? 270 : 90)}
     }))
   }
 
@@ -131,7 +137,13 @@ export default class EdgeBundleLayer extends LayerBase {
       return {data, position, source, ...this.#style.circle, fill}
     })
     const curveData = this.#curveData.map(({x1, y1, x2, y2, curveX, curveY, color}) => ({
-      data: [[[x1, y1], [curveX, curveY], [x2, y2]]],
+      data: [
+        [
+          [x1, y1],
+          [curveX, curveY],
+          [x2, y2],
+        ],
+      ],
       ...this.#style.curve,
       stroke: color,
     }))

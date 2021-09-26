@@ -37,8 +37,22 @@ export default class PackLayer extends LayerBase {
   setData(relation) {
     this.#data = relation || this.#data
     const root = {name: 'root', children: this.#data.data.nodes.filter(({level}) => level === 0)}
-    this.#data.set('treeData', d3.hierarchy(root).sum(d => d.value).sort((a, b) => b.value - a.value))
-    this.#data.set('maxHeight', d3.max(this.#data.get('treeData').descendants().map(({height}) => height + 1)))
+    this.#data.set(
+      'treeData',
+      d3
+        .hierarchy(root)
+        .sum(d => d.value)
+        .sort((a, b) => b.value - a.value)
+    )
+    this.#data.set(
+      'maxHeight',
+      d3.max(
+        this.#data
+          .get('treeData')
+          .descendants()
+          .map(({height}) => height + 1)
+      )
+    )
     // origin config for zoom
     const {width, height} = this.options.layout
     this.#data.set('view', [width, height])
@@ -62,15 +76,22 @@ export default class PackLayer extends LayerBase {
       r,
     }))
     // classify circles by height
-    this.#circleData = d3.range(0, this.#data.get('maxHeight')).map(value => {
-      return this.#circleData.filter(({height}) => height === value)
-    }).reverse()
+    this.#circleData = d3
+      .range(0, this.#data.get('maxHeight'))
+      .map(value => {
+        return this.#circleData.filter(({height}) => height === value)
+      })
+      .reverse()
     // color is related to height
     const colors = this.getColor(this.#circleData.length, circle.fill)
     this.#circleData.forEach((group, i) => group.forEach(item => (item.color = colors[i])))
     // label data
     this.#textData = this.#circleData.map(group => group.map(({cx, cy, value}) => this.createText({
-      x: cx, y: cy, value, style: text, position: 'center',
+      x: cx,
+      y: cy,
+      value,
+      style: text,
+      position: 'center',
     })))
   }
 

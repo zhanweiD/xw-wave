@@ -66,10 +66,12 @@ export default class BorderALayer extends LayerBase {
   }
 
   draw() {
-    const lineData = [{
-      data: this.#data,
-      ...this.#style.shape,
-    }]
+    const lineData = [
+      {
+        data: this.#data,
+        ...this.#style.shape,
+      },
+    ]
     this.drawBasic('curve', lineData, 'shape')
   }
 }

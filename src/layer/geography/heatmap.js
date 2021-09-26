@@ -56,8 +56,8 @@ export default class HeatmapLayer extends LayerBase {
       this.#pointData = pureTableList.map(([x, y, value]) => ({
         value,
         // why
-        x: Number(scaleX(x)).toFixed(0), 
-        y: scaleY(y), 
+        x: Number(scaleX(x)).toFixed(0),
+        y: scaleY(y),
       }))
     }
   }
