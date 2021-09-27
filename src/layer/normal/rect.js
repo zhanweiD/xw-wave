@@ -36,12 +36,14 @@ const labelPositionType = {
 
 const defaultStyle = {
   fixedLength: null,
-  paddingInner: 0,
+  xZoomFactor: 0,
   labelPosition: labelPositionType.CENTER,
   labelOffset: 5,
-  text: {},
   rect: {},
-  bgRect: {
+  text: {
+    offset: [0, 0],
+  },
+  background: {
     fill: 'none',
   },
 }
@@ -55,7 +57,7 @@ export default class RectLayer extends LayerBase {
 
   #rectData = []
 
-  #bgRectData = []
+  #backgroundData = []
 
   #textData = []
 
@@ -72,7 +74,7 @@ export default class RectLayer extends LayerBase {
   }
 
   constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'bgRect', 'text'])
+    super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'background', 'text'])
     const {type, mode} = this.options
     this.className = `wave-${mode}-${type}`
     this.tooltipTargets = ['rect']
@@ -142,7 +144,7 @@ export default class RectLayer extends LayerBase {
       height: Math.abs(scaleY(value) - scaleY(0)),
     })))
     // rect background data
-    this.#bgRectData = pureTableList.map(([dimension]) => [
+    this.#backgroundData = pureTableList.map(([dimension]) => [
       {
         x: layout.left + scaleX(dimension),
         y: layout.top,
@@ -188,7 +190,7 @@ export default class RectLayer extends LayerBase {
       width: Math.abs(scaleX(value) - scaleX(0)),
     })))
     // rect background data
-    this.#bgRectData = pureTableList.map(([dimension]) => [
+    this.#backgroundData = pureTableList.map(([dimension]) => [
       {
         x: layout.left,
         y: layout.top + scaleY(dimension),
@@ -308,7 +310,7 @@ export default class RectLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition, paddingInner, fixedLength, rect} = this.#style
+    const {labelPosition, xZoomFactor, fixedLength, rect} = this.#style
     const {type, mode} = this.options
     // get colors
     if (this.#rectData[0]?.length > 1) {
@@ -320,7 +322,7 @@ export default class RectLayer extends LayerBase {
     }
     // horizontal scaling ratio
     this.#rectData = this.#rectData.map(group => group.map(({x, y, width, height, ...other}) => {
-      const totalPadding = paddingInner * (type === waveType.COLUMN ? width : height)
+      const totalPadding = xZoomFactor * (type === waveType.COLUMN ? width : height)
       return {
         x: type === waveType.COLUMN ? x + totalPadding / 2 : x,
         y: type === waveType.BAR ? y + totalPadding / 2 : y,
@@ -367,13 +369,13 @@ export default class RectLayer extends LayerBase {
     })
     // legend data of rect layer
     const colors = this.getColor(this.#rectData[0].length, rect.fill)
-    mode !== modeType.INTERVAL
-      && mode !== modeType.WATERFALL
-      && this.#data.set('legendData', {
+    if (mode !== modeType.INTERVAL && mode !== modeType.WATERFALL) {
+      this.#data.set('legendData', {
         list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
         filter: 'column',
         shape: 'rect',
       })
+    }
   }
 
   draw() {
@@ -386,17 +388,17 @@ export default class RectLayer extends LayerBase {
       const transformOrigin = type === waveType.COLUMN ? 'bottom' : 'left'
       return {data, source, position, transformOrigin, ...this.#style.rect, fill}
     })
-    const bgRect = this.#bgRectData.map(group => {
+    const background = this.#backgroundData.map(group => {
       const data = group.map(({width, height}) => [width, height])
       const position = group.map(({x, y}) => [x, y])
-      return {data, position, ...this.#style.bgRect}
+      return {data, position, ...this.#style.background}
     })
     const textData = this.#textData.map(group => {
       const data = group.map(({value}) => value)
       const position = group.map(({x, y}) => [x, y])
       return {data, position, ...this.#style.text}
     })
-    this.drawBasic('rect', bgRect, 'bgRect')
+    this.drawBasic('rect', background, 'background')
     this.drawBasic('rect', rectData)
     this.drawBasic('text', textData)
   }

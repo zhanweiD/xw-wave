@@ -64,7 +64,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
         style: {
           align: 'end',
           verticalAlign: 'start',
-          direction: 'horizontal', 
+          direction: 'horizontal',
           pointSize: 8,
           gap: [5, 10],
           text: {
@@ -118,12 +118,14 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
         },
         style: {
           textY: {
-            format: type === 'column' && mode === 'percentage' && {
+            format: type === 'column'
+              && mode === 'percentage' && {
               percentage: true,
             },
           },
           textX: {
-            format: type === 'bar' && mode === 'percentage' && {
+            format: type === 'bar'
+              && mode === 'percentage' && {
               percentage: true,
             },
           },
@@ -142,7 +144,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
         },
         data: {
           type: 'tableList',
-          mode: 'normal', 
+          mode: 'normal',
           row: 6,
           column: 3,
           mu: 500,
@@ -150,9 +152,16 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           decimalPlace: 1,
         },
         style: {
-          labelPosition: type === 'bar' 
-            ? ['left-outer', mode === 'stack' || mode === 'waterfall' || mode === 'percentage' ? 'center' : 'right-outer'] 
-            : ['bottom-outer', mode === 'stack' || mode === 'waterfall' || mode === 'percentage' ? 'center' : 'top-outer'],
+          labelPosition:
+            type === 'bar'
+              ? [
+                'left-outer',
+                mode === 'stack' || mode === 'waterfall' || mode === 'percentage' ? 'center' : 'right-outer',
+              ]
+              : [
+                'bottom-outer',
+                mode === 'stack' || mode === 'waterfall' || mode === 'percentage' ? 'center' : 'top-outer',
+              ],
           rect: {
             fill: ['red', 'green'],
             mapping: elData => {
@@ -162,14 +171,14 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
               return elData
             },
           },
-          bgRect: {
+          background: {
             fill: 'gray',
             fillOpacity: 0.3,
           },
           text: {
             fontSize: 10,
             format: {
-              decimalPlace: 2, 
+              decimalPlace: 2,
               thousandth: mode === 'waterfall',
               percentage: mode === 'percentage',
             },
@@ -207,64 +216,65 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
       },
     ],
   }
-  hasLine && schema.layers.push({
-    type: 'line',
-    options: {
-      id: 'line',
-      layout: 'main',
-      axis: mode === 'stack' ? 'minor' : 'main',
-      mode,
-    },
-    data: {
-      type: 'tableList',
-      mode: 'normal', 
-      row: 6,
-      column: 3,
-      mu: 1000,
-      sigma: 300,
-      decimalPlace: 1,
-    },
-    style: {
-      labelPosition: 'top',
-      curve: {
-        strokeWidth: 2,
+  hasLine
+    && schema.layers.push({
+      type: 'line',
+      options: {
+        id: 'line',
+        layout: 'main',
+        axis: mode === 'stack' ? 'minor' : 'main',
+        mode,
       },
-      area: {
-        opacity: 0.2,
+      data: {
+        type: 'tableList',
+        mode: 'normal',
+        row: 6,
+        column: 3,
+        mu: 1000,
+        sigma: 300,
+        decimalPlace: 1,
       },
-      text: {
-        fontSize: 10,
-      },
-    },
-    animation: {
-      curve: {
-        enter: {
-          type: 'erase',
-          delay: 0,
-          duration: 2000,
+      style: {
+        labelPosition: 'top',
+        curve: {
+          strokeWidth: 2,
         },
-        // loop: {
-        //   type: 'scan',
-        //   delay: 2000,
-        //   duration: 3000,
-        //   color: 'rgba(255,255,255,0.9)',
-        //   direction: 'right',
-        //   scope: 'stroke',
-        // },
-      },
-      text: {
-        enter: {
-          type: 'fade',
-          delay: 2000,
-          duration: 1000,
-          mode: 'fadeIn',
+        area: {
+          opacity: 0.2,
+        },
+        text: {
+          fontSize: 10,
         },
       },
-    },
-    event: {
-      'click-circle': d => console.log(d),
-    },
-  })
+      animation: {
+        curve: {
+          enter: {
+            type: 'erase',
+            delay: 0,
+            duration: 2000,
+          },
+          // loop: {
+          //   type: 'scan',
+          //   delay: 2000,
+          //   duration: 3000,
+          //   color: 'rgba(255,255,255,0.9)',
+          //   direction: 'right',
+          //   scope: 'stroke',
+          // },
+        },
+        text: {
+          enter: {
+            type: 'fade',
+            delay: 2000,
+            duration: 1000,
+            mode: 'fadeIn',
+          },
+        },
+      },
+      event: {
+        'click-circle': d => console.log(d),
+      },
+    })
   return schema
 }
 
