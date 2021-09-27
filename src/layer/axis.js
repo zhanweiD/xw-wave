@@ -28,7 +28,7 @@ const defaultAxisLine = {
 
 const defaultText = {
   fillOpacity: 0.8,
-  fontSize: 8,
+  fontSize: 12,
 }
 
 const defaultStyle = {

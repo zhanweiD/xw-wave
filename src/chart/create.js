@@ -47,7 +47,7 @@ const createLayer = (wave, config) => {
 
 // create a wave by schema
 const createWave = (schema, existedWave) => {
-  const {brush, layers, ...initialConfig} = schema
+  const {brush, layers = [], ...initialConfig} = schema
   const wave = existedWave || new Wave(initialConfig)
   // some special layers require data or scales from other layers
   const normalLayerConfigs = layers.filter(({type}) => isNormalLayer(type))

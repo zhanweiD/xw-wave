@@ -1,4 +1,5 @@
 import {isNumber} from 'lodash'
+import chroma from 'chroma-js'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
 
@@ -121,7 +122,7 @@ export default class LineLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {layout, mode} = this.options
+    const {layout, mode, createGradient} = this.options
     const {labelPosition, pointSize, text, curve} = this.#style
     const {top, height} = layout
     // get the color for each line
@@ -134,9 +135,10 @@ export default class LineLayer extends LayerBase {
     // point data
     this.#pointData = this.#curveData.map(group => group.map(item => ({...item, r: pointSize / 2})))
     // area data
-    this.#areaData = this.#curveData.map((group, i) => group.map(({y, ...item}, j) => ({
+    this.#areaData = this.#curveData.map((group, i) => group.map(({y, color, ...item}, j) => ({
       y0: y,
       y1: mode === modeType.STACK && j !== 0 ? this.#curveData[i][j - 1].y : height + top,
+      fill: createGradient({type: 'linear', direction: 'vertical', colors: [color, chroma(color).alpha(0)]}),
       ...item,
     })))
     // legend data of line layer
@@ -172,13 +174,13 @@ export default class LineLayer extends LayerBase {
       return {data: this.#fallbackFilter(data), ...this.#style.curve, stroke: color}
     })
     const {curve} = this.#style.curve
-    const areaData = this.#areaData[0].map(({color}, index) => {
+    const areaData = this.#areaData[0].map(({fill}, index) => {
       const data = this.#areaData.map(item => [
         item[index].x,
         isNumber(item[index].value) && item[index].y0,
         item[index].y1,
       ])
-      return {data: this.#fallbackFilter(data), ...this.#style.area, curve, fill: color}
+      return {data: this.#fallbackFilter(data), ...this.#style.area, curve, fill}
     })
     const textData = this.#textData.map(group => {
       const data = group.map(({value}) => value)
