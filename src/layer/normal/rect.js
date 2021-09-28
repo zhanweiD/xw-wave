@@ -36,7 +36,7 @@ const labelPositionType = {
 
 const defaultStyle = {
   fixedLength: null,
-  xZoomFactor: 0,
+  bandZoomFactor: 0,
   labelPosition: labelPositionType.CENTER,
   rect: {},
   text: {
@@ -315,7 +315,7 @@ export default class RectLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition, xZoomFactor, fixedLength, rect} = this.#style
+    const {labelPosition, bandZoomFactor, fixedLength, rect} = this.#style
     const {type, mode} = this.options
     // get colors
     if (this.#rectData[0]?.length > 1) {
@@ -327,7 +327,7 @@ export default class RectLayer extends LayerBase {
     }
     // horizontal scaling ratio
     this.#rectData = this.#rectData.map(group => group.map(({x, y, width, height, ...other}) => {
-      const totalPadding = xZoomFactor * (type === waveType.COLUMN ? width : height)
+      const totalPadding = bandZoomFactor * (type === waveType.COLUMN ? width : height)
       return {
         x: type === waveType.COLUMN ? x + totalPadding / 2 : x,
         y: type === waveType.BAR ? y + totalPadding / 2 : y,

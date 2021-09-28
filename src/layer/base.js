@@ -57,6 +57,7 @@ export default class LayerBase {
       const fn = that[name]
       that[name] = (...parameter) => {
         try {
+          that.event.fire(`before:${name}`, {...parameter})
           fn.call(that, ...parameter)
           that.event.fire(name, {...parameter})
         } catch (error) {

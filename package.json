@@ -1,6 +1,6 @@
 {
   "name": "@waveview/wave",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "author": "shuzhiwen",
   "main": "dist/wave.min.js",
   "description": "数澜科技可视化团队版权所有",

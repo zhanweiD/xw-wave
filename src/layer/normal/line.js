@@ -78,6 +78,13 @@ export default class LineLayer extends LayerBase {
     const {mode} = this.options
     this.className = `wave-${mode}-curve`
     this.tooltipTargets = ['point']
+    // delete gradient created for area
+    this.event.onWithOff('before:setStyle', 'areaFill', () => {
+      this.#areaData.length
+        && this.#areaData[0].forEach(({fill}) => {
+          document.getElementById(fill.split(/[#)]/)[1]).remove()
+        })
+    })
   }
 
   setData(tableList, scales) {
@@ -130,7 +137,7 @@ export default class LineLayer extends LayerBase {
     this.#curveData.forEach(group => group.forEach((item, i) => (item.color = colors[i])))
     // line label
     this.#textData = this.#curveData.map(group => group.map(({value, x, y}) => {
-      return this.createText({x, y, value, position: labelPosition, style: text})
+      return this.createText({x, y, value, position: labelPosition, style: text, offset: 5})
     }))
     // point data
     this.#pointData = this.#curveData.map(group => group.map(item => ({...item, r: pointSize / 2})))
@@ -138,7 +145,8 @@ export default class LineLayer extends LayerBase {
     this.#areaData = this.#curveData.map((group, i) => group.map(({y, color, ...item}, j) => ({
       y0: y,
       y1: mode === modeType.STACK && j !== 0 ? this.#curveData[i][j - 1].y : height + top,
-      fill: createGradient({type: 'linear', direction: 'vertical', colors: [color, chroma(color).alpha(0)]}),
+      // TODO: refresh gradient error
+      fill: !i && createGradient({type: 'linear', direction: 'vertical', colors: [color, chroma(color).alpha(0)]}),
       ...item,
     })))
     // legend data of line layer

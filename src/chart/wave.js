@@ -121,8 +121,8 @@ export default class Wave {
 
     // initialize other attr
     this.theme = theme
-    this.log = createLog('src/wave/wave')
-    this.event = createEvent('src/wave/wave')
+    this.log = createLog('src/wave')
+    this.event = createEvent('src/wave')
     this.#tooltip = new Tooltip(this.#container, tooltip)
     createDefs({schema: define, container: this.#defs})
   }
@@ -155,6 +155,10 @@ export default class Wave {
    * @returns {LayerBase}
    */
   createLayer(type, options = {}) {
+    if (!layerMapping[type]) {
+      this.log.error('Layer type is not defined', {type, options})
+      return null
+    }
     // context from wave
     const context = {
       root: this.#root,
