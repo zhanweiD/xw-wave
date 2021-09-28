@@ -1,4 +1,4 @@
-import {isArray, isNumber} from 'lodash'
+import {cloneDeep, isArray, isNumber} from 'lodash'
 import {formatNumber} from '../../utils/format'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
@@ -38,7 +38,6 @@ const defaultStyle = {
   fixedLength: null,
   xZoomFactor: 0,
   labelPosition: labelPositionType.CENTER,
-  labelOffset: 5,
   rect: {},
   text: {
     offset: [0, 0],
@@ -284,7 +283,15 @@ export default class RectLayer extends LayerBase {
   }
 
   #getLabelData = ({x, y, width, height, value, labelPosition}) => {
-    const {labelOffset, text} = this.#style
+    const {type} = this.options
+    const text = cloneDeep(this.#style.text)
+    // reverse label when value is negative
+    if (value < 0) {
+      text.offset = [
+        type === waveType.COLUMN ? text.offset[0] : -text.offset[0],
+        type === waveType.BAR ? text.offset[1] : -text.offset[1],
+      ]
+    }
     // figure out label position data
     let [position, positionX, positionY] = [null, null, null]
     if (labelPosition === labelPositionType.LEFTOUTER || labelPosition === labelPositionType.LEFTINNER) {
@@ -303,7 +310,7 @@ export default class RectLayer extends LayerBase {
       [positionX, positionY] = [x + width / 2, y + height / 2]
       position = 'center'
     }
-    return this.createText({x: positionX, y: positionY, value, style: text, position, offset: labelOffset})
+    return this.createText({x: positionX, y: positionY, value, style: text, position, offset: 5})
   }
 
   setStyle(style) {
@@ -346,23 +353,13 @@ export default class RectLayer extends LayerBase {
       const result = []
       const positionMin = isArray(labelPosition) ? labelPosition[0] : labelPosition
       const positionMax = isArray(labelPosition) ? labelPosition[1] : labelPosition
-      group.forEach(({value, percentage, ...data}) => {
-        // single label
-        if (!isArray(value)) {
-          result.push(
-            this.#getLabelData({
-              ...data,
-              value: percentage || value, // compatible percentage mode
-              labelPosition: value > 0 ? positionMax : positionMin,
-            })
-          )
-        } else {
-          result.push(
-            this.#getLabelData({...data, value: value[0], labelPosition: positionMin}),
-            this.#getLabelData({...data, value: value[1], labelPosition: positionMax})
-          )
-        }
-      })
+      group.forEach(({value, percentage, ...data}) => result.push(
+        this.#getLabelData({
+          ...data,
+          value: percentage || value, // compatible percentage mode
+          labelPosition: value > 0 ? positionMax : positionMin,
+        })
+      ))
       return result
     })
     // legend data of rect layer
