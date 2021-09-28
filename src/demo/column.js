@@ -29,7 +29,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
     coordinate: 'cartesian-bind-linear',
     // 提示
     tooltip: {
-      mode: 'group',
+      mode: mode !== 'interval' ? 'group' : 'single',
     },
     // 先考虑只有一个笔刷，多笔刷感觉很少会用到
     brush: {
@@ -156,11 +156,15 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
             type === 'bar'
               ? [
                 'left-outer',
-                mode === 'stack' || mode === 'waterfall' || mode === 'percentage' ? 'center' : 'right-outer',
+                mode === 'stack' || mode === 'waterfall' || mode === 'percentage' || mode === 'interval'
+                  ? 'center'
+                  : 'right-outer',
               ]
               : [
                 'bottom-outer',
-                mode === 'stack' || mode === 'waterfall' || mode === 'percentage' ? 'center' : 'top-outer',
+                mode === 'stack' || mode === 'waterfall' || mode === 'percentage' || mode === 'interval'
+                  ? 'center'
+                  : 'top-outer',
               ],
           rect: {
             fill: ['red', 'green'],

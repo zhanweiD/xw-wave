@@ -136,12 +136,11 @@ export default class RectLayer extends LayerBase {
     const {scaleX, scaleY} = this.#scale
     this.#rectData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
       value,
-      dimension,
-      category: headers[i + 1],
       x: layout.left + scaleX(dimension),
       y: layout.top + (value > 0 ? scaleY(value) : scaleY(0)),
       width: scaleX.bandwidth(),
       height: Math.abs(scaleY(value) - scaleY(0)),
+      source: {dimension, category: headers[i + 1], value},
     })))
     // rect background data
     this.#backgroundData = pureTableList.map(([dimension]) => [
@@ -182,12 +181,11 @@ export default class RectLayer extends LayerBase {
     const {scaleX, scaleY} = this.#scale
     this.#rectData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
       value,
-      dimension,
-      category: headers[i + 1],
       y: layout.top + scaleY(dimension),
       x: layout.left + (value < 0 ? scaleX(value) : scaleX(0)),
-      height: scaleY.bandwidth(),
       width: Math.abs(scaleX(value) - scaleX(0)),
+      height: scaleY.bandwidth(),
+      source: {dimension, category: headers[i + 1], value},
     })))
     // rect background data
     this.#backgroundData = pureTableList.map(([dimension]) => [
@@ -254,12 +252,12 @@ export default class RectLayer extends LayerBase {
         if (type === waveType.COLUMN) {
           const y = Math.min(data1.y, data2.y)
           const height = Math.abs(data1.y - data2.y)
-          return [{...data1, y, height, value: [min, max]}]
+          return [{...data1, y, height, value: max - min, source: group.map(({source}) => source)}]
         }
         if (type === waveType.BAR) {
           const x = Math.min(data1.x + data1.width, data2.x + data2.width)
           const width = Math.abs(data1.x + data1.width - data2.x - data2.width)
-          return [{...data1, x, width, value: [min, max]}]
+          return [{...data1, x, width, value: max - min, source: group.map(({source}) => source)}]
         }
         return group
       })
@@ -288,7 +286,7 @@ export default class RectLayer extends LayerBase {
   #getLabelData = ({x, y, width, height, value, labelPosition}) => {
     const {labelOffset, text} = this.#style
     // figure out label position data
-    let [position, positionX, positionY] = ['default', null, null]
+    let [position, positionX, positionY] = [null, null, null]
     if (labelPosition === labelPositionType.LEFTOUTER || labelPosition === labelPositionType.LEFTINNER) {
       [positionX, positionY] = [x, y + height / 2]
       position = labelPosition === labelPositionType.LEFTOUTER ? 'left' : 'right'
@@ -382,7 +380,7 @@ export default class RectLayer extends LayerBase {
     const {type} = this.options
     const rectData = this.#rectData.map(group => {
       const data = group.map(({width, height}) => [width, height])
-      const source = group.map(({dimension, category, value}) => ({dimension, category, value}))
+      const source = group.map(item => item.source)
       const position = group.map(({x, y}) => [x, y])
       const fill = group.map(({color}) => color)
       const transformOrigin = type === waveType.COLUMN ? 'bottom' : 'left'
