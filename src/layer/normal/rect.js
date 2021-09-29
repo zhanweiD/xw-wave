@@ -318,13 +318,8 @@ export default class RectLayer extends LayerBase {
     const {labelPosition, bandZoomFactor, fixedLength, rect} = this.#style
     const {type, mode} = this.options
     // get colors
-    if (this.#rectData[0]?.length > 1) {
-      const colors = this.getColor(this.#rectData[0].length, rect.fill)
-      this.#rectData.forEach(group => group.forEach((item, i) => (item.color = colors[i])))
-    } else if (this.#rectData[0]?.length === 1) {
-      const colors = this.getColor(this.#rectData.length, rect.fill)
-      this.#rectData.forEach((group, i) => (group[0].color = colors[i]))
-    }
+    const matrix = this.getColorMatrix(this.#rectData[0]?.length, this.#rectData.length, rect.fill)
+    this.#rectData.forEach((group, i) => group.forEach((item, j) => (item.color = matrix.get(j, i))))
     // horizontal scaling ratio
     this.#rectData = this.#rectData.map(group => group.map(({x, y, width, height, ...other}) => {
       const totalPadding = bandZoomFactor * (type === waveType.COLUMN ? width : height)

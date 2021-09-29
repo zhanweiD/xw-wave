@@ -52,9 +52,10 @@ export default class Tooltip {
       .style('height', '1000px')
   }
 
-  show() {
+  show(event) {
     this.isVisible = true
     this.instance.style('display', 'block')
+    event && this.move(event)
     return this
   }
 

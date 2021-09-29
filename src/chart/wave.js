@@ -170,6 +170,7 @@ export default class Wave {
       createGradient: makeGradientCreator(this.#defs, this.#engine),
       bindCoordinate: this.bindCoordinate.bind(this),
       getColor: this.getColor.bind(this),
+      theme: this.theme,
     }
     // generate a layer by layer type
     const layer = new layerMapping[type](options, context)
@@ -193,10 +194,7 @@ export default class Wave {
   updateLayer(id, {data, scale, style, animation}) {
     const layer = this.#layers.find(item => item.id === id)?.instance
     if (layer) {
-      layer.setAnimation(animation)
-      layer.setData(data, scale)
-      layer.setStyle(style)
-      layer.draw()
+      layer.update({data, scale, style, animation})
     } else {
       this.log.warn('Failed to update the layer: Invalid ID', {id})
     }

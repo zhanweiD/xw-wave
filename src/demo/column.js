@@ -172,7 +172,7 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
                   : 'top-outer',
               ],
           rect: {
-            fill: ['red', 'green'],
+            // fill: ['red', 'green'],
             mapping: elData => {
               if (elData.source.value > 900) {
                 elData.fill = 'gray'

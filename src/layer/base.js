@@ -1,4 +1,5 @@
 import {isArray, isEqual, merge} from 'lodash'
+import chroma from 'chroma-js'
 import Animation from '../animation'
 import {formatNumber} from '../utils/format'
 import getTextWidth from '../utils/text-width'
@@ -45,21 +46,24 @@ export default class LayerBase {
     this.event = createEvent('src/layer/base')
     this.sublayers.forEach(name => (this.#backupData[name] = []))
     this.selector = new Selector(this.options.engine)
-    this.#catchError()
+    this.#createLifeCycles()
   }
 
-  #catchError = () => {
+  #createLifeCycles = () => {
     // basic life cycles
-    const lifeCycles = ['setData', 'setStyle', 'draw', 'destroy', 'drawBasic']
+    const lifeCycles = ['setData', 'setStyle', 'draw', 'destroy', 'drawBasic', 'playAnimation']
+    // life cycles of animation
+    this.playAnimation = () => this.sublayers.forEach(type => this.#backupAnimation[type]?.play())
+    this.setAnimation = options => merge(this.#backupAnimation, {options})
     // safe call
     lifeCycles.forEach(name => {
-      const that = this
-      const fn = that[name]
-      that[name] = (...parameter) => {
+      const instance = this
+      const fn = instance[name] || (() => null)
+      instance[name] = (...parameter) => {
         try {
-          that.event.fire(`before:${name}`, {...parameter})
-          fn.call(that, ...parameter)
-          that.event.fire(name, {...parameter})
+          instance.event.fire(`before:${name}`, {...parameter})
+          fn.call(instance, ...parameter)
+          instance.event.fire(name, {...parameter})
         } catch (error) {
           this.log.error('Layer life cycle call exception', error)
         }
@@ -67,24 +71,22 @@ export default class LayerBase {
     })
   }
 
-  setData() {
-    this.log.warn('LayerBase: The subclass does not implemented the setData method')
-  }
-
-  setStyle() {
-    this.log.warn('LayerBase: The subclass does not implemented the setStyle method')
-  }
-
-  playAnimation() {
-    this.sublayers.forEach(type => this.#backupAnimation[type]?.play())
-  }
-
   /**
-   * merge animation config
-   * @param {*} options
+   * update the layer
+   * @param {String} id
+   * @param {Object} schema layer config
    */
-  setAnimation(options) {
-    merge(this.#backupAnimation, {options})
+  update({data, scale, style, animation}) {
+    if (animation) {
+      this.setAnimation(animation)
+    }
+    if (data || scale) {
+      this.setData(data, scale)
+    }
+    if (data || scale || style) {
+      this.setStyle(style)
+    }
+    this.draw()
   }
 
   /**
@@ -112,6 +114,38 @@ export default class LayerBase {
       return finalColors.length !== count ? new Array(count).fill(finalColors[0]) : finalColors
     }
     return this.options.getColor(count, customColors)
+  }
+
+  /**
+   * color enhance function
+   * @param {*} rowNumber
+   * @param {*} columnNumber
+   * @param {*} customColors custom colors will override theme colors
+   * @returns color matrix
+   */
+  getColorMatrix(rowNumber, columnNumber, customColors) {
+    ++rowNumber
+    ++columnNumber
+    const colorMatrix = []
+    const originColors = customColors || this.options.theme
+    const rowColors = chroma.scale(originColors).mode('lch').colors(rowNumber)
+    // 1 dimension => 2 dimensions
+    rowColors.reduce((prevColor, curColor, index) => {
+      const count = index === rowNumber - 1 ? columnNumber - 1 : columnNumber
+      colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
+      return curColor
+    })
+    // object with get function
+    return {
+      _matrix: colorMatrix,
+      get: (row, column) => {
+        if (row < colorMatrix.length && column < colorMatrix[row].length) {
+          return colorMatrix[row][column]
+        }
+        this.log.warn('Get color out of bounds')
+        return null
+      },
+    }
   }
 
   /**
@@ -215,12 +249,8 @@ export default class LayerBase {
       common: {},
       tooltip: {
         mouseover: (event, data) => {
-          tooltip.update({
-            backup: this.#backupData,
-            data: engine === 'svg' ? data : event.target,
-          })
-          tooltip.show()
-          tooltip.move(engine === 'svg' ? event : event.e)
+          tooltip.update({backup: this.#backupData, data: engine === 'svg' ? data : event.target})
+          tooltip.show(engine === 'svg' ? event : event.e)
         },
         mousemove: event => tooltip.move(engine === 'svg' ? event : event.e),
         mouseout: () => tooltip.hide(),
