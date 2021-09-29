@@ -9,6 +9,11 @@ export const coordinateType = {
   POLAR: 'polar',
 }
 
+const titlePositionType = {
+  UPPER: 'upper',
+  SIDE: 'side',
+}
+
 const defaultOptions = {
   type: coordinateType.CARTESIAN,
 }
@@ -27,13 +32,20 @@ const defaultAxisLine = {
 }
 
 const defaultText = {
-  fillOpacity: 0.8,
   fontSize: 12,
+  fillOpacity: 0.8,
+  offset: [0, -5],
+}
+
+const defaultTitle = {
+  fontSize: 12,
+  fillOpacity: 0.8,
 }
 
 const defaultStyle = {
   circle: {},
-  labelOffset: 10,
+  titleOffset: 5,
+  titlePositionY: titlePositionType.SIDE,
   lineAxisX: defaultAxisLine,
   lineAxisY: defaultAxisLine,
   lineTickX: defaultTickLine,
@@ -44,6 +56,8 @@ const defaultStyle = {
   textY: defaultText,
   textAngle: defaultText,
   textRadius: defaultText,
+  titleX: defaultTitle,
+  titleY: defaultTitle,
 }
 
 /**
@@ -69,6 +83,12 @@ const getPosition = (type, targetScale) => {
 }
 
 export default class AxisLayer extends LayerBase {
+  #data = {
+    titleX: null,
+    titleY: null,
+    titleYR: null,
+  }
+
   #scale = {
     nice: {
       // tick number
@@ -99,15 +119,17 @@ export default class AxisLayer extends LayerBase {
     // origin
     positionX: [],
     positionY: [],
-    positionXT: [],
     positionYR: [],
     // draw data
     textX: [],
     textY: [],
-    textXT: [],
     textYR: [],
     textAngle: [],
     textRadius: [],
+    // axis title
+    titleX: [],
+    titleY: [],
+    titleYR: [],
   }
 
   #style = defaultStyle
@@ -122,7 +144,7 @@ export default class AxisLayer extends LayerBase {
 
   constructor(layerOptions, waveOptions) {
     const lineKey = ['lineAxisX', 'lineTickX', 'lineAxisY', 'lineTickY', 'lineAngle', 'lineRadius']
-    const textKey = ['textX', 'textXT', 'textY', 'textYR', 'textAngle', 'textRadius']
+    const textKey = ['textX', 'textY', 'textYR', 'textAngle', 'textRadius', 'titleX', 'titleY', 'titleYR']
     super({...defaultOptions, ...layerOptions}, waveOptions, [...lineKey, ...textKey])
     this.className = `wave-${this.options.type}-axis`
   }
@@ -166,6 +188,7 @@ export default class AxisLayer extends LayerBase {
     this.#merge(scales)
     const {type, layout, containerWidth} = this.options
     const {left, top, width, height} = layout
+    merge(this.#data, data)
     // clear data
     Object.keys(this.#lineData).map(key => (this.#lineData[key] = []))
     Object.keys(this.#textData).map(key => (this.#textData[key] = []))
@@ -178,11 +201,9 @@ export default class AxisLayer extends LayerBase {
       y2: top + height,
     })
     const positionX = getPosition(type, this.#scale.scaleX).map(mappingX)
-    const positionXT = getPosition(type, this.#scale.scaleXT).map(mappingX)
-    this.#lineData.lineAxisX.push(...positionX.slice(0, 1), ...positionXT.slice(0, 1))
-    this.#lineData.lineTickX.push(...positionX.slice(1), ...positionXT.slice(1))
+    this.#lineData.lineAxisX = positionX.slice(0, 1)
+    this.#lineData.lineTickX = positionX.slice(1)
     this.#textData.positionX = positionX
-    this.#textData.positionXT = positionXT
     // axis y line and label
     const mappingY = ([label, value]) => ({
       value: label,
@@ -193,8 +214,8 @@ export default class AxisLayer extends LayerBase {
     })
     const positionY = getPosition(type, this.#scale.scaleY).map(mappingY)
     const positionYR = getPosition(type, this.#scale.scaleYR).map(mappingY)
-    this.#lineData.lineAxisY.push(...positionY.slice(0, 1), ...positionYR.slice(0, 1))
-    this.#lineData.lineTickY.push(...positionY.slice(1), ...positionYR.slice(1))
+    this.#lineData.lineAxisY = [...positionY.slice(0, 1), ...positionYR.slice(0, 1)]
+    this.#lineData.lineTickY = [...positionY.slice(1), ...positionYR.slice(1)]
     this.#textData.positionY = positionY
     this.#textData.positionYR = positionYR
     // axis angle line and label
@@ -224,15 +245,79 @@ export default class AxisLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelOffset, textX, textY, textAngle, textRadius} = this.#style
-    const offset = labelOffset
+    const {titlePositionY, titleOffset, titleX, titleY, textX, textY, textAngle, textRadius} = this.#style
+    const {layout, containerWidth} = this.options
+    const {top, left, width, height, bottom} = layout
+    const isSide = titlePositionY === titlePositionType.SIDE
+    const isUpper = titlePositionY === titlePositionType.UPPER
+    // title of axis x
+    if (this.#data.titleX) {
+      this.#textData.titleX = [
+        this.createText({
+          x: left + width / 2,
+          // title is at the bottom of label x
+          y: bottom - textX.offset[1] + textX.fontSize + titleOffset,
+          value: this.#data.titleX,
+          style: titleX,
+          position: 'bottom',
+        }),
+      ]
+    }
+    // title of axis y
+    if (this.#data.titleY) {
+      isSide
+        && this.#textData.positionY.forEach(item => {
+          item.x1 = titleY.fontSize + titleOffset
+        })
+      this.#textData.titleY = [
+        isUpper
+          && this.createText({
+            x: 0,
+            y: top - titleOffset,
+            value: this.#data.titleY,
+            style: titleY,
+          }),
+        isSide && {
+          rotation: -90,
+          ...this.createText({
+            x: titleY.fontSize / 2,
+            y: top + height / 2,
+            value: this.#data.titleY,
+            style: titleY,
+            position: 'center',
+          }),
+        },
+      ].filter(Boolean)
+    }
+    if (this.#data.titleYR) {
+      isSide
+        && this.#textData.positionY.forEach(item => {
+          item.x2 = containerWidth - titleY.fontSize - titleOffset
+        })
+      this.#textData.titleYR = [
+        isUpper
+          && this.createText({
+            x: containerWidth,
+            y: top - titleOffset,
+            value: this.#data.titleYR,
+            style: titleY,
+            position: 'left-top',
+          }),
+        isSide && {
+          rotation: 90,
+          ...this.createText({
+            x: containerWidth - titleY.fontSize / 2,
+            y: top + height / 2,
+            value: this.#data.titleYR,
+            style: titleY,
+            position: 'center',
+          }),
+        },
+      ].filter(Boolean)
+    }
     // The label of main x is directly below the axis line
     this.#textData.textX = this.#textData.positionX.map(({value, x2, y2}) => {
-      return this.createText({x: x2, y: y2, position: 'bottom', value, style: textX, offset})
-    })
-    // The label of minor x is directly above the axis line
-    this.#textData.textXT = this.#textData.positionXT.map(({value, x1, y1}) => {
-      return this.createText({x: x1, y: y1, position: 'top', value, style: textX, offset})
+      return this.createText({x: x2, y: y2, position: 'bottom', value, style: textX})
     })
     // The label of main y is at the bottom left of the line
     this.#textData.textY = this.#textData.positionY.map(({value, x1, y1}) => {
@@ -248,17 +333,19 @@ export default class AxisLayer extends LayerBase {
       const _angle = Math.abs((angle + 360) % 360)
       const [isTop, isBottom, isLeft, isRight] = [_angle === 0, _angle === 180, _angle > 180, _angle < 180]
       const position = isTop ? 'top' : isBottom ? 'bottom' : isLeft ? 'left' : isRight ? 'right' : 'default'
-      return this.createText({x: x2, y: y2, position, value, style: textAngle, offset})
+      return this.createText({x: x2, y: y2, position, value, style: textAngle})
     })
     // The label of raidus axis is at the right of the first line
     this.#textData.textRadius = this.#lineData.lineRadius.map(({value, cx, cy, r}) => {
-      return this.createText({x: cx, y: cy - r, position: 'right', value, style: textRadius, offset})
+      return this.createText({x: cx, y: cy - r, position: 'right', value, style: textRadius})
     })
   }
 
   draw() {
     const {type} = this.options
-    const {scaleX, scaleXT, scaleY, scaleYR} = this.#scale
+    const {scaleX, scaleY, scaleYR} = this.#scale
+    const {lineAxisX, lineAxisY, lineTickX, lineTickY, lineAngle, lineRadius} = this.#lineData
+    const {textX, textY, textYR, titleX, titleY, titleYR, textAngle, textRadius} = this.#textData
     const transformLineData = key => [
       {
         data: this.#lineData[key].map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
@@ -276,27 +363,31 @@ export default class AxisLayer extends LayerBase {
       {
         data: this.#textData[key].map(({value}) => value),
         position: this.#textData[key].map(({x, y}) => [x, y]),
+        rotation: this.#textData[key].map(({rotation}) => rotation),
+        transformOrigin: this.#textData[key].map(({transformOrigin}) => transformOrigin),
         ...this.#style[style || key],
       },
     ]
     if (type === coordinateType.CARTESIAN) {
-      if (scaleX?.type === 'linear' || scaleXT?.type === 'linear') {
-        this.drawBasic('line', transformLineData('lineAxisX'), 'lineAxisX')
-        this.drawBasic('line', transformLineData('lineTickX'), 'lineTickX')
+      if (scaleX?.type === 'linear') {
+        lineAxisX.length && this.drawBasic('line', transformLineData('lineAxisX'), 'lineAxisX')
+        lineTickX.length && this.drawBasic('line', transformLineData('lineTickX'), 'lineTickX')
       }
       if (scaleY?.type === 'linear' || scaleYR?.type === 'linear') {
-        this.drawBasic('line', transformLineData('lineAxisY'), 'lineAxisY')
-        this.drawBasic('line', transformLineData('lineTickY'), 'lineTickY')
+        lineAxisY.length && this.drawBasic('line', transformLineData('lineAxisY'), 'lineAxisY')
+        lineTickY.length && this.drawBasic('line', transformLineData('lineTickY'), 'lineTickY')
       }
-      this.drawBasic('text', transformTextData('textX'), 'textX')
-      this.drawBasic('text', transformTextData('textY'), 'textY')
-      this.drawBasic('text', transformTextData('textXT', 'textX'), 'textXT')
-      this.drawBasic('text', transformTextData('textYR', 'textY'), 'textYR')
+      textX.length && this.drawBasic('text', transformTextData('textX'), 'textX')
+      textY.length && this.drawBasic('text', transformTextData('textY'), 'textY')
+      textYR.length && this.drawBasic('text', transformTextData('textYR', 'textY'), 'textYR')
+      titleX.length && this.drawBasic('text', transformTextData('titleX'), 'titleX')
+      titleY.length && this.drawBasic('text', transformTextData('titleY'), 'titleY')
+      titleYR.length && this.drawBasic('text', transformTextData('titleYR', 'titleY'), 'titleYR')
     } else if (type === coordinateType.POLAR) {
-      this.drawBasic('line', transformLineData('lineAngle'), 'lineAngle')
-      this.drawBasic('circle', transformRadiusData('lineRadius'), 'lineRadius')
-      this.drawBasic('text', transformTextData('textAngle'), 'textAngle')
-      this.drawBasic('text', transformTextData('textRadius'), 'textRadius')
+      lineAngle.length && this.drawBasic('line', transformLineData('lineAngle'), 'lineAngle')
+      lineRadius.length && this.drawBasic('circle', transformRadiusData('lineRadius'), 'lineRadius')
+      textAngle.length && this.drawBasic('text', transformTextData('textAngle'), 'textAngle')
+      textRadius.length && this.drawBasic('text', transformTextData('textRadius'), 'textRadius')
     }
   }
 }

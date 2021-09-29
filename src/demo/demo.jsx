@@ -44,7 +44,7 @@ const chartMapping = {
 }
 
 export default function Example() {
-  const [chart, setChart] = useState('radar')
+  const [chart, setChart] = useState('column')
   const [theme, setTheme] = useState('duskUniverse')
   const [fallbackWaves, setFallbackWaves] = useState([])
   const containerStyle = {background: ThemeConfig[theme].background}
@@ -125,7 +125,10 @@ export default function Example() {
       <div className="fbh">
         <div className={s.activeText}>主题</div>
         {Object.keys(themeMapping).map(name => Children.toArray(
-          <div className={c('hand', s.text, name === theme ? s.activeText : s.inactiveText)} onClick={() => setTheme(name)}>
+          <div
+            className={c('hand', s.text, name === theme ? s.activeText : s.inactiveText)}
+            onClick={() => setTheme(name)}
+          >
             {themeMapping[name]}
           </div>
         ))}
@@ -133,14 +136,17 @@ export default function Example() {
       <div className="fbh">
         <div className={s.activeText}>图表</div>
         {Object.keys(chartMapping).map(name => Children.toArray(
-          <div className={c('hand', s.text, name === chart ? s.activeText : s.inactiveText)} onClick={() => setChart(name)}>
+          <div
+            className={c('hand', s.text, name === chart ? s.activeText : s.inactiveText)}
+            onClick={() => setChart(name)}
+          >
             {chartMapping[name]}
           </div>
         ))}
       </div>
       <div className="fbh">
         <div className="fbh fb1 fbw">
-          {chart === 'column' && <div className={s.wave} ref={refs[1]} /> }
+          {chart === 'column' && <div className={s.wave} ref={refs[1]} />}
           {chart === 'column' && <div className={s.wave} ref={refs[2]} />}
           {chart === 'column' && <div className={s.wave} ref={refs[3]} />}
           {chart === 'column' && <div className={s.wave} ref={refs[4]} />}

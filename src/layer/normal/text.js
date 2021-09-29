@@ -10,7 +10,6 @@ const alignType = {
 const defaultStyle = {
   align: alignType.START,
   verticalAlign: alignType.START,
-  offset: [0, 0],
   text: {},
 }
 
@@ -41,7 +40,7 @@ export default class TextLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {align, verticalAlign, offset, text} = this.#style
+    const {align, verticalAlign, text} = this.#style
     const {left, top, width, height} = this.options.layout
     const {fontSize = 12} = text
     let [x, y] = [0, 0]
@@ -61,7 +60,7 @@ export default class TextLayer extends LayerBase {
     } else if (verticalAlign === alignType.END) {
       y = top + height
     }
-    this.#textData = this.createText({x, y, value: this.#data, style: text, offset})
+    this.#textData = this.createText({x, y, value: this.#data, style: text})
   }
 
   draw() {

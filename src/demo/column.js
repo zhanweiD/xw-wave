@@ -108,6 +108,11 @@ const createSchema = (container, theme, layout, type, mode, hasLine) => {
           layout: 'main',
           type: 'cartesian',
         },
+        data: {
+          titleX: 'titleX',
+          titleY: 'titleY',
+          titleYR: 'titleYR',
+        },
         scale: {
           count: 5,
           zero: mode !== 'interval',

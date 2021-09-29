@@ -176,12 +176,17 @@ export default class LayerBase {
       positionX -= textWidth / 2
       positionY += fontSize + offset
     } else if (position === positionType.LEFTTOP) {
-      positionX -= textWidth
+      positionX -= textWidth + offset
+      positionY -= offset
+    } else if (position === positionType.RIGHTTOP) {
+      positionX += offset
+      positionY -= offset
     } else if (position === positionType.LEFTBOTTOM) {
-      positionX -= textWidth
-      positionY += fontSize
+      positionX -= textWidth + offset
+      positionY += fontSize + offset
     } else if (position === positionType.RIGHTBOTTOM) {
-      positionY += fontSize
+      positionX += offset
+      positionY += fontSize + offset
     }
     // Relocate position according to the 'writingMode'.
     // But still has a problem: font height
@@ -363,9 +368,7 @@ export default class LayerBase {
     // new elements need to register events
     this.#setEvent(sublayer)
     this.#setTooltip(sublayer)
-    if (this.selector.engine === 'svg') {
-      this.#setAnimation(sublayer)
-    }
+    this.selector.engine === 'svg' && this.#setAnimation(sublayer)
   }
 
   destroy() {
