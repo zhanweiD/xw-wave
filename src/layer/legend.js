@@ -79,6 +79,7 @@ export default class LegendLayer extends LayerBase {
     const originData = cloneDeep(layers.map(layer => layer.data))
     const counts = layers.map(({data}) => data.get('legendData')?.list.length)
     const filterTypes = layers.map(({data}) => data.get('legendData')?.filter)
+    const colorMatrixs = layers.map(({data}) => data.get('legendData')?.colorMatrix)
     const active = new Array(this.#data.shapeColors.length).fill(true)
     const disableColor = '#E2E3E588'
     // register filter handler
@@ -106,18 +107,20 @@ export default class LegendLayer extends LayerBase {
         let filteredData = data
         // filter rows by value of first column
         if (filterTypes[layerIndex] === 'row') {
-          const order = {type: 'row', mapping: {}}
+          const order = {type: 'row', mapping: {}, colorMatrix: colorMatrixs[layerIndex]}
           const mapping = range(startIndex, startIndex + counts[layerIndex]).map(i => active[i])
           filteredData = data.select(data.data.map(({header}) => header))
           filteredData.data.forEach(item => (item.list = item.list.filter((v, j) => mapping[j])))
+          // keep original order
           data.data[0].list.forEach((dimension, i) => (order.mapping[dimension] = i))
           filteredData.options.order = order
         }
         // filter columns by value of first row
         if (filterTypes[layerIndex] === 'column') {
-          const order = {type: 'column', mapping: {}}
+          const order = {type: 'column', mapping: {}, colorMatrix: colorMatrixs[layerIndex]}
           const subData = data.data.filter((v, i) => !i || active[startIndex + i - 1])
           filteredData = data.select(subData.map(({header}) => header))
+          // keep original order
           data.data
             .slice(1)
             .map(({header}) => header)

@@ -1,4 +1,4 @@
-import {isArray, isEqual, merge} from 'lodash'
+import {cloneDeep, isArray, isEqual, merge} from 'lodash'
 import chroma from 'chroma-js'
 import Animation from '../animation'
 import {formatNumber} from '../utils/format'
@@ -126,15 +126,32 @@ export default class LayerBase {
   getColorMatrix(rowNumber, columnNumber, customColors) {
     ++rowNumber
     ++columnNumber
-    const colorMatrix = []
+    let colorMatrix = []
     const originColors = customColors || this.options.theme
-    const rowColors = chroma.scale(originColors).mode('lch').colors(rowNumber)
-    // 1 dimension => 2 dimensions
-    rowColors.reduce((prevColor, curColor, index) => {
-      const count = index === rowNumber - 1 ? columnNumber - 1 : columnNumber
-      colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
-      return curColor
-    })
+    const data = this.data?.data
+    // the order attribute indicates the color priority
+    const order = this.data?.options?.order
+    // the order from legend layer
+    if (order && order.colorMatrix) {
+      const {type, mapping} = order
+      colorMatrix = cloneDeep(order.colorMatrix._matrix)
+      // filter colors
+      if (type === 'column') {
+        const selected = data.map(({header}) => mapping[header]).slice(1)
+        colorMatrix = selected.sort().map(index => colorMatrix[index])
+      } else if (type === 'row') {
+        const selected = data[0].list.map(dimension => mapping[dimension]).sort()
+        colorMatrix.forEach(row => selected.map(index => row[index]))
+      }
+    } else {
+      const rowColors = chroma.scale(originColors).mode('lch').colors(rowNumber)
+      // 1 dimension => 2 dimensions
+      rowColors.reduce((prevColor, curColor, index) => {
+        const count = index === rowNumber - 1 ? columnNumber - 1 : columnNumber
+        colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
+        return curColor
+      })
+    }
     // object with get function
     return {
       _matrix: colorMatrix,
