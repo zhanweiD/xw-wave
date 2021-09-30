@@ -97,10 +97,9 @@ export default class LayerBase {
    * @returns color matrix
    */
   getColorMatrix(rowNumber, columnNumber, customColors) {
-    ++rowNumber
-    ++columnNumber
     let colorMatrix = []
     let originColors = this.options.theme
+    // not use theme colors
     if (customColors) {
       originColors = isArray(customColors) ? customColors : [customColors]
     }
@@ -115,7 +114,7 @@ export default class LayerBase {
       if (type === 'row') {
         const selected = data[0].list.map(dimension => mapping[dimension])
         selected.sort()
-        colorMatrix = selected.sort().map(index => colorMatrix[index])
+        colorMatrix = selected.map(index => colorMatrix[index])
       } else if (type === 'column') {
         const selected = data.slice(1).map(({header}) => mapping[header])
         selected.sort()
@@ -127,16 +126,24 @@ export default class LayerBase {
           }
         }
       }
+    } else if (columnNumber === 1) {
+      colorMatrix = chroma
+        .scale(originColors)
+        .mode('lch')
+        .colors(rowNumber)
+        .map(color => [color])
     } else {
-      const rowColors = chroma.scale(originColors).mode('lch').colors(rowNumber)
-      // 1 dimension => 2 dimensions
+      const rowColors = chroma
+        .scale(originColors)
+        .mode('lch')
+        .colors(rowNumber + 1)
+      // unfold: 1 dimension => 2 dimensions
       rowColors.reduce((prevColor, curColor, index) => {
-        const count = index === rowNumber - 1 ? columnNumber - 1 : columnNumber
+        const count = index === rowNumber ? columnNumber : columnNumber + 1
         colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
         return curColor
       })
     }
-    // object with get function
     return {
       matrix: colorMatrix,
       get: (row, column) => {
@@ -262,10 +269,12 @@ export default class LayerBase {
       this.#backupEvent.common[type] = {}
       const events = this.#backupEvent.common[type]
       this.sublayers.forEach(sublayer => {
-        events[sublayer] = (event, data) => this.event.fire(`${type}-${sublayer}`, {
-          data: engine === 'svg' ? data : event.target,
-          event: engine === 'svg' ? event : event.e,
-        })
+        events[sublayer] = (event, data) => {
+          this.event.fire(`${type}-${sublayer}`, {
+            data: engine === 'svg' ? data : event.target,
+            event: engine === 'svg' ? event : event.e,
+          })
+        }
       })
     })
   }
