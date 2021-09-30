@@ -124,12 +124,12 @@ export default class TreeLayer extends LayerBase {
     this.#circleData = []
     for (let i = 0; i < groups.length; i++) {
       const groupedNodes = groups[groups.length - i - 1]
-      const colors = this.getColor(groupedNodes.length, circle.fill)
+      const colorMatrix = this.getColorMatrix(groupedNodes.length, 1, circle.fill)
       this.#circleData[i] = groupedNodes.map((item, j) => ({
         cx: layout.left + scaleX(item.level),
         cy: layout.top + (isNumber(item.order) ? scaleY(item.order) : item.cy),
+        color: colorMatrix.get(j, 0),
         r: circleSize / 2,
-        color: colors[j],
         ...item,
       }))
       // update the position of the parent node according to the position of the child node

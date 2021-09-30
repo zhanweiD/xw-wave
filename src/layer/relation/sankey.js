@@ -144,15 +144,15 @@ export default class SankeyLayer extends LayerBase {
     const {scaleX, scaleY} = this.#scale
     // basic rect data
     this.#rectData = groups.map(groupedNodes => {
-      const colors = this.getColor(groupedNodes.length, rect.fill)
+      const colorMatrix = this.getColorMatrix(groupedNodes.length, 1, rect.fill)
       return groupedNodes.map((item, i) => ({
         y: layout.top,
         x: layout.left + scaleX(item.level),
         width: scaleX.bandwidth(),
         height: scaleY(item.value),
+        color: colorMatrix.get(i, 0),
         // this attribute is used to calculate the with of left and right side overlay
         ribbonLength: [0, 0],
-        color: colors[i],
         ...item,
       }))
     })

@@ -93,7 +93,7 @@ export default class EdgeBundleLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {left, top, width, height} = this.options.layout
     const [centerX, centerY] = [left + width / 2, top + height / 2]
-    const {circleSize, labelOffset, text, circle, curve} = this.#style
+    const {circleSize, labelOffset, text, circle} = this.#style
     const sizeScale = new Scale({
       type: 'linear',
       domain: [this.#data.get('minValue'), this.#data.get('maxValue')],
@@ -105,13 +105,12 @@ export default class EdgeBundleLayer extends LayerBase {
     }))
     // colors for nodes and links
     const categorys = this.#data.get('categorys')
-    const circleColors = this.getColor(categorys.length, circle.fill)
+    const colorMatrix = this.getColorMatrix(1, categorys.length, circle.fill)
     this.#circleData.forEach(group => group.forEach(item => {
-      item.color = circleColors[categorys.findIndex(value => value === item.source.category)]
+      item.color = colorMatrix.matrix[0][categorys.findIndex(value => value === item.source.category)]
     }))
-    const curveColors = this.getColor(categorys.length, curve.fill)
     this.#curveData.forEach(item => {
-      item.color = curveColors[categorys.findIndex(value => value === item.category)]
+      item.color = colorMatrix.matrix[0][categorys.findIndex(value => value === item.category)]
     })
     // label data
     this.#textData = this.#circleData.map(group => group.map(({r, source, angle, radius}) => {

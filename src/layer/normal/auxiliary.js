@@ -75,7 +75,7 @@ export default class AuxiliaryLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition = labelPositionType.RIGHT, labelOffset, text} = this.#style
+    const {labelPosition = labelPositionType.RIGHT, labelOffset, line, text} = this.#style
     const [isTop, isBottom, isLeft, isRight] = [
       labelPosition === labelPositionType.TOP,
       labelPosition === labelPositionType.BOTTOM,
@@ -93,9 +93,11 @@ export default class AuxiliaryLayer extends LayerBase {
     }))
     // legend data of auxiliary line layer
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
-    const colors = this.getColor(pureTableList.length, this.#style.line.stroke)
+    const colorMatrix = this.getColorMatrix(pureTableList.length, 1, line.stroke)
+    this.#lineData.forEach((item, i) => (item.color = colorMatrix.get(i, 0)))
     this.#data.set('legendData', {
-      list: pureTableList.map(([label], i) => ({label, color: colors[i]})),
+      colorMatrix,
+      list: pureTableList.map(([label], i) => ({label, color: colorMatrix.get(i, 0)})),
       shape: 'dotted-line',
       filter: 'row',
     })
@@ -106,6 +108,7 @@ export default class AuxiliaryLayer extends LayerBase {
       {
         data: this.#lineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
         ...this.#style.line,
+        stroke: this.#lineData.map(({color}) => color),
       },
     ]
     const textData = [

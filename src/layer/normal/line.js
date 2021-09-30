@@ -133,8 +133,8 @@ export default class LineLayer extends LayerBase {
     const {labelPosition, pointSize, text, curve} = this.#style
     const {top, height} = layout
     // get the color for each line
-    const colors = this.getColor(this.#curveData[0].length, curve.stroke)
-    this.#curveData.forEach(group => group.forEach((item, i) => (item.color = colors[i])))
+    const colorMatrix = this.getColorMatrix(1, this.#curveData[0]?.length, curve.stroke)
+    this.#curveData.forEach(group => group.forEach((item, i) => (item.color = colorMatrix.get(0, i))))
     // line label
     this.#textData = this.#curveData.map(group => group.map(({value, x, y}) => {
       return this.createText({x, y, value, position: labelPosition, style: text, offset: 5})
@@ -151,7 +151,8 @@ export default class LineLayer extends LayerBase {
     })))
     // legend data of line layer
     this.#data.set('legendData', {
-      list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
+      colorMatrix,
+      list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colorMatrix.get(0, i)})),
       shape: 'broken-line',
       filter: 'column',
     })

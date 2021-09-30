@@ -83,8 +83,8 @@ export default class PackLayer extends LayerBase {
       })
       .reverse()
     // color is related to height
-    const colors = this.getColor(this.#circleData.length, circle.fill)
-    this.#circleData.forEach((group, i) => group.forEach(item => (item.color = colors[i])))
+    const colorMatrix = this.getColorMatrix(this.#circleData.length, 1, circle.fill)
+    this.#circleData.forEach((group, i) => group.forEach(item => (item.color = colorMatrix.get(i, 0))))
     // label data
     this.#textData = this.#circleData.map(group => group.map(({cx, cy, value}) => this.createText({
       x: cx,

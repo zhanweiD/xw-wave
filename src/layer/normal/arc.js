@@ -175,18 +175,20 @@ export default class ArcLayer extends LayerBase {
     }
     // get colors
     if (this.#arcData[0]?.length > 1) {
-      const colors = this.getColor(this.#arcData[0].length, arc.fill)
-      this.#arcData.forEach(group => group.forEach((item, i) => (item.color = colors[i])))
+      const colorMatrix = this.getColorMatrix(1, this.#arcData[0].length, arc.fill)
+      this.#arcData.forEach(group => group.forEach((item, i) => (item.color = colorMatrix.get(0, i))))
       this.#data.set('legendData', {
-        list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colors[i]})),
+        colorMatrix,
+        list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colorMatrix.get(0, i)})),
         filter: 'column',
         shape: 'rect',
       })
     } else if (this.#arcData[0]?.length === 1) {
-      const colors = this.getColor(this.#arcData.length, arc.fill)
-      this.#arcData.forEach((group, i) => (group[0].color = colors[i]))
+      const colorMatrix = this.getColorMatrix(this.#arcData.length, 1, arc.fill)
+      this.#arcData.forEach((group, i) => (group[0].color = colorMatrix.get(i, 0)))
       this.#data.set('legendData', {
-        list: pureTableList.map((item, i) => ({label: item[0], color: colors[i]})),
+        colorMatrix,
+        list: pureTableList.map((item, i) => ({label: item[0], color: colorMatrix.get(i, 0)})),
         filter: 'row',
         shape: 'rect',
       })

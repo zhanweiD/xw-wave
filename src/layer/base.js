@@ -91,33 +91,6 @@ export default class LayerBase {
 
   /**
    * color enhance function
-   * @param {Number} count color number that we want
-   * @param {Array} customColors custom colors will override theme colors
-   * @returns correct colors
-   */
-  getColor(count, customColors) {
-    const data = this.data?.data
-    const {getColor} = this.options
-    // the order attribute indicates the color priority
-    const order = this.data?.options?.order
-    // the legend layer uses the 'order'
-    if (order) {
-      const colorMapping = {}
-      const {type, mapping} = order
-      const colors = getColor(Math.max(...Object.values(mapping)) + 1, customColors)
-      Object.keys(mapping).forEach(key => (colorMapping[key] = colors[mapping[key]]))
-      // row & column has different vision
-      const finalColors = type === 'column'
-        ? data.slice(1).map(({header}) => colorMapping[header])
-        : data[0].list.map(dimension => colorMapping[dimension])
-      // auto fill
-      return finalColors.length !== count ? new Array(count).fill(finalColors[0]) : finalColors
-    }
-    return this.options.getColor(count, customColors)
-  }
-
-  /**
-   * color enhance function
    * @param {*} rowNumber
    * @param {*} columnNumber
    * @param {*} customColors custom colors will override theme colors
@@ -127,21 +100,32 @@ export default class LayerBase {
     ++rowNumber
     ++columnNumber
     let colorMatrix = []
-    const originColors = customColors || this.options.theme
+    let originColors = this.options.theme
+    if (customColors) {
+      originColors = isArray(customColors) ? customColors : [customColors]
+    }
     const data = this.data?.data
     // the order attribute indicates the color priority
     const order = this.data?.options?.order
     // the order from legend layer
     if (order && order.colorMatrix) {
       const {type, mapping} = order
-      colorMatrix = cloneDeep(order.colorMatrix._matrix)
+      colorMatrix = cloneDeep(order.colorMatrix.matrix)
       // filter colors
-      if (type === 'column') {
-        const selected = data.map(({header}) => mapping[header]).slice(1)
+      if (type === 'row') {
+        const selected = data[0].list.map(dimension => mapping[dimension])
+        selected.sort()
         colorMatrix = selected.sort().map(index => colorMatrix[index])
-      } else if (type === 'row') {
-        const selected = data[0].list.map(dimension => mapping[dimension]).sort()
-        colorMatrix.forEach(row => selected.map(index => row[index]))
+      } else if (type === 'column') {
+        const selected = data.slice(1).map(({header}) => mapping[header])
+        selected.sort()
+        colorMatrix = colorMatrix.map(row => selected.map(index => row[index]))
+        // one column and multiple columns have different color picking methods
+        if (selected.length === 1) {
+          while (colorMatrix.length < data[0].list.length) {
+            colorMatrix.push(colorMatrix[0])
+          }
+        }
       }
     } else {
       const rowColors = chroma.scale(originColors).mode('lch').colors(rowNumber)
@@ -154,12 +138,12 @@ export default class LayerBase {
     }
     // object with get function
     return {
-      _matrix: colorMatrix,
+      matrix: colorMatrix,
       get: (row, column) => {
         if (row < colorMatrix.length && column < colorMatrix[row].length) {
           return colorMatrix[row][column]
         }
-        this.log.warn('Get color out of bounds')
+        this.log.warn('Get color out of bounds', {row, column})
         return null
       },
     }

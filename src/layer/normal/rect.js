@@ -318,8 +318,14 @@ export default class RectLayer extends LayerBase {
     const {labelPosition, bandZoomFactor, fixedLength, rect} = this.#style
     const {type, mode} = this.options
     // get colors
-    const matrix = this.getColorMatrix(this.#rectData[0]?.length, this.#rectData.length, rect.fill)
-    this.#rectData.forEach((group, i) => group.forEach((item, j) => (item.color = matrix.get(j, i))))
+    let colorMatrix
+    if (this.#rectData[0]?.length > 1) {
+      colorMatrix = this.getColorMatrix(1, this.#rectData[0]?.length, rect.fill)
+      this.#rectData.forEach(group => group.forEach((item, i) => (item.color = colorMatrix.get(0, i))))
+    } else if (this.#rectData[0]?.length === 1) {
+      colorMatrix = this.getColorMatrix(this.#rectData.length, 1, rect.fill)
+      this.#rectData.forEach((group, i) => (group[0].color = colorMatrix.get(i, 0)))
+    }
     // horizontal scaling ratio
     this.#rectData = this.#rectData.map(group => group.map(({x, y, width, height, ...other}) => {
       const totalPadding = bandZoomFactor * (type === waveType.COLUMN ? width : height)
@@ -360,8 +366,8 @@ export default class RectLayer extends LayerBase {
     // legend data of rect layer
     if (mode !== modeType.INTERVAL && mode !== modeType.WATERFALL) {
       this.#data.set('legendData', {
-        colorMatrix: matrix,
-        list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: matrix.get(i, 0)})),
+        colorMatrix,
+        list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colorMatrix.get(0, i)})),
         filter: 'column',
         shape: 'rect',
       })

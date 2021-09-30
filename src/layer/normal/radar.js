@@ -105,21 +105,18 @@ export default class RadarLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {circleSize, polygon} = this.#style
     // get colors
-    const fillColors = this.getColor(this.#polygonData[0].length, polygon.fill)
-    const strokeColors = this.getColor(this.#polygonData[0].length, polygon.stroke)
+    const colorMatrix = this.getColorMatrix(1, this.#polygonData[0].length, polygon.fill)
     this.#polygonData.forEach(group => group.forEach((item, i) => {
-      item.fillColor = fillColors[i]
-      item.strokeColor = strokeColors[i]
+      item.fill = colorMatrix.get(0, i)
+      item.stroke = colorMatrix.get(0, i)
     }))
     // polygon point data
-    this.#circleData = this.#polygonData.map(group => {
-      return group.map(({x, y, ...others}) => ({
-        ...others,
-        cx: x,
-        cy: y,
-        r: circleSize / 2,
-      }))
-    })
+    this.#circleData = this.#polygonData.map(group => group.map(({x, y, ...others}) => ({
+      ...others,
+      r: circleSize / 2,
+      cx: x,
+      cy: y,
+    })))
     // label data
     this.#textData = this.#polygonData.map(group => group.map(({value, x, y, angle}) => {
       const isRight = Math.abs(angle % (2 * Math.PI)) < Math.PI
@@ -127,7 +124,8 @@ export default class RadarLayer extends LayerBase {
     }))
     // legend data of radar layer
     this.#data.set('legendData', {
-      list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: fillColors[i]})),
+      colorMatrix,
+      list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colorMatrix.get(0, i)})),
       shape: 'broken-line',
       filter: 'column',
     })
@@ -135,16 +133,16 @@ export default class RadarLayer extends LayerBase {
 
   draw() {
     const polygonData = this.#polygonData[0]
-      .map(({fillColor, strokeColor, center}, index) => {
+      .map(({fill, stroke, center}, index) => {
         const position = [center.x, center.y]
         const data = this.#polygonData.map(item => [item[index].x, item[index].y])
-        return {data: [data], position, ...this.#style.polygon, fill: fillColor, stroke: strokeColor}
+        return {data: [data], position, ...this.#style.polygon, fill, stroke}
       })
       .reverse()
     const circleData = this.#circleData.map(group => {
       const data = group.map(({r}) => [r, r])
       const position = group.map(({cx, cy}) => [cx, cy])
-      const fill = group.map(({fillColor}) => fillColor)
+      const fill = group.map(item => item.fill)
       const source = group.map(({dimension, category, value}) => ({dimension, category, value}))
       return {data, position, source, ...this.#style.circle, fill}
     })

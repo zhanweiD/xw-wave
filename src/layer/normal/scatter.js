@@ -88,8 +88,8 @@ export default class ScatterLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {pointSize, text, point} = this.#style
     // get colors
-    const colors = this.getColor(this.#pointData.length, point.fill)
-    this.#pointData.forEach((group, i) => group.forEach(item => (item.color = colors[i])))
+    const colorMatrix = this.getColorMatrix(this.#pointData.length, 1, point.fill)
+    this.#pointData.forEach((group, i) => group.forEach(item => (item.color = colorMatrix.get(i, 0))))
     // inject point size data
     const valueIndex = this.#data.data.findIndex(({header}) => header === 'value')
     const scaleSize = new Scale({
@@ -97,11 +97,9 @@ export default class ScatterLayer extends LayerBase {
       domain: valueIndex !== -1 ? this.#data.select('value').range() : [],
       range: pointSize.map(value => value / 2),
     })
-    this.#pointData = this.#pointData.map(group => group.map(({value, ...others}) => ({
-      value,
-      r: isNumber(value) ? scaleSize(value) : pointSize[0] / 2,
-      ...others,
-    })))
+    this.#pointData.forEach(group => group.forEach(item => {
+      item.r = isNumber(item.value) ? scaleSize(item.value) : pointSize[0] / 2
+    }))
     // label data
     this.#textData = this.#pointData.map(group => group.map(({cx, cy, value}) => this.createText({
       x: cx,
@@ -112,7 +110,8 @@ export default class ScatterLayer extends LayerBase {
     })))
     // legend data of scatter layer
     this.#data.set('legendData', {
-      list: this.#pointData.map((item, i) => ({label: item[0].category, color: colors[i]})),
+      colorMatrix,
+      list: this.#pointData.map((group, i) => ({label: group[0].category, color: colorMatrix.get(i, 0)})),
       shape: 'circle',
       filter: 'row',
     })

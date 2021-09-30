@@ -62,24 +62,23 @@ export default class ChordLayer extends LayerBase {
     const {left, top, width, height} = this.options.layout
     const maxRadius = Math.min(width, height) / 2
     const [centerX, centerY] = [left + width / 2, top + height / 2]
-    const {arcWidth, labelOffset, text, arc, ribbon} = this.#style
+    const {arcWidth, labelOffset, text, arc} = this.#style
     const radius = maxRadius - arcWidth
+    const colorMatrix = this.getColorMatrix(1, this.#arcData.length, arc.fill)
     // extra arc data
-    const arcColors = this.getColor(this.#arcData.length, arc.fill)
     this.#arcData = this.#arcData.map((item, i) => ({
       ...item,
       innerRadius: radius,
       outerRadius: maxRadius,
-      color: arcColors[i],
+      color: colorMatrix.get(0, i),
       position: [centerX, centerY],
     }))
     // extra ribbon data
-    const ribbonColors = this.getColor(this.#arcData.length, ribbon.fill)
     this.#ribbonData = this.#data.get('chordData').map(({source, target}) => ({
       index: target.index,
       position: [centerX, centerY],
       data: d3.ribbon()({source: {...source, radius}, target: {...target, radius}}),
-      color: ribbonColors[this.#arcData.findIndex(({index}) => index === target.index)],
+      color: colorMatrix.matrix[0][this.#arcData.findIndex(({index}) => index === target.index)],
     }))
     // classify ribbons
     this.#ribbonData.sort((a, b) => a.index - b.index)
