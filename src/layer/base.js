@@ -7,6 +7,7 @@ import createEvent from '../utils/create-event'
 import createLog from '../utils/create-log'
 import Selector from '../utils/selector'
 import basicMapping from '../draw'
+import niceColorMatrix from '../utils/nice-color'
 
 // text position attached to the point
 const positionType = {
@@ -96,7 +97,7 @@ export default class LayerBase {
    * @param {*} customColors custom colors will override theme colors
    * @returns color matrix
    */
-  getColorMatrix(rowNumber, columnNumber, customColors) {
+  getColorMatrix(rowNumber, columnNumber, customColors, nice = true) {
     let colorMatrix = []
     let originColors = this.options.theme
     // not use theme colors
@@ -132,6 +133,10 @@ export default class LayerBase {
         .mode('lch')
         .colors(rowNumber)
         .map(color => [color])
+      // nice matrix automatically
+      if (nice && !customColors) {
+        colorMatrix = niceColorMatrix(colorMatrix)
+      }
     } else {
       const rowColors = chroma
         .scale(originColors)
@@ -143,6 +148,10 @@ export default class LayerBase {
         colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
         return curColor
       })
+      // nice matrix automatically
+      if (nice && !customColors) {
+        colorMatrix = niceColorMatrix(colorMatrix)
+      }
     }
     return {
       matrix: colorMatrix,
