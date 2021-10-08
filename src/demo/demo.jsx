@@ -8,6 +8,7 @@ import radarSchema from './radar'
 import scatterSchema from './scatter'
 import matrixSchema from './matrix'
 import gaugeSchema from './gauge'
+import indicatorSchema from './indicator'
 import lineSchema from './line'
 import chordSchema from './chord'
 import sankeySchema from './sankey'
@@ -44,7 +45,7 @@ const chartMapping = {
 }
 
 export default function Example() {
-  const [chart, setChart] = useState('column')
+  const [chart, setChart] = useState('gauge')
   const [theme, setTheme] = useState('duskUniverse')
   const [fallbackWaves, setFallbackWaves] = useState([])
   const containerStyle = {background: ThemeConfig[theme].background}
@@ -88,6 +89,7 @@ export default function Example() {
     // 仪表盘
     waves.push(chart === 'gauge' && createWave(gaugeSchema.gauge(refs[1].current, themeColors)))
     waves.push(chart === 'gauge' && createWave(gaugeSchema.indicator(refs[2].current, themeColors)))
+    waves.push(chart === 'gauge' && createWave(indicatorSchema.indicator(refs[3].current, themeColors)))
     // 折线类
     waves.push(chart === 'line' && createWave(lineSchema.line(refs[1].current, themeColors)))
     waves.push(chart === 'line' && createWave(lineSchema.stackLine(refs[2].current, themeColors)))
@@ -172,6 +174,7 @@ export default function Example() {
           {chart === 'matrix' && <div className={s.wave} ref={refs[2]} />}
           {chart === 'gauge' && <div className={s.wave} ref={refs[1]} />}
           {chart === 'gauge' && <div className={s.wave} ref={refs[2]} />}
+          {chart === 'gauge' && <div className={s.wave} ref={refs[3]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[1]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[2]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[3]} />}

@@ -10,7 +10,9 @@ const alignType = {
 const defaultStyle = {
   align: alignType.START,
   verticalAlign: alignType.START,
-  text: {},
+  text: {
+    fontSize: 12,
+  },
 }
 
 export default class TextLayer extends LayerBase {
@@ -42,7 +44,7 @@ export default class TextLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {align, verticalAlign, text} = this.#style
     const {left, top, width, height} = this.options.layout
-    const {fontSize = 12} = text
+    const {fontSize} = text
     let [x, y] = [0, 0]
     // horizontal position
     if (align === alignType.START) {

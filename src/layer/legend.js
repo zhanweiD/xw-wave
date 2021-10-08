@@ -265,7 +265,7 @@ export default class LegendLayer extends LayerBase {
         value,
       }))
     }
-    // move text data by align type
+    // move text by align type
     let [totalWidth, totalHeight] = [0, 0]
     if (direction === directionType.HORIZONTAL) {
       const {x, value} = this.#data.textData[this.#data.textData.length - 1]

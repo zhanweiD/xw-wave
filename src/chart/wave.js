@@ -57,13 +57,13 @@ export default class Wave {
     container,
     width = 100,
     height = 100,
-    padding = [0, 0, 0, 0],
     adjust = true,
-    theme = [],
+    engine = 'svg',
+    padding = [0, 0, 0, 0],
+    theme = d3.schemeCategory10,
+    layout = Layout.standard(false),
     define = {},
     tooltip = {},
-    engine = 'svg',
-    layout = Layout.standard(false),
   }) {
     // initialize some attr
     this.#state = stateType.INITILIZE

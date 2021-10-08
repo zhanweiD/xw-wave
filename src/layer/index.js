@@ -11,6 +11,7 @@ import Auxiliary from './normal/auxiliary'
 import Scatter from './normal/scatter'
 import Matrix from './normal/matrix'
 import Gauge from './normal/gauge'
+import Indicator from './normal/indicator'
 // 关系图层
 import EdgeBundle from './relation/edge-bundle'
 import Chord from './relation/chord'
@@ -39,6 +40,7 @@ export const layerMapping = {
   edgeBundle: EdgeBundle, // 边缘捆图
   gauge: Gauge, // 仪表盘
   heatmap: Heatmap, // 热力
+  indicator: Indicator, // 指标卡
   legend: Legend, // 图例
   line: Line, // 折线
   matrix: Matrix, // 矩阵
@@ -67,6 +69,7 @@ export default {
   Chord, // 和弦图
   EdgeBundle, // 边缘捆图
   Gauge, // 仪表盘
+  Indicator, // 指标卡
   Heatmap, // 热力
   Legend, // 图例
   Line, // 折线

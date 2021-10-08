@@ -127,27 +127,25 @@ export default class LayerBase {
           }
         }
       }
-    } else if (columnNumber === 1) {
-      colorMatrix = chroma
-        .scale(originColors)
-        .mode('lch')
-        .colors(rowNumber)
-        .map(color => [color])
-      // nice matrix automatically
-      if (nice && !customColors) {
-        colorMatrix = niceColorMatrix(colorMatrix)
-      }
     } else {
-      const rowColors = chroma
-        .scale(originColors)
-        .mode('lch')
-        .colors(rowNumber + 1)
-      // unfold: 1 dimension => 2 dimensions
-      rowColors.reduce((prevColor, curColor, index) => {
-        const count = index === rowNumber ? columnNumber : columnNumber + 1
-        colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
-        return curColor
-      })
+      if (columnNumber === 1) {
+        colorMatrix = chroma
+          .scale(originColors)
+          .mode('lch')
+          .colors(rowNumber)
+          .map(color => [color])
+      } else {
+        const rowColors = chroma
+          .scale(originColors)
+          .mode('lch')
+          .colors(rowNumber + 1)
+        // unfold: 1 dimension => 2 dimensions
+        rowColors.reduce((prevColor, curColor, index) => {
+          const count = index === rowNumber ? columnNumber : columnNumber + 1
+          colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
+          return curColor
+        })
+      }
       // nice matrix automatically
       if (nice && !customColors) {
         colorMatrix = niceColorMatrix(colorMatrix)

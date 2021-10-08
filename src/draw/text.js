@@ -35,11 +35,11 @@ export default function drawText({
   const configuredData = data.map((text, i) => ({
     text,
     className,
-    fontSize,
-    fontFamily,
-    fontWeight,
     x: position[i][0],
-    y: position[i][1] + (engine === 'svg' ? -fontSize * 0.2 : fontSize * 0.2),
+    y: position[i][1] + (engine === 'svg' ? -getAttr(fontSize, i) * 0.2 : getAttr(fontSize, i) * 0.2),
+    fontSize: getAttr(fontSize, i),
+    fontFamily: getAttr(fontFamily, i),
+    fontWeight: getAttr(fontWeight, i),
     fill: getAttr(fill, i),
     stroke: getAttr(stroke, i),
     opacity: getAttr(opacity, i),
@@ -107,7 +107,8 @@ export default function drawText({
 }
 
 const getShadow = shadow => {
-  if (typeof shadow === 'object') {
+  // disgusting: null is an object
+  if (shadow && typeof shadow === 'object') {
     const {color = '#000', offset = [0, 0], blur = 0, hide = false} = shadow
     if (!hide) {
       return `${offset[0]}px ${-offset[1]}px ${blur}px ${color}`
