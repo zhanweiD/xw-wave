@@ -7,7 +7,7 @@ import {mean} from 'd3'
  * @param {*} maxDistance
  * @returns niced color matrix
  */
-const niceColorMatrix = (maxtrix, maxDistance = 85) => {
+const niceColorMatrix = (maxtrix, maxDistance = 85, colorSpace = 'lab') => {
   return maxtrix.map(row => {
     if (row.length > 1) {
       let averageDistance = Infinity
@@ -19,7 +19,7 @@ const niceColorMatrix = (maxtrix, maxDistance = 85) => {
         const colors = chroma.scale(colorQueue).mode('lch').colors(row.length)
         // calculate distance
         const distances = []
-        colors.reduce((prev, cur) => distances.push(chroma.distance(prev, cur)))
+        colors.reduce((prev, cur) => distances.push(chroma.distance(prev, cur, colorSpace)))
         const newAverageDistance = mean(distances)
         if (newAverageDistance >= averageDistance) {
           break

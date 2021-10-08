@@ -1,7 +1,6 @@
 import {merge} from 'lodash'
 import createLog from '../utils/create-log'
 
-// not database but base class of data processor
 export default class DataBase {
   #storage = {}
 
@@ -119,20 +118,10 @@ export default class DataBase {
     return newTableList
   }
 
-  /**
-   * set storage
-   * @param {String} key
-   * @param {*} value
-   */
   set(key, value) {
     this.#storage[key] = value
   }
 
-  /**
-   * get storage
-   * @param {String} key
-   * @returns
-   */
   get(key) {
     return this.#storage[key]
   }
