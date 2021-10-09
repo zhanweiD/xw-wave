@@ -81,8 +81,7 @@ export default function drawText({
       .style('transform', d => (d.rotation ? `rotate(${d.rotation}deg)` : null))
       .style('transform-origin', d => d.transformOrigin)
       .style('pointer-events', 'none')
-  }
-  if (engine === 'canvas') {
+  } else if (engine === 'canvas') {
     configuredData.forEach(config => {
       const text = new fabric.Text(config.text, {
         className: config.className,

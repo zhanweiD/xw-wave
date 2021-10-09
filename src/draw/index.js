@@ -7,12 +7,14 @@ import rect from './rect'
 import text from './text'
 import area from './area'
 import path from './path'
+import image from './image'
 
 export default {
   arc,
   area,
   circle,
   curve,
+  image,
   line,
   polygon,
   rect,

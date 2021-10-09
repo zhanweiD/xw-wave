@@ -61,8 +61,7 @@ export default function drawArea({
       .attr('mask', d => d.mask)
       .attr('filter', d => d.filter)
       .style('pointer-events', 'none')
-  }
-  if (engine === 'canvas') {
+  } else if (engine === 'canvas') {
     configuredData.forEach(config => {
       const path = new fabric.Path(config.path, {
         className: config.className,

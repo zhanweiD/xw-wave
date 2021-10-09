@@ -63,8 +63,7 @@ export default function drawRect({
       .attr('mask', d => d.mask)
       .attr('filter', d => d.filter)
       .style('transform-origin', d => d.transformOrigin)
-  }
-  if (engine === 'canvas') {
+  } else if (engine === 'canvas') {
     configuredData.forEach(config => {
       const rect = new fabric.Rect({
         className: config.className,

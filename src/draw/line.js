@@ -55,8 +55,7 @@ export default function drawLine({
       .attr('mask', d => d.mask)
       .attr('filter', d => d.filter)
       .style('pointer-events', 'none')
-  }
-  if (engine === 'canvas') {
+  } else if (engine === 'canvas') {
     configuredData.forEach(config => {
       const line = new fabric.Line([config.x1, config.y1, config.x2, config.y2], {
         className: config.className,

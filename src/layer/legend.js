@@ -218,6 +218,7 @@ export default class LegendLayer extends LayerBase {
         r: size / 3,
         strokeWidth: size / 5,
         stroke: color,
+        fillOpacity: 0,
       })
     } else if (shape === shapeType.DOTTEDLINE) {
       this.#data.lineData.push({
@@ -324,6 +325,7 @@ export default class LegendLayer extends LayerBase {
         data: this.#data.circleData.map(({r}) => [r, r]),
         position: this.#data.circleData.map(({cx, cy}) => [cx, cy]),
         strokeWidth: this.#data.circleData.map(({strokeWidth}) => strokeWidth),
+        fillOpacity: this.#data.circleData.map(({fillOpacity}) => fillOpacity),
         ...this.#style.shape,
         fill: this.#data.circleData.map(({fill}) => fill),
         stroke: this.#data.circleData.map(({stroke}) => stroke),

@@ -56,8 +56,7 @@ export default function drawPolygon({
       .attr('mask', d => d.mask)
       .attr('filter', d => d.filter)
       .style('transform-origin', d => `${d.position[0]}px ${d.position[1]}px`)
-  }
-  if (engine === 'canvas') {
+  } else if (engine === 'canvas') {
     configuredData.forEach(config => {
       const polygon = new fabric.Polygon(config.pointArray, {
         className: config.className,

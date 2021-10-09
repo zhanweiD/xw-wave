@@ -58,8 +58,7 @@ export default function drawPath({
       .attr('filter', d => d.filter)
       .style('transform-origin', d => d.transformOrigin)
       .style('transform', d => `translate(${d.position[0]}px,${d.position[1]}px)`)
-  }
-  if (engine === 'canvas') {
+  } else if (engine === 'canvas') {
     configuredData.forEach(config => {
       const path = new fabric.Path(config.path, {
         className: config.className,

@@ -57,8 +57,7 @@ export default function drawCurve({
       .attr('mask', d => d.mask)
       .attr('d', d => d.path)
       .attr('fill', 'none')
-  }
-  if (engine === 'canvas') {
+  } else if (engine === 'canvas') {
     configuredData.forEach(config => {
       const path = new fabric.Path(config.path, {
         className: config.className,

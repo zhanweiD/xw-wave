@@ -61,8 +61,7 @@ export default function drawCircle({
       .attr('mask', d => d.mask)
       .attr('filter', d => d.filter)
       .style('transform-origin', d => `${d.position[0]}px ${d.position[1]}px`)
-  }
-  if (engine === 'canvas') {
+  } else if (engine === 'canvas') {
     configuredData.forEach(config => {
       const ellipse = new fabric.Ellipse({
         className: config.className,

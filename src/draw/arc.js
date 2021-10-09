@@ -61,8 +61,7 @@ export default function drawArc({
       .attr('filter', d => d.filter)
       .style('transform', d => `translate(${d.position[0]}px,${d.position[1]}px)`)
       .style('outline', 'none')
-  }
-  if (engine === 'canvas') {
+  } else if (engine === 'canvas') {
     configuredData.forEach(config => {
       const path = new fabric.Path(config.path, {
         className: config.className,

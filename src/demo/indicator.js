@@ -42,7 +42,8 @@ const createSchema = (container, theme, layout) => ({
         ],
       ],
       style: {
-        verticalAlign: 'middle',
+        iconUrl: 'https://img0.baidu.com/it/u=3808236042,1207888271&fm=26&fmt=auto',
+        iconSize: 50,
         text: {
           fontSize: 16,
           fill: 'lightgray',

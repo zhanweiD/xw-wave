@@ -39,7 +39,7 @@ export const mergeAlpha = (color, opacity) => {
  */
 export const getAttr = (target, index, defaultValue = null) => {
   if (Array.isArray(target)) {
-    if (target.length > index && target[index]) {
+    if (target.length > index && target[index] !== null && target[index] !== undefined) {
       return target[index]
     }
     return defaultValue
