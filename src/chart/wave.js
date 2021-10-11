@@ -1,5 +1,4 @@
 import * as d3 from 'd3'
-import chroma from 'chroma-js'
 import {fabric} from 'fabric'
 import createUuid from '../utils/uuid'
 import createLog from '../utils/create-log'
@@ -72,9 +71,8 @@ export default class Wave {
 
     // initialize the wave width and height
     if (adjust) {
-      const rect = this.#container.nodes()[0].getBoundingClientRect()
-      this.containerWidth = rect.width
-      this.containerHeight = rect.height
+      this.containerWidth = +this.#container.style('width').match(/^\d*/)[0]
+      this.containerHeight = +this.#container.style('height').match(/^\d*/)[0]
     } else {
       this.containerWidth = width
       this.containerHeight = height
@@ -128,27 +126,6 @@ export default class Wave {
   }
 
   /**
-   * basic color function that used by layer
-   * @param {Number} count color number that we want
-   * @param {Array} customColors custom colors will override theme colors
-   */
-  getColor(count, customColors) {
-    let colors = this.theme
-    // custom theme
-    if (Array.isArray(customColors)) {
-      colors = customColors
-    } else if (customColors) {
-      return new Array(count).fill(customColors)
-    }
-    // how to get colors with color array
-    if (colors.length > 2 && !customColors) {
-      colors.length > 2 && count <= 3 && (colors = colors.slice(2, 7))
-      colors.length > 2 && count === 4 && (colors = colors.slice(2))
-    }
-    return chroma.scale(colors).mode('lch').colors(count)
-  }
-
-  /**
    * create a layer
    * @param {String} type
    * @param {Object} options
@@ -169,7 +146,6 @@ export default class Wave {
       containerHeight: this.containerHeight,
       createGradient: makeGradientCreator(this.#defs, this.#engine),
       bindCoordinate: this.bindCoordinate.bind(this),
-      getColor: this.getColor.bind(this),
       theme: this.theme,
     }
     // generate a layer by layer type
@@ -269,24 +245,26 @@ export default class Wave {
       const layers = this.#layers.filter(({id}) => targets.find(item => item === id))
       const prevRange = new Array(layers.length).fill(null)
       // brush will change range of scale
-      const brushed = event => layers.forEach(({instance}, i) => {
-        const {selection} = event
-        const total = isHorizontal ? width : height
-        const scale = isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
-        // initialize
-        if (prevRange[i] === null) {
-          prevRange[i] = scale.range()
-        }
-        const zoomFactor = total / (selection[1] - selection[0] || 1)
-        const nextRange = [prevRange[i][0], prevRange[i][0] + (prevRange[i][1] - prevRange[i][0]) * zoomFactor]
-        const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
-        scale.range(nextRange.map(value => value - offset))
-        // mark scale with brush so that layer base can merge scales correctly
-        scale.brushed = true
-        instance.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
-        instance.setStyle()
-        instance.draw()
-      })
+      const brushed = event => {
+        layers.forEach(({instance}, i) => {
+          const {selection} = event
+          const total = isHorizontal ? width : height
+          const scale = isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
+          // initialize
+          if (prevRange[i] === null) {
+            prevRange[i] = scale.range()
+          }
+          const zoomFactor = total / (selection[1] - selection[0] || 1)
+          const nextRange = [prevRange[i][0], prevRange[i][0] + (prevRange[i][1] - prevRange[i][0]) * zoomFactor]
+          const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
+          scale.range(nextRange.map(value => value - offset))
+          // mark scale with brush so that layer base can merge scales correctly
+          scale.brushed = true
+          instance.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
+          instance.setStyle()
+          instance.draw()
+        })
+      }
       // create brush instance
       const [brushX1, brushX2, brushY1, brushY2] = [left, left + width, top, top + height]
       const brush = isHorizontal ? d3.brushX() : d3.brushY()
