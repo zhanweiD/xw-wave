@@ -11,7 +11,8 @@ import Auxiliary from './normal/auxiliary'
 import Scatter from './normal/scatter'
 import Matrix from './normal/matrix'
 import Gauge from './normal/gauge'
-import Indicator from './normal/indicator'
+// 表单图层
+import Indicator from './foreign/indicator'
 // 关系图层
 import EdgeBundle from './relation/edge-bundle'
 import Chord from './relation/chord'

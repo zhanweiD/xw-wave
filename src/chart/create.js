@@ -32,7 +32,7 @@ const createLayer = (wave, config) => {
   } else if (dataBase.isTableList(data) || data?.type === 'tableList') {
     if (type === 'matrix') {
       dataSet = new Table(dataBase.tableListToTable(data))
-    } else {
+    } else if (type !== 'indicator') {
       dataSet = new TableList(dataBase.isTableList(data) ? data : Random.tableList(data))
     }
   }

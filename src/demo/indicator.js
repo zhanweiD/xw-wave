@@ -31,22 +31,25 @@ const createSchema = (container, theme, layout) => ({
         [
           {
             text: '82828',
-            fontSize: 30,
-            fill: 'skyblue',
+            fontSize: '30px',
+            color: 'skyblue',
             shadow: '2px 2px 2px gray',
           },
           {
             text: '万元',
-            fontSize: 12,
+            fontSize: '12px',
           },
         ],
       ],
       style: {
-        iconUrl: 'https://img0.baidu.com/it/u=3808236042,1207888271&fm=26&fmt=auto',
-        iconSize: 50,
         text: {
-          fontSize: 16,
-          fill: 'lightgray',
+          fontSize: '16px',
+          color: 'lightgray',
+        },
+        icon: {
+          src: 'https://img0.baidu.com/it/u=3808236042,1207888271&fm=26&fmt=auto',
+          width: 20,
+          height: 20,
         },
       },
     },
