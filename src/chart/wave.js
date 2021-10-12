@@ -176,11 +176,6 @@ export default class Wave {
     }
   }
 
-  /**
-   * bind coordinate after layer's setData done
-   * @param {AxisLayer} axisLayer
-   * @param {LayerBase} layers
-   */
   bindCoordinate({redraw = false}) {
     const isAxisLayer = instance => instance instanceof Layer.Axis
     const isBaseMapLayer = instance => instance instanceof Layer.BaseMap
@@ -233,13 +228,8 @@ export default class Wave {
     })
   }
 
-  /**
-   * create brush based on layer
-   * @param {Object} options
-   */
-  createBrush(options = {}) {
+  createBrush({type, layout, targets}) {
     if (this.#engine === 'svg') {
-      const {type, layout, targets} = options
       const {width, height, left, top} = layout
       const isHorizontal = type === brushType.HORIZONTAL
       const layers = this.#layers.filter(({id}) => targets.find(item => item === id))

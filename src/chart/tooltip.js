@@ -65,12 +65,6 @@ export default class Tooltip {
     return this
   }
 
-  /**
-   * create tooltip list from element's data
-   * @param {Object} data
-   * @param {Object} backup
-   * @returns
-   */
   #getListData = (data, backup) => {
     let list = null
     const {mode} = this.options

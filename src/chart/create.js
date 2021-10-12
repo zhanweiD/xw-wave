@@ -47,6 +47,10 @@ const createLayer = (wave, config) => {
 
 // create a wave by schema
 const createWave = (schema, existedWave) => {
+  if (!schema) {
+    log.error('createWave: Invalid schema')
+    return null
+  }
   const {brush, layers = [], ...initialConfig} = schema
   const wave = existedWave || new Wave(initialConfig)
   // some special layers require data or scales from other layers
