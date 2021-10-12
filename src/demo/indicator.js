@@ -34,6 +34,8 @@ const createSchema = (container, theme, layout) => ({
             fontSize: '30px',
             color: 'skyblue',
             shadow: '2px 2px 2px gray',
+            fontWeight: 900,
+            paddingRight: '30px',
           },
           {
             text: '万元',

@@ -113,7 +113,14 @@ export default class IndicatorLayer extends LayerBase {
     if (icon.src) {
       const {src, width, height} = icon
       this.#iconContainer.attr('src', src).attr('width', width).attr('height', height)
-      Object.entries(icon).forEach(([key, value]) => this.#iconContainer.style(key, value))
+      Object.entries(icon).forEach(([key, value]) => {
+        const index = key.search(/[A-Z]/)
+        if (index !== -1) {
+          key.toLowerCase()
+          key = `${key.slice(0, index)}-${key.slice(index)}`
+        }
+        this.#iconContainer.style(key, value)
+      })
     }
     // texts
     this.#textContainer
@@ -132,14 +139,17 @@ export default class IndicatorLayer extends LayerBase {
           .join('xhtml:div')
           .attr('class', `${this.className}-column`)
           .each((columnData, j, columns) => {
-            const el = d3.select(columns[j])
-            Object.entries(columnData).forEach(([key, value]) => el.style(key, value))
-            el.text(columnData.text)
-            // other attr name that diffrent from css
-            columnData.fontSize && el.style('font-size', columnData.fontSize)
-            columnData.fontWeight && el.style('font-weight', columnData.fontWeight)
-            columnData.fontFamily && el.style('font-family', columnData.fontFamily)
-            columnData.shadow && el.style('text-shadow', columnData.shadow)
+            const element = d3.select(columns[j])
+            // inject attributes: fontSize => font-size
+            Object.entries(columnData).forEach(([key, value]) => {
+              const index = key.search(/[A-Z]/)
+              if (index !== -1) {
+                key = key.toLowerCase()
+                key = `${key.slice(0, index)}-${key.slice(index)}`
+              }
+              element.style(key, value)
+            })
+            element.text(columnData.text)
           })
       })
   }
