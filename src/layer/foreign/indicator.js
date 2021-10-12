@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import {merge} from 'd3-array'
+import {transformAttr} from '../../utils/common'
 import LayerBase from '../base'
 
 const flexAlignType = {
@@ -111,16 +112,10 @@ export default class IndicatorLayer extends LayerBase {
     }
     // icon
     if (icon.src) {
-      const {src, width, height} = icon
+      const style = transformAttr(icon)
+      const {src, width, height} = style
       this.#iconContainer.attr('src', src).attr('width', width).attr('height', height)
-      Object.entries(icon).forEach(([key, value]) => {
-        const index = key.search(/[A-Z]/)
-        if (index !== -1) {
-          key.toLowerCase()
-          key = `${key.slice(0, index)}-${key.slice(index)}`
-        }
-        this.#iconContainer.style(key, value)
-      })
+      Object.entries(style).forEach(([key, value]) => this.#iconContainer.style(key, value))
     }
     // texts
     this.#textContainer
@@ -140,16 +135,10 @@ export default class IndicatorLayer extends LayerBase {
           .attr('class', `${this.className}-column`)
           .each((columnData, j, columns) => {
             const element = d3.select(columns[j])
-            // inject attributes: fontSize => font-size
-            Object.entries(columnData).forEach(([key, value]) => {
-              const index = key.search(/[A-Z]/)
-              if (index !== -1) {
-                key = key.toLowerCase()
-                key = `${key.slice(0, index)}-${key.slice(index)}`
-              }
-              element.style(key, value)
-            })
-            element.text(columnData.text)
+            // transform attributes: fontSize => font-size
+            const style = transformAttr(columnData)
+            Object.entries(style).forEach(([key, value]) => element.style(key, value))
+            element.text(style.text)
           })
       })
   }

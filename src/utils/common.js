@@ -2,7 +2,7 @@ import chroma from 'chroma-js'
 import * as d3 from 'd3'
 
 /**
- * the output range contains 'stop'.
+ * the output range contains stop
  * @param {*} start
  * @param {*} end
  * @param {*} step
@@ -45,4 +45,21 @@ export const getAttr = (target, index, defaultValue = null) => {
     return defaultValue
   }
   return target !== undefined ? target : defaultValue
+}
+
+/**
+ * fontSize => font-size
+ * @param {Object} object styles
+ */
+export const transformAttr = object => {
+  const result = {}
+  Object.entries(object).forEach(([key, value]) => {
+    const index = key.search(/[A-Z]/)
+    if (index !== -1) {
+      key = key.toLowerCase()
+      key = `${key.slice(0, index)}-${key.slice(index)}`
+    }
+    result[key] = value
+  })
+  return result
 }
