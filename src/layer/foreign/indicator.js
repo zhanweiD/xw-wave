@@ -1,13 +1,7 @@
 import * as d3 from 'd3'
-import {merge} from 'd3-array'
+import {merge} from 'lodash'
 import {transformAttr} from '../../utils/common'
 import LayerBase from '../base'
-
-const flexAlignType = {
-  START: 'start',
-  MIDDLE: 'center',
-  END: 'end',
-}
 
 const iconPositionType = {
   TOP: 'top',
@@ -18,8 +12,6 @@ const iconPositionType = {
 
 const defaultStyle = {
   iconPosition: iconPositionType.LEFT,
-  align: flexAlignType.START,
-  verticalAlign: flexAlignType.MIDDLE,
   icon: {
     src: null,
     width: 0,
@@ -28,6 +20,10 @@ const defaultStyle = {
   },
   text: {
     fontSize: 12,
+  },
+  row: {
+    justifyContent: 'center',
+    alignItems: 'cenetr',
   },
 }
 
@@ -91,15 +87,19 @@ export default class IndicatorLayer extends LayerBase {
       for (let j = 0; j < row.length; j++) {
         if (typeof row[j] !== 'object') {
           row[j] = {text: `${row[j]}`, ...text}
-        } else if (!row[j].fontSize) {
-          merge({}, text, row[j])
+        } else {
+          row[j] = merge({}, text, row[j])
         }
       }
     }
   }
 
   draw() {
-    const {align, verticalAlign, icon, iconPosition} = this.#style
+    const {row, icon, iconPosition} = this.#style
+    const addStyle = (target, style) => {
+      Object.entries(style).forEach(([key, value]) => target.style(key, value))
+    }
+    // modify icon position
     if (iconPosition === iconPositionType.TOP || iconPosition === iconPositionType.BOTTOM) {
       this.root.style('flex-direction', 'column')
     }
@@ -115,7 +115,7 @@ export default class IndicatorLayer extends LayerBase {
       const style = transformAttr(icon)
       const {src, width, height} = style
       this.#iconContainer.attr('src', src).attr('width', width).attr('height', height)
-      Object.entries(style).forEach(([key, value]) => this.#iconContainer.style(key, value))
+      addStyle(this.#iconContainer, style)
     }
     // texts
     this.#textContainer
@@ -125,20 +125,20 @@ export default class IndicatorLayer extends LayerBase {
       .attr('class', `${this.className}-row`)
       .style('display', 'flex')
       .style('flex-direction', 'row')
-      .style('justify-content', align)
-      .style('align-items', verticalAlign)
       .each((rowData, i, rows) => {
-        d3.select(rows[i])
+        const rowEl = d3.select(rows[i])
+        const rowStyle = transformAttr(row)
+        addStyle(rowEl, rowStyle)
+        rowEl
           .selectAll(`.${this.className}-column`)
           .data(rowData)
           .join('xhtml:div')
           .attr('class', `${this.className}-column`)
           .each((columnData, j, columns) => {
-            const element = d3.select(columns[j])
-            // transform attributes: fontSize => font-size
-            const style = transformAttr(columnData)
-            Object.entries(style).forEach(([key, value]) => element.style(key, value))
-            element.text(style.text)
+            const columnEl = d3.select(columns[j])
+            const columnStyle = transformAttr(columnData)
+            addStyle(columnEl, columnStyle)
+            columnEl.text(columnStyle.text)
           })
       })
   }
