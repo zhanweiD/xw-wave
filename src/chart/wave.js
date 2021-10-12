@@ -122,7 +122,7 @@ export default class Wave {
     this.log = createLog('src/wave')
     this.event = createEvent('src/wave')
     this.#tooltip = new Tooltip(this.#container, tooltip)
-    createDefs({schema: define, container: this.#defs})
+    createDefs({schema: define, engine, container: this.#defs})
   }
 
   /**
