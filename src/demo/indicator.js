@@ -42,11 +42,15 @@ const createSchema = (container, theme, layout) => ({
             fontSize: '12px',
           },
         ],
+        'text',
       ],
       style: {
         text: {
           fontSize: '16px',
           color: 'lightgray',
+        },
+        row: {
+          backgroundColor: ['yellow', 'black', 'blue'],
         },
         icon: {
           src: 'https://img0.baidu.com/it/u=3808236042,1207888271&fm=26&fmt=auto',

@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import {merge} from 'lodash'
-import {transformAttr} from '../../utils/common'
+import {getAttr, transformAttr} from '../../utils/common'
 import LayerBase from '../base'
 
 const iconPositionType = {
@@ -22,8 +22,8 @@ const defaultStyle = {
     fontSize: 12,
   },
   row: {
-    justifyContent: 'center',
-    alignItems: 'cenetr',
+    justifyContent: 'start',
+    alignItems: 'center',
   },
 }
 
@@ -96,8 +96,8 @@ export default class IndicatorLayer extends LayerBase {
 
   draw() {
     const {row, icon, iconPosition} = this.#style
-    const addStyle = (target, style) => {
-      Object.entries(style).forEach(([key, value]) => target.style(key, value))
+    const addStyle = (target, style, index) => {
+      Object.entries(style).forEach(([key, value]) => target.style(key, getAttr(value, index)))
     }
     // modify icon position
     if (iconPosition === iconPositionType.TOP || iconPosition === iconPositionType.BOTTOM) {
@@ -125,17 +125,17 @@ export default class IndicatorLayer extends LayerBase {
       .attr('class', `${this.className}-row`)
       .style('display', 'flex')
       .style('flex-direction', 'row')
-      .each((rowData, i, rows) => {
-        const rowEl = d3.select(rows[i])
+      .each((rowData, rowIndex, rows) => {
+        const rowEl = d3.select(rows[rowIndex])
         const rowStyle = transformAttr(row)
-        addStyle(rowEl, rowStyle)
+        addStyle(rowEl, rowStyle, rowIndex)
         rowEl
           .selectAll(`.${this.className}-column`)
           .data(rowData)
           .join('xhtml:div')
           .attr('class', `${this.className}-column`)
-          .each((columnData, j, columns) => {
-            const columnEl = d3.select(columns[j])
+          .each((columnData, columnIndex, columns) => {
+            const columnEl = d3.select(columns[columnIndex])
             const columnStyle = transformAttr(columnData)
             addStyle(columnEl, columnStyle)
             columnEl.text(columnStyle.text)
