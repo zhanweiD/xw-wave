@@ -70,26 +70,32 @@ export default class IndicatorLayer extends LayerBase {
   // data is 2-dimensional array of object
   setData(data) {
     if (!Array.isArray(data)) {
-      this.#data = [[data]]
+      data = [[data]]
     } else if (data.length === 0) {
-      this.#data = [[]]
+      data = [[]]
     } else {
-      this.#data = data.map(item => (Array.isArray(item) ? item : [item]))
+      data = data.map(item => (Array.isArray(item) ? item : [item]))
     }
+    // initialize text data
+    for (let i = 0; i < data.length; i++) {
+      for (let j = 0; j < data[i].length; j++) {
+        if (typeof data[i][j] !== 'object') {
+          data[i][j] = {text: `${data[i][j]}`}
+        }
+      }
+    }
+    // merge data
+    merge(this.#data, data)
   }
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {text} = this.#style
-    // initialize text data
+    // merge style
     for (let i = 0; i < this.#data.length; i++) {
       const row = this.#data[i]
       for (let j = 0; j < row.length; j++) {
-        if (typeof row[j] !== 'object') {
-          row[j] = {text: `${row[j]}`, ...text}
-        } else {
-          row[j] = merge({}, text, row[j])
-        }
+        row[j] = merge({}, text, row[j])
       }
     }
   }
