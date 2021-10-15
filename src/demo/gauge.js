@@ -42,35 +42,38 @@ const createSchema = (container, theme, layout, type) => ({
         layout: 'main',
       },
       data: createGaugeData(type),
-      style: type === 'gauge' ? {
-        tickSize: 10,
-        valueText: {
-          fontSize: 15,
-        },
-      } : {
-        step: [2, 10],
-        startAngle: 0,
-        endAngle: 360,
-        arcWidth: 15,
-        tickSize: 10,
-        pointerSize: 5,
-        line: {
-          hide: true,
-        },
-        pointer: {
-          hide: true,
-        },
-        circle: {
-          hide: 'true',
-        },
-        tickText: {
-          hide: true,
-        },
-        valueText: {
-          fontSize: 15,
-          offset: [0, 0],
-        },
-      },
+      style:
+        type === 'gauge'
+          ? {
+            tickSize: 10,
+            valueText: {
+              fontSize: 15,
+            },
+          }
+          : {
+            step: [2, 10],
+            startAngle: 0,
+            endAngle: 360,
+            arcWidth: 15,
+            tickSize: 10,
+            pointerSize: 5,
+            tickLine: {
+              hide: true,
+            },
+            pointer: {
+              hide: true,
+            },
+            pointerAnchor: {
+              hide: 'true',
+            },
+            tickText: {
+              hide: true,
+            },
+            valueText: {
+              fontSize: 15,
+              offset: [0, 0],
+            },
+          },
     },
   ],
 })

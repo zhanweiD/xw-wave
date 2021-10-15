@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 import {merge} from 'lodash'
-import LayerBase, {scaleTypes} from './base'
 import Scale from '../data/scale'
+import LayerBase, {scaleTypes} from './base'
 
 export const coordinateType = {
   GEOGRAPHIC: 'geographic',

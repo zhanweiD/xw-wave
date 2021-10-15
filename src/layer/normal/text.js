@@ -16,7 +16,7 @@ const defaultStyle = {
 }
 
 export default class TextLayer extends LayerBase {
-  #data = null
+  #data = ''
 
   #textData = null
 

@@ -4,18 +4,19 @@ import Scale from '../../data/scale'
 
 const defaultStyle = {
   step: [2, 10],
-  valueGap: 10,
   startAngle: -120,
   endAngle: 120,
   arcWidth: 5,
-  tickSize: 10,
-  pointerSize: 5,
   arc: {},
-  line: {},
-  circle: {},
-  pointer: {},
+  tickSize: 10,
+  tickLine: {},
   tickText: {},
+  pointerAnchor: {},
+  pointer: {
+    strokeWidth: 2,
+  },
   labelText: {},
+  valueGap: 10,
   valueText: {
     offset: [0, -20],
   },
@@ -28,11 +29,11 @@ export default class GaugeLayer extends LayerBase {
 
   #arcData = []
 
-  #lineData = []
-
   #circleData = {}
 
   #pointerData = {}
+
+  #tickLineData = []
 
   #valueTextData = []
 
@@ -45,7 +46,7 @@ export default class GaugeLayer extends LayerBase {
   }
 
   constructor(layerOptions, waveOptions) {
-    const subLayers = ['arc', 'line', 'pointer', 'circle', 'tickText', 'labelText', 'valueText']
+    const subLayers = ['arc', 'pointer', 'pointerAnchor', 'tickLine', 'tickText', 'labelText', 'valueText']
     super(layerOptions, waveOptions, subLayers)
     this.className = 'wave-gauge'
   }
@@ -80,7 +81,7 @@ export default class GaugeLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {left, top, width, height} = this.options.layout
-    const {step, arcWidth, valueGap, startAngle, endAngle, pointerSize, tickSize} = this.#style
+    const {step, arcWidth, valueGap, startAngle, endAngle, tickSize, pointer} = this.#style
     const {valueText, tickText, labelText, arc} = this.#style
     const {value, label, minValue, maxValue, fragments} = this.#data
     const maxRadius = Math.min(width, height) / 2
@@ -91,8 +92,8 @@ export default class GaugeLayer extends LayerBase {
       domain: [minValue, maxValue],
       range: [startAngle, endAngle],
     })
-    // dot data of pointer
-    this.#circleData = {cx: arcCenter.x, cy: arcCenter.y, r: pointerSize / 2}
+    // pointer anchor
+    this.#circleData = {cx: arcCenter.x, cy: arcCenter.y, r: pointer.strokeWidth * 2}
     // pointer data
     const length = maxRadius - arcWidth - tickSize / 0.618 - (tickText.fontSize || tickSize * 2)
     const pointerAngle = (scaleAngle(value) / 180) * Math.PI
@@ -112,7 +113,7 @@ export default class GaugeLayer extends LayerBase {
       color: colorMatrix.get(0, i),
     }))
     // arc axis tick data width label data
-    this.#lineData = range(minValue, maxValue + 1, step[0]).map((number, i) => {
+    this.#tickLineData = range(minValue, maxValue + 1, step[0]).map((number, i) => {
       const isBigTick = (i * step[0]) % step[1] === 0 && step[0] !== step[1]
       const angle = (scaleAngle(number) / 180) * Math.PI
       const isLeft = (angle + 2 * Math.PI) % (2 * Math.PI) > Math.PI
@@ -169,20 +170,20 @@ export default class GaugeLayer extends LayerBase {
         ...this.#style.pointer,
       },
     ]
-    const circleData = [
+    const pointerAnchorData = [
       {
         data: [[this.#circleData.r, this.#circleData.r]],
         position: [[this.#circleData.cx, this.#circleData.cy]],
-        ...this.#style.circle,
+        ...this.#style.pointerAnchor,
       },
     ]
-    const lineData = [
+    const tickLineData = [
       {
-        data: this.#lineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
-        ...this.#style.line,
+        data: this.#tickLineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
+        ...this.#style.tickLine,
       },
     ]
-    const labelText = this.#lineData
+    const labelText = this.#tickLineData
       .map(
         ({labelTextData}) => labelTextData && {
           data: [labelTextData.value],
@@ -191,7 +192,7 @@ export default class GaugeLayer extends LayerBase {
         }
       )
       .filter(Boolean)
-    const tickText = this.#lineData
+    const tickText = this.#tickLineData
       .map(
         ({tickTextData}) => tickTextData && {
           data: [tickTextData.value],
@@ -206,9 +207,9 @@ export default class GaugeLayer extends LayerBase {
       ...this.#style.valueText,
     }))
     this.drawBasic('arc', arcData)
-    this.drawBasic('line', lineData)
-    this.drawBasic('circle', circleData)
+    this.drawBasic('line', tickLineData, 'tickLine')
     this.drawBasic('line', pointerData, 'pointer')
+    this.drawBasic('circle', pointerAnchorData, 'pointerAnchor')
     this.drawBasic('text', tickText, 'tickText')
     this.drawBasic('text', labelText, 'labelText')
     this.drawBasic('text', valueText, 'valueText')

@@ -36,7 +36,7 @@ const labelPositionType = {
 
 const defaultStyle = {
   fixedLength: null,
-  bandZoomFactor: 0,
+  bandZoomFactor: 1,
   labelPosition: labelPositionType.CENTER,
   rect: {},
   text: {
@@ -328,7 +328,7 @@ export default class RectLayer extends LayerBase {
     }
     // horizontal scaling ratio
     this.#rectData = this.#rectData.map(group => group.map(({x, y, width, height, ...other}) => {
-      const totalPadding = bandZoomFactor * (type === waveType.COLUMN ? width : height)
+      const totalPadding = (1 - bandZoomFactor) * (type === waveType.COLUMN ? width : height)
       return {
         x: type === waveType.COLUMN ? x + totalPadding / 2 : x,
         y: type === waveType.BAR ? y + totalPadding / 2 : y,
