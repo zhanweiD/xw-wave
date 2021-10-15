@@ -9,6 +9,7 @@ import scatterSchema from './scatter'
 import matrixSchema from './matrix'
 import gaugeSchema from './gauge'
 import indicatorSchema from './indicator'
+import tabSchema from './tab'
 import lineSchema from './line'
 import chordSchema from './chord'
 import sankeySchema from './sankey'
@@ -90,6 +91,7 @@ export default function Example() {
     waves.push(chart === 'gauge' && createWave(gaugeSchema.gauge(refs[1].current, themeColors)))
     waves.push(chart === 'gauge' && createWave(gaugeSchema.indicator(refs[2].current, themeColors)))
     waves.push(chart === 'gauge' && createWave(indicatorSchema.indicator(refs[3].current, themeColors)))
+    waves.push(chart === 'gauge' && createWave(tabSchema.tabButton(refs[4].current, themeColors)))
     // 折线类
     waves.push(chart === 'line' && createWave(lineSchema.line(refs[1].current, themeColors)))
     waves.push(chart === 'line' && createWave(lineSchema.stackLine(refs[2].current, themeColors)))
@@ -175,6 +177,7 @@ export default function Example() {
           {chart === 'gauge' && <div className={s.wave} ref={refs[1]} />}
           {chart === 'gauge' && <div className={s.wave} ref={refs[2]} />}
           {chart === 'gauge' && <div className={s.wave} ref={refs[3]} />}
+          {chart === 'gauge' && <div className={s.wave} ref={refs[4]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[1]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[2]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[3]} />}

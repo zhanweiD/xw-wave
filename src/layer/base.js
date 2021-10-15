@@ -1,5 +1,5 @@
-import {cloneDeep, isArray, isEqual, merge} from 'lodash'
 import chroma from 'chroma-js'
+import {cloneDeep, isArray, isEqual, merge} from 'lodash'
 import Animation from '../animation'
 import {formatNumber} from '../utils/format'
 import getTextWidth from '../utils/text-width'

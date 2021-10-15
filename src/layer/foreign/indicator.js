@@ -46,16 +46,19 @@ export default class IndicatorLayer extends LayerBase {
 
   constructor(layerOptions, waveOptions) {
     super(layerOptions, waveOptions)
-    const {width, height} = this.options.layout
+    const {containerWidth, containerHeight, layout} = this.options
+    const {left, top, width, height} = layout
     this.className = 'wave-indicator'
     this.root = this.options.root
       .append('foreignObject')
-      .style('width', width)
-      .style('height', height)
+      .style('width', containerWidth)
+      .style('height', containerHeight)
       .append('xhtml:div')
       .attr('class', `${this.className}-conatiner`)
       .style('width', `${width}px`)
       .style('height', `${height}px`)
+      .style('margin-left', `${left}px`)
+      .style('margin-top', `${top}px`)
       .style('display', 'flex')
       .style('justify-content', 'center')
       .style('align-items', 'center')

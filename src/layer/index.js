@@ -13,6 +13,7 @@ import Matrix from './normal/matrix'
 import Gauge from './normal/gauge'
 // 表单图层
 import Indicator from './foreign/indicator'
+import TabButton from './foreign/tab-button'
 // 关系图层
 import EdgeBundle from './relation/edge-bundle'
 import Chord from './relation/chord'
@@ -51,6 +52,7 @@ export const layerMapping = {
   rect: Rect, // 矩形
   sankey: Sankey, // 桑基
   scatter: Scatter, // 散点
+  tabButton: TabButton, // 切换按钮
   text: Text, // 文本
   tree: Tree, // 树形图
   treemap: Treemap, // 矩形树图
@@ -81,6 +83,7 @@ export default {
   Rect, // 矩形
   Sankey, // 桑基
   Scatter, // 散点
+  TabButton, // 切换按钮
   Text, // 文本
   Tree, // 树形图
   Treemap, // 矩形树图
