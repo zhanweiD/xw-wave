@@ -3,6 +3,7 @@
   "version": "0.4.22",
   "author": "shuzhiwen",
   "main": "dist/wave.min.js",
+  "homepage": ".",
   "description": "数澜科技可视化团队版权所有",
   "dependencies": {
     "animejs": "^3.2.1",
