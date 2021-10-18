@@ -1,0 +1,15 @@
+.sideContainer {
+  display: flex;
+  flex-direction: column;
+  border-right: solid lightgray 1px;
+}
+
+.button {
+  padding: 10px 30px;
+  cursor: pointer;
+}
+
+.buttonActive {
+  background-color: seagreen;
+  color: whitesmoke;
+}
