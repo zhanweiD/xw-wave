@@ -7,6 +7,7 @@ import matrix from './matrix'
 import pie from './pie'
 import radar from './radar'
 import scatter from './scatter'
+import tabMenu from './tab-menu'
 
 export default {
   column: {
@@ -40,6 +41,10 @@ export default {
   map: {
     text: '二维地图',
     code: basic.replace('{REPLACED_LAYERS}', map),
+  },
+  tabMenu: {
+    text: '级联菜单',
+    code: basic.replace('{REPLACED_LAYERS}', tabMenu),
   },
   custom: {
     text: '自定义',

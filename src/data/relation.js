@@ -91,8 +91,8 @@ export default class Relation extends DataBase {
         level[id] = 0
       }
       // update based on link
-      nextIds.length
-        && nextIds.forEach(nextId => {
+      if (nextIds.length) {
+        nextIds.forEach(nextId => {
           if (level[nextId] === -1) {
             level[nextId] = level[id] + 1
           } else if (level[nextId] - level[id] !== 1) {
@@ -102,6 +102,7 @@ export default class Relation extends DataBase {
           // recursive calculation
           updateLevel(nextId, parents)
         })
+      }
     }
     this.data.links.forEach(({to}) => findRoot(to))
     this.data.roots.forEach(root => updateLevel(root, []))

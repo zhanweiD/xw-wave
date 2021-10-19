@@ -49,7 +49,7 @@ const createSchema = (container, theme, layout) => ({
           fontSize: '16px',
           color: 'lightgray',
         },
-        row: {
+        group: {
           backgroundColor: ['yellow', 'black', 'blue'],
         },
         icon: {

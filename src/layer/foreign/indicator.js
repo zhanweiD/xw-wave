@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
-import {merge} from 'lodash'
-import {getAttr, transformAttr} from '../../utils/common'
+import {cloneDeep, merge} from 'lodash'
+import {addStyle, getAttr, transformAttr} from '../../utils/common'
 import LayerBase from '../base'
 
 const iconPositionType = {
@@ -21,7 +21,7 @@ const defaultStyle = {
   text: {
     fontSize: 12,
   },
-  row: {
+  group: {
     justifyContent: 'start',
     alignItems: 'center',
   },
@@ -96,18 +96,17 @@ export default class IndicatorLayer extends LayerBase {
     const {text} = this.#style
     // merge style
     for (let i = 0; i < this.#data.length; i++) {
-      const row = this.#data[i]
-      for (let j = 0; j < row.length; j++) {
-        row[j] = merge({}, text, row[j])
+      const group = this.#data[i]
+      const textStyle = cloneDeep(text)
+      Object.entries(textStyle).forEach(([key, value]) => (textStyle[key] = getAttr(value, i)))
+      for (let j = 0; j < group.length; j++) {
+        group[j] = merge({}, textStyle, group[j])
       }
     }
   }
 
   draw() {
-    const {row, icon, iconPosition} = this.#style
-    const addStyle = (target, style, index) => {
-      Object.entries(style).forEach(([key, value]) => target.style(key, getAttr(value, index)))
-    }
+    const {group, icon, iconPosition} = this.#style
     // modify icon position
     if (iconPosition === iconPositionType.TOP || iconPosition === iconPositionType.BOTTOM) {
       this.root.style('flex-direction', 'column')
@@ -128,26 +127,26 @@ export default class IndicatorLayer extends LayerBase {
     }
     // texts
     this.#textContainer
-      .selectAll(`.${this.className}-row`)
+      .selectAll(`.${this.className}-group`)
       .data(this.#data)
       .join('xhtml:div')
-      .attr('class', `${this.className}-row`)
+      .attr('class', `${this.className}-group`)
       .style('display', 'flex')
       .style('flex-direction', 'row')
-      .each((rowData, rowIndex, rows) => {
-        const rowEl = d3.select(rows[rowIndex])
-        const rowStyle = transformAttr(row)
-        addStyle(rowEl, rowStyle, rowIndex)
-        rowEl
-          .selectAll(`.${this.className}-column`)
-          .data(rowData)
+      .each((groupData, groupIndex, groups) => {
+        const groupEl = d3.select(groups[groupIndex])
+        const groupStyle = transformAttr(group)
+        addStyle(groupEl, groupStyle, groupIndex)
+        groupEl
+          .selectAll(`.${this.className}-item`)
+          .data(groupData)
           .join('xhtml:div')
-          .attr('class', `${this.className}-column`)
-          .each((columnData, columnIndex, columns) => {
-            const columnEl = d3.select(columns[columnIndex])
-            const columnStyle = transformAttr(columnData)
-            addStyle(columnEl, columnStyle)
-            columnEl.text(columnStyle.text)
+          .attr('class', `${this.className}-item`)
+          .each((itemData, itemIndex, items) => {
+            const itemEl = d3.select(items[itemIndex])
+            const itemStyle = transformAttr(itemData)
+            addStyle(itemEl, itemStyle)
+            itemEl.text(itemStyle.text)
           })
       })
   }

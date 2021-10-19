@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import {merge} from 'lodash'
-import {getAttr, transformAttr} from '../../utils/common'
+import {addStyle, transformAttr} from '../../utils/common'
 import LayerBase from '../base'
 
 const directionType = {
@@ -40,7 +40,7 @@ export default class TabButtonLayer extends LayerBase {
     super(layerOptions, waveOptions)
     const {containerWidth, containerHeight, layout} = this.options
     const {left, top, width, height} = layout
-    this.className = 'wave-indicator'
+    this.className = 'wave-tab-button'
     this.root = this.options.root
       .append('foreignObject')
       .style('width', containerWidth)
@@ -86,9 +86,6 @@ export default class TabButtonLayer extends LayerBase {
 
   draw() {
     const {direction} = this.#style
-    const addStyle = (target, style, index) => {
-      Object.entries(style).forEach(([key, value]) => target.style(key, getAttr(value, index)))
-    }
     // texts
     this.root
       .style('flex-direction', direction === directionType.VERTICAL ? 'column' : 'row')

@@ -12,7 +12,11 @@ export default function Editor({schema, onChange}) {
   const [editor, setEditor] = useState(null)
 
   useEffect(() => {
-    editor && schema && editor.setValue(schema)
+    if (editor && schema) {
+      const state = editor.saveViewState()
+      editor.setValue(schema)
+      editor.restoreViewState(state)
+    }
   }, [schema])
 
   useEffect(() => {

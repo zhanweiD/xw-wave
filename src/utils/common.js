@@ -8,7 +8,7 @@ import * as d3 from 'd3'
  * @param {*} step
  * @param {*} toFixed dicimal number
  */
-export const range = (start, end, step, toFixed = 8) => {
+export const range = (start, end, step = 1, toFixed = 8) => {
   return d3
     .range(start, end + (step > 0 ? 1 : -1) * 10 ** -(toFixed + 2), step)
     .map(v => Number(Number(v).toFixed(toFixed)))
@@ -45,6 +45,16 @@ export const getAttr = (target, index, defaultValue = null) => {
     return defaultValue
   }
   return target !== undefined ? target : defaultValue
+}
+
+/**
+ * add style for d3 selection
+ * @param {Selection} target
+ * @param {Object} style
+ * @param {Number} index
+ */
+export const addStyle = (target, style, index) => {
+  Object.entries(style).forEach(([key, value]) => target.style(key, getAttr(value, index)))
 }
 
 /**
