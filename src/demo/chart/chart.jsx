@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {select} from 'd3-selection'
 import createWave from '../../chart/create'
 import Layout from '../../layout'
@@ -9,6 +9,7 @@ const svgTitle = '<?xml version="1.0" standalone="no"?>'
 
 const Chart = ({title, schema}) => {
   const waveRef = useRef(null)
+  const [wave, setWave] = useState(null)
 
   // 下载图表文件
   const downloadSvg = () => {
@@ -33,7 +34,8 @@ const Chart = ({title, schema}) => {
         if (!waveSchema.layout) {
           waveSchema.layout = layout
         }
-        schema && createWave(waveSchema)
+        wave && wave.destroy()
+        schema && setWave(createWave(waveSchema))
       }
     } catch (e) {
       console.error(e)

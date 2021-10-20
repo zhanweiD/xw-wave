@@ -64,10 +64,10 @@ export default class Wave {
     define = {},
     tooltip = {},
   }) {
-    // initialize some attr
+    // initialize state
+    this.#engine = engine
     this.#state = stateType.INITILIZE
     this.#container = d3.select(container)
-    this.#engine = engine
 
     // initialize the wave width and height
     if (adjust) {
@@ -78,18 +78,7 @@ export default class Wave {
       this.containerHeight = height
     }
 
-    // initialize the main padding
-    if (padding.length === 1) {
-      this.#padding = [padding[0], padding[0], padding[0], padding[0]]
-    } else if (padding.length === 2) {
-      this.#padding = [padding[0], padding[1], padding[0], padding[1]]
-    } else if (padding.length === 3) {
-      this.#padding = [padding[0], padding[1], padding[2], padding[1]]
-    } else {
-      this.#padding = padding
-    }
-
-    // initialize the dom & root
+    // initialize the svg & canvas
     this.#container.html('')
     if (engine === 'svg') {
       this.#root = this.#container
@@ -104,31 +93,51 @@ export default class Wave {
         .attr('width', this.containerWidth)
         .attr('height', this.containerHeight)
         .style('position', 'absolute')
-      fabric.Object.prototype.objectCaching = false
       this.#defs = []
       this.#root = new fabric.Canvas(canvas.nodes()[0], {selection: false, hoverCursor: 'pointer'})
       this.#root.defs = this.#defs
+      fabric.Object.prototype.objectCaching = false
     }
-
-    // initialize the layout
-    this.#layout = layout({
-      containerWidth: this.containerWidth,
-      containerHeight: this.containerHeight,
-      padding: this.#padding,
-    })
 
     // initialize other attr
     this.theme = theme
     this.log = createLog('src/wave')
     this.event = createEvent('src/wave')
     this.#tooltip = new Tooltip(this.#container, tooltip)
+    this.setPadding(padding, layout)
+
+    // custom svg dom
     createDefs({schema: define, engine, container: this.#defs})
+  }
+
+  /**
+   * set layout for wave
+   * @param {Array<Number>} padding
+   * @param {Function} layout layout creator
+   */
+  setPadding(padding, layout = Layout.standard(false)) {
+    // initialize the main padding
+    if (padding.length === 1) {
+      this.#padding = [padding[0], padding[0], padding[0], padding[0]]
+    } else if (padding.length === 2) {
+      this.#padding = [padding[0], padding[1], padding[0], padding[1]]
+    } else if (padding.length === 3) {
+      this.#padding = [padding[0], padding[1], padding[2], padding[1]]
+    } else {
+      this.#padding = padding
+    }
+    // initialize the layout
+    this.#layout = layout({
+      containerWidth: this.containerWidth,
+      containerHeight: this.containerHeight,
+      padding: this.#padding,
+    })
   }
 
   /**
    * create a layer
    * @param {String} type
-   * @param {Object} options
+   * @param {Object} options layer options
    * @returns {LayerBase}
    */
   createLayer(type, options = {}) {
@@ -154,20 +163,10 @@ export default class Wave {
     // wave will save the layer for easy management
     this.#state = stateType.READY
     this.#layers.push({type, id: layerId, instance: layer})
-    // register destroy event
-    layer.event.on('destroy', () => {
-      const index = this.#layers.findIndex(({id}) => id === layerId)
-      this.#layers.splice(index, 1)
-    })
     return layer
   }
 
-  /**
-   * update the layer
-   * @param {String} id
-   * @param {Object} schema layer config
-   */
-  updateLayer(id, {data, scale, style, animation}) {
+  updateLayer({id, data, scale, style, animation}) {
     const layer = this.#layers.find(item => item.id === id)?.instance
     if (layer) {
       layer.update({data, scale, style, animation})
@@ -270,8 +269,8 @@ export default class Wave {
 
   destroy() {
     this.#state = stateType.DESTROY
-    while (this.#layers.length !== 0) {
-      this.#layers[0].instance.destroy()
+    while (this.#layers.length) {
+      this.#layers.shift().instance.destroy()
     }
   }
 }
