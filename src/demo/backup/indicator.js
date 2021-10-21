@@ -1,4 +1,4 @@
-import Layout from '../layout'
+import Layout from '../../layout'
 
 // 指标卡数据生成
 const createSchema = (container, theme, layout) => ({

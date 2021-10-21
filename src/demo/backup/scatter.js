@@ -1,4 +1,4 @@
-import Layout from '../layout'
+import Layout from '../../layout'
 import {createScatterData} from './mock'
 
 const titleMapping = {

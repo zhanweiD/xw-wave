@@ -1,4 +1,4 @@
-import Layout from '../layout'
+import Layout from '../../layout'
 
 const titleMapping = {
   rect: '矩形热力图',

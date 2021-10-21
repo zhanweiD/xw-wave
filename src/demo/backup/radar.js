@@ -1,4 +1,4 @@
-import Layout from '../layout'
+import Layout from '../../layout'
 
 const titleMapping = {
   default: '雷达图',

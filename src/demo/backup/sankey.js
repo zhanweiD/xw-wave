@@ -1,4 +1,4 @@
-import Layout from '../layout'
+import Layout from '../../layout'
 import {createSankeyData} from './mock'
 
 // 柱状图配置数据生成

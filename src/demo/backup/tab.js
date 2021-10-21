@@ -1,4 +1,4 @@
-import Layout from '../layout'
+import Layout from '../../layout'
 
 // 切换按钮数据生成
 const createSchema = (container, theme, layout) => ({

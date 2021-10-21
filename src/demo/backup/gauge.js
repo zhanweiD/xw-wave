@@ -1,5 +1,5 @@
 import {createGaugeData} from './mock'
-import Layout from '../layout'
+import Layout from '../../layout'
 
 // 仪表盘数据生成
 const createSchema = (container, theme, layout, type) => ({

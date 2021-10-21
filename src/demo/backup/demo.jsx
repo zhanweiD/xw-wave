@@ -19,7 +19,7 @@ import treemapSchema from './treemap'
 import packSchema from './pack'
 import mapSchema from './map'
 import decoSchema from './decoration'
-import {createWave} from '../chart'
+import {createWave} from '../../chart'
 import s from './demo.module.css'
 
 const themeMapping = {

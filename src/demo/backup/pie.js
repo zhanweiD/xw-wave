@@ -1,4 +1,4 @@
-import Layout from '../layout'
+import Layout from '../../layout'
 
 const titleMapping = {
   pie: ['饼图', '环图'],
