@@ -8,6 +8,7 @@ import pie from './pie'
 import radar from './radar'
 import scatter from './scatter'
 import tabMenu from './tab-menu'
+import timeline from './timeline'
 
 export default {
   column: {
@@ -45,6 +46,10 @@ export default {
   tabMenu: {
     text: '级联菜单',
     code: basic.replace('{REPLACED_LAYERS}', tabMenu),
+  },
+  timeline: {
+    text: '时间轴',
+    code: basic.replace('{REPLACED_LAYERS}', timeline),
   },
   custom: {
     text: '自定义',

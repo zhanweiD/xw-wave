@@ -61,11 +61,10 @@ export default class TabButtonLayer extends LayerBase {
     this.#data = data || this.#data
     const headers = this.#data.data.map(({header}) => header)
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
-    const keyIndex = headers.findIndex(header => header === 'key')
     // basic tab data
     this.#tabData = pureTableList.map(item => ({
       isActive: false,
-      text: item[keyIndex],
+      text: item[0],
       source: headers.reduce((prev, cur, index) => {
         prev[cur] = item[index]
         return prev
@@ -85,10 +84,8 @@ export default class TabButtonLayer extends LayerBase {
   }
 
   draw() {
-    const {direction} = this.#style
-    // texts
     this.root
-      .style('flex-direction', direction === directionType.VERTICAL ? 'column' : 'row')
+      .style('flex-direction', this.#style.direction === directionType.VERTICAL ? 'column' : 'row')
       .selectAll(`.${this.className}-item`)
       .data(this.#tabData)
       .join('xhtml:div')

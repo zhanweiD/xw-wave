@@ -12,9 +12,11 @@ import Scatter from './normal/scatter'
 import Matrix from './normal/matrix'
 import Gauge from './normal/gauge'
 // 表单图层
-import Indicator from './foreign/indicator'
-import TabButton from './foreign/tab-button'
-import TabMenu from './foreign/tab-menu'
+import Indicator from './form-control/indicator'
+import TabButton from './form-control/tab-button'
+import TabMenu from './form-control/tab-menu'
+import Timeline from './form-control/timeline'
+
 // 关系图层
 import EdgeBundle from './relation/edge-bundle'
 import Chord from './relation/chord'
@@ -58,6 +60,7 @@ export const layerMapping = {
   text: Text, // 文本
   tree: Tree, // 树形图
   treemap: Treemap, // 矩形树图
+  timeline: Timeline, // 时间线
   titleA: TitleA, // 标题装饰
   titleB: TitleB, // 标题装饰
   titleC: TitleC, // 标题装饰
@@ -67,33 +70,34 @@ export const layerMapping = {
 }
 
 export default {
-  Arc, // 圆弧
-  Auxiliary, // 辅助线
-  Axis, // 坐标轴
-  BaseMap, // 地图底图
-  Chord, // 和弦图
-  EdgeBundle, // 边缘捆图
-  Gauge, // 仪表盘
-  Indicator, // 指标卡
-  Heatmap, // 热力
-  Legend, // 图例
-  Line, // 折线
-  Matrix, // 矩阵
-  ODLine, // 抛物线
-  Pack, // 打包图
-  Radar, // 雷达
-  Rect, // 矩形
-  Sankey, // 桑基
-  Scatter, // 散点
-  TabButton, // 切换按钮
-  TabMenu, // 切换级联菜单
-  Text, // 文本
-  Tree, // 树形图
-  Treemap, // 矩形树图
-  TitleA, // 标题装饰
-  TitleB, // 标题装饰
-  TitleC, // 标题装饰
-  TitleD, // 标题装饰
-  TitleE, // 标题装饰
-  BorderA, // 边框装饰
+  Arc,
+  Auxiliary,
+  Axis,
+  BaseMap,
+  Chord,
+  EdgeBundle,
+  Gauge,
+  Indicator,
+  Heatmap,
+  Legend,
+  Line,
+  Matrix,
+  ODLine,
+  Pack,
+  Radar,
+  Rect,
+  Sankey,
+  Scatter,
+  TabButton,
+  TabMenu,
+  Text,
+  Tree,
+  Treemap,
+  Timeline,
+  TitleA,
+  TitleB,
+  TitleC,
+  TitleD,
+  TitleE,
+  BorderA,
 }

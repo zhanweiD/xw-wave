@@ -101,7 +101,6 @@ export default class TabButtonLayer extends LayerBase {
   }
 
   draw() {
-    const {group} = this.#style
     // texts
     this.root
       .selectAll(`.${this.className}-group`)
@@ -109,11 +108,11 @@ export default class TabButtonLayer extends LayerBase {
       .join('xhtml:div')
       .attr('class', `${this.className}-group`)
       .style('display', 'flex')
-      .style('flex-direction', 'column')
       .style('overflow', 'scroll')
+      .style('flex-direction', 'column')
       .each((groupData, groupIndex, groups) => {
         const groupEl = d3.select(groups[groupIndex])
-        const groupStyle = transformAttr(group)
+        const groupStyle = transformAttr(this.#style.group)
         addStyle(groupEl, groupStyle, groupIndex)
         groupEl
           .selectAll(`.${this.className}-item`)
