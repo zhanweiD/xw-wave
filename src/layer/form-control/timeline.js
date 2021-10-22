@@ -114,9 +114,10 @@ export default class TimelineLayer extends LayerBase {
             const {circleSize, circleColor, lineWidth, lineColor} = timeline
             d3.select(els[i])
               .append('xhtml:div')
+              .style('position', 'absolute')
               .style('width', 0)
               .style('height', index === 0 || index === groups.length - 1 ? '50%' : '100%')
-              .style('margin-top', index === 0 ? '50%' : index === groups.length - 1 ? '-50%' : 0)
+              .style('top', index === 0 ? '50%' : 0)
               .style('border', `solid ${lineColor} ${lineWidth}`)
             d3.select(els[i])
               .append('xhtml:div')

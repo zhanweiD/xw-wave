@@ -1,6 +1,3 @@
-/* eslint-disable import/extensions */
-import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
-import 'monaco-editor/esm/vs/editor/contrib/find/findController.js'
 import React, {useState} from 'react'
 import SideBar from './side-bar'
 import Editor from './editor'
