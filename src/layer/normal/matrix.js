@@ -52,7 +52,7 @@ export default class MatrixLayer extends LayerBase {
 
   // tableList has two dimensions
   setData(table, scales) {
-    this.#data = table || this.#data
+    this.#data = this.createData('table', this.#data, table)
     const {shape, layout} = this.options
     const {left, top, width, height} = layout
     const [rows, columns, pureTable] = [this.#data.data[0], this.#data.data[1], this.#data.data[2]]

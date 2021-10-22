@@ -52,8 +52,8 @@ export default class AuxiliaryLayer extends LayerBase {
   }
 
   // the layer needs outside scales
-  setData(data, scales) {
-    this.#data = data || this.#data
+  setData(tableList, scales) {
+    this.#data = this.createData('tableList', this.#data, tableList)
     this.#scale = this.createScale({}, this.#scale, scales)
     const {type, layout} = this.options
     const {left, top, width, height} = layout

@@ -97,7 +97,7 @@ export default class RectLayer extends LayerBase {
 
   setData(tableList, scales) {
     const {type} = this.options
-    this.#data = (tableList && this.#filter(tableList)) || this.#data
+    this.#data = this.createData('tableList', this.#data, tableList, this.#filter)
     if (type === waveType.COLUMN) {
       this.#setColumnData(scales)
     } else if (type === waveType.BAR) {

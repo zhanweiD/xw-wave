@@ -35,7 +35,7 @@ export default class PackLayer extends LayerBase {
   }
 
   setData(relation) {
-    this.#data = relation || this.#data
+    this.#data = this.createData('relation', this.#data, relation)
     const root = {name: 'root', children: this.#data.data.nodes.filter(({level}) => level === 0)}
     this.#data.set(
       'treeData',
@@ -78,9 +78,7 @@ export default class PackLayer extends LayerBase {
     // classify circles by height
     this.#circleData = d3
       .range(0, this.#data.get('maxHeight'))
-      .map(value => {
-        return this.#circleData.filter(({height}) => height === value)
-      })
+      .map(value => this.#circleData.filter(({height}) => height === value))
       .reverse()
     // color is related to height
     const colorMatrix = this.getColorMatrix(this.#circleData.length, 1, circle.fill)

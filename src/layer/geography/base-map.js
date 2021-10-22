@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import DataBase from '../../data/base'
 import LayerBase from '../base'
 
 // official data from online, key is block code
@@ -10,6 +11,8 @@ const defaultStyle = {
 }
 
 export default class BaseMapLayer extends LayerBase {
+  #origin = null
+
   #data = {
     type: 'FeatureCollection',
     features: [],
@@ -59,68 +62,73 @@ export default class BaseMapLayer extends LayerBase {
       .catch(e => this.log.error('Fetch map data failed', e))
   }
 
-  #refresh = data => {
-    this.setData(data)
-    this.setStyle()
-    this.draw()
+  // data is GeoJSON or block code
+  setData(origin, scales) {
+    this.#origin = this.createData('base', this.#origin, origin, instance => instance.data)
+    // use online data
+    if (typeof origin?.data === 'number') {
+      this.#fetchOnlineData(origin.data, result => {
+        this.#data = result
+        this.#calculateData(result, scales)
+        this.setStyle()
+        this.draw()
+      })
+    }
   }
 
-  // data is GeoJSON or block code
-  setData(data, scales) {
-    // block code: use online resource
-    if (typeof data === 'number') {
-      // wait for block data
-      if (this.#chinaBlocks.length) {
-        const children = this.#chinaBlocks.filter(({parent}) => parent === data)
-        if (children.length) {
-          Promise.all(
-            children.map(
-              ({adcode}) => new Promise((resolve, reject) => {
-                fetch(getUrl(adcode))
-                  .then(res => resolve(res.json()))
-                  .catch(e => reject(e))
-              })
-            )
-          )
-            .then(list => {
-              const dataSet = list.reduce((prev, cur) => [...prev, ...cur.features], [])
-              this.#refresh({type: 'FeatureCollection', features: dataSet})
+  #fetchOnlineData = (code, callback, polling = 100) => {
+    // wait for block data
+    if (this.#chinaBlocks.length) {
+      const children = this.#chinaBlocks.filter(({parent}) => parent === code)
+      if (children.length) {
+        Promise.all(
+          children.map(
+            ({adcode}) => new Promise((resolve, reject) => {
+              fetch(getUrl(adcode))
+                .then(res => resolve(res.json()))
+                .catch(e => reject(e))
             })
-            .catch(e => this.log.error('Fetch map data failed', e))
-        }
-      } else {
-        // retry
-        setTimeout(() => this.setData(data), 100)
+          )
+        )
+          .then(list => {
+            const dataSet = list.reduce((prev, cur) => [...prev, ...cur.features], [])
+            callback({type: 'FeatureCollection', features: dataSet})
+          })
+          .catch(e => this.log.error('Fetch map data failed', e))
       }
-    } else if (data) {
-      this.#data = data || this.#data
-      const {top, left, width, height} = this.options.layout
-      const projection = d3.geoMercator().fitExtent(
-        [
-          [left, top],
-          [width, height],
-        ],
-        this.#data
-      )
-      this.#path = d3.geoPath(projection)
-      // transform scales
-      this.#scale = this.createScale(
-        {
-          scaleX: x => projection([x, 0])[0],
-          scaleY: y => projection([0, y])[1],
-        },
-        // give empty because default is useless
-        {},
-        scales
-      )
-      // drill up background block
-      this.#backgroundRectData = {x: left, y: top, width, height}
-      // drill down map block
-      this.#blockData = this.#data.features.map(({geometry, properties}) => ({
-        source: Object.entries(properties).map(([category, value]) => ({category, value})),
-        geometry,
-      }))
+    } else {
+      // retry
+      setTimeout(() => this.#fetchOnlineData(code, callback), polling)
     }
+  }
+
+  #calculateData = scales => {
+    const {top, left, width, height} = this.options.layout
+    const projection = d3.geoMercator().fitExtent(
+      [
+        [left, top],
+        [width, height],
+      ],
+      this.#data
+    )
+    this.#path = d3.geoPath(projection)
+    // transform scales
+    this.#scale = this.createScale(
+      {
+        scaleX: x => projection([x, 0])[0],
+        scaleY: y => projection([0, y])[1],
+      },
+      // give empty because default is useless
+      {},
+      scales
+    )
+    // drill up background block
+    this.#backgroundRectData = {x: left, y: top, width, height}
+    // drill down map block
+    this.#blockData = this.#data.features.map(({geometry, properties}) => ({
+      source: Object.entries(properties).map(([category, value]) => ({category, value})),
+      geometry,
+    }))
   }
 
   setStyle(style) {
@@ -166,13 +174,13 @@ export default class BaseMapLayer extends LayerBase {
     // drill up on the map
     this.event.onWithOff('click-background', 'private', () => {
       const parentCode = this.#parentCode.pop()
-      parentCode && this.#refresh(parentCode)
+      parentCode && this.setData(new DataBase(parentCode))
     })
     // drill down on the map
     this.event.onWithOff('click-block', 'private', ({data}) => {
       const blockCode = data.source.find(({category}) => category === 'adcode')?.value
       this.#parentCode.push(data.source.find(({category}) => category === 'parent')?.value?.adcode)
-      this.#refresh(blockCode)
+      this.setData(new DataBase(blockCode))
     })
   }
 }

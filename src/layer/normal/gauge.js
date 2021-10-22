@@ -23,7 +23,7 @@ const defaultStyle = {
 }
 
 export default class GaugeLayer extends LayerBase {
-  #data = {}
+  #data = null
 
   #style = defaultStyle
 
@@ -52,25 +52,24 @@ export default class GaugeLayer extends LayerBase {
   }
 
   // special data
-  setData(data = {}) {
-    this.#data.value = data.value
-    this.#data.label = data.label
+  setData(data) {
+    this.#data = this.createData('base', this.#data, data)
+    const {fragments} = this.#data.data
     // check the fragments is legal or not
-    if (data.fragments) {
+    if (fragments) {
       try {
-        data.fragments.forEach(item => {
+        fragments.forEach(item => {
           const [min, max] = [item[0], item[1]]
-          if (min > max) throw new Error('data structure wrong')
+          if (min > max) throw new Error('Data structure wrong')
         })
-        data.fragments.reduce((prev, cur) => {
-          if (prev[1] > cur[0]) throw new Error('data structure wrong')
+        fragments.reduce((prev, cur) => {
+          if (prev[1] > cur[0]) throw new Error('Data structure wrong')
           return cur
         })
-        this.#data = {
-          ...this.#data,
-          fragments: data.fragments,
-          minValue: data.fragments[0][0],
-          maxValue: data.fragments[data.fragments.length - 1][1],
+        this.#data.data = {
+          ...this.#data.data,
+          minValue: fragments[0][0],
+          maxValue: fragments[fragments.length - 1][1],
         }
       } catch (error) {
         this.log.warn(error.message, data)
@@ -83,7 +82,7 @@ export default class GaugeLayer extends LayerBase {
     const {left, top, width, height} = this.options.layout
     const {step, arcWidth, valueGap, startAngle, endAngle, tickSize, pointer} = this.#style
     const {valueText, tickText, labelText, arc} = this.#style
-    const {value, label, minValue, maxValue, fragments} = this.#data
+    const {value, label, minValue, maxValue, fragments} = this.#data.data
     const maxRadius = Math.min(width, height) / 2
     const colorMatrix = this.getColorMatrix(1, fragments.length, arc.fill)
     const arcCenter = {x: left + width / 2, y: top + height / 2}

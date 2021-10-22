@@ -38,8 +38,8 @@ export default class ScatterLayer extends LayerBase {
   }
 
   // headers of tableList is
-  setData(data, scales) {
-    this.#data = data || this.#data
+  setData(tableList, scales) {
+    this.#data = this.createData('tableList', this.#data, tableList)
     const {left, top, width, height} = this.options.layout
     const headers = this.#data.data.map(({header}) => header)
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))

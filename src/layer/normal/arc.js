@@ -61,7 +61,7 @@ export default class ArcLayer extends LayerBase {
   }
 
   // filter number of columns
-  #filterData = data => {
+  #filter = data => {
     const {type, mode} = this.options
     if (type === waveType.PIE || mode === modeType.DEFAULT) {
       return data.select(data.data.map(({header}) => header).slice(0, 2))
@@ -70,7 +70,7 @@ export default class ArcLayer extends LayerBase {
   }
 
   setData(tableList, scales) {
-    this.#data = (tableList && this.#filterData(tableList)) || this.#data
+    this.#data = this.createData('tableList', this.#data, tableList, this.#filter)
     const {type, mode, layout} = this.options
     const {width, height} = layout
     const headers = this.#data.data.map(({header}) => header)

@@ -140,10 +140,7 @@ export default class LegendLayer extends LayerBase {
     })
   }
 
-  /**
-   * set legend data after other layers has been initialized
-   * @param {Array<LayerBase>} layers
-   */
+  // set legend data after other layers has been initialized
   setData(layers) {
     this.#isFiltering = false
     this.#layers = layers || this.#layers

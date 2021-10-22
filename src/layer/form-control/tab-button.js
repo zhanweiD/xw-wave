@@ -57,8 +57,8 @@ export default class TabButtonLayer extends LayerBase {
   }
 
   // data is 2-dimensional array of object
-  setData(data) {
-    this.#data = data || this.#data
+  setData(tableList) {
+    this.#data = this.createData('tableList', this.#data, tableList)
     const headers = this.#data.data.map(({header}) => header)
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     // basic tab data

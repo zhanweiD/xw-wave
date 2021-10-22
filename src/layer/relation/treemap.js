@@ -56,7 +56,7 @@ export default class TreemapLayer extends LayerBase {
   }
 
   setData(relation) {
-    this.#data = relation || this.#data
+    this.#data = this.createData('relation', this.#data, relation)
     const {nodes} = this.#data.data
     const {tile, layout} = this.options
     const {left, top, width, height} = layout

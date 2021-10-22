@@ -5,7 +5,8 @@ export default class DataBase {
   #storage = {}
 
   // order affects color fetching
-  constructor(options) {
+  constructor(initData, options) {
+    this.data = initData
     this.options = merge({order: null}, options)
     this.log = createLog('src/data/base')
   }

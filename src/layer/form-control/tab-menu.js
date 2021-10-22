@@ -63,9 +63,9 @@ export default class TabButtonLayer extends LayerBase {
 
   // data is 2-dimensional array of object
   setData(data) {
-    this.#data = data || this.#data
+    this.#data = this.createData('base', this.#data, data)
     const tree = d3
-      .hierarchy(data)
+      .hierarchy(this.#data.data)
       .sum(d => d.value)
       .sort((a, b) => b.value - a.value)
     const nodes = tree.descendants()

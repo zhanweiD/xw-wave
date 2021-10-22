@@ -14,8 +14,7 @@ const targetType = {
 
 export default class TableList extends DataBase {
   constructor(tableList, options) {
-    super(options)
-    this.data = []
+    super([], options)
     this.update(tableList, options)
   }
 

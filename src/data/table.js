@@ -9,9 +9,8 @@ const targetType = {
 
 export default class Table extends DataBase {
   constructor(table, options) {
-    super(options)
     // rows & columns & values
-    this.data = [[], [], []]
+    super([[], [], []], options)
     this.update(table, options)
   }
 

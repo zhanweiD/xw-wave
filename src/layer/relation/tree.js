@@ -68,7 +68,7 @@ export default class TreeLayer extends LayerBase {
   }
 
   setData(relation, scales) {
-    this.#data = relation || this.#data
+    this.#data = this.createData('relation', this.#data, relation)
     const {nodes} = this.#data.data
     const {type, layout} = this.options
     const {width, height} = layout

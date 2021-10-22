@@ -32,9 +32,11 @@ const createLayer = (wave, config) => {
   } else if (dataBase.isTableList(data) || data?.type === 'tableList') {
     if (type === 'matrix') {
       dataSet = new Table(dataBase.tableListToTable(data))
-    } else if (type !== 'indicator') {
+    } else {
       dataSet = new TableList(dataBase.isTableList(data) ? data : Random.tableList(data))
     }
+  } else {
+    dataSet = new DataBase(data)
   }
   layer.setData(dataSet, {nice: scale})
   layer.setStyle(style)

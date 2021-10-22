@@ -45,7 +45,7 @@ export default class EdgeBundleLayer extends LayerBase {
   }
 
   setData(relation) {
-    this.#data = relation || this.#data
+    this.#data = this.createData('relation', this.#data, relation)
     const {left, top, width, height} = this.options.layout
     const maxRadius = Math.min(width, height) / 2
     const [centerX, centerY] = [left + width / 2, top + height / 2]

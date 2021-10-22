@@ -1,13 +1,14 @@
 import chroma from 'chroma-js'
 import {cloneDeep, isArray, isEqual, merge} from 'lodash'
 import Animation from '../animation'
-import {formatNumber} from '../utils/format'
-import getTextWidth from '../utils/text-width'
+import {dataMapping} from '../data'
+import basicMapping from '../draw'
 import createEvent from '../utils/create-event'
 import createLog from '../utils/create-log'
+import {formatNumber} from '../utils/format'
 import Selector from '../utils/selector'
-import basicMapping from '../draw'
-import niceColorMatrix from '../utils/nice-color'
+import getTextWidth from '../utils/text-width'
+import ColorMatrix from '../utils/color-matrix'
 
 // text position attached to the point
 const positionType = {
@@ -127,40 +128,31 @@ export default class LayerBase {
           }
         }
       }
+      return new ColorMatrix(colorMatrix)
+    }
+    // new color matrix
+    if (columnNumber === 1) {
+      colorMatrix = chroma
+        .scale(originColors)
+        .mode('lch')
+        .colors(rowNumber)
+        .map(color => [color])
     } else {
-      if (columnNumber === 1) {
-        colorMatrix = chroma
-          .scale(originColors)
-          .mode('lch')
-          .colors(rowNumber)
-          .map(color => [color])
-      } else {
-        const rowColors = chroma
-          .scale(originColors)
-          .mode('lch')
-          .colors(rowNumber + 1)
-        // unfold: 1 dimension => 2 dimensions
-        rowColors.reduce((prevColor, curColor, index) => {
-          const count = index === rowNumber ? columnNumber : columnNumber + 1
-          colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
-          return curColor
-        })
-      }
-      // nice matrix automatically
-      if (nice && !customColors) {
-        colorMatrix = niceColorMatrix(colorMatrix)
-      }
+      const rowColors = chroma
+        .scale(originColors)
+        .mode('lch')
+        .colors(rowNumber + 1)
+      // unfold: 1 dimension => 2 dimensions
+      rowColors.reduce((prevColor, curColor, index) => {
+        const count = index === rowNumber ? columnNumber : columnNumber + 1
+        colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
+        return curColor
+      })
     }
-    return {
-      matrix: colorMatrix,
-      get: (row, column) => {
-        if (row < colorMatrix.length && column < colorMatrix[row].length) {
-          return colorMatrix[row][column]
-        }
-        this.log.warn('Get color out of bounds', {row, column})
-        return null
-      },
-    }
+    // nice matrix automatically
+    const matrix = new ColorMatrix(colorMatrix)
+    nice && !customColors && matrix.nice()
+    return matrix
   }
 
   /**
@@ -185,6 +177,26 @@ export default class LayerBase {
       }
     })
     return scale
+  }
+
+  /**
+   * check data for layer
+   * @param {String} dataType
+   * @param {*} currentData
+   * @param {*} incomingData
+   * @param {Function} filter data handler
+   * @returns is the data correct or not
+   */
+  createData(dataType, currentData, incomingData, filter) {
+    if (!incomingData) {
+      return currentData
+    }
+    if (!(incomingData instanceof dataMapping[dataType])) {
+      const message = `Data structure error: Layer need ${dataType}`
+      this.log.warn(message)
+      throw new Error(message)
+    }
+    return filter ? filter(incomingData) : incomingData
   }
 
   /**

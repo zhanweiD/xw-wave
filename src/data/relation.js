@@ -4,8 +4,7 @@ import {formatNumber} from '../utils/format'
 
 export default class Relation extends DataBase {
   constructor(nodeTableList, linkTableList, options) {
-    super(options)
-    this.data = {nodes: [], links: [], roots: []}
+    super({nodes: [], links: [], roots: []}, options)
     this.update(nodeTableList, linkTableList, options)
   }
 

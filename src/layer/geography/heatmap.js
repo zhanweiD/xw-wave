@@ -46,8 +46,8 @@ export default class HeatmapLayer extends LayerBase {
     container.selectAll('.heatmap-canvas').style('pointer-events', 'none')
   }
 
-  setData(data, scales) {
-    this.#data = data || this.#data
+  setData(tableList, scales) {
+    this.#data = this.createData('tableList', this.#data, tableList)
     // initialize scale
     this.#scale = this.createScale({}, this.#scale, scales)
     const {scaleX, scaleY} = this.#scale

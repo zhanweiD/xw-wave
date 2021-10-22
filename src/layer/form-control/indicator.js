@@ -71,7 +71,8 @@ export default class IndicatorLayer extends LayerBase {
   }
 
   // data is 2-dimensional array of object
-  setData(data) {
+  setData(array) {
+    let data = this.createData('base', this.#data, array, instance => instance.data)
     if (!Array.isArray(data)) {
       data = [[data]]
     } else if (data.length === 0) {

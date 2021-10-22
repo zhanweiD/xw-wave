@@ -88,7 +88,7 @@ export default class LineLayer extends LayerBase {
   }
 
   setData(tableList, scales) {
-    this.#data = tableList || this.#data
+    this.#data = this.createData('tableList', this.#data, tableList)
     const {mode, layout} = this.options
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)

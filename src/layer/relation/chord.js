@@ -44,7 +44,7 @@ export default class ChordLayer extends LayerBase {
   }
 
   setData(table) {
-    this.#data = table || this.#data
+    this.#data = this.createData('table', this.#data, table)
     const [categorys, matrix] = [this.#data.data[0], this.#data.data[2]]
     const chordData = d3.chord().padAngle(Math.PI / 10 / categorys.length)(matrix)
     this.#data.set('chordData', chordData)

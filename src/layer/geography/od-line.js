@@ -65,8 +65,8 @@ export default class ODLineLayer extends LayerBase {
   }
 
   // tableList
-  setData(data, scales) {
-    this.#data = data || this.#data
+  setData(tableList, scales) {
+    this.#data = this.createData('tableList', this.#data, tableList)
     const headers = this.#data.data.map(({header}) => header)
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const fromXIndex = headers.findIndex(header => header === 'fromX')
