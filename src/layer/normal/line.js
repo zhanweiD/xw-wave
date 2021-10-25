@@ -82,7 +82,7 @@ export default class LineLayer extends LayerBase {
     this.event.onWithOff('before:setStyle', 'areaFill', () => {
       this.#areaData.length
         && this.#areaData[0].forEach(({fill}) => {
-          document.getElementById(fill.split(/[#)]/)[1]).remove()
+          fill && document.getElementById(fill.split(/[#)]/)[1]).remove()
         })
     })
   }
