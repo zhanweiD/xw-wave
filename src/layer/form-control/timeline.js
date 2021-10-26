@@ -3,13 +3,7 @@ import {isArray} from 'lodash'
 import {addStyle, transformAttr} from '../../utils/common'
 import LayerBase from '../base'
 
-const directionType = {
-  HORIZONTAL: 'horizontal',
-  VERTICAL: 'vertical',
-}
-
 const defaultStyle = {
-  direction: directionType.HORIZONTAL,
   group: {},
   time: {},
   event: {
@@ -51,13 +45,14 @@ export default class TimelineLayer extends LayerBase {
       .style('width', containerWidth)
       .style('height', containerHeight)
       .append('xhtml:div')
-      .attr('class', `${this.className}-conatiner`)
+      .attr('class', `${this.className}-container`)
       .style('width', `${width}px`)
       .style('height', `${height}px`)
       .style('margin-left', `${left}px`)
       .style('margin-top', `${top}px`)
       .style('display', 'flex')
-      .style('overflow', 'scroll')
+      .style('overflow-x', 'hidden')
+      .style('overflow-y', 'scroll')
       .style('flex-direction', 'column')
   }
 
@@ -66,7 +61,8 @@ export default class TimelineLayer extends LayerBase {
     this.#data = this.createData('tableList', this.#data, tableList)
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     this.#sectionData = pureTableList.map(([time, events]) => ({
-      time: time && new Date(time).toLocaleString(),
+      date: time && new Date(time).toLocaleDateString(),
+      time: time && new Date(time).toLocaleTimeString('chinese', {hour12: false}),
       events: isArray(events) ? events : [events],
     }))
   }
@@ -93,14 +89,18 @@ export default class TimelineLayer extends LayerBase {
         addStyle(groupEl, groupStyle, index)
         groupEl
           .selectAll(`.${this.className}-time`)
-          .data([groupData.time])
+          .data([null])
           .join('xhtml:div')
           .attr('class', `${this.className}-time`)
           .style('flex', 3)
           .style('display', 'grid')
           .style('place-items', 'center')
-          .text(d => d)
           .each((d, i, els) => addStyle(d3.select(els[i]), transformAttr(time)))
+          .selectAll(`.${this.className}-time-text`)
+          .data([groupData.date, groupData.time])
+          .join('xhtml:div')
+          .attr('class', `${this.className}-time-text`)
+          .text(d => d)
         groupEl
           .selectAll(`.${this.className}-line`)
           .data([null])
@@ -129,7 +129,7 @@ export default class TimelineLayer extends LayerBase {
           })
         groupEl
           .selectAll(`.${this.className}-event`)
-          .data([groupData.events])
+          .data([null])
           .join('xhtml:div')
           .attr('class', `${this.className}-event`)
           .style('flex', 6)

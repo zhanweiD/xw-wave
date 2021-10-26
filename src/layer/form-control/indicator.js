@@ -54,7 +54,7 @@ export default class IndicatorLayer extends LayerBase {
       .style('width', containerWidth)
       .style('height', containerHeight)
       .append('xhtml:div')
-      .attr('class', `${this.className}-conatiner`)
+      .attr('class', `${this.className}-container`)
       .style('width', `${width}px`)
       .style('height', `${height}px`)
       .style('margin-left', `${left}px`)
