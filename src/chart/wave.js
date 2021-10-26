@@ -142,7 +142,7 @@ export default class Wave {
    */
   createLayer(type, options = {}) {
     if (!layerMapping[type]) {
-      this.log.error('Layer type is not defined', {type, options})
+      this.log.error(`Wrong layer type: '${type}'`)
       return null
     }
     // context from wave
@@ -166,16 +166,23 @@ export default class Wave {
     return layer
   }
 
-  updateLayer({id, data, scale, style, animation}) {
-    const layer = this.#layers.find(item => item.id === id)?.instance
-    if (layer) {
-      layer.update({data, scale, style, animation})
-    } else {
-      this.log.warn('Failed to update the layer: Invalid ID', {id})
-    }
+  getLayer(id) {
+    const layer = this.#layers.find(item => item.id === id)
+    !layer && this.log.warn('getLayer: Invalid ID', {id})
+    return layer.instance
   }
 
-  bindCoordinate({redraw = false}) {
+  updateLayer({id, data, scale, style, animation}) {
+    const layer = this.getLayer(id)
+    layer && layer.update({data, scale, style, animation})
+  }
+
+  setVisiable({id, visible}) {
+    const layer = this.getLayer(id)
+    layer && layer.setVisiable(visible)
+  }
+
+  bindCoordinate(redraw = false, triggerLayer) {
     const isAxisLayer = instance => instance instanceof Layer.Axis
     const isBaseMapLayer = instance => instance instanceof Layer.BaseMap
     const axisLayer = this.#layers.find(({instance}) => isAxisLayer(instance))?.instance
@@ -215,56 +222,55 @@ export default class Wave {
         const scaleX = x => scales.scaleX(x) - layer.options.layout.left
         const scaleY = y => scales.scaleY(y) - layer.options.layout.top
         layer.setData(null, {...scales, scaleX, scaleY})
-        layer.setStyle()
-        // attention that draw baseMap layer will stuck in infinite loop
-        redraw && !isBaseMapLayer(layer) && layer.draw()
       } else {
         const scaleY = layer.options.axis === 'minor' ? scales.scaleYR : scales.scaleY
         layer.setData(null, {...scales, scaleY})
-        layer.setStyle()
-        redraw && layer.draw()
       }
+      layer.setStyle()
+      redraw && layer !== triggerLayer && layer.draw()
     })
   }
 
   createBrush({type, layout, targets}) {
-    if (this.#engine === 'svg') {
-      const {width, height, left, top} = layout
-      const isHorizontal = type === brushType.HORIZONTAL
-      const layers = this.#layers.filter(({id}) => targets.find(item => item === id))
-      const prevRange = new Array(layers.length).fill(null)
-      // brush will change range of scale
-      const brushed = event => {
-        layers.forEach(({instance}, i) => {
-          const {selection} = event
-          const total = isHorizontal ? width : height
-          const scale = isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
-          // initialize
-          if (prevRange[i] === null) {
-            prevRange[i] = scale.range()
-          }
-          const zoomFactor = total / (selection[1] - selection[0] || 1)
-          const nextRange = [prevRange[i][0], prevRange[i][0] + (prevRange[i][1] - prevRange[i][0]) * zoomFactor]
-          const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
-          scale.range(nextRange.map(value => value - offset))
-          // mark scale with brush so that layer base can merge scales correctly
-          scale.brushed = true
-          instance.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
-          instance.setStyle()
-          instance.draw()
-        })
-      }
-      // create brush instance
-      const [brushX1, brushX2, brushY1, brushY2] = [left, left + width, top, top + height]
-      const brush = isHorizontal ? d3.brushX() : d3.brushY()
-      brush.on('brush', brushed).extent([
-        [brushX1, brushY1],
-        [brushX2, brushY2],
-      ])
-      // initialize brush area
-      const brushDOM = this.#root.append('g').attr('class', 'wave-brush').call(brush)
-      brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
+    if (this.#engine !== 'svg') {
+      this.log.warn('The brush only supports svg')
+      return
     }
+    const {width, height, left, top} = layout
+    const isHorizontal = type === brushType.HORIZONTAL
+    const layers = this.#layers.filter(({id}) => targets.find(item => item === id))
+    const prevRange = new Array(layers.length).fill(null)
+    // brush will change range of scale
+    const brushed = event => {
+      layers.forEach(({instance}, i) => {
+        const {selection} = event
+        const total = isHorizontal ? width : height
+        const scale = isHorizontal ? instance.scale.scaleX : instance.scale.scaleY
+        // initialize
+        if (prevRange[i] === null) {
+          prevRange[i] = scale.range()
+        }
+        const zoomFactor = total / (selection[1] - selection[0] || 1)
+        const nextRange = [prevRange[i][0], prevRange[i][0] + (prevRange[i][1] - prevRange[i][0]) * zoomFactor]
+        const offset = ((selection[0] - (isHorizontal ? left : top)) / total) * (nextRange[1] - nextRange[0])
+        scale.range(nextRange.map(value => value - offset))
+        // mark scale with brush so that layer base can merge scales correctly
+        scale.brushed = true
+        instance.setData(null, {[isHorizontal ? 'scaleX' : 'scaleY']: scale})
+        instance.setStyle()
+        instance.draw()
+      })
+    }
+    // create brush instance
+    const [brushX1, brushX2, brushY1, brushY2] = [left, left + width, top, top + height]
+    const brush = isHorizontal ? d3.brushX() : d3.brushY()
+    brush.on('brush', brushed).extent([
+      [brushX1, brushY1],
+      [brushX2, brushY2],
+    ])
+    // initialize brush area
+    const brushDOM = this.#root.append('g').attr('class', 'wave-brush').call(brush)
+    brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
   }
 
   destroy() {

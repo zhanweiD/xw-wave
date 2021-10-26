@@ -60,10 +60,10 @@ const createWave = (schema, existedWave) => {
   const axisLayerConfig = layers.find(({type}) => isAxisLayer(type))
   const legendLayerConfig = layers.find(({type}) => isLegendLayer(type))
   // layer instance
-  const normalLayers = normalLayerConfigs.map(layer => createLayer(wave, layer))
-  const axisLayer = axisLayerConfig && createLayer(wave, axisLayerConfig)
+  normalLayerConfigs.map(layer => createLayer(wave, layer))
+  axisLayerConfig && createLayer(wave, axisLayerConfig)
   // axis layer control all scales
-  axisLayerConfig && wave.bindCoordinate(axisLayer, normalLayers)
+  axisLayerConfig && wave.bindCoordinate()
   // legend layer is the last one
   legendLayerConfig && createLayer(wave, legendLayerConfig)
   // draw in order with schema

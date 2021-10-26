@@ -169,7 +169,7 @@ export default class BaseMapLayer extends LayerBase {
     this.drawBasic('text', textData)
     // reset coordinate system
     if (this.#blockData.length) {
-      this.options.bindCoordinate({redraw: true})
+      this.options.bindCoordinate(true, this)
     }
     // drill up on the map
     this.event.onWithOff('click-background', 'private', () => {
