@@ -1,5 +1,5 @@
 import {select} from 'd3'
-import {merge} from 'lodash'
+import {cloneDeep, merge} from 'lodash'
 import ScrollAnimation from '../../animation/scroll'
 import DataBase from '../../data/base'
 import {addStyle, range, transformAttr} from '../../utils/common'
@@ -99,12 +99,10 @@ export default class DigitalFlopLayer extends LayerBase {
         this.#cellData.push({text: '.', prevText: prevData.shift()})
       }
     })
-    // filter redundant data
-    let index = 0
-    while (index < this.#cellData.length && !Number(this.#cellData[index].text)) {
-      this.#cellData[index].text = ''
-      index++
-    }
+    const judgeNumber = ({text}) => text >= '0' && text <= '9'
+    const firstNumber = this.#cellData.findIndex(judgeNumber)
+    const lastNumber = this.#cellData.length - cloneDeep(this.#cellData).reverse().findIndex(judgeNumber) - 1
+    this.#cellData.forEach((item, i) => (i < firstNumber || i > lastNumber) && (item.text = ''))
   }
 
   draw() {
@@ -154,26 +152,23 @@ export default class DigitalFlopLayer extends LayerBase {
   playAnimation() {
     const {duration, delay} = this.#animation
     this.root.selectAll(`.${this.className}-group`).each((data, i, els) => {
-      if (data.text !== '') {
-        const prevIndex = characterSet.findIndex(character => character === data.prevText)
-        const index = characterSet.findIndex(character => character === data.text)
-        const offset = prevIndex === -1 ? index : index - prevIndex
-        const animation = new ScrollAnimation({
-          delay,
-          duration,
-          targets: select(els[i]).nodes(),
-          offset: [0, this.#data.get('cellSize')[1] * offset],
-          loop: false,
-          easing: 'easeOutSine',
-        })
-        animation.play()
-      }
+      const prevIndex = characterSet.findIndex(character => character === data.prevText)
+      const index = characterSet.findIndex(character => character === data.text)
+      const offset = (index === -1 ? 0 : index) - (prevIndex === -1 ? 0 : prevIndex)
+      new ScrollAnimation({
+        targets: select(els[i]).nodes(),
+        offset: [0, this.#data.get('cellSize')[1] * offset],
+        easing: 'easeOutSine',
+        loop: false,
+        duration,
+        delay,
+      }).play()
     })
   }
 
   test() {
-    setTimeout(() => {
-      this.setData(new DataBase({value: Math.random() * 10 ** this.#style.integerPlace}))
+    setInterval(() => {
+      this.setData(new DataBase({value: (Math.random() / 5) * 10 ** this.#style.integerPlace}))
       this.setStyle()
       this.draw()
       this.playAnimation()

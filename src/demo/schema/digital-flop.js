@@ -37,51 +37,51 @@ export default `[
           top: 0,
           bottom: 90,
         },
-        4: {
+        ',': {
           left: 216,
-          right: 270,
+          right: 243,
+          top: 0,
+          bottom: 90,
+        },
+        4: {
+          left: 243,
+          right: 297,
           top: 0,
           bottom: 90,
         },
         5: {
-          left: 270,
-          right: 324,
+          left: 297,
+          right: 351,
           top: 0,
           bottom: 90,
         },
         6: {
-          left: 324,
-          right: 378,
+          left: 351,
+          right: 405,
           top: 0,
           bottom: 90,
         },
-        7: {
-          left: 378,
+        '.': {
+          left: 405,
           right: 432,
           top: 0,
           bottom: 90,
         },
-        8: {
+        7: {
           left: 432,
           right: 486,
           top: 0,
           bottom: 90,
         },
-        9: {
+        8: {
           left: 486,
           right: 540,
           top: 0,
           bottom: 90,
         },
-        ',': {
+        9: {
           left: 540,
           right: 594,
-          top: 0,
-          bottom: 90,
-        },
-        '.': {
-          left: 594,
-          right: 648,
           top: 0,
           bottom: 90,
         },
