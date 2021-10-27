@@ -78,13 +78,6 @@ export default class LineLayer extends LayerBase {
     const {mode} = this.options
     this.className = `wave-${mode}-curve`
     this.tooltipTargets = ['point']
-    // delete gradient created for area
-    this.event.onWithOff('before:setStyle', 'areaFill', () => {
-      this.#areaData.length
-        && this.#areaData[0].forEach(({fill}) => {
-          fill && document.getElementById(fill.split(/[#)]/)[1]).remove()
-        })
-    })
   }
 
   setData(tableList, scales) {

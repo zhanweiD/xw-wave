@@ -24,6 +24,7 @@ const positionType = {
 }
 
 // some constants
+export const lifeCycles = ['setData', 'setStyle', 'draw', 'destroy', 'drawBasic', 'playAnimation']
 export const scaleTypes = ['scaleX', 'scaleY', 'scaleXT', 'scaleYR', 'scaleAngle', 'scaleRadius']
 export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown']
 export const tooltipEvents = ['mouseover', 'mouseout', 'mousemove']
@@ -51,13 +52,36 @@ export default class LayerBase {
     this.#createLifeCycles()
   }
 
+  // initialize mouse event
+  #initializeEvent = () => {
+    const {tooltip, engine} = this.options
+    this.#backupEvent = {
+      common: {},
+      tooltip: {
+        mouseover: (event, data) => {
+          tooltip.update({backup: this.#backupData, data: engine === 'svg' ? data : event.target})
+          tooltip.show(engine === 'svg' ? event : event.e)
+        },
+        mousemove: event => tooltip.move(engine === 'svg' ? event : event.e),
+        mouseout: () => tooltip.hide(),
+      },
+    }
+    // basic mouse event
+    commonEvents.forEach(type => {
+      this.#backupEvent.common[type] = {}
+      const events = this.#backupEvent.common[type]
+      this.sublayers.forEach(sublayer => {
+        events[sublayer] = (event, data) => {
+          this.event.fire(`${type}-${sublayer}`, {
+            data: engine === 'svg' ? data : event.target,
+            event: engine === 'svg' ? event : event.e,
+          })
+        }
+      })
+    })
+  }
+
   #createLifeCycles = () => {
-    // basic life cycles
-    const lifeCycles = ['setData', 'setStyle', 'draw', 'destroy', 'drawBasic', 'playAnimation']
-    // life cycles of animation
-    this.playAnimation = () => this.sublayers.forEach(type => this.#backupAnimation[type]?.play())
-    this.setAnimation = options => merge(this.#backupAnimation, {options})
-    // safe call
     lifeCycles.forEach(name => {
       const instance = this
       const fn = instance[name] || (() => null)
@@ -71,6 +95,14 @@ export default class LayerBase {
         }
       }
     })
+  }
+
+  setAnimation(options) {
+    merge(this.#backupAnimation, {options})
+  }
+
+  playAnimation() {
+    this.sublayers.forEach(type => this.#backupAnimation[type]?.play())
   }
 
   /**
@@ -267,35 +299,6 @@ export default class LayerBase {
       transformOrigin: `${x}px ${y}px`,
       textWidth,
     }
-  }
-
-  // initialize mouse event
-  #initializeEvent = () => {
-    const {tooltip, engine} = this.options
-    this.#backupEvent = {
-      common: {},
-      tooltip: {
-        mouseover: (event, data) => {
-          tooltip.update({backup: this.#backupData, data: engine === 'svg' ? data : event.target})
-          tooltip.show(engine === 'svg' ? event : event.e)
-        },
-        mousemove: event => tooltip.move(engine === 'svg' ? event : event.e),
-        mouseout: () => tooltip.hide(),
-      },
-    }
-    // basic mouse event
-    commonEvents.forEach(type => {
-      this.#backupEvent.common[type] = {}
-      const events = this.#backupEvent.common[type]
-      this.sublayers.forEach(sublayer => {
-        events[sublayer] = (event, data) => {
-          this.event.fire(`${type}-${sublayer}`, {
-            data: engine === 'svg' ? data : event.target,
-            event: engine === 'svg' ? event : event.e,
-          })
-        }
-      })
-    })
   }
 
   /**

@@ -63,12 +63,6 @@ export default class SankeyLayer extends LayerBase {
     const {type} = this.options
     this.className = `wave-${type}-sankey`
     this.tooltipTargets = ['rect']
-    // delete gradient created for area
-    this.event.onWithOff('before:setStyle', 'areaFill', () => {
-      this.#ribbonData.forEach(({color}) => {
-        document.getElementById(color.split(/[#)]/)[1]).remove()
-      })
-    })
   }
 
   setData(relation, scales) {
