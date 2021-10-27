@@ -3,8 +3,8 @@ import {useState} from 'react'
 import schema from '../schema'
 import s from './side-bar.module.css'
 
-const SearchBar = ({onSelect}) => {
-  const [activeKey, setActiveKey] = useState('column')
+const SearchBar = ({defaultValue, onSelect}) => {
+  const [activeKey, setActiveKey] = useState(defaultValue)
 
   return (
     <div className={s.sideContainer}>

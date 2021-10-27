@@ -41,18 +41,20 @@ export default class AnimationQueue extends AnimationBase {
 
   /**
    * run the callback after all animations done
-   * @param {Array<AnimationBase>} animations 
-   * @param {Function} callback 
+   * @param {Array<AnimationBase>} animations
+   * @param {Function} callback
    */
   #bind = (animations, callback) => {
     let completeCount = 0
-    animations.forEach(({instance}) => instance.event.on('end', () => {
-      if (++completeCount === animations.length) {
-        // reset count and run the callback
-        completeCount = 0
-        callback()
-      }
-    }))
+    animations.forEach(({instance}) => {
+      instance.event.on('end', () => {
+        if (++completeCount === animations.length) {
+          // reset count and run the callback
+          completeCount = 0
+          callback()
+        }
+      })
+    })
     // animations that completed bind
     return animations
   }
@@ -109,10 +111,12 @@ export default class AnimationQueue extends AnimationBase {
    * @param {*} context
    */
   push(type, options, context) {
-    const createQueueableAnimation = animation => this.queue.push({
-      id: options.id || createUuid(),
-      instance: animation,
-    })
+    const createQueueableAnimation = animation => {
+      this.queue.push({
+        id: options.id || createUuid(),
+        instance: animation,
+      })
+    }
     // create new queue item by type
     if (type === 'function') {
       const animation = new EmptyAnimation()
@@ -141,7 +145,7 @@ export default class AnimationQueue extends AnimationBase {
     if (index !== -1) {
       this.isReady = false
       return this.queue.splice(index, 1)
-    } 
+    }
     this.log.error('The Animation does not exist', id)
     return null
   }

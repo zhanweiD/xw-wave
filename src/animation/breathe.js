@@ -9,22 +9,26 @@ const defaultOptions = {
 }
 
 const createFilter = (parentNode, {id}) => {
-  const filter = parentNode.append('filter')
+  const filter = parentNode
+    .append('filter')
     .attr('id', `url(#breathe-${id})`)
     .attr('x', '-500%')
     .attr('y', '-500%')
     .attr('width', '1000%')
     .attr('height', '1000%')
-  filter.append('feOffset')
+  filter
+    .append('feOffset')
     .attr('result', 'offOut')
     .attr('in', 'SourceGraphic')
     .attr('dx', 0)
     .attr('dy', 0)
-  const targets = filter.append('feGaussianBlur')
+  const targets = filter
+    .append('feGaussianBlur')
     .attr('result', 'blurOut')
     .attr('in', 'offOut')
     .attr('stdDeviation', 0)
-  filter.append('feBlend')
+  filter
+    .append('feBlend')
     .attr('in', 'SourceGraphic')
     .attr('in2', 'blurOut')
     .attr('mode', 'lighten')

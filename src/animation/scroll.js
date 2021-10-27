@@ -9,16 +9,19 @@ const defaultOptions = {
   reverse: false,
   clone: false,
   loop: true,
+  easing: 'linear',
 }
 
 export default class ScrollAnimation extends AnimationBase {
-  #elementNumber = null
-
   #active = null
+
+  #elementNumber = null
 
   constructor(options, context) {
     super(defaultOptions, options, context)
     const {clone, offset, reverse, targets} = this.options
+    this.#elementNumber = this.options.targets.length
+    this.#active = reverse ? this.#elementNumber - 1 : 0
     // copy the same element to make the scroll animation continuous
     if (clone) {
       // the copied element is also the moving object of the animation
@@ -32,38 +35,41 @@ export default class ScrollAnimation extends AnimationBase {
         duration: 0,
       })
       // move the element to makes the scroll animation continuous
-      reverse && anime({
-        targets: this.options.targets,
-        translateX: `-=${offset[0]}`,
-        translateY: `-=${offset[1]}`,
-        duration: 0,
-      })
+      if (reverse) {
+        anime({
+          targets: this.options.targets,
+          translateX: `-=${offset[0]}`,
+          translateY: `-=${offset[1]}`,
+          duration: 0,
+        })
+      }
     }
-    this.#elementNumber = this.options.targets.length
-    this.#active = reverse ? this.#elementNumber - 1 : 0
   }
 
   play() {
-    const {targets, delay, duration, offset, reverse} = this.options
+    const {targets, delay, duration, loop, offset, reverse, easing} = this.options
     this.instance = anime({
       targets,
       duration,
       delay,
-      keyframes: [{
-        translateX: `${reverse ? '+=' : '-='}${offset[0]}`,
-        translateY: `${reverse ? '+=' : '-='}${offset[1]}`,
-        opacity: (el, i) => (this.#active === i ? 0 : 1),
-        duration,
-      }, {
-        translateX: (el, i, len) => (`${reverse ? '-=' : '+='}${this.#active === i ? offset[0] * len : 0}`),
-        translateY: (el, i, len) => (`${reverse ? '-=' : '+='}${this.#active === i ? offset[1] * len : 0}`),
-        opacity: 1,
-        duration: 0,
-      }],
+      keyframes: [
+        {
+          translateX: `${reverse ? '+=' : '-='}${offset[0]}`,
+          translateY: `${reverse ? '+=' : '-='}${offset[1]}`,
+          opacity: (el, i) => (loop && this.#active === i ? 0 : 1),
+          duration,
+        },
+        loop && {
+          translateX: (el, i, len) => `${reverse ? '-=' : '+='}${this.#active === i ? offset[0] * len : 0}`,
+          translateY: (el, i, len) => `${reverse ? '-=' : '+='}${this.#active === i ? offset[1] * len : 0}`,
+          opacity: 1,
+          duration: 0,
+        },
+      ],
       update: this.process,
       loopBegin: this.start,
       loopComplete: this.end,
-      easing: 'linear',
+      easing,
     })
   }
 

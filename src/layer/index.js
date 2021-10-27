@@ -16,7 +16,7 @@ import Indicator from './form-control/indicator'
 import TabButton from './form-control/tab-button'
 import TabMenu from './form-control/tab-menu'
 import Timeline from './form-control/timeline'
-
+import DigitalFlop from './form-control/digital-flop'
 // 关系图层
 import EdgeBundle from './relation/edge-bundle'
 import Chord from './relation/chord'
@@ -42,6 +42,7 @@ export const layerMapping = {
   axis: Axis, // 坐标轴
   baseMap: BaseMap, // 地图底图
   chord: Chord, // 和弦图
+  digitalFlop: DigitalFlop, // 数字翻牌器
   edgeBundle: EdgeBundle, // 边缘捆图
   gauge: Gauge, // 仪表盘
   heatmap: Heatmap, // 热力
@@ -75,6 +76,7 @@ export default {
   Axis,
   BaseMap,
   Chord,
+  DigitalFlop,
   EdgeBundle,
   Gauge,
   Indicator,

@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {HashRouter as Router, Route} from 'react-router-dom'
-import Demo from './demo'
+import Demo from './demo/demo'
 import DemoOld from './demo/backup'
 import Log from './demo/log'
 import './index.css'

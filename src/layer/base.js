@@ -34,9 +34,7 @@ export default class LayerBase {
 
   #backupEvent = {}
 
-  #backupAnimation = {
-    options: {},
-  }
+  #backupAnimation = {options: {}}
 
   constructor(layerOptions, waveOptions, sublayers) {
     this.options = merge(layerOptions, waveOptions)
@@ -224,9 +222,7 @@ export default class LayerBase {
       return currentData
     }
     if (!(incomingData instanceof dataMapping[dataType])) {
-      const message = `Data structure error: Layer need ${dataType}`
-      this.log.warn(message)
-      throw new Error(message)
+      throw new Error('Require the right data processor')
     }
     return filter ? filter(incomingData) : incomingData
   }

@@ -19,8 +19,8 @@ const scopes = {
 }
 
 const defaultOptions = {
-  delay: 1000, 
-  duration: 3000, 
+  delay: 1000,
+  duration: 3000,
   direction: directions.BOTTOM,
   scope: scopes.FILL,
   color: 'rgb(255,255,255)',
@@ -45,18 +45,10 @@ const getAttributes = direction => {
 const insertOffsets = (gradient, {color, opacity}) => {
   const minColor = chroma(color).alpha(0)
   const maxColor = chroma(color).alpha(opacity)
-  gradient.append('stop')
-    .attr('offset', '20%')
-    .style('stop-color', minColor)
-  gradient.append('stop')
-    .attr('offset', '45%')
-    .style('stop-color', maxColor)
-  gradient.append('stop')
-    .attr('offset', '55%')
-    .style('stop-color', maxColor)
-  gradient.append('stop')
-    .attr('offset', '80%')
-    .style('stop-color', minColor)
+  gradient.append('stop').attr('offset', '20%').style('stop-color', minColor)
+  gradient.append('stop').attr('offset', '45%').style('stop-color', maxColor)
+  gradient.append('stop').attr('offset', '55%').style('stop-color', maxColor)
+  gradient.append('stop').attr('offset', '80%').style('stop-color', minColor)
   return gradient
 }
 
@@ -64,17 +56,20 @@ const createGradient = (parentNode, {id, direction, color, opacity}) => {
   let targets
   const attributes = getAttributes(direction)
   const isLeftOrTop = direction === directions.LEFT || direction === directions.TOP
-  parentNode.append('filter')
+  parentNode
+    .append('filter')
     .attr('id', `scan-filter-${id}`)
     .append('feGaussianBlur')
     .attr('in', 'SourceGraphic')
     .attr('stdDeviation', 0)
   if (attributes[0] === 'r') {
-    targets = parentNode.append('radialGradient')
+    targets = parentNode
+      .append('radialGradient')
       .attr('id', `scan-${id}`)
       .attr(attributes[0], direction === directions.INNER ? '300%' : '0%')
   } else if (attributes.length === 2) {
-    targets = parentNode.append('linearGradient')
+    targets = parentNode
+      .append('linearGradient')
       .attr('id', `scan-${id}`)
       .attr('x1', '0%')
       .attr('x2', '0%')
@@ -120,7 +115,9 @@ export default class ScanAnimation extends AnimationBase {
     }
     // scan object
     if (!this.#lights) {
-      this.#lights = context.selectAll(className).clone(false)
+      this.#lights = context
+        .selectAll(className)
+        .clone(false)
         .attr('class', 'scanAnimation-clone')
         .attr('filter', `url(#scan-filter-${this.id}`)
         .attr('stroke', scope !== scopes.FILL ? `url(#scan-${this.id})` : '')

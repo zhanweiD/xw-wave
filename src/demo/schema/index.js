@@ -1,6 +1,7 @@
 import bar from './bar'
 import basic from './basic'
 import column from './column'
+import digitalFlop from './digital-flop'
 import line from './line'
 import map from './map'
 import matrix from './matrix'
@@ -50,6 +51,10 @@ export default {
   timeline: {
     text: '时间轴',
     code: basic.replace('{REPLACED_LAYERS}', timeline),
+  },
+  digitalFlop: {
+    text: '数字翻牌器',
+    code: basic.replace('{REPLACED_LAYERS}', digitalFlop),
   },
   custom: {
     text: '自定义',
