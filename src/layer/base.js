@@ -137,11 +137,11 @@ export default class LayerBase {
     if (customColors) {
       originColors = isArray(customColors) ? customColors : [customColors]
     }
-    const data = this.data?.data
     // the order attribute indicates the color priority
     const order = this.data?.options?.order
     // the order from legend layer
     if (order && order.colorMatrix) {
+      const data = this.data?.data
       const {type, mapping} = order
       colorMatrix = cloneDeep(order.colorMatrix.matrix)
       // filter colors
