@@ -6,6 +6,7 @@ import {addStyle, range, transformAttr} from '../../utils/common'
 import LayerBase from '../base'
 
 const defaultStyle = {
+  zoom: 1,
   integerPlace: 8,
   decimalPlace: 2,
   thousandth: true,
@@ -122,23 +123,23 @@ export default class DigitalFlopLayer extends LayerBase {
       .style('width', `${this.#data.get('cellSize')[0]}px`)
       .style('height', `${this.#data.get('cellSize')[1]}px`)
       .each((d, i, els) => {
-        if (this.#style.character[d]) {
-          // use image
-          const {left, top, bottom, right} = this.#style.character[d]
+        const {character, zoom, text} = this.#style
+        if (character[d]) {
+          const {left, top, bottom, right} = character[d]
           const [width, height] = [right - left, bottom - top]
           const [offsetX, offsetY] = [-width / 2 - left, -height / 2 - top]
           select(els[i])
+            .style('transform', `scale(${zoom})`)
             .append('img')
-            .attr('src', this.#style.character.url)
+            .attr('src', character.url)
             .style('position', 'absolute')
             .style('clip', `rect(${top}px,${right}px,${bottom}px,${left}px)`)
             .style('transform', `translate(${offsetX}px,${offsetY}px)`)
             .style('left', '50%')
             .style('top', '50%')
         } else {
-          // use font
           const el = select(els[i])
-          const style = transformAttr(this.#style.text)
+          const style = transformAttr(text)
           addStyle(el, style, i)
           select(els[i]).text(d)
         }
