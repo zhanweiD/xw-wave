@@ -5,7 +5,7 @@ import Chart from './chart'
 import s from './demo.module.css'
 import schema from './schema'
 
-let backup = schema.digitalFlop.code
+let backup = schema.children[0].children[0].code
 
 export default function Demo() {
   const [oldSchema, setOldSchema] = useState(backup)
@@ -14,10 +14,9 @@ export default function Demo() {
   return (
     <div className={s.container}>
       <SideBar
-        defaultValue="digitalFlop"
-        onSelect={key => {
-          setOldSchema(schema[key].code)
-          setNewSchema(schema[key].code)
+        onSelect={({code}) => {
+          setOldSchema(code)
+          setNewSchema(code)
         }}
       />
       <div className={s.mainSection}>

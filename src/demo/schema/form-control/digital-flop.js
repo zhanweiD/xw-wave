@@ -1,11 +1,12 @@
-import character from '../image/character.png'
+import character from '../../image/character.png'
 
-export default `[
+export default ({mode}) => `[
   {
     type: 'digitalFlop',
     options: {
       id: 'digitalFlop',
       layout: 'main',
+      mode: '${mode}',
     },
     data: {
       value: 12034.456,

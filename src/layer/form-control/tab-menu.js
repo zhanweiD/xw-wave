@@ -11,9 +11,11 @@ const directionType = {
 const defaultStyle = {
   direction: directionType.HORIZONTAL,
   active: {
+    color: 'white',
     backgroundColor: 'rgb(0,119,255)',
   },
   inactive: {
+    color: 'black',
     backgroundColor: 'rgb(255,255,255,.2)',
   },
   text: {

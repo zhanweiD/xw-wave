@@ -1,4 +1,4 @@
-export default `[
+export default ({mode}) => `[
   // 标题文字图层
   {
     type: 'text',
@@ -53,7 +53,7 @@ export default `[
       id: 'radar',
       layout: 'main',
       axis: 'main',
-      mode: 'stack',
+      mode: '${mode}',
     },
     data: {
       type: 'tableList',

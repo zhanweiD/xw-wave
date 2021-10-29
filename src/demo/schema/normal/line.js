@@ -1,4 +1,4 @@
-export default `[
+export default ({mode, hasArea, curve}) => `[
   // 标题文字图层
   {
     type: 'text',
@@ -81,6 +81,7 @@ export default `[
       layout: 'main',
       axis: 'main',
       fallback: 'break',
+      mode: '${mode}',
     },
     data: {
       type: 'tableList',
@@ -94,10 +95,11 @@ export default `[
     style: {
       labelPosition: 'top',
       curve: {
+        curve: '${curve}',
         strokeWidth: 2,
       },
       area: {
-        hide: true,
+        hide: ${hasArea ? 'false' : 'true'},
         fillOpacity: 0.5,
       },
       text: {

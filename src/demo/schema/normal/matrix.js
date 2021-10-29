@@ -1,4 +1,4 @@
-export default `[
+export default ({shape}) => `[
   // 标题文字图层
   {
     type: 'text',
@@ -6,39 +6,20 @@ export default `[
       id: 'title',
       layout: 'title',
     },
-    data: '饼图',
+    data: '矩阵图',
     style: {
       text: {
         fontSize: 16,
       },
     },
   },
-  // 图例图层
-  {
-    type: 'legend',
-    options: {
-      id: 'legend',
-      layout: 'legend',
-    },
-    style: {
-      align: 'end',
-      verticalAlign: 'start',
-      direction: 'horizontal',
-      pointSize: 8,
-      gap: [5, 10],
-      text: {
-        fontSize: 12,
-        // fill: 'red',
-      },
-    },
-  },
-  // 极坐标组合
+  // 直角坐标组合
   {
     type: 'axis',
     options: {
       id: 'axis',
       layout: 'main',
-      type: 'polar',
+      type: 'cartesian',
     },
     scale: {
       count: 5,
@@ -46,32 +27,45 @@ export default `[
     },
     style: {},
   },
-  // 圆弧图层
+  // 矩阵图层
   {
-    type: 'arc',
+    type: 'matrix',
     options: {
-      id: 'arc',
+      id: 'matrix',
       layout: 'main',
+      axis: 'main',
+      shape: '${shape}',
     },
     data: {
-      type: 'tableList',
+      type: 'table',
       mode: 'normal',
-      row: 6,
-      column: 3,
-      mu: 500,
-      sigma: 200,
+      row: 8,
+      column: 8,
+      mu: 1000,
+      sigma: 400,
       decimalPlace: 1,
     },
+    scale: {
+      paddingInner: 0,
+    },
     style: {
-      labelPosition: 'outer', // or 'inner'
-      innerRadius: 0,
+      circleSize: ['auto', 'auto'],
+      rect: {},
       text: {
-        fontSize: 8,
-        hide: false,
+        fontSize: 10,
       },
     },
     animation: {
-      arc: {
+      rect: {
+        enter: {
+          type: 'zoom',
+          delay: 0,
+          duration: 2000,
+          mode: 'enlarge',
+          direction: 'both',
+        },
+      },
+      circle: {
         enter: {
           type: 'zoom',
           delay: 0,
@@ -90,7 +84,8 @@ export default `[
       },
     },
     event: {
-      'click-arc': d => console.log(d),
+      'click-rect': d => console.log(d),
+      'click-circle': d => console.log(d),
     },
   },
 ]`

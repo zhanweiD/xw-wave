@@ -1,4 +1,4 @@
-export default `[
+export default ({pointSize}) => `[
   // 标题文字图层
   {
     type: 'text',
@@ -117,7 +117,7 @@ export default `[
       ['2016', 718.1, 141.2, 416.6],
     ],
     style: {
-      pointSize: [10, 30],
+      pointSize: [${pointSize[0]}, ${pointSize[1]}],
       text: {
         hide: true,
         fontSize: 10,

@@ -1,4 +1,4 @@
-export default `[
+export default ({type, mode}) => `[
   // 标题文字图层
   {
     type: 'text',
@@ -6,7 +6,7 @@ export default `[
       id: 'title',
       layout: 'title',
     },
-    data: '条形图',
+    data: '柱状图',
     style: {
       text: {
         fontSize: 16,
@@ -37,7 +37,7 @@ export default `[
     options: {
       id: 'auxiliary',
       layout: 'main',
-      type: 'vertical', // or 'horizontal'
+      type: '${type === 'column' ? 'horizontal' : 'vertical'}',
       bind: 'axis',
     },
     data: [
@@ -46,7 +46,7 @@ export default `[
       ['最小值', 600],
     ],
     style: {
-      labelPosition: 'top',
+      labelPosition: 'right',
       line: {
         stroke: 'yellow',
         strokeWidth: 2,
@@ -89,8 +89,8 @@ export default `[
       layout: 'main',
       // 声明使用主轴还是副轴，不声明则表示不画坐标轴
       axis: 'main', // minor
-      mode: 'group',
-      type: 'bar',
+      mode: '${mode}',
+      type: '${type}',
     },
     data: {
       type: 'tableList',
@@ -102,7 +102,7 @@ export default `[
       decimalPlace: 1,
     },
     style: {
-      labelPosition: 'right-outer',
+      labelPosition: '${mode === 'group' ? (type === 'column' ? 'top-outer' : 'right-outer') : 'center'}',
       rect: {
         // fill: ['red', 'green'],
         mapping: elData => {

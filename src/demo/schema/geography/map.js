@@ -1,4 +1,4 @@
-export default `[
+export default () => `[
   // 标题文字图层
   {
     type: 'text',

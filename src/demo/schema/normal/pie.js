@@ -1,4 +1,4 @@
-export default `[
+export default ({type, mode, innerRadius}) => `[
   // 标题文字图层
   {
     type: 'text',
@@ -6,20 +6,39 @@ export default `[
       id: 'title',
       layout: 'title',
     },
-    data: '矩阵图',
+    data: '饼图',
     style: {
       text: {
         fontSize: 16,
       },
     },
   },
-  // 直角坐标组合
+  // 图例图层
+  {
+    type: 'legend',
+    options: {
+      id: 'legend',
+      layout: 'legend',
+    },
+    style: {
+      align: 'end',
+      verticalAlign: 'start',
+      direction: 'horizontal',
+      pointSize: 8,
+      gap: [5, 10],
+      text: {
+        fontSize: 12,
+        // fill: 'red',
+      },
+    },
+  },
+  // 极坐标组合
   {
     type: 'axis',
     options: {
       id: 'axis',
       layout: 'main',
-      type: 'cartesian',
+      type: 'polar',
     },
     scale: {
       count: 5,
@@ -27,45 +46,34 @@ export default `[
     },
     style: {},
   },
-  // 矩阵图层
+  // 圆弧图层
   {
-    type: 'matrix',
+    type: 'arc',
     options: {
-      id: 'matrix',
+      id: 'arc',
       layout: 'main',
-      axis: 'main',
-      shape: 'rect', // or 'circle'
+      type: '${type}',
+      mode: '${mode}',
     },
     data: {
-      type: 'table',
+      type: 'tableList',
       mode: 'normal',
-      row: 8,
-      column: 8,
-      mu: 1000,
-      sigma: 400,
+      row: 6,
+      column: ${mode === 'stack' ? 2 : 1},
+      mu: 500,
+      sigma: 200,
       decimalPlace: 1,
     },
-    scale: {
-      paddingInner: 0,
-    },
     style: {
-      circleSize: ['auto', 'auto'],
-      rect: {},
+      labelPosition: 'outer', // or 'inner'
+      innerRadius: ${innerRadius},
       text: {
-        fontSize: 10,
+        fontSize: 8,
+        hide: false,
       },
     },
     animation: {
-      rect: {
-        enter: {
-          type: 'zoom',
-          delay: 0,
-          duration: 2000,
-          mode: 'enlarge',
-          direction: 'both',
-        },
-      },
-      circle: {
+      arc: {
         enter: {
           type: 'zoom',
           delay: 0,
@@ -84,8 +92,7 @@ export default `[
       },
     },
     event: {
-      'click-rect': d => console.log(d),
-      'click-circle': d => console.log(d),
+      'click-arc': d => console.log(d),
     },
   },
 ]`
