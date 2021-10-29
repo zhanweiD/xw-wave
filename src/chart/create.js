@@ -53,7 +53,7 @@ const createWave = (schema, existedWave) => {
     log.error('createWave: Invalid schema')
     return null
   }
-  const {brush, layers = [], ...initialConfig} = schema
+  const {brush, layers = [], callback, ...initialConfig} = schema
   const wave = existedWave || new Wave(initialConfig)
   // some special layers require data or scales from other layers
   const normalLayerConfigs = layers.filter(({type}) => isNormalLayer(type))
@@ -72,6 +72,8 @@ const createWave = (schema, existedWave) => {
   brush && wave.createBrush({...brush, layout: wave.layout[brush.layout]})
   // TODO: throw and give control to users
   setTimeout(() => wave.layers.map(({instance}) => instance.playAnimation()))
+  // callback after create
+  callback && callback(wave)
   return wave
 }
 
