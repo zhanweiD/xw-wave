@@ -29,7 +29,7 @@ const createLayer = (wave, config) => {
     } else {
       dataSet = new Relation(data[0], data[1])
     }
-  } else if (dataBase.isTableList(data) || data?.type === 'tableList') {
+  } else if (type !== 'indicator' && (dataBase.isTableList(data) || data?.type === 'tableList')) {
     if (type === 'matrix') {
       dataSet = new Table(dataBase.tableListToTable(data))
     } else {
