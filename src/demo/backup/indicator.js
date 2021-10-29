@@ -36,6 +36,9 @@ const createSchema = (container, theme, layout) => ({
             shadow: '2px 2px 2px gray',
             fontWeight: 900,
             paddingRight: '30px',
+            event: {
+              click: d => console.log(d),
+            },
           },
           {
             text: '万元',

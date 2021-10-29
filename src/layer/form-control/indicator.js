@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import {cloneDeep, merge} from 'lodash'
-import {addStyle, getAttr, transformAttr} from '../../utils/common'
+import {addEvent, addStyle, getAttr, transformAttr} from '../../utils/common'
 import LayerBase from '../base'
 
 const iconPositionType = {
@@ -148,6 +148,7 @@ export default class IndicatorLayer extends LayerBase {
             const itemStyle = transformAttr(itemData)
             addStyle(itemEl, itemStyle)
             itemEl.text(itemStyle.text)
+            itemStyle.event && addEvent(itemEl, itemStyle.event, itemData)
           })
       })
   }

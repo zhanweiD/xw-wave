@@ -58,6 +58,17 @@ export const addStyle = (target, style, index) => {
 }
 
 /**
+ * add event for d3 selection
+ * @param {Selection} target
+ * @param {Object} event
+ * @param {Number} index
+ */
+export const addEvent = (target, event, data) => {
+  Object.entries(event).forEach(([key, handler]) => target.on(key, handler.bind(null, data)))
+  target.style('cursor', 'pointer')
+}
+
+/**
  * fontSize => font-size
  * @param {Object} object styles
  */
