@@ -85,7 +85,7 @@ export default function Scale({type, domain, range, nice = defaultNice}) {
  */
 export const extendZero = scale => {
   let [start, end] = scale.domain()
-  if (start < end) {
+  if (start <= end) {
     if (start > 0) {
       start = 0
     } else if (end < 0) {
