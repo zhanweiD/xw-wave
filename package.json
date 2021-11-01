@@ -72,8 +72,8 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
-    "build": "webpack --progress --config ./scripts/build.js  --mode production",
-    "package": "node scripts/package.js"
+    "package": "webpack --progress --config ./scripts/build.js  --mode production",
+    "build": "node scripts/package.js"
   },
   "browserslist": {
     "production": [
