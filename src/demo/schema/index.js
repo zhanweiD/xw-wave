@@ -9,6 +9,14 @@ import digitalFlop from './form-control/digital-flop'
 import tabMenu from './form-control/tab-menu'
 import timeline from './form-control/timeline'
 import map from './geography/map'
+import dashboard from './normal/dashboard'
+import indicator from './form-control/indicator'
+import edgeBundle from './relation/edge-bundle'
+import chord from './relation/chord'
+import sankey from './relation/sankey'
+import tree from './relation/tree'
+import treemap from './relation/treemap'
+import pack from './relation/pack'
 
 const createCode = layerSchema => base.replace('{REPLACED_LAYERS}', layerSchema)
 
@@ -151,15 +159,44 @@ export default {
       ],
     },
     {
-      name: '表单控件',
+      name: '关系图',
       children: [
         {
-          name: '切换菜单',
-          code: createCode(tabMenu()),
+          name: '边缘捆图',
+          code: createCode(edgeBundle()),
         },
         {
-          name: '时间轴',
-          code: createCode(timeline()),
+          name: '和弦图',
+          code: createCode(chord()),
+        },
+        {
+          name: '桑基图',
+          code: createCode(sankey()),
+        },
+        {
+          name: '树图',
+          code: createCode(tree()),
+        },
+        {
+          name: '矩阵树图',
+          code: createCode(treemap()),
+        },
+        {
+          name: '打包图',
+          code: createCode(pack()),
+        },
+      ],
+    },
+    {
+      name: '仪表盘',
+      children: [
+        {
+          name: '仪表盘',
+          code: createCode(dashboard({type: 'dashboard'})),
+        },
+        {
+          name: '环形指标卡',
+          code: createCode(dashboard({type: 'indicator'})),
         },
       ],
     },
@@ -173,6 +210,23 @@ export default {
         {
           name: '翻牌器2',
           code: createCode(digitalFlop({mode: 'flop'})),
+        },
+      ],
+    },
+    {
+      name: '表单控件',
+      children: [
+        {
+          name: '指标卡',
+          code: createCode(indicator()),
+        },
+        {
+          name: '时间轴',
+          code: createCode(timeline()),
+        },
+        {
+          name: '切换菜单',
+          code: createCode(tabMenu()),
         },
       ],
     },
