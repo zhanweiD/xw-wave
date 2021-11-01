@@ -22,7 +22,7 @@ const defaultStyle = {
   },
 }
 
-export default class GaugeLayer extends LayerBase {
+export default class DashboardLayer extends LayerBase {
   #data = null
 
   #style = defaultStyle
@@ -48,7 +48,7 @@ export default class GaugeLayer extends LayerBase {
   constructor(layerOptions, waveOptions) {
     const subLayers = ['arc', 'pointer', 'pointerAnchor', 'tickLine', 'tickText', 'labelText', 'valueText']
     super(layerOptions, waveOptions, subLayers)
-    this.className = 'wave-gauge'
+    this.className = 'wave-dashboard'
   }
 
   // special data

@@ -10,7 +10,7 @@ import Radar from './normal/radar'
 import Auxiliary from './normal/auxiliary'
 import Scatter from './normal/scatter'
 import Matrix from './normal/matrix'
-import Gauge from './normal/gauge'
+import Dashboard from './normal/dashboard'
 // 表单图层
 import Indicator from './form-control/indicator'
 import TabButton from './form-control/tab-button'
@@ -44,7 +44,7 @@ export const layerMapping = {
   chord: Chord, // 和弦图
   digitalFlop: DigitalFlop, // 数字翻牌器
   edgeBundle: EdgeBundle, // 边缘捆图
-  gauge: Gauge, // 仪表盘
+  dashboard: Dashboard, // 仪表盘
   heatmap: Heatmap, // 热力
   indicator: Indicator, // 指标卡
   legend: Legend, // 图例
@@ -78,7 +78,7 @@ export default {
   Chord,
   DigitalFlop,
   EdgeBundle,
-  Gauge,
+  Dashboard,
   Indicator,
   Heatmap,
   Legend,

@@ -1,5 +1,5 @@
 import Layout from '../../layout'
-import {createGaugeData} from './mock'
+import {createDashboardData} from './mock'
 
 // 柱状图配置数据生成
 const createSchema = (container, theme, layout) => {
@@ -273,12 +273,12 @@ const createSchema = (container, theme, layout) => {
       },
       // 仪表盘层
       {
-        type: 'gauge',
+        type: 'dashboard',
         options: {
-          id: 'gauge',
+          id: 'dashboard',
           layout: 'facet3',
         },
-        data: createGaugeData('gauge'),
+        data: createDashboardData('dashboard'),
         style: {
           tickSize: 10,
           valueText: {

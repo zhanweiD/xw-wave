@@ -7,7 +7,7 @@ import pieSchema from './pie'
 import radarSchema from './radar'
 import scatterSchema from './scatter'
 import matrixSchema from './matrix'
-import gaugeSchema from './gauge'
+import dashboardSchema from './dashboard'
 import indicatorSchema from './indicator'
 import tabSchema from './tab'
 import lineSchema from './line'
@@ -38,7 +38,7 @@ const chartMapping = {
   radar: '雷达图',
   scatter: '点图',
   matrix: '矩阵图',
-  gauge: '仪表盘',
+  dashboard: '仪表盘',
   relation: '关系图',
   facet: '分面图',
   map: '地图',
@@ -46,7 +46,7 @@ const chartMapping = {
 }
 
 export default function Example() {
-  const [chart, setChart] = useState('gauge')
+  const [chart, setChart] = useState('dashboard')
   const [theme, setTheme] = useState('duskUniverse')
   const [fallbackWaves, setFallbackWaves] = useState([])
   const containerStyle = {background: ThemeConfig[theme].background}
@@ -88,10 +88,10 @@ export default function Example() {
     waves.push(chart === 'matrix' && createWave(matrixSchema.rectHeatmap(refs[1].current, themeColors)))
     waves.push(chart === 'matrix' && createWave(matrixSchema.circleHeatmap(refs[2].current, themeColors)))
     // 仪表盘
-    waves.push(chart === 'gauge' && createWave(gaugeSchema.gauge(refs[1].current, themeColors)))
-    waves.push(chart === 'gauge' && createWave(gaugeSchema.indicator(refs[2].current, themeColors)))
-    waves.push(chart === 'gauge' && createWave(indicatorSchema.indicator(refs[3].current, themeColors)))
-    waves.push(chart === 'gauge' && createWave(tabSchema.tabButton(refs[4].current, themeColors)))
+    waves.push(chart === 'dashboard' && createWave(dashboardSchema.dashboard(refs[1].current, themeColors)))
+    waves.push(chart === 'dashboard' && createWave(dashboardSchema.indicator(refs[2].current, themeColors)))
+    waves.push(chart === 'dashboard' && createWave(indicatorSchema.indicator(refs[3].current, themeColors)))
+    waves.push(chart === 'dashboard' && createWave(tabSchema.tabButton(refs[4].current, themeColors)))
     // 折线类
     waves.push(chart === 'line' && createWave(lineSchema.line(refs[1].current, themeColors)))
     waves.push(chart === 'line' && createWave(lineSchema.stackLine(refs[2].current, themeColors)))
@@ -174,10 +174,10 @@ export default function Example() {
           {chart === 'scatter' && <div className={s.wave} ref={refs[2]} />}
           {chart === 'matrix' && <div className={s.wave} ref={refs[1]} />}
           {chart === 'matrix' && <div className={s.wave} ref={refs[2]} />}
-          {chart === 'gauge' && <div className={s.wave} ref={refs[1]} />}
-          {chart === 'gauge' && <div className={s.wave} ref={refs[2]} />}
-          {chart === 'gauge' && <div className={s.wave} ref={refs[3]} />}
-          {chart === 'gauge' && <div className={s.wave} ref={refs[4]} />}
+          {chart === 'dashboard' && <div className={s.wave} ref={refs[1]} />}
+          {chart === 'dashboard' && <div className={s.wave} ref={refs[2]} />}
+          {chart === 'dashboard' && <div className={s.wave} ref={refs[3]} />}
+          {chart === 'dashboard' && <div className={s.wave} ref={refs[4]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[1]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[2]} />}
           {chart === 'line' && <div className={s.wave} ref={refs[3]} />}

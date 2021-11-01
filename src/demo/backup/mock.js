@@ -64,12 +64,12 @@ export const createTableData = () => {
   return finalData
 }
   
-export const createGaugeData = type => {
+export const createDashboardData = type => {
   const value = Math.floor(Math.random() * 100)
   return {
     value,
-    label: type === 'gauge' ? '仪表盘' : '环形指标卡',
-    fragments: type === 'gauge' ? [[0, 30, '低'], [30, 60, '中'], [60, 100, '高']]
+    label: type === 'dashboard' ? '仪表盘' : '环形指标卡',
+    fragments: type === 'dashboard' ? [[0, 30, '低'], [30, 60, '中'], [60, 100, '高']]
       : [[0, value, '当前'], [value, 100, '剩余']],
   }
 }

@@ -1,4 +1,4 @@
-import {createGaugeData} from './mock'
+import {createDashboardData} from './mock'
 import Layout from '../../layout'
 
 // 仪表盘数据生成
@@ -36,14 +36,14 @@ const createSchema = (container, theme, layout, type) => ({
     },
     // 仪表盘层
     {
-      type: 'gauge',
+      type: 'dashboard',
       options: {
-        id: 'gauge',
+        id: 'dashboard',
         layout: 'main',
       },
-      data: createGaugeData(type),
+      data: createDashboardData(type),
       style:
-        type === 'gauge'
+        type === 'dashboard'
           ? {
             tickSize: 10,
             valueText: {
@@ -79,6 +79,6 @@ const createSchema = (container, theme, layout, type) => ({
 })
 
 export default {
-  gauge: (container, theme) => createSchema(container, theme, Layout.standard(false), 'gauge'),
+  dashboard: (container, theme) => createSchema(container, theme, Layout.standard(false), 'dashboard'),
   indicator: (container, theme) => createSchema(container, theme, Layout.standard(false), 'indicator'),
 }
