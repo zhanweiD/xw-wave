@@ -56,7 +56,6 @@ export default class TimelineLayer extends LayerBase {
       .style('flex-direction', 'column')
   }
 
-  // data is 2-dimensional array of object
   setData(tableList) {
     this.#data = this.createData('tableList', this.#data, tableList)
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))

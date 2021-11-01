@@ -56,7 +56,6 @@ export default class TabButtonLayer extends LayerBase {
       .style('align-items', 'center')
   }
 
-  // data is 2-dimensional array of object
   setData(tableList) {
     this.#data = this.createData('tableList', this.#data, tableList)
     const headers = this.#data.data.map(({header}) => header)

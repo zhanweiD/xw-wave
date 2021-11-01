@@ -7,33 +7,44 @@ const SearchBar = ({onSelect}) => {
   const ref = useRef(null)
 
   useEffect(() => {
-    createWave({
-      container: ref.current,
-      layers: [
-        {
-          type: 'tabMenu',
-          options: {
-            id: 'tabMenu',
-            layout: 'main',
-          },
-          data: schema,
-          style: {
-            text: {
-              padding: '10px 0',
-              height: '30px',
-              width: '100%',
+    const refresh = () => {
+      createWave({
+        container: ref.current,
+        layers: [
+          {
+            type: 'tabMenu',
+            options: {
+              id: 'tabMenu',
+              layout: 'main',
             },
-            group: {
-              width: ['120px', '180px'],
-              backgroundColor: 'whitesmoke',
+            data: schema,
+            style: {
+              text: {
+                padding: '10px 0',
+                height: '30px',
+                width: '100%',
+              },
+              group: {
+                width: ['120px', '180px'],
+                height: ['auto', 'fit-content'],
+                backgroundColor: 'whitesmoke',
+                boxSizing: 'border-box',
+                border: 'solid lightgray 1px',
+              },
+            },
+            event: {
+              'click-tab': d => {
+                if (d.node.data.code) {
+                  onSelect(d.node.data)
+                  refresh()
+                }
+              },
             },
           },
-          event: {
-            'click-tab': d => d.node.data.code && onSelect(d.node.data),
-          },
-        },
-      ],
-    })
+        ],
+      })
+    }
+    refresh()
   }, [])
 
   return (

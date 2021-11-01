@@ -1,4 +1,5 @@
 export default () => `[
+  // 页面左侧图标选择菜单即是本组件
   {
     type: 'tabMenu',
     options: {

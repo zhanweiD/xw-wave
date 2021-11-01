@@ -9,6 +9,7 @@ const directionType = {
 }
 
 const defaultStyle = {
+  adsorb: true,
   direction: directionType.HORIZONTAL,
   active: {
     color: 'white',
@@ -23,6 +24,7 @@ const defaultStyle = {
   },
   group: {
     alignContent: 'start',
+    height: 'fit-content',
   },
 }
 
@@ -63,7 +65,6 @@ export default class TabButtonLayer extends LayerBase {
       .style('display', 'flex')
   }
 
-  // data is 2-dimensional array of object
   setData(data) {
     this.#data = this.createData('base', this.#data, data)
     const tree = d3
@@ -103,7 +104,6 @@ export default class TabButtonLayer extends LayerBase {
   }
 
   draw() {
-    // texts
     this.root
       .selectAll(`.${this.className}-group`)
       .data(this.#activeTabData)
@@ -123,8 +123,6 @@ export default class TabButtonLayer extends LayerBase {
           .attr('class', `${this.className}-item`)
           .style('display', 'grid')
           .style('place-items', 'center')
-          .style('width', d => `${d.width}px`)
-          .style('height', d => `${d.height}px`)
           .style('cursor', 'pointer')
           .each((itemData, itemIndex, items) => {
             const itemEl = d3.select(items[itemIndex])
@@ -132,10 +130,11 @@ export default class TabButtonLayer extends LayerBase {
             addStyle(itemEl, itemStyle)
             itemEl.text(itemStyle.text)
           })
-          .on('click', (event, data) => {
+          .on('click', (event, data) => this.event.fire('click-tab', data))
+          .on('mouseover', (event, data) => {
             const {node} = data
             const {depth} = node
-            this.event.fire('click-tab', data)
+            this.event.fire('mouseover-tab', data)
             this.#activeNodes.length = depth
             this.#activeNodes[depth - 1] = node
             // set active
@@ -144,9 +143,24 @@ export default class TabButtonLayer extends LayerBase {
               .filter(child => child.depth >= depth)
               .forEach(child => (child.isActive = false))
             node.isActive = true
+            node.event = event
             this.setStyle()
             this.draw()
           })
+      })
+      // adsorb
+      .each((groupData, groupIndex, groups) => {
+        const nextGroup = groups[groupIndex + 1]
+        const currentNode = this.#activeNodes[groupIndex]
+        if (this.#style.adsorb && currentNode && nextGroup) {
+          const nodeRect = currentNode.event.target.getBoundingClientRect()
+          const groupRect = nextGroup.getBoundingClientRect()
+          if (nodeRect.y + groupRect.height > document.body.clientHeight) {
+            d3.select(nextGroup).style('margin-top', `${nodeRect.y + nodeRect.height - groupRect.height}px`)
+          } else {
+            d3.select(nextGroup).style('margin-top', `${nodeRect.y}px`)
+          }
+        }
       })
   }
 }
