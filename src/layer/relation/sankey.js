@@ -1,6 +1,8 @@
 import * as d3 from 'd3'
+import {sum} from 'lodash'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
+import {getAttr, range} from '../../utils/common'
 
 const alignType = {
   START: 'start',
@@ -18,8 +20,8 @@ const defaultOptions = {
 }
 
 const defaultStyle = {
-  nodeWidth: 5,
-  nodeGap: 5,
+  nodeWidth: 10,
+  nodeGap: 10,
   ribbonGap: 0,
   labelOffset: 5,
   align: alignType.START,
@@ -73,12 +75,6 @@ export default class SankeyLayer extends LayerBase {
     const levels = d3.range(0, d3.max(nodes.map(({level}) => level)) + 1)
     this.#scale = this.createScale(
       {
-        scaleX: new Scale({
-          type: 'band',
-          domain: levels,
-          range: type === directionType.HORIZONTAL ? [0, width] : [0, height],
-          nice: scales?.nice,
-        }),
         scaleY: new Scale({
           type: 'linear',
           domain: [0, 1],
@@ -123,45 +119,50 @@ export default class SankeyLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {links} = this.#data.data
     const {type, layout, createGradient} = this.options
-    const {labelOffset, nodeGap, ribbonGap, align, text, rect} = this.#style
-    const isHorizontal = type === directionType.HORIZONTAL
+    const {labelOffset, nodeWidth, nodeGap, ribbonGap, align, text, rect} = this.#style
+    const [isHorizontal, isVertical] = [type === directionType.HORIZONTAL, type === directionType.VERTICAL]
     const [levels, groups] = [this.#data.get('levels'), this.#data.get('groups')]
     // Calculate the theoretical maximum value including the gap
-    const maxNumbers = levels.map(level => {
+    const maxNumbers = levels.map((level, i) => {
       const totalNumber = d3.sum(groups[level].map(({value}) => value))
-      const gapLength = (groups[level].length - 1) * nodeGap
+      const gapLength = (groups[level].length - 1) * getAttr(nodeGap, i, 5)
       const ratio = totalNumber / ((isHorizontal ? layout.height : layout.width) - gapLength)
       return totalNumber + gapLength * ratio
     })
     // update scales
     this.#scale.scaleY.domain([0, d3.max(maxNumbers)])
-    const {scaleX, scaleY} = this.#scale
+    const {scaleY} = this.#scale
     // basic rect data
-    this.#rectData = groups.map(groupedNodes => {
+    const totalLength = isHorizontal ? layout.width : layout.height
+    const groupNodeWiths = range(0, groups.length - 1).map(i => getAttr(nodeWidth, i, 5))
+    const groupNodeGap = (totalLength - sum(groupNodeWiths)) / (groups.length - 1)
+    this.#rectData = groups.map((groupedNodes, i) => {
       const colorMatrix = this.getColorMatrix(groupedNodes.length, 1, rect.fill)
-      return groupedNodes.map((item, i) => ({
+      return groupedNodes.map((item, j) => ({
         y: layout.top,
-        x: layout.left + scaleX(item.level),
-        width: scaleX.bandwidth(),
+        x: layout.left + groupNodeGap * i + sum(groupNodeWiths.slice(0, i)),
+        width: groupNodeWiths[i],
         height: scaleY(item.value),
-        color: colorMatrix.get(i, 0),
+        color: colorMatrix.get(j, 0),
         // this attribute is used to calculate the with of left and right side overlay
         ribbonLength: [0, 0],
         ...item,
       }))
     })
     // stacked rect data
-    this.#rectData.forEach(group => group.forEach((item, i) => {
-      i !== 0 && (item.y = group[i - 1].y + group[i - 1].height + nodeGap)
-    }))
+    this.#rectData.forEach((group, i) => {
+      group.forEach((item, j) => {
+        j && (item.y = group[j - 1].y + group[j - 1].height + getAttr(nodeGap, i, 5))
+      })
+    })
     // move rect node according align value
     this.#rectData.forEach(group => {
       const tailNode = group[group.length - 1]
-      if (type === directionType.HORIZONTAL) {
+      if (isHorizontal) {
         const offset = layout.top + layout.height - tailNode.y - tailNode.height
         const moveY = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
         group.forEach(item => (item.y += moveY))
-      } else if (type === directionType.VERTICAL) {
+      } else if (isVertical) {
         const offset = layout.top + layout.width - tailNode.y - tailNode.height
         const moveX = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
         group.forEach(item => (item.y += moveX))
@@ -213,7 +214,7 @@ export default class SankeyLayer extends LayerBase {
     // label data
     this.#textData = this.#rectData.map((group, i) => {
       const isLast = i === this.#rectData.length - 1
-      if (type === directionType.HORIZONTAL) {
+      if (isHorizontal) {
         return group.map(({x, y, width, height, name, value}) => this.createText({
           x: isLast ? x - labelOffset : x + width + labelOffset,
           y: y + height / 2,
@@ -222,7 +223,7 @@ export default class SankeyLayer extends LayerBase {
           style: text,
         }))
       }
-      if (type === directionType.VERTICAL) {
+      if (isVertical) {
         return group.map(({x, y, width, height, name, value}) => this.createText({
           x: x + width / 2,
           y: isLast ? y - labelOffset : y + height + labelOffset,
