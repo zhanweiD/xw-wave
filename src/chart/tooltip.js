@@ -15,13 +15,11 @@ const defaultOptions = {
   labelColor: '#383d41',
   valueSize: 12,
   valueColor: '#383d41',
-  enableAnimation: false,
-  animationDuration: 500,
-  animationDelay: 0,
+  backgroundColor: '#c3c4c5',
 }
 
 export default class Tooltip {
-  constructor(container, options) {
+  constructor(waveContainer, options) {
     this.backup = null
     this.target = null
     this.isMoving = false
@@ -31,7 +29,8 @@ export default class Tooltip {
     this.options = merge({}, defaultOptions, options)
     this.lastPosition = {x: -100, y: -100}
     // root container
-    this.instance = container
+    const {container, backgroundColor} = this.options
+    this.instance = (container || waveContainer)
       .append('div')
       .attr('class', 'wave-tooltip')
       .style('border-radius', '2px')
@@ -46,7 +45,7 @@ export default class Tooltip {
       .append('div')
       .attr('class', 'wave-tooltip-bg')
       .style('filter', 'blur(1px)')
-      .style('background-color', 'rgba(255,245,247,0.9)')
+      .style('background-color', backgroundColor)
       .style('position', 'absolute')
       .style('width', '1000px')
       .style('height', '1000px')
@@ -109,7 +108,11 @@ export default class Tooltip {
         .selectAll('.wave-tooltip-content')
         .data([null])
         .join('div')
-        .attr('class', 'wave-tooltip-content fbv fbjsb fbac')
+        .attr('class', 'wave-tooltip-content')
+        .style('display', 'flex')
+        .style('flex-direction', 'column')
+        .style('justify-content', 'space-between')
+        .style('align-items', 'center')
         .style('padding', '5px')
         .style('position', 'relative')
       // every row
@@ -118,12 +121,18 @@ export default class Tooltip {
         .selectAll('div')
         .data(list)
         .join('div')
-        .attr('class', 'fbh fbjsb fbac')
+        .style('display', 'flex')
+        .style('flex-direction', 'row')
+        .style('justify-content', 'space-between')
+        .style('align-items', 'center')
         .style('width', '100%')
       // point and text in row
       const pointWidthLabel = rows
         .append('div')
-        .attr('class', 'fbh fbjsb fbac')
+        .style('display', 'flex')
+        .style('flex-direction', 'row')
+        .style('justify-content', 'space-between')
+        .style('align-items', 'center')
         .style('margin-right', '20px')
       pointWidthLabel
         .append('div')
