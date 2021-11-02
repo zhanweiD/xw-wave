@@ -60,6 +60,7 @@ export default function drawRect({
       .attr('stroke-width', d => d.strokeWidth)
       .attr('fill-opacity', d => d.fillOpacity)
       .attr('stroke-opacity', d => d.strokeOpacity)
+      .attr('opacity', d => d.strokeOpacity)
       .attr('mask', d => d.mask)
       .attr('filter', d => d.filter)
       .style('transform-origin', d => d.transformOrigin)
