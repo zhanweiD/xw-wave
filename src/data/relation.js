@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import {merge} from 'lodash'
 import DataBase from './base'
 import {formatNumber} from '../utils/format'
 
@@ -16,40 +17,14 @@ export default class Relation extends DataBase {
    */
   update(nodeTableList, linkTableList) {
     if (!this.isLegalData('relation', nodeTableList, linkTableList)) {
-      this.log.error('Relation: Illegal tableList', {nodeTableList, linkTableList})
+      this.log.error('Relation: wrong incoming data', {nodeTableList, linkTableList})
     } else {
-      const findNode = key => nodeTableList[0].findIndex(value => value === key)
-      const [nodeIdIndex, nodeNameIndex, nodeValueIndex, nodeCategoryIndex] = [
-        findNode('id'),
-        findNode('name'),
-        findNode('value'),
-        findNode('category'),
-      ]
       // nodes data
-      this.data.nodes = nodeTableList.slice(1).map(item => ({
-        id: item[nodeIdIndex] || item[nodeNameIndex],
-        name: item[nodeNameIndex],
-        value: item[nodeValueIndex],
-        category: item[nodeCategoryIndex],
-        parents: [],
-        children: [],
-      }))
-      const findLink = key => linkTableList[0].findIndex(value => value === key)
-      const [linkFromIndex, linkToIndex, linkValueIndex, linkCategoryIndex] = [
-        findLink('from'),
-        findLink('to'),
-        findLink('value'),
-        findNode('category'),
-      ]
-      // links data
-      this.data.links = linkTableList.slice(1).map(item => ({
-        value: item[linkValueIndex],
-        from: item[linkFromIndex],
-        to: item[linkToIndex],
-        category: item[linkCategoryIndex],
-      }))
+      this.data.nodes = this.tableListToObjects(nodeTableList)
+      this.data.links = this.tableListToObjects(linkTableList)
+      this.data.nodes.forEach(item => merge(item, {children: [], parents: []}))
       // if nodes has no data, then find from links
-      if (nodeValueIndex === -1 && linkValueIndex !== -1) {
+      if (nodeTableList[0].indexOf('value') === -1 && linkTableList[0].indexOf('value') !== -1) {
         this.data.nodes.forEach(node => {
           const froms = this.data.links.filter(({from}) => from === node.id).map(({value}) => value)
           const tos = this.data.links.filter(({to}) => to === node.id).map(({value}) => value)
@@ -73,7 +48,7 @@ export default class Relation extends DataBase {
       const prevIds = this.data.links.filter(({to}) => to === id).map(({from}) => from)
       if (prevIds.length === 0) {
         !comeleted[id] && this.data.roots.push(id)
-      } else {
+      } else if (current) {
         const parents = prevIds.map(prevId => this.data.nodes.find(node => node.id === prevId))
         current.parents.push(...prevIds)
         parents.forEach(parent => parent.children.push(id))

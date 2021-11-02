@@ -11,6 +11,14 @@ export default class DataBase {
     this.log = createLog('src/data/base')
   }
 
+  set(key, value) {
+    this.#storage[key] = value
+  }
+
+  get(key) {
+    return this.#storage[key]
+  }
+
   isTableList = tableList => {
     if (
       !Array.isArray(tableList)
@@ -42,11 +50,21 @@ export default class DataBase {
     return true
   }
 
-  tableListToTable = tableList => {
-    if (!this.isTableList(tableList) || tableList[0].length !== 3) {
-      return false
-    }
+  tableListToObjects = tableList => {
     try {
+      if (!this.isTableList(tableList)) throw new Error()
+      return tableList.slice(1).map(item => {
+        return Object.fromEntries(tableList[0].map((key, i) => [key, item[i]]))
+      })
+    } catch (error) {
+      this.log.error('DataBase: failed to transform tableList to objects', error)
+      return tableList
+    }
+  }
+
+  tableListToTable = tableList => {
+    try {
+      if (!this.isTableList(tableList) || tableList[0].length !== 3) throw new Error()
       const rows = Array.from(new Set(tableList.slice(1).map(item => item[0])))
       const columns = Array.from(new Set(tableList.slice(1).map(item => item[1])))
       return [
@@ -64,10 +82,8 @@ export default class DataBase {
   }
 
   relationToTable = (nodeTableList, linkTableList) => {
-    if (!this.isTableList(nodeTableList) || !this.isTableList(linkTableList)) {
-      return false
-    }
     try {
+      if (!this.isTableList(nodeTableList) || !this.isTableList(linkTableList)) throw new Error()
       const idIndex = nodeTableList[0].findIndex(key => key === 'id')
       const nameIndex = nodeTableList[0].findIndex(key => key === 'name')
       const fromIndex = linkTableList[0].findIndex(key => key === 'from')
@@ -117,13 +133,5 @@ export default class DataBase {
       newTableList.push(tableList.map(item => item[i]))
     }
     return newTableList
-  }
-
-  set(key, value) {
-    this.#storage[key] = value
-  }
-
-  get(key) {
-    return this.#storage[key]
   }
 }
