@@ -32,7 +32,11 @@ export default class Relation extends DataBase {
         })
       }
       // derived data
-      this.#computeLevel()
+      if (nodeTableList[0].indexOf('level') === -1) {
+        this.#computeLevel()
+      } else {
+        this.data.roots = this.data.nodes.filter(({level}) => level === 0).map(({id}) => id)
+      }
     }
     return this
   }
