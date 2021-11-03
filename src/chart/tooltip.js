@@ -1,3 +1,4 @@
+import {select} from 'd3'
 import {isEqual, isArray, merge} from 'lodash'
 import createLog from '../utils/create-log'
 
@@ -30,7 +31,7 @@ export default class Tooltip {
     this.lastPosition = {x: -100, y: -100}
     // root container
     const {container, backgroundColor} = this.options
-    this.instance = (container || waveContainer)
+    this.instance = (select(container) || waveContainer)
       .append('div')
       .attr('class', 'wave-tooltip')
       .style('border-radius', '2px')
