@@ -66,6 +66,7 @@ export default () => `[
       ],
     },
     style: {
+      adsorb: false,
       text: {
         height: '30px',
         width: ['auto', 'auto', '120px'],

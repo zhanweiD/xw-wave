@@ -63,6 +63,12 @@ export default class TabButtonLayer extends LayerBase {
       .style('margin-left', `${left}px`)
       .style('margin-top', `${top}px`)
       .style('display', 'flex')
+      .on('mouseleave', () => {
+        this.#activeNodes.map(node => (node.isActive = false))
+        this.#activeNodes.length = 0
+        this.setStyle()
+        this.draw()
+      })
   }
 
   setData(data) {
@@ -75,6 +81,7 @@ export default class TabButtonLayer extends LayerBase {
     const maxDepth = max(nodes.map(({depth}) => depth))
     // the root is not visible
     this.#originTabData = range(1, maxDepth, 1).map(depth => nodes.filter(node => node.depth === depth))
+    this.#data.set('maxDepth', maxDepth)
   }
 
   setStyle(style) {
@@ -131,10 +138,9 @@ export default class TabButtonLayer extends LayerBase {
             itemEl.text(itemStyle.text)
           })
           .on('click', (event, data) => this.event.fire('click-tab', data))
-          .on('mouseover', (event, data) => {
+          .on('mouseenter', (event, data) => {
             const {node} = data
             const {depth} = node
-            this.event.fire('mouseover-tab', data)
             this.#activeNodes.length = depth
             this.#activeNodes[depth - 1] = node
             // set active
