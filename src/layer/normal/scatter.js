@@ -111,9 +111,12 @@ export default class ScatterLayer extends LayerBase {
     // legend data of scatter layer
     this.#data.set('legendData', {
       colorMatrix,
-      list: this.#pointData.map((group, i) => ({label: group[0].category, color: colorMatrix.get(i, 0)})),
-      shape: 'circle',
       filter: 'row',
+      list: this.#pointData.map((group, i) => ({
+        shape: 'circle',
+        label: group[0].category,
+        color: colorMatrix.get(i, 0),
+      })),
     })
   }
 

@@ -97,28 +97,27 @@ export default class AuxiliaryLayer extends LayerBase {
     this.#lineData.forEach((item, i) => (item.color = colorMatrix.get(i, 0)))
     this.#data.set('legendData', {
       colorMatrix,
-      list: pureTableList.map(([label], i) => ({label, color: colorMatrix.get(i, 0)})),
-      shape: 'dotted-line',
       filter: 'row',
+      list: pureTableList.map(([label], i) => ({
+        label,
+        shape: 'dotted-line',
+        color: colorMatrix.get(i, 0),
+      })),
     })
   }
 
   draw() {
-    const lineData = [
-      {
-        data: this.#lineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
-        ...this.#style.line,
-        stroke: this.#lineData.map(({color}) => color),
-      },
-    ]
-    const textData = [
-      {
-        data: this.#textData.map(({value}) => value),
-        position: this.#textData.map(({x, y}) => [x, y]),
-        ...this.#style.text,
-      },
-    ]
-    this.drawBasic('line', lineData)
-    this.drawBasic('text', textData)
+    const lineData = {
+      data: this.#lineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
+      ...this.#style.line,
+      stroke: this.#lineData.map(({color}) => color),
+    }
+    const textData = {
+      data: this.#textData.map(({value}) => value),
+      position: this.#textData.map(({x, y}) => [x, y]),
+      ...this.#style.text,
+    }
+    this.drawBasic('line', [lineData])
+    this.drawBasic('text', [textData])
   }
 }

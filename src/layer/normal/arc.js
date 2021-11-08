@@ -1,7 +1,6 @@
 import LayerBase from '../base'
 import Scale from '../../data/scale'
 
-// chart type
 const waveType = {
   PIE: 'pie',
   NIGHTINGALEROSE: 'nightingaleRose',
@@ -179,18 +178,24 @@ export default class ArcLayer extends LayerBase {
       this.#arcData.forEach(group => group.forEach((item, i) => (item.color = colorMatrix.get(0, i))))
       this.#data.set('legendData', {
         colorMatrix,
-        list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colorMatrix.get(0, i)})),
         filter: 'column',
-        shape: 'rect',
+        list: this.#data.data.slice(1).map(({header}, i) => ({
+          shape: 'rect',
+          label: header,
+          color: colorMatrix.get(0, i),
+        })),
       })
     } else if (this.#arcData[0]?.length === 1) {
       const colorMatrix = this.getColorMatrix(this.#arcData.length, 1, arc.fill)
       this.#arcData.forEach((group, i) => (group[0].color = colorMatrix.get(i, 0)))
       this.#data.set('legendData', {
         colorMatrix,
-        list: pureTableList.map((item, i) => ({label: item[0], color: colorMatrix.get(i, 0)})),
         filter: 'row',
-        shape: 'rect',
+        list: pureTableList.map((item, i) => ({
+          shape: 'rect',
+          label: item[0],
+          color: colorMatrix.get(i, 0),
+        })),
       })
     }
     // label data

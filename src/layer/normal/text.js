@@ -66,13 +66,11 @@ export default class TextLayer extends LayerBase {
   }
 
   draw() {
-    const textData = [
-      {
-        data: [this.#textData.value],
-        position: [[this.#textData.x, this.#textData.y]],
-        ...this.#style.text,
-      },
-    ]
-    this.drawBasic('text', textData)
+    const textData = {
+      data: [this.#textData.value],
+      position: [[this.#textData.x, this.#textData.y]],
+      ...this.#style.text,
+    }
+    this.drawBasic('text', [textData])
   }
 }

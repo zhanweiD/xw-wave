@@ -125,9 +125,12 @@ export default class RadarLayer extends LayerBase {
     // legend data of radar layer
     this.#data.set('legendData', {
       colorMatrix,
-      list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colorMatrix.get(0, i)})),
-      shape: 'broken-line',
       filter: 'column',
+      list: this.#data.data.slice(1).map(({header}, i) => ({
+        label: header,
+        shape: 'broken-line',
+        color: colorMatrix.get(0, i),
+      })),
     })
   }
 

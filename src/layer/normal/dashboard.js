@@ -163,54 +163,44 @@ export default class DashboardLayer extends LayerBase {
       const position = [[x, y]]
       return {data, position, ...this.#style.arc, fill: color}
     })
-    const pointerData = [
-      {
-        data: [[this.#pointerData.x1, this.#pointerData.y1, this.#pointerData.x2, this.#pointerData.y2]],
-        ...this.#style.pointer,
-      },
-    ]
-    const pointerAnchorData = [
-      {
-        data: [[this.#circleData.r, this.#circleData.r]],
-        position: [[this.#circleData.cx, this.#circleData.cy]],
-        ...this.#style.pointerAnchor,
-      },
-    ]
-    const tickLineData = [
-      {
-        data: this.#tickLineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
-        ...this.#style.tickLine,
-      },
-    ]
-    const labelText = this.#tickLineData
-      .map(
-        ({labelTextData}) => labelTextData && {
-          data: [labelTextData.value],
-          position: [[labelTextData.x, labelTextData.y]],
-          ...this.#style.labelText,
-        }
-      )
-      .filter(Boolean)
-    const tickText = this.#tickLineData
-      .map(
-        ({tickTextData}) => tickTextData && {
-          data: [tickTextData.value],
-          position: [[tickTextData.x, tickTextData.y]],
-          ...this.#style.tickText,
-        }
-      )
-      .filter(Boolean)
+    const pointerData = {
+      data: [[this.#pointerData.x1, this.#pointerData.y1, this.#pointerData.x2, this.#pointerData.y2]],
+      ...this.#style.pointer,
+    }
+    const pointerAnchorData = {
+      data: [[this.#circleData.r, this.#circleData.r]],
+      position: [[this.#circleData.cx, this.#circleData.cy]],
+      ...this.#style.pointerAnchor,
+    }
+    const tickLineData = {
+      data: this.#tickLineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
+      ...this.#style.tickLine,
+    }
+    const labelText = this.#tickLineData.map(
+      ({labelTextData}) => labelTextData && {
+        data: [labelTextData.value],
+        position: [[labelTextData.x, labelTextData.y]],
+        ...this.#style.labelText,
+      }
+    )
+    const tickText = this.#tickLineData.map(
+      ({tickTextData}) => tickTextData && {
+        data: [tickTextData.value],
+        position: [[tickTextData.x, tickTextData.y]],
+        ...this.#style.tickText,
+      }
+    )
     const valueText = this.#valueTextData.map(({x, y, value}) => ({
       data: [value],
       position: [[x, y]],
       ...this.#style.valueText,
     }))
     this.drawBasic('arc', arcData)
-    this.drawBasic('line', tickLineData, 'tickLine')
-    this.drawBasic('line', pointerData, 'pointer')
-    this.drawBasic('circle', pointerAnchorData, 'pointerAnchor')
-    this.drawBasic('text', tickText, 'tickText')
-    this.drawBasic('text', labelText, 'labelText')
+    this.drawBasic('line', [tickLineData], 'tickLine')
+    this.drawBasic('line', [pointerData], 'pointer')
+    this.drawBasic('circle', [pointerAnchorData], 'pointerAnchor')
+    this.drawBasic('text', tickText.filter(Boolean), 'tickText')
+    this.drawBasic('text', labelText.filter(Boolean), 'labelText')
     this.drawBasic('text', valueText, 'valueText')
   }
 }

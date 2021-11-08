@@ -367,9 +367,12 @@ export default class RectLayer extends LayerBase {
     if (mode !== modeType.INTERVAL && mode !== modeType.WATERFALL) {
       this.#data.set('legendData', {
         colorMatrix,
-        list: this.#data.data.slice(1).map(({header}, i) => ({label: header, color: colorMatrix.get(0, i)})),
         filter: 'column',
-        shape: 'rect',
+        list: this.#data.data.slice(1).map(({header}, i) => ({
+          shape: 'rect',
+          label: header,
+          color: colorMatrix.get(0, i),
+        })),
       })
     }
   }
