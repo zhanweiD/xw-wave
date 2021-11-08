@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import {isArray} from 'lodash'
 import {addStyle, transformAttr} from '../../utils/common'
+import {overflowControl} from '../../utils/format'
 import LayerBase from '../base'
 
 const defaultStyle = {
@@ -140,7 +141,12 @@ export default class TimelineLayer extends LayerBase {
           .data(groupData.events)
           .join('xhtml:div')
           .attr('class', `${this.className}-event-text`)
-          .text(d => d)
+          .text((d, i, els) => {
+            return overflowControl(d, {
+              width: parseFloat(d3.select(els[i]).style('width')),
+              fontSize: parseFloat(d3.select(els[i]).style('font-size')),
+            })
+          })
       })
   }
 }
