@@ -93,7 +93,7 @@ export default class TabButtonLayer extends LayerBase {
     for (let i = 0; i < this.#originTabData.length - 1; i++) {
       // current level has active node
       if (this.#activeNodes.length > i) {
-        this.#activeTabData[i + 1] = this.#activeNodes[i].children
+        this.#activeTabData[i + 1] = this.#activeNodes[i].children || []
       }
     }
     // create drawable data
