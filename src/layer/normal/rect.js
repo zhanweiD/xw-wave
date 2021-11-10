@@ -35,15 +35,14 @@ const labelPositionType = {
 }
 
 const defaultStyle = {
-  fixedLength: null,
+  rectOffset: 0,
   bandZoomFactor: 1,
+  fixedLength: null,
   labelPosition: labelPositionType.CENTER,
+  background: {},
   rect: {},
   text: {
     offset: [0, 0],
-  },
-  background: {
-    fill: 'none',
   },
 }
 
@@ -315,7 +314,7 @@ export default class RectLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition, bandZoomFactor, fixedLength, rect} = this.#style
+    const {labelPosition, rectOffset, bandZoomFactor, fixedLength, rect} = this.#style
     const {type, mode} = this.options
     // get colors
     let colorMatrix
@@ -349,6 +348,21 @@ export default class RectLayer extends LayerBase {
         }
       }))
     }
+    // move rect by anchor
+    this.#rectData.forEach(group => group.forEach(item => {
+      if (type === waveType.COLUMN) {
+        item.x += rectOffset
+      } else if (type === waveType.BAR) {
+        item.y += rectOffset
+      }
+    }))
+    this.#backgroundData.forEach(group => group.forEach(item => {
+      if (type === waveType.COLUMN) {
+        item.x += rectOffset
+      } else if (type === waveType.BAR) {
+        item.y += rectOffset
+      }
+    }))
     // label data
     this.#textData = this.#rectData.map(group => {
       const result = []
