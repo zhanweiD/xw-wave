@@ -1,6 +1,5 @@
-/* eslint-disable import/extensions */
 import React, {useEffect, useRef} from 'react'
-import {createWave} from '../chart'
+import {createWave} from '../../chart'
 import s from './log.module.css'
 
 const logData = [

@@ -1,9 +1,9 @@
 import React, {useState} from 'react'
-import SideBar from './side-bar'
-import Editor from './editor'
-import Chart from './chart'
-import s from './demo.module.css'
-import schema from './schema'
+import SideBar from '../side-bar'
+import Editor from '../editor'
+import Chart from '../chart'
+import s from './root.module.css'
+import schema from '../schema'
 
 let backup = schema.children[0].children[0].code
 
