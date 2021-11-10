@@ -19,7 +19,7 @@ export default class ColorMatrix {
       return this.#matrix[row][column]
     }
     this.log.warn('Get color out of bounds', {row, column})
-    return null
+    return this.#matrix[row % this.#matrix.length][column % this.#matrix[row % this.#matrix.length].length]
   }
 
   /**
