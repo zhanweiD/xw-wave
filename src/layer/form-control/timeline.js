@@ -141,6 +141,7 @@ export default class TimelineLayer extends LayerBase {
           .data(groupData.events)
           .join('xhtml:div')
           .attr('class', `${this.className}-event-text`)
+          .attr('title', d => d)
           .text((d, i, els) => {
             return overflowControl(d, {
               width: parseFloat(d3.select(els[i]).style('width')),

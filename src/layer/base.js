@@ -50,24 +50,24 @@ export default class LayerBase {
     this.#createLifeCycles()
   }
 
-  // initialize mouse event
+  // avoid repeated binding
   #initializeEvent = () => {
     const {tooltip, engine} = this.options
     this.#backupEvent = {
       common: {},
       tooltip: {
+        mouseout: () => tooltip.hide(),
+        mousemove: event => tooltip.move(engine === 'svg' ? event : event.e),
         mouseover: (event, data) => {
           tooltip.update({backup: this.#backupData, data: engine === 'svg' ? data : event.target})
           tooltip.show(engine === 'svg' ? event : event.e)
         },
-        mousemove: event => tooltip.move(engine === 'svg' ? event : event.e),
-        mouseout: () => tooltip.hide(),
       },
     }
     // basic mouse event
     commonEvents.forEach(type => {
-      this.#backupEvent.common[type] = {}
-      const events = this.#backupEvent.common[type]
+      const events = {}
+      this.#backupEvent.common[type] = events
       this.sublayers.forEach(sublayer => {
         events[sublayer] = (event, data) => {
           this.event.fire(`${type}-${sublayer}`, {
@@ -95,27 +95,19 @@ export default class LayerBase {
     })
   }
 
-  setAnimation(options) {
-    merge(this.#backupAnimation, {options})
-  }
-
-  playAnimation() {
-    this.sublayers.forEach(type => this.#backupAnimation[type]?.play())
-  }
-
   /**
    * update the layer
    * @param {String} id
    * @param {Object} schema layer config
    */
   update({data, scale, style, animation}) {
-    if (animation) {
+    if (animation !== undefined) {
       this.setAnimation(animation)
     }
-    if (data || scale) {
+    if (data !== undefined || scale !== undefined) {
       this.setData(data, scale)
     }
-    if (data || scale || style) {
+    if (data !== undefined || scale !== undefined || style !== undefined) {
       this.setStyle(style)
     }
     this.draw()
@@ -310,7 +302,7 @@ export default class LayerBase {
   }
 
   // register the response events after render
-  #setEvent = sublayer => {
+  setEvent = sublayer => {
     const {engine} = this.selector
     if (engine === 'svg') {
       const els = this.root.selectAll(`.wave-basic-${sublayer}`).style('cursor', 'pointer')
@@ -322,19 +314,29 @@ export default class LayerBase {
   }
 
   // register the tooltip events after render
-  #setTooltip = sublayer => {
+  setTooltip = sublayer => {
     const {engine} = this.selector
-    if (engine === 'svg' && this.tooltipTargets.find(key => key === sublayer)) {
-      const els = this.root.selectAll(`.wave-basic-${sublayer}`)
-      tooltipEvents.forEach(type => els.on(`${type}.tooltip`, this.#backupEvent.tooltip[type]))
-    } else if (engine === 'canvas' && this.tooltipTargets.find(key => key === sublayer)) {
-      const els = this.root.getObjects().filter(({className}) => className === `wave-basic-${sublayer}`)
-      tooltipEvents.forEach(type => els.forEach(el => el.on(type, this.#backupEvent.tooltip[type])))
+    if (this.tooltipTargets.indexOf(sublayer) !== -1) {
+      if (engine === 'svg') {
+        const els = this.root.selectAll(`.wave-basic-${sublayer}`)
+        tooltipEvents.forEach(type => els.on(`${type}.tooltip`, this.#backupEvent.tooltip[type]))
+      } else if (engine === 'canvas') {
+        const els = this.root.getObjects().filter(({className}) => className === `wave-basic-${sublayer}`)
+        tooltipEvents.forEach(type => els.forEach(el => el.on(type, this.#backupEvent.tooltip[type])))
+      }
     }
   }
 
+  setAnimation(options) {
+    merge(this.#backupAnimation, {options})
+  }
+
+  playAnimation() {
+    this.sublayers.forEach(type => this.#backupAnimation[type]?.play())
+  }
+
   // register the animation events after render
-  #setAnimation = sublayer => {
+  #createAnimation = sublayer => {
     let isFirstPlay = true
     const {engine} = this.options
     const {options} = this.#backupAnimation
@@ -424,9 +426,9 @@ export default class LayerBase {
       }
     }
     // new elements need to register events
-    this.#setEvent(sublayer)
-    this.#setTooltip(sublayer)
-    this.selector.engine === 'svg' && this.#setAnimation(sublayer)
+    this.setEvent(sublayer)
+    this.setTooltip(sublayer)
+    this.selector.engine === 'svg' && this.#createAnimation(sublayer)
   }
 
   destroy() {
