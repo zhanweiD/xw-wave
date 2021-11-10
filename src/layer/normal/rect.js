@@ -39,10 +39,12 @@ const defaultStyle = {
   bandZoomFactor: 1,
   fixedLength: null,
   labelPosition: labelPositionType.CENTER,
-  background: {},
   rect: {},
   text: {
     offset: [0, 0],
+  },
+  background: {
+    fill: 'rgba(255,255,255,0.2)',
   },
 }
 
