@@ -37,9 +37,9 @@ export default class ChordLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['ribbon', 'arc', 'text'])
-    this.className = 'wave-chord'
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions, ['ribbon', 'arc', 'text'])
+    this.className = 'chart-chord'
     this.tooltipTargets = ['arc']
   }
 

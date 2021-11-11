@@ -50,10 +50,10 @@ export default class SankeyLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'ribbon', 'text'])
+  constructor(layerOptions, chartOptions) {
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['rect', 'ribbon', 'text'])
     const {type} = this.options
-    this.className = `wave-${type}-sankey`
+    this.className = `chart-${type}-sankey`
     this.tooltipTargets = ['rect']
   }
 

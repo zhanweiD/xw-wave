@@ -43,11 +43,11 @@ export default class TabButtonLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions)
     const {containerWidth, containerHeight, layout} = this.options
     const {left, top, width, height} = layout
-    this.className = 'wave-tab-menu'
+    this.className = 'chart-tab-menu'
     this.root = this.options.root
       .append('foreignObject')
       .style('width', containerWidth)

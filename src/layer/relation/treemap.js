@@ -43,10 +43,10 @@ export default class TreemapLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'text'])
+  constructor(layerOptions, chartOptions) {
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['rect', 'text'])
     const {mode} = this.options
-    this.className = `wave-${mode}-treemap`
+    this.className = `chart-${mode}-treemap`
     this.tooltipTargets = ['rect']
   }
 

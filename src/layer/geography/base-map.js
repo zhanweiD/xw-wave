@@ -49,9 +49,9 @@ export default class BaseMapLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['block', 'background', 'text'])
-    this.className = 'wave-base-map'
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions, ['block', 'background', 'text'])
+    this.className = 'chart-base-map'
     this.tooltipTargets = ['block']
     // means load data success
     this.isReady = false

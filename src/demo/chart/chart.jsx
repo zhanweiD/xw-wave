@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from 'react'
 import {select} from 'd3-selection'
-import createWave from '../../chart/create'
+import createChart from '../../chart/create'
 import Layout from '../../layout'
 import s from './chart.module.css'
 import download from '../../utils/download'
@@ -8,13 +8,13 @@ import download from '../../utils/download'
 const svgTitle = '<?xml version="1.0" standalone="no"?>'
 
 const Chart = ({title, schema}) => {
-  const waveRef = useRef(null)
-  const [wave, setWave] = useState(null)
+  const chartRef = useRef(null)
+  const [chart, setChart] = useState(null)
 
   // 下载图表文件
   const downloadSvg = () => {
-    if (waveRef.current) {
-      download(`${svgTitle}${select(waveRef.current).selectAll('svg').nodes()[0].outerHTML}`, 'wave.svg')
+    if (chartRef.current) {
+      download(`${svgTitle}${select(chartRef.current).selectAll('svg').nodes()[0].outerHTML}`, 'chart.svg')
     }
   }
 
@@ -22,20 +22,20 @@ const Chart = ({title, schema}) => {
     try {
       if (schema) {
         // environment
-        const container = waveRef.current
+        const container = chartRef.current
         const layout = Layout.standard()
         // eslint-disable-next-line no-eval
         const schemaCreator = eval(schema)
-        const waveSchema = schemaCreator()
+        const chartSchema = schemaCreator()
         // inject
-        if (!waveSchema.container) {
-          waveSchema.container = container
+        if (!chartSchema.container) {
+          chartSchema.container = container
         }
-        if (!waveSchema.layout) {
-          waveSchema.layout = layout
+        if (!chartSchema.layout) {
+          chartSchema.layout = layout
         }
-        wave && wave.destroy()
-        schema && setWave(createWave(waveSchema))
+        chart && chart.destroy()
+        schema && setChart(createChart(chartSchema))
       }
     } catch (e) {
       console.error(e)
@@ -43,14 +43,14 @@ const Chart = ({title, schema}) => {
   }, [schema])
 
   return (
-    <div className={s.waveContainer}>
+    <div className={s.chartContainer}>
       <div className={s.title}>
         <div>{title} </div>
         <div className={s.download} onClick={downloadSvg}>
           DOWNLOAD
         </div>
       </div>
-      <div ref={waveRef} className={s.wave} />
+      <div ref={chartRef} className={s.chart} />
     </div>
   )
 }

@@ -28,9 +28,9 @@ export default class TitleBLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['polygon', 'line', 'rect'])
-    this.className = 'wave-title-b'
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions, ['polygon', 'line', 'rect'])
+    this.className = 'chart-title-b'
   }
 
   setStyle(style) {

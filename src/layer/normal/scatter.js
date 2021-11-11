@@ -31,9 +31,9 @@ export default class ScatterLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['point', 'text'])
-    this.className = 'wave-scatter'
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions, ['point', 'text'])
+    this.className = 'chart-scatter'
     this.tooltipTargets = ['point']
   }
 

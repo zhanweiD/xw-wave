@@ -39,10 +39,10 @@ export default class MatrixLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'circle', 'text'])
+  constructor(layerOptions, chartOptions) {
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['rect', 'circle', 'text'])
     const {shape} = this.options
-    this.className = `wave-${shape}-matrix`
+    this.className = `chart-${shape}-matrix`
     this.tooltipTargets = ['rect', 'circle']
   }
 

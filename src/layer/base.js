@@ -18,8 +18,8 @@ export default class LayerBase {
 
   #backupAnimation = {options: {}}
 
-  constructor(layerOptions, waveOptions, sublayers) {
-    this.options = merge(layerOptions, waveOptions)
+  constructor(layerOptions, chartOptions, sublayers) {
+    this.options = merge(layerOptions, chartOptions)
     this.sublayers = sublayers || []
     this.tooltipTargets = []
     this.root = null
@@ -214,7 +214,7 @@ export default class LayerBase {
   }
 
   /**
-   * handle texts in the wave
+   * handle texts in the chart
    * @param {Object} options schema
    * @returns text data
    */
@@ -287,10 +287,10 @@ export default class LayerBase {
   setEvent = sublayer => {
     const {engine} = this.selector
     if (engine === 'svg') {
-      const els = this.root.selectAll(`.wave-basic-${sublayer}`).style('cursor', 'pointer')
+      const els = this.root.selectAll(`.chart-basic-${sublayer}`).style('cursor', 'pointer')
       COMMON_EVENTS.forEach(type => els.on(`${type}.common`, this.#backupEvent.common[type][sublayer]))
     } else if (engine === 'canvas') {
-      const els = this.root.getObjects().filter(({className}) => className === `wave-basic-${sublayer}`)
+      const els = this.root.getObjects().filter(({className}) => className === `chart-basic-${sublayer}`)
       COMMON_EVENTS.forEach(type => els.forEach(el => el.on(type, this.#backupEvent.common[type][sublayer])))
     }
   }
@@ -300,10 +300,10 @@ export default class LayerBase {
     const {engine} = this.selector
     if (this.tooltipTargets.indexOf(sublayer) !== -1) {
       if (engine === 'svg') {
-        const els = this.root.selectAll(`.wave-basic-${sublayer}`)
+        const els = this.root.selectAll(`.chart-basic-${sublayer}`)
         TOOLTIP_EVENTS.forEach(type => els.on(`${type}.tooltip`, this.#backupEvent.tooltip[type]))
       } else if (engine === 'canvas') {
-        const els = this.root.getObjects().filter(({className}) => className === `wave-basic-${sublayer}`)
+        const els = this.root.getObjects().filter(({className}) => className === `chart-basic-${sublayer}`)
         TOOLTIP_EVENTS.forEach(type => els.forEach(el => el.on(type, this.#backupEvent.tooltip[type])))
       }
     }
@@ -336,7 +336,7 @@ export default class LayerBase {
     const enterQueue = new Animation.Queue({loop: false})
     const loopQueue = new Animation.Queue({loop: true})
     const {enter, loop, update} = options[sublayer]
-    const targets = `.wave-basic-${sublayer}`
+    const targets = `.chart-basic-${sublayer}`
     // create enter & loop animation and connect them
     isFirstPlay && animationQueue.push('queue', enterQueue)
     isFirstPlay && enter && enterQueue.push(enter.type, {...enter, targets, engine}, this.root)
@@ -390,7 +390,7 @@ export default class LayerBase {
       if (!isEqual(this.#backupData[sublayer][i], data[i])) {
         const groupClassName = `${sublayerClassName}-${i}`
         const groupContainer = selector.getFirstChildByClassName(sublayerContainer, groupClassName)
-        const options = {engine, className: `wave-basic-${sublayer}`, container: groupContainer}
+        const options = {engine, className: `chart-basic-${sublayer}`, container: groupContainer}
         // filter
         !data[i].hide && merge(options, data[i])
         // first play will close the update animation

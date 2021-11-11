@@ -1,5 +1,5 @@
 import {useEffect, useRef} from 'react'
-import createWave from '../../chart/create'
+import createChart from '../../chart/create'
 import schema from '../schema'
 import s from './side-bar.module.css'
 
@@ -8,7 +8,7 @@ const SearchBar = ({onSelect}) => {
 
   useEffect(() => {
     const refresh = () => {
-      createWave({
+      createChart({
         container: ref.current,
         layers: [
           {

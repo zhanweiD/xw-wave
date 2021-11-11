@@ -1,5 +1,5 @@
-import Wave from './wave'
-import createWave from './create'
+import Chart from './chart'
+import createChart from './create'
 
-export default Wave
-export {createWave}
+export default Chart
+export {createChart}

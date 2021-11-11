@@ -30,7 +30,7 @@ export default function Demo() {
             }}
           />
         </div>
-        <div className={s.waveSection}>
+        <div className={s.chartSection}>
           <Chart title="PREVIOUS" schema={oldSchema} />
           <Chart title="CURRENT" schema={newSchema} />
         </div>

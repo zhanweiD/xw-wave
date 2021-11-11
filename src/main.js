@@ -1,8 +1,11 @@
-import Wave, {createWave} from './chart'
+import Chart, {createChart} from './chart'
 import Data from './data'
 import Layer from './layer'
 import Animation from './animation'
 import Layout from './layout'
 
-export default Wave
-export {Data, Layer, Layout, Animation, createWave}
+// about to be obsolete
+const createWave = createChart
+
+export default Chart
+export {Data, Layer, Layout, Animation, createChart, createWave}

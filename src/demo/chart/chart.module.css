@@ -1,4 +1,4 @@
-.waveContainer {
+.chartContainer {
   flex: 1;
   color: whitesmoke;
   padding: 2vh;
@@ -18,7 +18,7 @@
   cursor: pointer;
 }
 
-.wave {
+.chart {
   flex: 1;
   padding: 10px;
   height: 38vh;

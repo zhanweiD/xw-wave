@@ -32,9 +32,9 @@ export default class BorderALayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['shape'])
-    this.className = 'wave-border-a'
+  constructor(layerOptions, chartOptions) {
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['shape'])
+    this.className = 'chart-border-a'
   }
 
   setStyle(style) {

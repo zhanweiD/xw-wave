@@ -1,5 +1,5 @@
 import {isArray} from 'lodash'
-import Wave from './wave'
+import Chart from './chart'
 import DataBase from '../data/base'
 import TableList from '../data/table-list'
 import Table from '../data/table'
@@ -12,15 +12,15 @@ const isLegendLayer = layerType => layerType === 'legend'
 // normal means independent
 const isNormalLayer = layerType => !isAxisLayer(layerType) && !isLegendLayer(layerType)
 const dataBase = new DataBase()
-const log = createLog('src/wave/create')
+const log = createLog('src/chart/create')
 
-const createLayer = (wave, config) => {
+const createLayer = (chart, config) => {
   const {type, options, data, scale, style, animation, event} = config
-  const layer = wave.createLayer(type, {...options, layout: wave.layout[options.layout]})
+  const layer = chart.createLayer(type, {...options, layout: chart.layout[options.layout]})
   // data structure judgement
   let dataSet = data
   if (type === 'legend') {
-    dataSet = wave.layers.map(({instance}) => instance)
+    dataSet = chart.layers.map(({instance}) => instance)
   } else if (dataBase.isTable(data) || data?.type === 'table') {
     dataSet = new Table(dataBase.isTable(data) ? data : Random.table(data))
   } else if (isArray(data) && data.length === 2 && dataBase.isRelation(data[0], data[1])) {
@@ -47,41 +47,41 @@ const createLayer = (wave, config) => {
   return layer
 }
 
-// create a wave by schema
-const createWave = (schema, existedWave) => {
+// create a chart by schema
+const createChart = (schema, existedChart) => {
   if (!schema) {
-    log.error('createWave: Invalid schema')
+    log.error('createChart: Invalid schema')
     return null
   }
   const {brush, layers = [], callback, ...initialConfig} = schema
-  const wave = existedWave || new Wave(initialConfig)
+  const chart = existedChart || new Chart(initialConfig)
   // some special layers require data or scales from other layers
   const normalLayerConfigs = layers.filter(({type}) => isNormalLayer(type))
   const axisLayerConfig = layers.find(({type}) => isAxisLayer(type))
   const legendLayerConfig = layers.find(({type}) => isLegendLayer(type))
   // layer instance
-  normalLayerConfigs.map(layer => createLayer(wave, layer))
-  axisLayerConfig && createLayer(wave, axisLayerConfig)
+  normalLayerConfigs.map(layer => createLayer(chart, layer))
+  axisLayerConfig && createLayer(chart, axisLayerConfig)
   // axis layer control all scales
-  axisLayerConfig && wave.bindCoordinate()
+  axisLayerConfig && chart.bindCoordinate()
   // legend layer is the last one
-  legendLayerConfig && createLayer(wave, legendLayerConfig)
+  legendLayerConfig && createLayer(chart, legendLayerConfig)
   // draw in order with schema
-  layers.map(({options}) => wave.layers.find(({id}) => id === options.id).instance.draw())
+  layers.map(({options}) => chart.layers.find(({id}) => id === options.id).instance.draw())
   // create brush after draw
-  brush && wave.createBrush({...brush, layout: wave.layout[brush.layout]})
+  brush && chart.createBrush({...brush, layout: chart.layout[brush.layout]})
   // TODO: throw and give control to users
-  setTimeout(() => wave.layers.map(({instance}) => instance.playAnimation()))
+  setTimeout(() => chart.layers.map(({instance}) => instance.playAnimation()))
   // callback after create
-  callback && callback(wave)
-  return wave
+  callback && callback(chart)
+  return chart
 }
 
 export default (...parameter) => {
   try {
-    return createWave(...parameter)
+    return createChart(...parameter)
   } catch (error) {
-    log.error('createWave: Wave initialization failed', error)
+    log.error('createChart: Chart initialization failed', error)
     return null
   }
 }

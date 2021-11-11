@@ -25,9 +25,9 @@ export default class TitleCLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['circle', 'curve', 'rect'])
-    this.className = 'wave-title-c'
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions, ['circle', 'curve', 'rect'])
+    this.className = 'chart-title-c'
   }
 
   setStyle(style) {

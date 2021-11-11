@@ -45,10 +45,10 @@ export default class TreeLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['circle', 'curve', 'text'])
+  constructor(layerOptions, chartOptions) {
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['circle', 'curve', 'text'])
     const {type} = this.options
-    this.className = `wave-${type}-tree`
+    this.className = `chart-${type}-tree`
     this.tooltipTargets = ['circle']
   }
 

@@ -1,5 +1,5 @@
 import React, {useEffect, useRef} from 'react'
-import {createWave} from '../../chart'
+import {createChart} from '../../chart'
 import s from './log.module.css'
 
 const logData = [
@@ -18,14 +18,14 @@ const logData = [
 ]
 
 export default function Log() {
-  const waveRef = useRef(null)
+  const chartRef = useRef(null)
 
   useEffect(() => {
-    createWave({
-      container: waveRef.current,
+    createChart({
+      container: chartRef.current,
       layers: logData,
     })
   }, [])
 
-  return <div className={s.container} ref={waveRef} />
+  return <div className={s.container} ref={chartRef} />
 }

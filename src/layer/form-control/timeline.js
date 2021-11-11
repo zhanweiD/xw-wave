@@ -36,11 +36,11 @@ export default class TimelineLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions)
     const {containerWidth, containerHeight, layout} = this.options
     const {left, top, width, height} = layout
-    this.className = 'wave-timeline'
+    this.className = 'chart-timeline'
     this.root = this.options.root
       .append('foreignObject')
       .style('width', containerWidth)

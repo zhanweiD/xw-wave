@@ -73,10 +73,10 @@ export default class LineLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['curve', 'point', 'area', 'text'])
+  constructor(layerOptions, chartOptions) {
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['curve', 'point', 'area', 'text'])
     const {mode} = this.options
-    this.className = `wave-${mode}-curve`
+    this.className = `chart-${mode}-curve`
     this.tooltipTargets = ['point']
   }
 

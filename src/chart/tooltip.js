@@ -20,20 +20,20 @@ const defaultOptions = {
 }
 
 export default class Tooltip {
-  constructor(waveContainer, options) {
+  constructor(chartContainer, options) {
     this.backup = null
     this.target = null
     this.isMoving = false
     this.isVisible = false
     this.isAvailable = false
-    this.log = createLog('src/wave/tooltip')
+    this.log = createLog('src/chart/tooltip')
     this.options = merge({}, defaultOptions, options)
     this.lastPosition = {x: -100, y: -100}
     // root container
     const {container, backgroundColor} = this.options
-    this.instance = ((container && select(container)) || waveContainer)
+    this.instance = ((container && select(container)) || chartContainer)
       .append('div')
-      .attr('class', 'wave-tooltip')
+      .attr('class', 'chart-tooltip')
       .style('border-radius', '2px')
       .style('position', 'fixed')
       .style('overflow', 'hidden')
@@ -44,7 +44,7 @@ export default class Tooltip {
     // blurred background
     this.instance
       .append('div')
-      .attr('class', 'wave-tooltip-bg')
+      .attr('class', 'chart-tooltip-bg')
       .style('filter', 'blur(1px)')
       .style('background-color', backgroundColor)
       .style('position', 'absolute')
@@ -95,10 +95,10 @@ export default class Tooltip {
       this.backup = list
       // dimension data
       this.instance
-        .selectAll('.wave-tooltip-title')
+        .selectAll('.chart-tooltip-title')
         .data([list[0].dimension])
         .join('div')
-        .attr('class', 'wave-tooltip-title')
+        .attr('class', 'chart-tooltip-title')
         .style('padding', '5px 5px 0')
         .style('font-size', `${titleSize}px`)
         .style('color', titleColor)
@@ -106,10 +106,10 @@ export default class Tooltip {
         .text(d => d)
       // content
       const container = this.instance
-        .selectAll('.wave-tooltip-content')
+        .selectAll('.chart-tooltip-content')
         .data([null])
         .join('div')
-        .attr('class', 'wave-tooltip-content')
+        .attr('class', 'chart-tooltip-content')
         .style('display', 'flex')
         .style('flex-direction', 'column')
         .style('justify-content', 'space-between')

@@ -54,11 +54,11 @@ export default class DigitalFlopLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions)
+  constructor(layerOptions, chartOptions) {
+    super({...defaultOptions, ...layerOptions}, chartOptions)
     const {containerWidth, containerHeight, layout} = this.options
     const {left, top, width, height} = layout
-    this.className = 'wave-digital-flop'
+    this.className = 'chart-digital-flop'
     this.root = this.options.root
       .append('foreignObject')
       .style('width', containerWidth)

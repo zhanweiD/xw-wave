@@ -54,9 +54,9 @@ export default class TitleALayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['polygon', 'area', 'curve', 'sideStreamer', 'centerStreamer'])
-    this.className = 'wave-title-a'
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions, ['polygon', 'area', 'curve', 'sideStreamer', 'centerStreamer'])
+    this.className = 'chart-title-a'
     this.event.on('destroy', () => {
       clearTimeout(this.#animationTimer.side)
       clearTimeout(this.#animationTimer.center)
@@ -313,7 +313,7 @@ export default class TitleALayer extends LayerBase {
       duration: 3000,
       delay: 1000,
       color: chroma(mainColor).mix('#fff').brighten(),
-      targets: this.root.getObjects().filter(obj => obj.className === 'wave-basic-sideStreamer'),
+      targets: this.root.getObjects().filter(obj => obj.className === 'chart-basic-sideStreamer'),
       setTimer: timer => (this.#animationTimer.side = timer),
       headEase: easeQuadOut,
       tailEase: easeQuadIn,
@@ -323,7 +323,7 @@ export default class TitleALayer extends LayerBase {
       duration: 1000,
       endDelay: 3000,
       color: chroma(mainColor).mix('#fff').brighten(),
-      targets: this.root.getObjects().filter(obj => obj.className === 'wave-basic-centerStreamer'),
+      targets: this.root.getObjects().filter(obj => obj.className === 'chart-basic-centerStreamer'),
       setTimer: timer => (this.#animationTimer.center = timer),
       headEase: easePolyIn.exponent(2),
       tailEase: easePolyIn.exponent(3.5),

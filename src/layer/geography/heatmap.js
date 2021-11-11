@@ -36,10 +36,10 @@ export default class HeatmapLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions)
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions)
     const {container} = this.options
-    this.className = 'wave-heatmap'
+    this.className = 'chart-heatmap'
     this.#instance = h337.create({container: container.node()})
     this.event.on('destroy', () => container.selectAll('.heatmap-canvas').remove())
     // no events

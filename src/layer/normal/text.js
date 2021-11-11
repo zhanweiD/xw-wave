@@ -25,9 +25,9 @@ export default class TextLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['text'])
-    this.className = 'wave-text'
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions, ['text'])
+    this.className = 'chart-text'
   }
 
   // data is string

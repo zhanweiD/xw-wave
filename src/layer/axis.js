@@ -134,11 +134,11 @@ export default class AxisLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
+  constructor(layerOptions, chartOptions) {
     const lineKey = ['lineAxisX', 'lineTickX', 'lineAxisY', 'lineTickY', 'lineAngle', 'lineRadius']
     const textKey = ['textX', 'textY', 'textYR', 'textAngle', 'textRadius', 'titleX', 'titleY', 'titleYR']
-    super({...defaultOptions, ...layerOptions}, waveOptions, [...lineKey, ...textKey])
-    this.className = `wave-${this.options.type}-axis`
+    super({...defaultOptions, ...layerOptions}, chartOptions, [...lineKey, ...textKey])
+    this.className = `chart-${this.options.type}-axis`
   }
 
   // merge scales from different layers

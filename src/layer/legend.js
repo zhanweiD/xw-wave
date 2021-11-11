@@ -53,9 +53,9 @@ export default class LegendLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['text', 'circle', 'rect', 'polygon', 'interactive', 'line'])
-    this.className = 'wave-legend'
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions, ['text', 'circle', 'rect', 'polygon', 'interactive', 'line'])
+    this.className = 'chart-legend'
   }
 
   #filter = layers => {

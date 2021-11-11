@@ -15,7 +15,7 @@ const defaultAnimation = {
   flyingObject: {
     loop: {
       type: 'path',
-      path: '.wave-basic-line',
+      path: '.chart-basic-line',
     },
   },
 }
@@ -43,10 +43,10 @@ export default class ODLineLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['line', 'flyingObject', 'text'])
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions, ['line', 'flyingObject', 'text'])
     this.tooltipTargets = ['line']
-    this.className = 'wave-odLine'
+    this.className = 'chart-odLine'
   }
 
   // quadratic bezier curve

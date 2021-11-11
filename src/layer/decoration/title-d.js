@@ -23,9 +23,9 @@ export default class TitleDLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['arrow', 'point'])
-    this.className = 'wave-title-d'
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions, ['arrow', 'point'])
+    this.className = 'chart-title-d'
   }
 
   setStyle(style) {

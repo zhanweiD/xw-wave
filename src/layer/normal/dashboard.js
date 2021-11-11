@@ -45,10 +45,10 @@ export default class DashboardLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
+  constructor(layerOptions, chartOptions) {
     const subLayers = ['arc', 'pointer', 'pointerAnchor', 'tickLine', 'tickText', 'labelText', 'valueText']
-    super(layerOptions, waveOptions, subLayers)
-    this.className = 'wave-dashboard'
+    super(layerOptions, chartOptions, subLayers)
+    this.className = 'chart-dashboard'
   }
 
   setData(data) {

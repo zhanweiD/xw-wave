@@ -28,9 +28,9 @@ export default class PackLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['circle', 'text'])
-    this.className = `wave${this.options.zoom ? '-zoom-' : '-'}pack`
+  constructor(layerOptions, chartOptions) {
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['circle', 'text'])
+    this.className = `chart${this.options.zoom ? '-zoom-' : '-'}pack`
     this.tooltipTargets = ['circle']
   }
 

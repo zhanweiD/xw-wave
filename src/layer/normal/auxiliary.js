@@ -35,9 +35,9 @@ export default class AuxiliaryLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['line', 'text'])
-    this.className = `wave-${this.options.type}-auxiliary`
+  constructor(layerOptions, chartOptions) {
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['line', 'text'])
+    this.className = `chart-${this.options.type}-auxiliary`
   }
 
   // the layer needs outside scales

@@ -9,7 +9,7 @@ import Tooltip from './tooltip'
 import Layout from '../layout'
 import {COORDINATE, DIRECTION, STATE} from '../utils/constants'
 
-export default class Wave {
+export default class Chart {
   #state = null
 
   #container = null
@@ -57,7 +57,7 @@ export default class Wave {
     this.#state = STATE.INITILIZE
     this.#container = d3.select(container)
 
-    // initialize the wave width and height
+    // initialize the chart width and height
     if (adjust) {
       this.containerWidth = +this.#container.style('width').match(/^\d*/)[0]
       this.containerHeight = +this.#container.style('height').match(/^\d*/)[0]
@@ -89,8 +89,8 @@ export default class Wave {
 
     // initialize other attr
     this.theme = theme
-    this.log = createLog('src/wave')
-    this.event = createEvent('src/wave')
+    this.log = createLog('src/chart')
+    this.event = createEvent('src/chart')
     this.#tooltip = new Tooltip(this.#container, tooltip)
     this.setPadding(padding, layout)
 
@@ -99,7 +99,7 @@ export default class Wave {
   }
 
   /**
-   * set layout for wave
+   * set layout for chart
    * @param {Array<Number>} padding
    * @param {Function} layout layout creator
    */
@@ -133,7 +133,7 @@ export default class Wave {
       this.log.error(`Wrong layer type: '${type}'`)
       return null
     }
-    // context from wave
+    // context from chart
     const context = {
       root: this.#root,
       engine: this.#engine,
@@ -148,7 +148,7 @@ export default class Wave {
     // generate a layer by layer type
     const layer = new layerMapping[type](options, context)
     const layerId = options.id || createUuid()
-    // wave will save the layer for easy management
+    // chart will save the layer for easy management
     this.#state = STATE.READY
     this.#layers.push({type, id: layerId, instance: layer})
     return layer
@@ -257,7 +257,7 @@ export default class Wave {
       [brushX2, brushY2],
     ])
     // initialize brush area
-    const brushDOM = this.#root.append('g').attr('class', 'wave-brush').call(brush)
+    const brushDOM = this.#root.append('g').attr('class', 'chart-brush').call(brush)
     brushDOM.call(brush.move, isHorizontal ? [brushX1, brushX2] : [brushY1, brushY2])
   }
 

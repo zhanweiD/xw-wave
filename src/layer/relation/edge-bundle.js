@@ -38,9 +38,9 @@ export default class EdgeBundleLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super(layerOptions, waveOptions, ['circle', 'curve', 'text'])
-    this.className = 'wave-edge-bundle'
+  constructor(layerOptions, chartOptions) {
+    super(layerOptions, chartOptions, ['circle', 'curve', 'text'])
+    this.className = 'chart-edge-bundle'
     this.tooltipTargets = ['circle']
   }
 

@@ -43,10 +43,10 @@ export default class RadarLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['polygon', 'circle', 'text'])
+  constructor(layerOptions, chartOptions) {
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['polygon', 'circle', 'text'])
     const {mode} = this.options
-    this.className = `wave-${mode}-radar`
+    this.className = `chart-${mode}-radar`
     this.tooltipTargets = ['circle']
   }
 
