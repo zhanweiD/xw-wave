@@ -1,3 +1,4 @@
+import {fabric} from 'fabric'
 import {getAttr} from '../utils/common'
 
 export default function drawImage({
@@ -45,6 +46,23 @@ export default function drawImage({
       .attr('mask', d => d.mask)
       .attr('filter', d => d.filter)
   } else if (engine === 'canvas') {
-    console.warn('Not support draw image in canvas yet')
+    configuredData.forEach(config => {
+      fabric.Image.fromURL(
+        config.url,
+        image => {
+          image.scaleX = config.width / image.width
+          image.scaleY = config.height / image.height
+          container.add(image)
+        },
+        {
+          className: config.className,
+          top: config.y,
+          left: config.x,
+          opacity: config.opacity,
+          source: config.source,
+          selectable: false,
+        }
+      )
+    })
   }
 }
