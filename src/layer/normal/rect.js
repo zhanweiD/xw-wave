@@ -292,19 +292,19 @@ export default class RectLayer extends LayerBase {
     // figure out label position data
     let [position, positionX, positionY] = [null, null, null]
     if (labelPosition === POSITION.LEFTOUTER || labelPosition === POSITION.LEFTINNER) {
-      ;[positionX, positionY] = [x, y + height / 2]
+      [positionX, positionY] = [x, y + height / 2]
       position = labelPosition === POSITION.LEFTOUTER ? 'left' : 'right'
     } else if (labelPosition === POSITION.RIGHTOUTER || labelPosition === POSITION.RIGHTINNER) {
-      ;[positionX, positionY] = [x + width, y + height / 2]
+      [positionX, positionY] = [x + width, y + height / 2]
       position = labelPosition === POSITION.RIGHTOUTER ? 'right' : 'left'
     } else if (labelPosition === POSITION.TOPOUTER || labelPosition === POSITION.TOPINNER) {
-      ;[positionX, positionY] = [x + width / 2, y]
+      [positionX, positionY] = [x + width / 2, y]
       position = labelPosition === POSITION.TOPOUTER ? 'top' : 'bottom'
     } else if (labelPosition === POSITION.BOTTOMOUTER || labelPosition === POSITION.BOTTOMINNER) {
-      ;[positionX, positionY] = [x + width / 2, y + height]
+      [positionX, positionY] = [x + width / 2, y + height]
       position = labelPosition === POSITION.BOTTOMOUTER ? 'bottom' : 'top'
     } else if (labelPosition === POSITION.CENTER) {
-      ;[positionX, positionY] = [x + width / 2, y + height / 2]
+      [positionX, positionY] = [x + width / 2, y + height / 2]
       position = 'center'
     }
     return this.createText({x: positionX, y: positionY, value, style: text, position, offset: 5})
