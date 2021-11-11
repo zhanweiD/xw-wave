@@ -1,15 +1,11 @@
 import * as d3 from 'd3'
 import {merge} from 'lodash'
 import {addStyle, transformAttr} from '../../utils/common'
+import {DIRECTION} from '../../utils/constants'
 import LayerBase from '../base'
 
-const directionType = {
-  HORIZONTAL: 'horizontal',
-  VERTICAL: 'vertical',
-}
-
 const defaultStyle = {
-  direction: directionType.HORIZONTAL,
+  direction: DIRECTION.HORIZONTAL,
   active: {
     backgroundColor: 'rgb(0,119,255)',
   },
@@ -76,15 +72,15 @@ export default class TabButtonLayer extends LayerBase {
     const {width, height} = this.options.layout
     const {text, active, inactive, direction} = this.#style
     const sizeData = {
-      width: `${direction === directionType.HORIZONTAL ? width / this.#tabData.length : width}px`,
-      height: `${direction === directionType.VERTICAL ? height / this.#tabData.length : height}px`,
+      width: `${direction === DIRECTION.HORIZONTAL ? width / this.#tabData.length : width}px`,
+      height: `${direction === DIRECTION.VERTICAL ? height / this.#tabData.length : height}px`,
     }
     this.#tabData.forEach(item => merge(item, sizeData, text, item.isActive ? active : inactive))
   }
 
   draw() {
     this.root
-      .style('flex-direction', this.#style.direction === directionType.VERTICAL ? 'column' : 'row')
+      .style('flex-direction', this.#style.direction === DIRECTION.VERTICAL ? 'column' : 'row')
       .selectAll(`.${this.className}-item`)
       .data(this.#tabData)
       .join('xhtml:div')

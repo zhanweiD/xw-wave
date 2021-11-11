@@ -111,20 +111,16 @@ export default class ODLineLayer extends LayerBase {
   }
 
   draw() {
-    const odLineData = [
-      {
-        data: this.#odLineData.map(({data}) => data),
-        source: this.#odLineData.map(({source}) => source),
-        ...this.#style.odLine,
-      },
-    ]
-    const flyingObjectData = [
-      {
-        data: this.#flyingObjectData.map(({data}) => data),
-        ...this.#style.flyingObject,
-      },
-    ]
-    this.drawBasic('path', odLineData, 'line')
-    this.drawBasic('path', flyingObjectData, 'flyingObject')
+    const odLineData = {
+      data: this.#odLineData.map(({data}) => data),
+      source: this.#odLineData.map(({source}) => source),
+      ...this.#style.odLine,
+    }
+    const flyingObjectData = {
+      data: this.#flyingObjectData.map(({data}) => data),
+      ...this.#style.flyingObject,
+    }
+    this.drawBasic('path', [odLineData], 'line')
+    this.drawBasic('path', [flyingObjectData], 'flyingObject')
   }
 }

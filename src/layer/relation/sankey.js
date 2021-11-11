@@ -3,20 +3,10 @@ import {sum} from 'lodash'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
 import {getAttr, range} from '../../utils/common'
-
-const alignType = {
-  START: 'start',
-  MIDDLE: 'middle',
-  END: 'end',
-}
-
-const directionType = {
-  HORIZONTAL: 'horizontal',
-  VERTICAL: 'vertical',
-}
+import {ALIGNMENT, DIRECTION} from '../../utils/constants'
 
 const defaultOptions = {
-  type: directionType.HORIZONTAL,
+  type: DIRECTION.HORIZONTAL,
 }
 
 const defaultStyle = {
@@ -24,7 +14,7 @@ const defaultStyle = {
   nodeGap: 10,
   ribbonGap: 0,
   labelOffset: 5,
-  align: alignType.START,
+  align: ALIGNMENT.START,
   rect: {},
   ribbon: {
     fillOpacity: 0.7,
@@ -78,7 +68,7 @@ export default class SankeyLayer extends LayerBase {
         scaleY: new Scale({
           type: 'linear',
           domain: [0, 1],
-          range: type === directionType.HORIZONTAL ? [0, height] : [0, width],
+          range: type === DIRECTION.HORIZONTAL ? [0, height] : [0, width],
         }),
       },
       this.#scale,
@@ -96,7 +86,7 @@ export default class SankeyLayer extends LayerBase {
   #getPath = data => {
     const {type} = this.options
     const [x1, y1, x2, y2, x3, y3, x4, y4] = data
-    if (type === directionType.HORIZONTAL) {
+    if (type === DIRECTION.HORIZONTAL) {
       return [
         `M ${x1},${y1}`,
         `C ${(x1 + x2) / 2},${y1} ${(x1 + x2) / 2},${y2} ${x2},${y2}`,
@@ -104,7 +94,7 @@ export default class SankeyLayer extends LayerBase {
         `C ${(x3 + x4) / 2},${y3} ${(x3 + x4) / 2},${y4} ${x4},${y4} Z`,
       ].join(' ')
     }
-    if (type === directionType.VERTICAL) {
+    if (type === DIRECTION.VERTICAL) {
       return [
         `M ${x1},${y1}`,
         `C ${x1},${(y1 + y2) / 2} ${x2},${(y1 + y2) / 2} ${x2},${y2}`,
@@ -125,7 +115,7 @@ export default class SankeyLayer extends LayerBase {
     const maxNumbers = levels.map((level, i) => {
       const totalNumber = d3.sum(groups[level].map(({value}) => value))
       const gapLength = (groups[level].length - 1) * getAttr(nodeGap, i, 5)
-      const totalLength = type === directionType.HORIZONTAL ? layout.height : layout.width
+      const totalLength = type === DIRECTION.HORIZONTAL ? layout.height : layout.width
       const ratio = totalNumber / (totalLength - gapLength)
       return totalNumber + gapLength * ratio
     })
@@ -133,7 +123,7 @@ export default class SankeyLayer extends LayerBase {
     this.#scale.scaleY.domain([0, d3.max(maxNumbers)])
     const {scaleY} = this.#scale
     // basic rect data
-    const totalLength = type === directionType.HORIZONTAL ? layout.width : layout.height
+    const totalLength = type === DIRECTION.HORIZONTAL ? layout.width : layout.height
     const groupNodeWiths = range(0, groups.length - 1).map(i => getAttr(nodeWidth, i, 5))
     const groupNodeGap = (totalLength - sum(groupNodeWiths)) / (groups.length - 1)
     this.#rectData = groups.map((groupedNodes, i) => {
@@ -158,13 +148,13 @@ export default class SankeyLayer extends LayerBase {
     // move rect node according align value
     this.#rectData.forEach(group => {
       const tailNode = group[group.length - 1]
-      if (type === directionType.HORIZONTAL) {
+      if (type === DIRECTION.HORIZONTAL) {
         const offset = layout.top + layout.height - tailNode.y - tailNode.height
-        const moveY = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
+        const moveY = align === ALIGNMENT.END ? offset : align === ALIGNMENT.MIDDLE ? offset / 2 : 0
         group.forEach(item => (item.y += moveY))
-      } else if (type === directionType.VERTICAL) {
+      } else if (type === DIRECTION.VERTICAL) {
         const offset = layout.top + layout.width - tailNode.y - tailNode.height
-        const moveX = align === alignType.END ? offset : align === alignType.MIDDLE ? offset / 2 : 0
+        const moveX = align === ALIGNMENT.END ? offset : align === ALIGNMENT.MIDDLE ? offset / 2 : 0
         group.forEach(item => (item.y += moveX))
       }
     })
@@ -191,14 +181,16 @@ export default class SankeyLayer extends LayerBase {
       }
     })
     // horizontal => vertical
-    if (type === directionType.VERTICAL) {
-      this.#rectData = this.#rectData.map(group => group.map(({x, y, height, width, ...other}) => ({
-        width: height,
-        height: width,
-        x: y - layout.top + layout.left,
-        y: x - layout.left + layout.top,
-        ...other,
-      })))
+    if (type === DIRECTION.VERTICAL) {
+      this.#rectData = this.#rectData.map(group => {
+        return group.map(({x, y, height, width, ...other}) => ({
+          width: height,
+          height: width,
+          x: y - layout.top + layout.left,
+          y: x - layout.left + layout.top,
+          ...other,
+        }))
+      })
       this.#ribbonData = this.#ribbonData.map(({x1, y1, x2, y2, x3, y3, x4, y4, ...other}) => ({
         ...other,
         x1: y1 - layout.top + layout.left,
@@ -214,46 +206,51 @@ export default class SankeyLayer extends LayerBase {
     // label data
     this.#textData = this.#rectData.map((group, i) => {
       const isLast = i === this.#rectData.length - 1
-      if (type === directionType.HORIZONTAL) {
-        return group.map(({x, y, width, height, name, value}) => this.createText({
-          x: isLast ? x - labelOffset : x + width + labelOffset,
-          y: y + height / 2,
-          value: `${name}(${value})`,
-          position: isLast ? 'left' : 'right',
-          style: text,
-        }))
+      if (type === DIRECTION.HORIZONTAL) {
+        return group.map(({x, y, width, height, name, value}) => {
+          return this.createText({
+            x: isLast ? x - labelOffset : x + width + labelOffset,
+            y: y + height / 2,
+            value: `${name}(${value})`,
+            position: isLast ? 'left' : 'right',
+            style: text,
+          })
+        })
       }
-      if (type === directionType.VERTICAL) {
-        return group.map(({x, y, width, height, name, value}) => this.createText({
-          x: x + width / 2,
-          y: isLast ? y - labelOffset : y + height + labelOffset,
-          value: `${name}(${value})`,
-          position: isLast ? 'top' : 'bottom',
-          style: text,
-        }))
+      if (type === DIRECTION.VERTICAL) {
+        return group.map(({x, y, width, height, name, value}) => {
+          return this.createText({
+            x: x + width / 2,
+            y: isLast ? y - labelOffset : y + height + labelOffset,
+            value: `${name}(${value})`,
+            position: isLast ? 'top' : 'bottom',
+            style: text,
+          })
+        })
       }
       return null
     })
   }
 
   draw() {
-    const rectData = this.#rectData.map(group => {
-      const data = group.map(({width, height}) => [width, height])
-      const source = group.map(({dimension, name, value}) => ({dimension, category: name, value}))
-      const position = group.map(({x, y}) => [x, y])
-      const fill = group.map(({color}) => color)
-      const transformOrigin = 'center'
-      return {data, source, position, transformOrigin, ...this.#style.rect, fill}
-    })
-    const ribbonData = this.#ribbonData.map(({x1, y1, x2, y2, x3, y3, x4, y4, color}) => {
-      const data = [this.#getPath([x1, y1, x3, y3, x4, y4, x2, y2])]
-      return {data, ...this.#style.ribbon, fill: color}
-    })
-    const textData = this.#textData.map(group => {
-      const data = group.map(({value}) => value)
-      const position = group.map(({x, y}) => [x, y])
-      return {data, position, ...this.#style.text}
-    })
+    const rectData = this.#rectData.map(group => ({
+      data: group.map(({width, height}) => [width, height]),
+      source: group.map(({dimension, name, value}) => ({dimension, category: name, value})),
+      position: group.map(({x, y}) => [x, y]),
+      transformOrigin: 'center',
+      ...this.#style.rect,
+      fill: group.map(({color}) => color),
+    }))
+    const ribbonData = this.#ribbonData.map(({x1, y1, x2, y2, x3, y3, x4, y4, color}) => ({
+      data: [this.#getPath([x1, y1, x3, y3, x4, y4, x2, y2])],
+      ...this.#style.ribbon,
+      fill: color,
+    }))
+    const textData = this.#textData.map(group => ({
+      data: group.map(({value}) => value),
+      position: group.map(({x, y}) => [x, y]),
+      ...this.#style.text,
+    }))
     this.drawBasic('rect', rectData)
     this.drawBasic('path', ribbonData, 'ribbon')
     this.drawBasic('text', textData)

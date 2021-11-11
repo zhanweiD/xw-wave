@@ -2,31 +2,16 @@ import * as d3 from 'd3'
 import {isNumber} from 'lodash'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
-
-const alignType = {
-  START: 'start',
-  MIDDLE: 'middle',
-  END: 'end',
-}
-
-const directionType = {
-  HORIZONTAL: 'horizontal',
-  VERTICAL: 'vertical',
-}
-
-const labelPositionType = {
-  INNER: 'inner',
-  OUTER: 'outer',
-}
+import {ALIGNMENT, DIRECTION, POSITION} from '../../utils/constants'
 
 const defaultOptions = {
-  type: directionType.HORIZONTAL,
+  type: DIRECTION.HORIZONTAL,
 }
 
 const defaultStyle = {
   labelOffset: 5,
-  labelPosition: labelPositionType.OUTER,
-  align: alignType.START,
+  labelPosition: POSITION.OUTER,
+  align: ALIGNMENT.START,
   circleSize: 10,
   circle: {},
   curve: {
@@ -79,12 +64,12 @@ export default class TreeLayer extends LayerBase {
         scaleX: new Scale({
           type: 'point',
           domain: levels,
-          range: type === directionType.HORIZONTAL ? [0, width] : [0, height],
+          range: type === DIRECTION.HORIZONTAL ? [0, width] : [0, height],
         }),
         scaleY: new Scale({
           type: 'linear',
           domain: [0, 1],
-          range: type === directionType.HORIZONTAL ? [0, height] : [0, width],
+          range: type === DIRECTION.HORIZONTAL ? [0, height] : [0, width],
         }),
       },
       this.#scale,
@@ -133,19 +118,21 @@ export default class TreeLayer extends LayerBase {
         ...item,
       }))
       // update the position of the parent node according to the position of the child node
-      this.#circleData[i].forEach(({cy, parents}) => parents.forEach(parent => {
-        if (!parent.cy) parent.cy = cy
-        // determine the maximum and minimum coordinates of the child node
-        parent.min = Math.min(cy, parent.min || cy)
-        parent.max = Math.max(cy, parent.max || cy)
-        if (align === alignType.START) {
-          parent.cy = parent.min
-        } else if (align === alignType.MIDDLE) {
-          parent.cy = (parent.min + parent.max) / 2
-        } else if (align === alignType.END) {
-          parent.cy = parent.max
-        }
-      }))
+      this.#circleData[i].forEach(({cy, parents}) => {
+        parents.forEach(parent => {
+          if (!parent.cy) parent.cy = cy
+          // determine the maximum and minimum coordinates of the child node
+          parent.min = Math.min(cy, parent.min || cy)
+          parent.max = Math.max(cy, parent.max || cy)
+          if (align === ALIGNMENT.START) {
+            parent.cy = parent.min
+          } else if (align === ALIGNMENT.MIDDLE) {
+            parent.cy = (parent.min + parent.max) / 2
+          } else if (align === ALIGNMENT.END) {
+            parent.cy = parent.max
+          }
+        })
+      })
     }
     // basic link data
     const rects = this.#circleData.reduce((prev, cur) => [...prev, ...cur])
@@ -163,19 +150,23 @@ export default class TreeLayer extends LayerBase {
       }),
     ]
     // horizontal => vertical
-    if (type === directionType.VERTICAL) {
-      this.#circleData = this.#circleData.map(group => group.map(({cx, cy, ...other}) => ({
-        cx: cy - layout.top + layout.left,
-        cy: cx - layout.left + layout.top,
-        ...other,
-      })))
-      this.#curveData = this.#curveData.map(group => group.map(({x1, y1, x2, y2, ...other}) => ({
-        ...other,
-        x1: y1 - layout.top + layout.left,
-        y1: x1 - layout.left + layout.top,
-        x2: y2 - layout.top + layout.left,
-        y2: x2 - layout.left + layout.top,
-      })))
+    if (type === DIRECTION.VERTICAL) {
+      this.#circleData = this.#circleData.map(group => {
+        return group.map(({cx, cy, ...other}) => ({
+          cx: cy - layout.top + layout.left,
+          cy: cx - layout.left + layout.top,
+          ...other,
+        }))
+      })
+      this.#curveData = this.#curveData.map(group => {
+        return group.map(({x1, y1, x2, y2, ...other}) => ({
+          ...other,
+          x1: y1 - layout.top + layout.left,
+          y1: x1 - layout.left + layout.top,
+          x2: y2 - layout.top + layout.left,
+          y2: x2 - layout.left + layout.top,
+        }))
+      })
     }
     // step curve mode needs to be optimized for better display effect
     if (curve.curve.match(/step/i)) {
@@ -184,8 +175,8 @@ export default class TreeLayer extends LayerBase {
       // reconstruct the link data and note that the previous data is from the leaf to the root
       this.#curveData = this.#curveData.map(group => {
         const {x1, x2, y1, y2} = group[0]
-        const medianX = type === directionType.VERTICAL ? x1 : (x1 + x2) / 2
-        const medianY = type === directionType.HORIZONTAL ? y1 : (y1 + y2) / 2
+        const medianX = type === DIRECTION.VERTICAL ? x1 : (x1 + x2) / 2
+        const medianY = type === DIRECTION.HORIZONTAL ? y1 : (y1 + y2) / 2
         const masterLine = {...group[0], x2: medianX, y2: medianY}
         const slaveLines = group.map(({...other}) => ({
           ...other,
@@ -197,25 +188,29 @@ export default class TreeLayer extends LayerBase {
     }
     // label data
     this.#textData = this.#circleData.map((group, i) => {
-      const isSpecial = (labelPosition === labelPositionType.OUTER && i === 0)
-        || (labelPosition === labelPositionType.INNER && i === this.#circleData.length - 1)
-      if (type === directionType.HORIZONTAL) {
-        return group.map(({cx, cy, r, name}) => this.createText({
-          x: isSpecial ? cx + r + labelOffset : cx - r - labelOffset,
-          y: cy,
-          position: isSpecial ? 'right' : 'left',
-          style: text,
-          value: name,
-        }))
+      const isSpecial = (labelPosition === POSITION.OUTER && i === 0)
+        || (labelPosition === POSITION.INNER && i === this.#circleData.length - 1)
+      if (type === DIRECTION.HORIZONTAL) {
+        return group.map(({cx, cy, r, name}) => {
+          return this.createText({
+            x: isSpecial ? cx + r + labelOffset : cx - r - labelOffset,
+            y: cy,
+            position: isSpecial ? 'right' : 'left',
+            style: text,
+            value: name,
+          })
+        })
       }
-      if (type === directionType.VERTICAL) {
-        return group.map(({cx, cy, r, name}) => this.createText({
-          x: cx,
-          y: isSpecial ? cy + r + labelOffset : cy - r - labelOffset,
-          position: isSpecial ? 'bottom' : 'top',
-          style: text,
-          value: name,
-        }))
+      if (type === DIRECTION.VERTICAL) {
+        return group.map(({cx, cy, r, name}) => {
+          return this.createText({
+            x: cx,
+            y: isSpecial ? cy + r + labelOffset : cy - r - labelOffset,
+            position: isSpecial ? 'bottom' : 'top',
+            style: text,
+            value: name,
+          })
+        })
       }
       return null
     })

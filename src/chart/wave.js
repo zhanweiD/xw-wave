@@ -5,21 +5,9 @@ import createLog from '../utils/create-log'
 import createEvent from '../utils/create-event'
 import createDefs, {makeGradientCreator} from '../utils/define'
 import Layer, {layerMapping} from '../layer'
-import {coordinateType} from '../layer/axis'
 import Tooltip from './tooltip'
 import Layout from '../layout'
-
-const stateType = {
-  INITILIZE: 'initilize',
-  DESTROY: 'destroy',
-  READY: 'ready',
-  WARN: 'warn',
-}
-
-const brushType = {
-  HORIZONTAL: 'horizontal',
-  VERTICAL: 'vertical',
-}
+import {COORDINATE, DIRECTION, STATE} from '../utils/constants'
 
 export default class Wave {
   #state = null
@@ -66,7 +54,7 @@ export default class Wave {
   }) {
     // initialize state
     this.#engine = engine
-    this.#state = stateType.INITILIZE
+    this.#state = STATE.INITILIZE
     this.#container = d3.select(container)
 
     // initialize the wave width and height
@@ -161,7 +149,7 @@ export default class Wave {
     const layer = new layerMapping[type](options, context)
     const layerId = options.id || createUuid()
     // wave will save the layer for easy management
-    this.#state = stateType.READY
+    this.#state = STATE.READY
     this.#layers.push({type, id: layerId, instance: layer})
     return layer
   }
@@ -195,7 +183,7 @@ export default class Wave {
       const {scale, options} = layer
       const {axis} = options
       const scales = {}
-      if (type.search(coordinateType.CARTESIAN) !== -1) {
+      if (type.search(COORDINATE.CARTESIAN) !== -1) {
         scales.scaleX = scale.scaleX
         if (axis === 'minor') {
           scales.scaleYR = scale.scaleY
@@ -203,11 +191,11 @@ export default class Wave {
           scales.scaleY = scale.scaleY
         }
       }
-      if (type.search(coordinateType.POLAR) !== -1) {
+      if (type.search(COORDINATE.POLAR) !== -1) {
         scales.scaleAngle = scale.scaleAngle
         scales.scaleRadius = scale.scaleRadius
       }
-      if (type.search(coordinateType.GEOGRAPHIC) !== -1 && isBaseMapLayer(layer)) {
+      if (type.search(COORDINATE.GEOGRAPHIC) !== -1 && isBaseMapLayer(layer)) {
         scales.scaleX = scale.scaleX
         scales.scaleY = scale.scaleY
       }
@@ -218,7 +206,7 @@ export default class Wave {
     layers.forEach(layer => {
       const scales = {...layer.scale, ...axisLayer.scale}
       // projection to normal scale
-      if (type.search(coordinateType.GEOGRAPHIC) !== -1) {
+      if (type.search(COORDINATE.GEOGRAPHIC) !== -1) {
         const scaleX = x => scales.scaleX(x) - layer.options.layout.left
         const scaleY = y => scales.scaleY(y) - layer.options.layout.top
         layer.setData(null, {...scales, scaleX, scaleY})
@@ -237,7 +225,7 @@ export default class Wave {
       return
     }
     const {width, height, left, top} = layout
-    const isHorizontal = type === brushType.HORIZONTAL
+    const isHorizontal = type === DIRECTION.HORIZONTAL
     const layers = this.#layers.filter(({id}) => targets.find(item => item === id))
     const prevRange = new Array(layers.length).fill(null)
     // brush will change range of scale
@@ -274,7 +262,7 @@ export default class Wave {
   }
 
   destroy() {
-    this.#state = stateType.DESTROY
+    this.#state = STATE.DESTROY
     while (this.#layers.length) {
       this.#layers.shift().instance.destroy()
     }

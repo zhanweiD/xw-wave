@@ -1,15 +1,10 @@
 import LayerBase from '../base'
 import getTextWidth from '../../utils/text-width'
-
-const alignType = {
-  START: 'start',
-  MIDDLE: 'middle',
-  END: 'end',
-}
+import {ALIGNMENT} from '../../utils/constants'
 
 const defaultStyle = {
-  align: alignType.START,
-  verticalAlign: alignType.START,
+  align: ALIGNMENT.START,
+  verticalAlign: ALIGNMENT.START,
   text: {
     fontSize: 12,
   },
@@ -47,19 +42,19 @@ export default class TextLayer extends LayerBase {
     const {fontSize} = text
     let [x, y] = [0, 0]
     // horizontal position
-    if (align === alignType.START) {
+    if (align === ALIGNMENT.START) {
       x = left
-    } else if (align === alignType.MIDDLE) {
+    } else if (align === ALIGNMENT.MIDDLE) {
       x = left + (width - getTextWidth(this.#data, fontSize)) / 2
-    } else if (align === alignType.END) {
+    } else if (align === ALIGNMENT.END) {
       x = left + width - getTextWidth(this.#data, fontSize)
     }
     // vertical position
-    if (verticalAlign === alignType.START) {
+    if (verticalAlign === ALIGNMENT.START) {
       y = top + fontSize
-    } else if (verticalAlign === alignType.MIDDLE) {
+    } else if (verticalAlign === ALIGNMENT.MIDDLE) {
       y = top + (height + fontSize) / 2
-    } else if (verticalAlign === alignType.END) {
+    } else if (verticalAlign === ALIGNMENT.END) {
       y = top + height
     }
     this.#textData = this.createText({x, y, value: this.#data.data, style: text})

@@ -98,31 +98,25 @@ export default class TitleCLayer extends LayerBase {
   }
 
   draw() {
-    const circleData = [
-      {
-        position: this.#circleData.map(({cx, cy}) => [cx, cy]),
-        data: this.#circleData.map(({r}) => [r, r]),
-        fill: this.#circleData.map(({fill}) => fill),
-        ...this.#style.circle,
-      },
-    ]
-    const lineData = [
-      {
-        data: [this.#lineData.points],
-        stroke: this.#lineData.stroke,
-        ...this.#style.line,
-      },
-    ]
-    const rectData = [
-      {
-        data: [[this.#rectData.width, this.#rectData.height]],
-        position: [[this.#rectData.x, this.#rectData.y]],
-        fill: this.#rectData.fill,
-        ...this.#style.rect,
-      },
-    ]
-    this.drawBasic('rect', rectData)
-    this.drawBasic('curve', lineData)
-    this.drawBasic('circle', circleData)
+    const circleData = {
+      position: this.#circleData.map(({cx, cy}) => [cx, cy]),
+      data: this.#circleData.map(({r}) => [r, r]),
+      fill: this.#circleData.map(({fill}) => fill),
+      ...this.#style.circle,
+    }
+    const lineData = {
+      data: [this.#lineData.points],
+      stroke: this.#lineData.stroke,
+      ...this.#style.line,
+    }
+    const rectData = {
+      data: [[this.#rectData.width, this.#rectData.height]],
+      position: [[this.#rectData.x, this.#rectData.y]],
+      fill: this.#rectData.fill,
+      ...this.#style.rect,
+    }
+    this.drawBasic('rect', [rectData])
+    this.drawBasic('curve', [lineData])
+    this.drawBasic('circle', [circleData])
   }
 }

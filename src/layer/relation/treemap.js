@@ -1,9 +1,10 @@
 import * as d3 from 'd3'
 import LayerBase from '../base'
 import {overflowControl} from '../../utils/format'
+import {ALIGNMENT} from '../../utils/constants'
 
 // built-in tile method in d3
-const tileType = {
+const TILE = {
   BINARY: 'treemapBinary', // balanced binary tree
   DICE: 'treemapDice', // horizontal division
   SLICE: 'treemapSlice', // vertical division
@@ -11,19 +12,13 @@ const tileType = {
   SQUARIFY: 'treemapSquarify', // maintain aspect ratio
 }
 
-const alignType = {
-  START: 'start',
-  MIDDLE: 'middle',
-  END: 'end',
-}
-
 const defaultOptions = {
-  tile: tileType.SQUARIFY,
+  tile: TILE.SQUARIFY,
 }
 
 const defaultStyle = {
-  align: alignType.MIDDLE,
-  verticalAlign: alignType.MIDDLE,
+  align: ALIGNMENT.MIDDLE,
+  verticalAlign: ALIGNMENT.MIDDLE,
   labelGap: 5,
   rect: {},
   text: {
@@ -87,23 +82,23 @@ export default class TreemapLayer extends LayerBase {
     // basic text data including label and value
     this.#textData = this.#rectData.map(({x, y, width, height, value, name}) => {
       let [nameX, nameY, position] = [null, null, null]
-      if (align === alignType.START && verticalAlign === alignType.START) {
+      if (align === ALIGNMENT.START && verticalAlign === ALIGNMENT.START) {
         [nameX, nameY, position] = [x, y, 'right-bottom']
-      } else if (align === alignType.MIDDLE && verticalAlign === alignType.START) {
+      } else if (align === ALIGNMENT.MIDDLE && verticalAlign === ALIGNMENT.START) {
         [nameX, nameY, position] = [x + width / 2, y, 'bottom']
-      } else if (align === alignType.END && verticalAlign === alignType.START) {
+      } else if (align === ALIGNMENT.END && verticalAlign === ALIGNMENT.START) {
         [nameX, nameY, position] = [x + width, y, 'left-bottom']
-      } else if (align === alignType.START && verticalAlign === alignType.MIDDLE) {
+      } else if (align === ALIGNMENT.START && verticalAlign === ALIGNMENT.MIDDLE) {
         [nameX, nameY, position] = [x, y + height / 2 - labelGap / 2, 'right-top']
-      } else if (align === alignType.MIDDLE && verticalAlign === alignType.MIDDLE) {
+      } else if (align === ALIGNMENT.MIDDLE && verticalAlign === ALIGNMENT.MIDDLE) {
         [nameX, nameY, position] = [x + width / 2, y + height / 2 - labelGap / 2, 'top']
-      } else if (align === alignType.END && verticalAlign === alignType.MIDDLE) {
+      } else if (align === ALIGNMENT.END && verticalAlign === ALIGNMENT.MIDDLE) {
         [nameX, nameY, position] = [x + width, y + height / 2 - labelGap / 2, 'left-top']
-      } else if (align === alignType.START && verticalAlign === alignType.END) {
+      } else if (align === ALIGNMENT.START && verticalAlign === ALIGNMENT.END) {
         [nameX, nameY, position] = [x, y + height - text.fontSize - labelGap, 'right-top']
-      } else if (align === alignType.MIDDLE && verticalAlign === alignType.END) {
+      } else if (align === ALIGNMENT.MIDDLE && verticalAlign === ALIGNMENT.END) {
         [nameX, nameY, position] = [x + width / 2, y + height - text.fontSize - labelGap, 'top']
-      } else if (align === alignType.END && verticalAlign === alignType.END) {
+      } else if (align === ALIGNMENT.END && verticalAlign === ALIGNMENT.END) {
         [nameX, nameY, position] = [x + width, y + height - text.fontSize - labelGap, 'left-top']
       }
       // handle overflow text
@@ -118,21 +113,19 @@ export default class TreemapLayer extends LayerBase {
   }
 
   draw() {
-    const rectData = [
-      {
-        data: this.#rectData.map(({width, height}) => [width, height]),
-        source: this.#rectData.map(({dimension, name, value}) => ({dimension, category: name, value})),
-        position: this.#rectData.map(({x, y}) => [x, y]),
-        ...this.#style.rect,
-        fill: this.#rectData.map(({color}) => color),
-      },
-    ]
-    const textData = this.#textData.map(group => {
-      const data = group.map(({value}) => value)
-      const position = group.map(({x, y}) => [x, y])
-      return {data, position, ...this.#style.text}
-    })
-    this.drawBasic('rect', rectData)
+    const rectData = {
+      data: this.#rectData.map(({width, height}) => [width, height]),
+      source: this.#rectData.map(({dimension, name, value}) => ({dimension, category: name, value})),
+      position: this.#rectData.map(({x, y}) => [x, y]),
+      ...this.#style.rect,
+      fill: this.#rectData.map(({color}) => color),
+    }
+    const textData = this.#textData.map(group => ({
+      data: group.map(({value}) => value),
+      position: group.map(({x, y}) => [x, y]),
+      ...this.#style.text,
+    }))
+    this.drawBasic('rect', [rectData])
     this.drawBasic('text', textData)
   }
 }

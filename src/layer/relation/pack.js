@@ -84,28 +84,32 @@ export default class PackLayer extends LayerBase {
     const colorMatrix = this.getColorMatrix(this.#circleData.length, 1, circle.fill)
     this.#circleData.forEach((group, i) => group.forEach(item => (item.color = colorMatrix.get(i, 0))))
     // label data
-    this.#textData = this.#circleData.map(group => group.map(({cx, cy, value}) => this.createText({
-      x: cx,
-      y: cy,
-      value,
-      style: text,
-      position: 'center',
-    })))
+    this.#textData = this.#circleData.map(group => {
+      return group.map(({cx, cy, value}) => {
+        return this.createText({
+          x: cx,
+          y: cy,
+          value,
+          style: text,
+          position: 'center',
+        })
+      })
+    })
   }
 
   draw() {
-    const circleData = this.#circleData.map(group => {
-      const data = group.map(({r}) => [r, r])
-      const position = group.map(({cx, cy}) => [cx, cy])
-      const source = group.map(({value}) => ({value}))
-      const fill = group.map(({color}) => color)
-      return {data, position, source, ...this.#style.circle, fill}
-    })
-    const textData = this.#textData.map(group => {
-      const data = group.map(({value}) => value)
-      const position = group.map(({x, y}) => [x, y])
-      return {data, position, ...this.#style.text}
-    })
+    const circleData = this.#circleData.map(group => ({
+      data: group.map(({r}) => [r, r]),
+      position: group.map(({cx, cy}) => [cx, cy]),
+      source: group.map(({value}) => ({value})),
+      ...this.#style.circle,
+      fill: group.map(({color}) => color),
+    }))
+    const textData = this.#textData.map(group => ({
+      data: group.map(({value}) => value),
+      position: group.map(({x, y}) => [x, y]),
+      ...this.#style.text,
+    }))
     // only show the innermost label to prevent occlusion
     this.drawBasic('circle', circleData)
     this.drawBasic('text', textData.slice(textData.length - 1))

@@ -94,41 +94,37 @@ export default class TitleDLayer extends LayerBase {
       colors: [chroma(minorColor).alpha(0.5), chroma(minorColor).alpha(0)],
     })
     this.#lineData = [{x1, y1, y2: y1, x2: x1 + width, stroke: minorColor}]
-    range(0.1, 10, 0.5).forEach(degree => this.#lineData.push({
-      x1,
-      y1,
-      y2,
-      x2: (y1 - y2) / Math.tan((degree / 180) * Math.PI) + x1,
-      stroke: lineStroke,
-    }))
+    range(0.1, 10, 0.5).forEach(degree => {
+      this.#lineData.push({
+        x1,
+        y1,
+        y2,
+        x2: (y1 - y2) / Math.tan((degree / 180) * Math.PI) + x1,
+        stroke: lineStroke,
+      })
+    })
   }
 
   draw() {
-    const polygonData = [
-      {
-        data: this.#polygonData.map(item => item.points),
-        stroke: this.#polygonData.map(item => item.stroke),
-        fill: null,
-        ...this.#style.polygon,
-      },
-    ]
-    const rectData = [
-      {
-        data: this.#rectData.map(({width, height}) => [width, height]),
-        position: this.#rectData.map(({x, y}) => [x, y]),
-        fill: this.#rectData.map(({fill}) => fill),
-        ...this.#style.rect,
-      },
-    ]
-    const lineData = [
-      {
-        data: this.#lineData.map(({x1, x2, y1, y2}) => [x1, y1, x2, y2]),
-        stroke: this.#lineData.map(({stroke}) => stroke),
-        ...this.#style.line,
-      },
-    ]
-    this.drawBasic('polygon', polygonData)
-    this.drawBasic('rect', rectData)
-    this.drawBasic('line', lineData)
+    const polygonData = {
+      data: this.#polygonData.map(item => item.points),
+      stroke: this.#polygonData.map(item => item.stroke),
+      fill: null,
+      ...this.#style.polygon,
+    }
+    const rectData = {
+      data: this.#rectData.map(({width, height}) => [width, height]),
+      position: this.#rectData.map(({x, y}) => [x, y]),
+      fill: this.#rectData.map(({fill}) => fill),
+      ...this.#style.rect,
+    }
+    const lineData = {
+      data: this.#lineData.map(({x1, x2, y1, y2}) => [x1, y1, x2, y2]),
+      stroke: this.#lineData.map(({stroke}) => stroke),
+      ...this.#style.line,
+    }
+    this.drawBasic('polygon', [polygonData])
+    this.drawBasic('rect', [rectData])
+    this.drawBasic('line', [lineData])
   }
 }

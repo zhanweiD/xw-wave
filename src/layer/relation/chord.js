@@ -113,37 +113,33 @@ export default class ChordLayer extends LayerBase {
   }
 
   draw() {
-    const arcData = [
-      {
-        data: this.#arcData.map(({startAngle, endAngle, innerRadius, outerRadius}) => [
-          startAngle,
-          endAngle,
-          innerRadius,
-          outerRadius,
-        ]),
-        position: this.#arcData.map(({position}) => position),
-        source: this.#arcData.map(({category, value}) => ({category, value})),
-        ...this.#style.arc,
-        fill: this.#arcData.map(({color}) => color),
-      },
-    ]
-    const ribbonData = this.#ribbonData.map(group => {
-      const data = group.map(item => item.data)
-      const fill = group.map(({color}) => color)
-      const position = group.map(item => item.position)
-      return {data, position, ...this.#style.ribbon, fill}
-    })
-    const textData = [
-      {
-        data: this.#textData.map(({value}) => value),
-        position: this.#textData.map(({x, y}) => [x, y]),
-        transformOrigin: this.#textData.map(item => item.transformOrigin),
-        rotation: this.#textData.map(({angle}) => angle),
-        ...this.#style.text,
-      },
-    ]
-    this.drawBasic('arc', arcData)
+    const arcData = {
+      data: this.#arcData.map(({startAngle, endAngle, innerRadius, outerRadius}) => [
+        startAngle,
+        endAngle,
+        innerRadius,
+        outerRadius,
+      ]),
+      position: this.#arcData.map(({position}) => position),
+      source: this.#arcData.map(({category, value}) => ({category, value})),
+      ...this.#style.arc,
+      fill: this.#arcData.map(({color}) => color),
+    }
+    const ribbonData = this.#ribbonData.map(group => ({
+      data: group.map(item => item.data),
+      position: group.map(item => item.position),
+      ...this.#style.ribbon,
+      fill: group.map(({color}) => color),
+    }))
+    const textData = {
+      data: this.#textData.map(({value}) => value),
+      position: this.#textData.map(({x, y}) => [x, y]),
+      transformOrigin: this.#textData.map(item => item.transformOrigin),
+      rotation: this.#textData.map(({angle}) => angle),
+      ...this.#style.text,
+    }
+    this.drawBasic('arc', [arcData])
     this.drawBasic('path', ribbonData, 'ribbon')
-    this.drawBasic('text', textData)
+    this.drawBasic('text', [textData])
   }
 }

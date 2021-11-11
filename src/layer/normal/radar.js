@@ -1,13 +1,9 @@
 import LayerBase from '../base'
 import Scale from '../../data/scale'
-
-const modeType = {
-  DEFAULT: 'default', // cover
-  STACK: 'stack',
-}
+import {MODE} from '../../utils/constants'
 
 const defaultOptions = {
-  mode: modeType.DEFAULT,
+  mode: MODE.DEFAULT,
 }
 
 const defaultStyle = {
@@ -74,7 +70,7 @@ export default class RadarLayer extends LayerBase {
         scaleRadius: new Scale({
           type: 'linear',
           domain:
-            mode === modeType.STACK
+            mode === MODE.STACK
               ? [0, this.#data.select(headers.slice(1), {mode: 'sum', target: 'row'}).range()[1]]
               : [0, this.#data.select(headers.slice(1)).range()[1]],
           range: [0, maxRadius],
@@ -85,19 +81,23 @@ export default class RadarLayer extends LayerBase {
     )
     // calculate the points of the polygon
     const {scaleAngle, scaleRadius} = this.#scale
-    this.#polygonData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => {
-      const [angle, r] = [(scaleAngle(dimension) / 180) * Math.PI, scaleRadius(value)]
-      const [x, y] = [polygonCenter.x + Math.sin(angle) * r, polygonCenter.y - Math.cos(angle) * r]
-      return {value, dimension, category: headers[i + 1], x, y, angle, r, center: polygonCenter}
-    }))
+    this.#polygonData = pureTableList.map(([dimension, ...values]) => {
+      return values.map((value, i) => {
+        const [angle, r] = [(scaleAngle(dimension) / 180) * Math.PI, scaleRadius(value)]
+        const [x, y] = [polygonCenter.x + Math.sin(angle) * r, polygonCenter.y - Math.cos(angle) * r]
+        return {value, dimension, category: headers[i + 1], x, y, angle, r, center: polygonCenter}
+      })
+    })
     // stacked radar transformation
-    if (mode === modeType.STACK) {
-      this.#polygonData.forEach(group => group.forEach((item, i) => {
-        if (i !== 0) {
-          item.x = group[i - 1].x + item.x - polygonCenter.x
-          item.y = group[i - 1].y + item.y - polygonCenter.y
-        }
-      }))
+    if (mode === MODE.STACK) {
+      this.#polygonData.forEach(group => {
+        group.forEach((item, i) => {
+          if (i !== 0) {
+            item.x = group[i - 1].x + item.x - polygonCenter.x
+            item.y = group[i - 1].y + item.y - polygonCenter.y
+          }
+        })
+      })
     }
   }
 
@@ -106,22 +106,28 @@ export default class RadarLayer extends LayerBase {
     const {circleSize, polygon} = this.#style
     // get colors
     const colorMatrix = this.getColorMatrix(1, this.#polygonData[0].length, polygon.fill)
-    this.#polygonData.forEach(group => group.forEach((item, i) => {
-      item.fill = colorMatrix.get(0, i)
-      item.stroke = colorMatrix.get(0, i)
-    }))
+    this.#polygonData.forEach(group => {
+      group.forEach((item, i) => {
+        item.fill = colorMatrix.get(0, i)
+        item.stroke = colorMatrix.get(0, i)
+      })
+    })
     // polygon point data
-    this.#circleData = this.#polygonData.map(group => group.map(({x, y, ...others}) => ({
-      ...others,
-      r: circleSize / 2,
-      cx: x,
-      cy: y,
-    })))
+    this.#circleData = this.#polygonData.map(group => {
+      return group.map(({x, y, ...others}) => ({
+        ...others,
+        r: circleSize / 2,
+        cx: x,
+        cy: y,
+      }))
+    })
     // label data
-    this.#textData = this.#polygonData.map(group => group.map(({value, x, y, angle}) => {
-      const isRight = Math.abs(angle % (2 * Math.PI)) < Math.PI
-      return this.createText({value, x, y, style: this.#style.text, position: isRight ? 'right' : 'left'})
-    }))
+    this.#textData = this.#polygonData.map(group => {
+      return group.map(({value, x, y, angle}) => {
+        const isRight = Math.abs(angle % (2 * Math.PI)) < Math.PI
+        return this.createText({value, x, y, style: this.#style.text, position: isRight ? 'right' : 'left'})
+      })
+    })
     // legend data of radar layer
     this.#data.set('legendData', {
       colorMatrix,
@@ -136,24 +142,26 @@ export default class RadarLayer extends LayerBase {
 
   draw() {
     const polygonData = this.#polygonData[0]
-      .map(({fill, stroke, center}, index) => {
-        const position = [center.x, center.y]
-        const data = this.#polygonData.map(item => [item[index].x, item[index].y])
-        return {data: [data], position, ...this.#style.polygon, fill, stroke}
-      })
+      .map(({fill, stroke, center}, index) => ({
+        position: [center.x, center.y],
+        data: [this.#polygonData.map(item => [item[index].x, item[index].y])],
+        ...this.#style.polygon,
+        fill,
+        stroke,
+      }))
       .reverse()
-    const circleData = this.#circleData.map(group => {
-      const data = group.map(({r}) => [r, r])
-      const position = group.map(({cx, cy}) => [cx, cy])
-      const fill = group.map(item => item.fill)
-      const source = group.map(({dimension, category, value}) => ({dimension, category, value}))
-      return {data, position, source, ...this.#style.circle, fill}
-    })
-    const textData = this.#textData.map(group => {
-      const data = group.map(({value}) => value)
-      const position = group.map(({x, y}) => [x, y])
-      return {data, position, ...this.#style.text}
-    })
+    const circleData = this.#circleData.map(group => ({
+      data: group.map(({r}) => [r, r]),
+      position: group.map(({cx, cy}) => [cx, cy]),
+      source: group.map(({dimension, category, value}) => ({dimension, category, value})),
+      ...this.#style.circle,
+      fill: group.map(item => item.fill),
+    }))
+    const textData = this.#textData.map(group => ({
+      data: group.map(({value}) => value),
+      position: group.map(({x, y}) => [x, y]),
+      ...this.#style.text,
+    }))
     this.drawBasic('polygon', polygonData)
     this.drawBasic('circle', circleData)
     this.drawBasic('text', textData)

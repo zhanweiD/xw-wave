@@ -100,41 +100,36 @@ export default class EdgeBundleLayer extends LayerBase {
       range: circleSize,
     })
     // circle size changed by with value
-    this.#circleData.forEach(group => group.forEach(item => {
-      item.r = sizeScale(item.source.value)
-    }))
+    this.#circleData.forEach(group => group.forEach(item => (item.r = sizeScale(item.source.value))))
     // colors for nodes and links
     const categorys = this.#data.get('categorys')
     const colorMatrix = this.getColorMatrix(1, categorys.length, circle.fill)
-    this.#circleData.forEach(group => group.forEach(item => {
-      item.color = colorMatrix.matrix[0][categorys.findIndex(value => value === item.source.category)]
-    }))
+    this.#circleData.forEach(group => {
+      group.forEach(item => {
+        item.color = colorMatrix.matrix[0][categorys.findIndex(value => value === item.source.category)]
+      })
+    })
     this.#curveData.forEach(item => {
       item.color = colorMatrix.matrix[0][categorys.findIndex(value => value === item.category)]
     })
     // label data
-    this.#textData = this.#circleData.map(group => group.map(({r, source, angle, radius}) => {
-      const totalRadius = r + radius + labelOffset
-      const [x, y] = [Math.sin(angle) * totalRadius + centerX, centerY - Math.cos(angle) * totalRadius]
-      const data = this.createText({x, y, value: source.name, position: 'center', style: text})
-      if (this.options.engine === 'svg') {
-        data.x += angle > Math.PI ? -data.textWidth / 2 : data.textWidth / 2
-      } else if (this.options.engine === 'canvas') {
-        data.x += Math.sin(angle) * (data.textWidth / 2)
-        data.y += Math.sin(angle - Math.PI / 2) * (data.textWidth / 2)
-      }
-      return {...data, angle: (angle / Math.PI) * 180 - (angle > Math.PI ? 270 : 90)}
-    }))
+    this.#textData = this.#circleData.map(group => {
+      return group.map(({r, source, angle, radius}) => {
+        const totalRadius = r + radius + labelOffset
+        const [x, y] = [Math.sin(angle) * totalRadius + centerX, centerY - Math.cos(angle) * totalRadius]
+        const data = this.createText({x, y, value: source.name, position: 'center', style: text})
+        if (this.options.engine === 'svg') {
+          data.x += angle > Math.PI ? -data.textWidth / 2 : data.textWidth / 2
+        } else if (this.options.engine === 'canvas') {
+          data.x += Math.sin(angle) * (data.textWidth / 2)
+          data.y += Math.sin(angle - Math.PI / 2) * (data.textWidth / 2)
+        }
+        return {...data, angle: (angle / Math.PI) * 180 - (angle > Math.PI ? 270 : 90)}
+      })
+    })
   }
 
   draw() {
-    const circleData = this.#circleData.map(group => {
-      const data = group.map(({r}) => [r, r])
-      const position = group.map(({cx, cy}) => [cx, cy])
-      const source = group.map(item => ({...item.source, dimension: item.source.name}))
-      const fill = group.map(({color}) => color)
-      return {data, position, source, ...this.#style.circle, fill}
-    })
     const curveData = this.#curveData.map(({x1, y1, x2, y2, curveX, curveY, color}) => ({
       data: [
         [
@@ -146,13 +141,20 @@ export default class EdgeBundleLayer extends LayerBase {
       ...this.#style.curve,
       stroke: color,
     }))
-    const textData = this.#textData.map(group => {
-      const data = group.map(({value}) => value)
-      const position = group.map(({x, y}) => [x, y])
-      const rotation = group.map(({angle}) => angle)
-      const transformOrigin = group.map(item => item.transformOrigin)
-      return {data, position, transformOrigin, ...this.#style.text, rotation}
-    })
+    const circleData = this.#circleData.map(group => ({
+      data: group.map(({r}) => [r, r]),
+      position: group.map(({cx, cy}) => [cx, cy]),
+      source: group.map(item => ({...item.source, dimension: item.source.name})),
+      ...this.#style.circle,
+      fill: group.map(({color}) => color),
+    }))
+    const textData = this.#textData.map(group => ({
+      data: group.map(({value}) => value),
+      position: group.map(({x, y}) => [x, y]),
+      transformOrigin: group.map(item => item.transformOrigin),
+      ...this.#style.text,
+      rotation: group.map(({angle}) => angle),
+    }))
     this.drawBasic('curve', curveData)
     this.drawBasic('circle', circleData)
     this.drawBasic('text', textData)

@@ -97,17 +97,21 @@ export default class ScatterLayer extends LayerBase {
       domain: valueIndex !== -1 ? this.#data.select('value').range() : [],
       range: pointSize.map(value => value / 2),
     })
-    this.#pointData.forEach(group => group.forEach(item => {
-      item.r = isNumber(item.value) ? scaleSize(item.value) : pointSize[0] / 2
-    }))
+    this.#pointData.forEach(group => {
+      group.forEach(item => (item.r = isNumber(item.value) ? scaleSize(item.value) : pointSize[0] / 2))
+    })
     // label data
-    this.#textData = this.#pointData.map(group => group.map(({cx, cy, value}) => this.createText({
-      x: cx,
-      y: cy,
-      value,
-      style: text,
-      position: 'center',
-    })))
+    this.#textData = this.#pointData.map(group => {
+      return group.map(({cx, cy, value}) => {
+        return this.createText({
+          x: cx,
+          y: cy,
+          value,
+          style: text,
+          position: 'center',
+        })
+      })
+    })
     // legend data of scatter layer
     this.#data.set('legendData', {
       colorMatrix,
@@ -121,18 +125,18 @@ export default class ScatterLayer extends LayerBase {
   }
 
   draw() {
-    const pointData = this.#pointData.map(group => {
-      const data = group.map(({r}) => [r, r])
-      const position = group.map(({cx, cy}) => [cx, cy])
-      const source = group.map(item => item.source)
-      const fill = group.map(({color}) => color)
-      return {data, source, position, ...this.#style.point, fill}
-    })
-    const textData = this.#textData.map(group => {
-      const position = group.map(({x, y}) => [x, y])
-      const data = group.map(({value}) => value)
-      return {data, position, ...this.#style.text}
-    })
+    const pointData = this.#pointData.map(group => ({
+      data: group.map(({r}) => [r, r]),
+      position: group.map(({cx, cy}) => [cx, cy]),
+      source: group.map(item => item.source),
+      ...this.#style.point,
+      fill: group.map(({color}) => color),
+    }))
+    const textData = this.#textData.map(group => ({
+      position: group.map(({x, y}) => [x, y]),
+      data: group.map(({value}) => value),
+      ...this.#style.text,
+    }))
     this.drawBasic('circle', pointData, 'point')
     this.drawBasic('text', textData)
   }

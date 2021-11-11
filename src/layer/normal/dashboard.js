@@ -51,7 +51,6 @@ export default class DashboardLayer extends LayerBase {
     this.className = 'wave-dashboard'
   }
 
-  // special data
   setData(data) {
     this.#data = this.createData('base', this.#data, data)
     const {fragments} = this.#data.data
@@ -124,29 +123,32 @@ export default class DashboardLayer extends LayerBase {
       const [x1, y1] = [computeX(innerRadius), computeY(innerRadius)]
       const [x2, y2] = [computeX(outerRadius), computeY(outerRadius)]
       // tick label data
-      const tickTextData = isBigTick
-        && this.createText({
+      const result = {number, x1, y1, x2, y2}
+      if (isBigTick) {
+        result.tickTextData = this.createText({
           x: computeX(innerRadius - tickSize),
           y: computeY(innerRadius - tickSize),
           value: number,
           position: 'center',
           style: tickText,
         })
+      }
       // find the fragment if it is the center of arc
       const fragment = fragments.find(([min, max]) => {
         const offsetNumber = (min + max) / 2 - number
         return offsetNumber < step[0] && offsetNumber >= 0
       })
       // fragment label data
-      const labelTextData = fragment
-        && this.createText({
+      if (fragment) {
+        result.labelTextData = this.createText({
           x: computeX(maxRadius + (labelText?.fontSize || 12)),
           y: computeY(maxRadius + (labelText?.fontSize || 12)),
           value: fragment[2],
           position: isLeft ? 'left' : isRight ? 'right' : 'center',
           style: labelText,
         })
-      return {number, x1, y1, x2, y2, labelTextData, tickTextData}
+      }
+      return result
     })
     // pointer label data
     const [x, y] = [arcCenter.x, arcCenter.y + valueGap + valueText.fontSize]
@@ -176,20 +178,24 @@ export default class DashboardLayer extends LayerBase {
       data: this.#tickLineData.map(({x1, y1, x2, y2}) => [x1, y1, x2, y2]),
       ...this.#style.tickLine,
     }
-    const labelText = this.#tickLineData.map(
-      ({labelTextData}) => labelTextData && {
-        data: [labelTextData.value],
-        position: [[labelTextData.x, labelTextData.y]],
-        ...this.#style.labelText,
-      }
-    )
-    const tickText = this.#tickLineData.map(
-      ({tickTextData}) => tickTextData && {
-        data: [tickTextData.value],
-        position: [[tickTextData.x, tickTextData.y]],
-        ...this.#style.tickText,
-      }
-    )
+    const labelText = this.#tickLineData.map(({labelTextData}) => {
+      return (
+        labelTextData && {
+          data: [labelTextData.value],
+          position: [[labelTextData.x, labelTextData.y]],
+          ...this.#style.labelText,
+        }
+      )
+    })
+    const tickText = this.#tickLineData.map(({tickTextData}) => {
+      return (
+        tickTextData && {
+          data: [tickTextData.value],
+          position: [[tickTextData.x, tickTextData.y]],
+          ...this.#style.tickText,
+        }
+      )
+    })
     const valueText = this.#valueTextData.map(({x, y, value}) => ({
       data: [value],
       position: [[x, y]],

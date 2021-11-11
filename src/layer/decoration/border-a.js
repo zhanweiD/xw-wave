@@ -1,14 +1,14 @@
 import {createKnuckle} from '../../utils/shape'
 import LayerBase from '../base'
 
-const modeType = {
+const MODE = {
   CUBE: 'cube',
   KNUCKLE: 'knuckle',
   BRACKET: 'bracket',
 }
 
 const defaultOptions = {
-  mode: modeType.BRACKET,
+  mode: MODE.BRACKET,
 }
 
 const defaultStyle = {
@@ -43,13 +43,13 @@ export default class BorderALayer extends LayerBase {
     const {left, top, width, height} = layout
     const {shape, shapeSize} = this.style
     // change strokeWidth for cube
-    if (mode === modeType.CUBE) {
+    if (mode === MODE.CUBE) {
       shape.strokeWidth = shapeSize * 2
     }
     const {strokeWidth} = shape
     // change verticalLength for bracket
     let verticalLength = shapeSize
-    if (mode === modeType.BRACKET) {
+    if (mode === MODE.BRACKET) {
       verticalLength = (height - strokeWidth) / 2
     }
     const innerLeft = left + strokeWidth / 2
@@ -66,12 +66,10 @@ export default class BorderALayer extends LayerBase {
   }
 
   draw() {
-    const lineData = [
-      {
-        data: this.#data,
-        ...this.#style.shape,
-      },
-    ]
-    this.drawBasic('curve', lineData, 'shape')
+    const lineData = {
+      data: this.#data,
+      ...this.#style.shape,
+    }
+    this.drawBasic('curve', [lineData], 'shape')
   }
 }

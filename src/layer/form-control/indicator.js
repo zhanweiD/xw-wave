@@ -1,17 +1,11 @@
 import * as d3 from 'd3'
 import {cloneDeep, merge} from 'lodash'
 import {addEvent, addStyle, getAttr, transformAttr} from '../../utils/common'
+import {POSITION} from '../../utils/constants'
 import LayerBase from '../base'
 
-const iconPositionType = {
-  TOP: 'top',
-  LEFT: 'left',
-  RIGHT: 'right',
-  BOTTOM: 'bottom',
-}
-
 const defaultStyle = {
-  iconPosition: iconPositionType.LEFT,
+  iconPosition: POSITION.LEFT,
   icon: {
     src: null,
     width: 0,
@@ -109,10 +103,10 @@ export default class IndicatorLayer extends LayerBase {
   draw() {
     const {group, icon, iconPosition} = this.#style
     // modify icon position
-    if (iconPosition === iconPositionType.TOP || iconPosition === iconPositionType.BOTTOM) {
+    if (iconPosition === POSITION.TOP || iconPosition === POSITION.BOTTOM) {
       this.root.style('flex-direction', 'column')
     }
-    if (iconPosition === iconPositionType.LEFT || iconPosition === iconPositionType.TOP) {
+    if (iconPosition === POSITION.LEFT || iconPosition === POSITION.TOP) {
       const root = this.root.nodes()[0]
       const iconContainer = this.#iconContainer.nodes()[0]
       const textContainer = this.#textContainer.nodes()[0]

@@ -6,13 +6,13 @@ import DataBase from '../../data/base'
 import {addStyle, range, transformAttr} from '../../utils/common'
 import LayerBase from '../base'
 
-const modeType = {
+const MODE = {
   VERTICAL: 'vertical',
   FLOP: 'flop',
 }
 
 const defaultOptions = {
-  mode: modeType.VERTICAL,
+  mode: MODE.VERTICAL,
 }
 
 const defaultStyle = {
@@ -132,16 +132,16 @@ export default class DigitalFlopLayer extends LayerBase {
       .style('width', `${cellWidth}px`)
       .style('height', `${cellHeight}px`)
       .selectAll(`.${this.className}-cell`)
-      .data(mode === modeType.FLOP ? cloneDeep(characterSet).reverse() : characterSet)
+      .data(mode === MODE.FLOP ? cloneDeep(characterSet).reverse() : characterSet)
       .join('xhtml:div')
       .attr('class', `${this.className}-cell`)
       .style('width', `${cellWidth}px`)
       .style('height', `${cellHeight}px`)
-      .style('position', mode === modeType.FLOP ? 'absolute' : 'relative')
+      .style('position', mode === MODE.FLOP ? 'absolute' : 'relative')
       .each((d, i, els) => {
         const container = select(els[i])
         addStyle(container, transformAttr(cell), i)
-        if (mode === modeType.VERTICAL) {
+        if (mode === MODE.VERTICAL) {
           if (character[d]) {
             const {left, top, bottom, right} = character[d]
             const [width, height] = [right - left, bottom - top]
@@ -160,7 +160,7 @@ export default class DigitalFlopLayer extends LayerBase {
           } else {
             container.text(d)
           }
-        } else if (mode === modeType.FLOP) {
+        } else if (mode === MODE.FLOP) {
           container
             .selectAll('.top')
             .data([null])
@@ -233,7 +233,7 @@ export default class DigitalFlopLayer extends LayerBase {
       let index = characterSet.findIndex(character => character === d.text)
       prevIndex = prevIndex === -1 ? 0 : prevIndex
       index = index === -1 ? 0 : index
-      if (index !== prevIndex && mode === modeType.VERTICAL) {
+      if (index !== prevIndex && mode === MODE.VERTICAL) {
         new ScrollAnimation({
           targets: select(els[i]).nodes(),
           offset: [0, this.#data.get('cellSize')[1] * (index - prevIndex)],

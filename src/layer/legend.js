@@ -7,30 +7,12 @@ import TableList from '../data/table-list'
 import DataBase from '../data/base'
 import AxisLayer from './axis'
 import {createStar} from '../utils/shape'
-
-const alignType = {
-  START: 'start',
-  MIDDLE: 'middle',
-  END: 'end',
-}
-
-const directionType = {
-  HORIZONTAL: 'horizontal',
-  VERTICAL: 'vertical',
-}
-
-const shapeType = {
-  RECT: 'rect',
-  CIRCLE: 'circle',
-  BROKENLINE: 'broken-line',
-  DOTTEDLINE: 'dotted-line',
-  STAR: 'star',
-}
+import {ALIGNMENT, DIRECTION, SHAPE} from '../utils/constants'
 
 const defaultStyle = {
-  align: alignType.END,
-  verticalAlign: alignType.START,
-  direction: directionType.HORIZONTAL,
+  align: ALIGNMENT.END,
+  verticalAlign: ALIGNMENT.START,
+  direction: DIRECTION.HORIZONTAL,
   offset: [0, 0],
   gap: [0, 0],
   shapeSize: 12,
@@ -170,7 +152,7 @@ export default class LegendLayer extends LayerBase {
 
   // position is the midpoint on the left side of the text
   #createShape = ({shape, x, y, size, color}) => {
-    if (shape === shapeType.RECT) {
+    if (shape === SHAPE.RECT) {
       this.#data.rectData.push({
         x: x - size * 2,
         y: y - size / 2,
@@ -178,14 +160,14 @@ export default class LegendLayer extends LayerBase {
         height: size,
         fill: color,
       })
-    } else if (shape === shapeType.CIRCLE) {
+    } else if (shape === SHAPE.CIRCLE) {
       this.#data.circleData.push({
         cx: x - size / 2,
         cy: y,
         r: size / 2,
         fill: color,
       })
-    } else if (shape === shapeType.BROKENLINE) {
+    } else if (shape === SHAPE.BROKEN_LINE) {
       this.#data.lineData.push(
         {
           x1: x - size * 2,
@@ -212,7 +194,7 @@ export default class LegendLayer extends LayerBase {
         stroke: color,
         fillOpacity: 0,
       })
-    } else if (shape === shapeType.DOTTEDLINE) {
+    } else if (shape === SHAPE.DOTTED_LINE) {
       this.#data.lineData.push({
         x1: x - size * 2,
         x2: x,
@@ -222,7 +204,7 @@ export default class LegendLayer extends LayerBase {
         strokeWidth: size / 5,
         dasharray: `${size / 4} ${size / 4}`,
       })
-    } else if (shape === shapeType.STAR) {
+    } else if (shape === SHAPE.STAR) {
       this.#data.polygonData.push({
         points: createStar(x - size, y - size / 2, size, size),
         position: [x, y],
@@ -248,50 +230,56 @@ export default class LegendLayer extends LayerBase {
     // calculate text data considering the shape area
     const textData = this.#data.text.map(value => formatNumber(value, format))
     const textWidths = textData.map(value => getTextWidth(value, fontSize))
-    if (direction === directionType.HORIZONTAL) {
-      this.#data.textData = textData.map((value, i) => this.createText({
-        x: left + (shapeWidth + inner) * (i + 1) + outer * i + sum(textWidths.slice(0, i)),
-        y: top + maxHeight / 2,
-        style: this.#style.text,
-        position: 'right',
-        value,
-      }))
-    } else if (direction === directionType.VERTICAL) {
-      this.#data.textData = textData.map((value, i) => this.createText({
-        x: left + shapeWidth + inner,
-        y: top + maxHeight / 2 + maxHeight * i + outer * i,
-        style: this.#style.text,
-        position: 'right',
-        value,
-      }))
+    if (direction === DIRECTION.HORIZONTAL) {
+      this.#data.textData = textData.map((value, i) => {
+        return this.createText({
+          x: left + (shapeWidth + inner) * (i + 1) + outer * i + sum(textWidths.slice(0, i)),
+          y: top + maxHeight / 2,
+          style: this.#style.text,
+          position: 'right',
+          value,
+        })
+      })
+    } else if (direction === DIRECTION.VERTICAL) {
+      this.#data.textData = textData.map((value, i) => {
+        return this.createText({
+          x: left + shapeWidth + inner,
+          y: top + maxHeight / 2 + maxHeight * i + outer * i,
+          style: this.#style.text,
+          position: 'right',
+          value,
+        })
+      })
     }
     // move text by align type
     let [totalWidth, totalHeight] = [0, 0]
-    if (direction === directionType.HORIZONTAL) {
+    if (direction === DIRECTION.HORIZONTAL) {
       const {x, value} = this.#data.textData[this.#data.textData.length - 1]
       totalWidth = x - left + getTextWidth(value, fontSize)
       totalHeight = maxHeight
-    } else if (direction === directionType.VERTICAL) {
+    } else if (direction === DIRECTION.VERTICAL) {
       const {y} = this.#data.textData[this.#data.textData.length - 1]
       totalWidth = shapeWidth + inner + max(textWidths)
       totalHeight = y - fontSize / 2 + maxHeight / 2 - top
     }
     const [offsetX, offsetY] = [width - totalWidth, height - totalHeight]
-    const [isHorizontalMiddle, isHorizontalEnd] = [align === alignType.MIDDLE, align === alignType.END]
-    const [isVerticalMiddle, isVerticalEnd] = [verticalAlign === alignType.MIDDLE, verticalAlign === alignType.END]
+    const [isHorizontalMiddle, isHorizontalEnd] = [align === ALIGNMENT.MIDDLE, align === ALIGNMENT.END]
+    const [isVerticalMiddle, isVerticalEnd] = [verticalAlign === ALIGNMENT.MIDDLE, verticalAlign === ALIGNMENT.END]
     this.#data.textData = this.#data.textData.map(({x, y, value}) => ({
       x: x + offset[0] + (isHorizontalMiddle ? offsetX / 2 : isHorizontalEnd ? offsetX : 0),
       y: y - offset[1] + (isVerticalMiddle ? offsetY / 2 : isVerticalEnd ? offsetY : 0),
       value,
     }))
     // shapes are fixed at the left of text
-    this.#data.shape.forEach((value, i) => this.#createShape({
-      shape: value,
-      size: shapeSize,
-      x: this.#data.textData[i].x - inner,
-      y: this.#data.textData[i].y - fontSize / 2,
-      color: this.#data.shapeColors[i],
-    }))
+    this.#data.shape.forEach((value, i) => {
+      return this.#createShape({
+        shape: value,
+        size: shapeSize,
+        x: this.#data.textData[i].x - inner,
+        y: this.#data.textData[i].y - fontSize / 2,
+        color: this.#data.shapeColors[i],
+      })
+    })
     // generate clickable area
     this.#data.interactiveData = this.#data.textData.map(({x, y, value}, i) => ({
       x: x - shapeWidth - inner,

@@ -3,20 +3,20 @@ import chroma from 'chroma-js'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
 
-const modeType = {
+const MODE = {
   DEFAULT: 'default', // cover
   STACK: 'stack', // stack line
 }
 
-const fallbackType = {
+const FALLBACK = {
   ZERO: 'zero', // set value as zero
   CONTINUE: 'continue', // keep connect
   BREAK: 'break', // break off
 }
 
 const defaultOptions = {
-  mode: modeType.DEFAULT,
-  fallback: fallbackType.BREAK,
+  mode: MODE.DEFAULT,
+  fallback: FALLBACK.BREAK,
 }
 
 const labelPositionType = {
@@ -114,7 +114,7 @@ export default class LineLayer extends LayerBase {
       }))
     })
     // transform data to stack line
-    if (mode === modeType.STACK) {
+    if (mode === MODE.STACK) {
       this.#curveData.forEach(group => {
         group.forEach((item, i) => {
           i !== 0 && (item.y = group[i - 1].y - (scaleY(0) + top - item.y))
@@ -143,7 +143,7 @@ export default class LineLayer extends LayerBase {
     this.#areaData = this.#curveData.map((group, i) => {
       return group.map(({y, color, ...item}, j) => ({
         y0: y,
-        y1: mode === modeType.STACK && j !== 0 ? this.#curveData[i][j - 1].y : height + top,
+        y1: mode === MODE.STACK && j !== 0 ? this.#curveData[i][j - 1].y : height + top,
         // TODO: refresh gradient error
         fill: !i && createGradient({type: 'linear', direction: 'vertical', colors: [color, chroma(color).alpha(0)]}),
         ...item,
@@ -165,16 +165,16 @@ export default class LineLayer extends LayerBase {
   #fallbackFilter = position => {
     const {scaleY} = this.#scale
     const {fallback, layout} = this.options
-    if (fallback === fallbackType.BREAK) {
+    if (fallback === FALLBACK.BREAK) {
       return position.reduce(
         (prev, cur) => (cur[1] ? [...prev.slice(0, prev.length - 1), [...prev[prev.length - 1], cur]] : [...prev, []]),
         [[]]
       )
     }
-    if (fallback === fallbackType.CONTINUE) {
+    if (fallback === FALLBACK.CONTINUE) {
       return [position.filter(item => Boolean(item[1]))]
     }
-    if (fallback === fallbackType.ZERO) {
+    if (fallback === FALLBACK.ZERO) {
       return [position.map(item => [item[0], item[1] || item[2] || scaleY(0) + layout.top, item[2]])]
     }
     return null

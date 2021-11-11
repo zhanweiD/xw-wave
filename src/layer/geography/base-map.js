@@ -82,13 +82,13 @@ export default class BaseMapLayer extends LayerBase {
       const children = this.#chinaBlocks.filter(({parent}) => parent === code)
       if (children.length) {
         Promise.all(
-          children.map(
-            ({adcode}) => new Promise((resolve, reject) => {
+          children.map(({adcode}) => {
+            return new Promise((resolve, reject) => {
               fetch(getUrl(adcode))
                 .then(res => resolve(res.json()))
                 .catch(e => reject(e))
             })
-          )
+          })
         )
           .then(list => {
             const dataSet = list.reduce((prev, cur) => [...prev, ...cur.features], [])
@@ -133,40 +133,36 @@ export default class BaseMapLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    this.#textData = this.#data.features.map(({properties, geometry}) => this.createText({
-      value: properties.name,
-      x: this.#path.centroid(geometry)[0],
-      y: this.#path.centroid(geometry)[1],
-      style: this.#style.text,
-      position: 'center',
-    }))
+    this.#textData = this.#data.features.map(({properties, geometry}) => {
+      return this.createText({
+        value: properties.name,
+        x: this.#path.centroid(geometry)[0],
+        y: this.#path.centroid(geometry)[1],
+        style: this.#style.text,
+        position: 'center',
+      })
+    })
   }
 
   draw() {
-    const blockData = [
-      {
-        data: this.#blockData.map(({geometry}) => this.#path(geometry)),
-        source: this.#blockData.map(({source}) => source),
-        ...this.#style.block,
-      },
-    ]
-    const textData = [
-      {
-        data: this.#textData.map(({value}) => value),
-        position: this.#textData.map(({x, y}) => [x, y]),
-        ...this.#style.text,
-      },
-    ]
-    const rectData = [
-      {
-        data: [[this.#backgroundRectData.width, this.#backgroundRectData.height]],
-        position: [[this.#backgroundRectData.x, this.#backgroundRectData.y]],
-        fillOpacity: 0,
-      },
-    ]
-    this.drawBasic('rect', rectData, 'background')
-    this.drawBasic('path', blockData, 'block')
-    this.drawBasic('text', textData)
+    const blockData = {
+      data: this.#blockData.map(({geometry}) => this.#path(geometry)),
+      source: this.#blockData.map(({source}) => source),
+      ...this.#style.block,
+    }
+    const textData = {
+      data: this.#textData.map(({value}) => value),
+      position: this.#textData.map(({x, y}) => [x, y]),
+      ...this.#style.text,
+    }
+    const rectData = {
+      data: [[this.#backgroundRectData.width, this.#backgroundRectData.height]],
+      position: [[this.#backgroundRectData.x, this.#backgroundRectData.y]],
+      fillOpacity: 0,
+    }
+    this.drawBasic('rect', [rectData], 'background')
+    this.drawBasic('path', [blockData], 'block')
+    this.drawBasic('text', [textData])
     // reset coordinate system
     if (this.#blockData.length) {
       this.options.bindCoordinate(true, this)

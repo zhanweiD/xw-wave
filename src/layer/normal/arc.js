@@ -1,30 +1,26 @@
 import LayerBase from '../base'
 import Scale from '../../data/scale'
+import {POSITION} from '../../utils/constants'
 
-const waveType = {
+const WAVE = {
   PIE: 'pie',
   NIGHTINGALEROSE: 'nightingaleRose',
 }
 
-const modeType = {
+const MODE = {
   DEFAULT: 'default', // cover
   STACK: 'stack',
 }
 
-const labelPositionType = {
-  INNER: 'inner',
-  OUTER: 'outer',
-}
-
 const defaultOptions = {
-  type: waveType.PIE,
-  mode: modeType.DEFAULT,
+  type: WAVE.PIE,
+  mode: MODE.DEFAULT,
 }
 
 const defaultStyle = {
   innerRadius: 0,
   labelOffset: 5,
-  labelPosition: labelPositionType.INNER,
+  labelPosition: POSITION.INNER,
   arc: {},
   text: {},
 }
@@ -62,7 +58,7 @@ export default class ArcLayer extends LayerBase {
   // filter number of columns
   #filter = data => {
     const {type, mode} = this.options
-    if (type === waveType.PIE || mode === modeType.DEFAULT) {
+    if (type === WAVE.PIE || mode === MODE.DEFAULT) {
       return data.select(data.data.map(({header}) => header).slice(0, 2))
     }
     return data
@@ -77,7 +73,7 @@ export default class ArcLayer extends LayerBase {
     const maxRadius = Math.min(width, height) / 2
     this.#scale.scaleAngle = null
     // initialize scales of pie
-    if (type === waveType.PIE) {
+    if (type === WAVE.PIE) {
       const percentages = this.#data.select(headers[1], {mode: 'percentage', target: 'column'})
       this.#scale = this.createScale(
         {
@@ -97,7 +93,7 @@ export default class ArcLayer extends LayerBase {
       )
     }
     // initialize scales of nightingaleRose
-    if (type === waveType.NIGHTINGALEROSE) {
+    if (type === WAVE.NIGHTINGALEROSE) {
       const percentages = this.#data.select(headers[1])
       percentages.data[0].list = percentages.data[0].list.map(() => 1 / percentages.data[0].list.length)
       this.#scale = this.createScale(
@@ -110,7 +106,7 @@ export default class ArcLayer extends LayerBase {
           scaleRadius: new Scale({
             type: 'linear',
             domain:
-              mode === modeType.STACK
+              mode === MODE.STACK
                 ? [0, this.#data.select(headers.slice(1), {mode: 'sum', target: 'row'}).range()[1]]
                 : [0, this.#data.select(headers.slice(1)).range()[1]],
             range: [0, maxRadius],
@@ -125,13 +121,13 @@ export default class ArcLayer extends LayerBase {
   #getLabelData = ({value, x, y, innerRadius, outerRadius, startAngle, endAngle}) => {
     const {text, labelPosition, labelOffset} = this.#style
     // Calculate the center point of the arc, the svg is drawn clockwise from 90 degrees
-    if (labelPosition === labelPositionType.INNER) {
+    if (labelPosition === POSITION.INNER) {
       const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, (innerRadius + outerRadius) / 2]
       const [centerX, centerY] = [x + Math.sin(angle) * r, y - Math.cos(angle) * r]
       return this.createText({x: centerX, y: centerY, value, style: text, position: 'center'})
     }
     // Calculate the relative position of the label
-    if (labelPosition === labelPositionType.OUTER) {
+    if (labelPosition === POSITION.OUTER) {
       const [angle, r] = [((startAngle + endAngle) / 360) * Math.PI, outerRadius + labelOffset]
       const [relativeX, relativeY] = [x + Math.sin(angle) * r, y - Math.cos(angle) * r]
       const position = Math.abs(angle % (2 * Math.PI)) < Math.PI ? 'right' : 'left'
@@ -150,27 +146,31 @@ export default class ArcLayer extends LayerBase {
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const arcCenter = {x: left + width / 2, y: top + height / 2}
     // innerRadius affect the scale
-    if (type === waveType.NIGHTINGALEROSE) {
+    if (type === WAVE.NIGHTINGALEROSE) {
       scaleRadius.range([innerRadius, scaleRadius.range()[1]])
     }
     // basic data of arc
-    this.#arcData = pureTableList.map(([dimension, ...values]) => values.map((value, i) => ({
-      value,
-      dimension,
-      category: headers[i + 1],
-      innerRadius,
-      outerRadius: scaleRadius(value),
-      ...scaleAngle(dimension),
-      ...arcCenter,
-    })))
-    // stacked nightingaleRose transformation
-    if (mode === modeType.STACK) {
-      this.#arcData.forEach(group => group.forEach((item, i) => {
-        if (i !== 0) {
-          item.innerRadius = group[i - 1].outerRadius
-          item.outerRadius = item.innerRadius + item.outerRadius - innerRadius
-        }
+    this.#arcData = pureTableList.map(([dimension, ...values]) => {
+      return values.map((value, i) => ({
+        value,
+        dimension,
+        category: headers[i + 1],
+        innerRadius,
+        outerRadius: scaleRadius(value),
+        ...scaleAngle(dimension),
+        ...arcCenter,
       }))
+    })
+    // stacked nightingaleRose transformation
+    if (mode === MODE.STACK) {
+      this.#arcData.forEach(group => {
+        return group.forEach((item, i) => {
+          if (i !== 0) {
+            item.innerRadius = group[i - 1].outerRadius
+            item.outerRadius = item.innerRadius + item.outerRadius - innerRadius
+          }
+        })
+      })
     }
     // get colors
     if (this.#arcData[0]?.length > 1) {
@@ -205,23 +205,23 @@ export default class ArcLayer extends LayerBase {
   }
 
   draw() {
-    const arcData = this.#arcData.map(group => {
-      const data = group.map(({startAngle, endAngle, innerRadius, outerRadius}) => [
+    const arcData = this.#arcData.map(group => ({
+      data: group.map(({startAngle, endAngle, innerRadius, outerRadius}) => [
         startAngle,
         endAngle,
         innerRadius,
         outerRadius,
-      ])
-      const source = group.map(({dimension, category, value}) => ({dimension, category, value}))
-      const position = group.map(({x, y}) => [x, y])
-      const fill = group.map(({color}) => color)
-      return {data, position, source, ...this.#style.arc, fill}
-    })
-    const textData = this.#textData.map(group => {
-      const data = group.map(({value}) => value)
-      const position = group.map(({x, y}) => [x, y])
-      return {data, position, ...this.#style.text}
-    })
+      ]),
+      source: group.map(({dimension, category, value}) => ({dimension, category, value})),
+      position: group.map(({x, y}) => [x, y]),
+      ...this.#style.arc,
+      fill: group.map(({color}) => color),
+    }))
+    const textData = this.#textData.map(group => ({
+      data: group.map(({value}) => value),
+      position: group.map(({x, y}) => [x, y]),
+      ...this.#style.text,
+    }))
     this.drawBasic('arc', arcData)
     this.drawBasic('text', textData)
   }

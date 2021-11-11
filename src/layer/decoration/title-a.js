@@ -241,14 +241,12 @@ export default class TitleALayer extends LayerBase {
     const curveData = []
     const polygonData = []
     // center area
-    const areaData = [
-      {
-        data: [this.#data.centerArea.points],
-        fill: this.#data.centerArea.fill,
-        curve: 'curveMonotoneX',
-        ...this.#style.centerArea,
-      },
-    ]
+    const areaData = {
+      data: [this.#data.centerArea.points],
+      fill: this.#data.centerArea.fill,
+      curve: 'curveMonotoneX',
+      ...this.#style.centerArea,
+    }
     // center line
     curveData.push({
       data: [this.#data.centerLine.points],
@@ -257,13 +255,11 @@ export default class TitleALayer extends LayerBase {
       ...this.#style.centerLine,
     })
     // center streamer line
-    const centerStreamerData = [
-      {
-        data: this.#data.centerStreamer.map(({points}) => points),
-        stroke: null,
-        ...this.#style.centerLine,
-      },
-    ]
+    const centerStreamerData = {
+      data: this.#data.centerStreamer.map(({points}) => points),
+      stroke: null,
+      ...this.#style.centerLine,
+    }
     // side top lines
     curveData.push({
       data: this.#data.topLines.map(item => item.points),
@@ -271,14 +267,12 @@ export default class TitleALayer extends LayerBase {
       ...this.#style.topLine,
     })
     // side middle lines
-    const middleLineData = [
-      {
-        data: this.#data.middleLines.map(item => item.points),
-        stroke: this.#data.middleLines.map(item => item.stroke),
-        ...this.#style.middleLine,
-      },
-    ]
-    curveData.push(...middleLineData)
+    const middleLineData = {
+      data: this.#data.middleLines.map(item => item.points),
+      stroke: this.#data.middleLines.map(item => item.stroke),
+      ...this.#style.middleLine,
+    }
+    curveData.push(middleLineData)
     // side bottom lines
     curveData.push({
       data: this.#data.bottomLines.map(item => item.points),
@@ -298,10 +292,10 @@ export default class TitleALayer extends LayerBase {
       ...this.#style.darkParallelograms,
     })
     this.drawBasic('polygon', polygonData)
-    this.drawBasic('area', areaData)
+    this.drawBasic('area', [areaData])
     this.drawBasic('curve', curveData)
-    this.drawBasic('curve', middleLineData, 'sideStreamer')
-    this.drawBasic('curve', centerStreamerData, 'centerStreamer')
+    this.drawBasic('curve', [middleLineData], 'sideStreamer')
+    this.drawBasic('curve', [centerStreamerData], 'centerStreamer')
   }
 
   // only for canvas

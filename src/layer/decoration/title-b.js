@@ -71,8 +71,8 @@ export default class TitleBLayer extends LayerBase {
       },
     ]
     // decoration lines
-    this.#lineData = active
-      ? [
+    if (active) {
+      this.#lineData = [
         {
           stroke: chroma(mainColor).brighten(),
           x1: poLeft,
@@ -102,7 +102,7 @@ export default class TitleBLayer extends LayerBase {
           y2: poBottom - 5,
         },
       ]
-      : []
+    }
     // rect area
     this.#rectData = {
       x: poLeft + poWidth / 2,
@@ -118,32 +118,26 @@ export default class TitleBLayer extends LayerBase {
   }
 
   draw() {
-    const polygonData = [
-      {
-        data: this.#polygonData.map(({points}) => points),
-        strokeWidth: this.#polygonData.map(({strokeWidth}) => strokeWidth),
-        fill: this.#polygonData.map(({fill}) => fill),
-        ...this.#style.polygon,
-        stroke: this.#polygonData.map(({stroke}) => stroke),
-      },
-    ]
-    const lineData = [
-      {
-        data: this.#lineData.map(({x1, x2, y1, y2}) => [x1, y1, x2, y2]),
-        stroke: this.#lineData.map(({stroke}) => stroke),
-        ...this.#style.line,
-      },
-    ]
-    const rectData = [
-      {
-        data: [[this.#rectData.width, this.#rectData.height]],
-        position: [[this.#rectData.x, this.#rectData.y]],
-        fill: this.#rectData.fill,
-        ...this.#style.rect,
-      },
-    ]
-    this.drawBasic('rect', rectData)
-    this.drawBasic('line', lineData)
-    this.drawBasic('polygon', polygonData)
+    const polygonData = {
+      data: this.#polygonData.map(({points}) => points),
+      strokeWidth: this.#polygonData.map(({strokeWidth}) => strokeWidth),
+      fill: this.#polygonData.map(({fill}) => fill),
+      ...this.#style.polygon,
+      stroke: this.#polygonData.map(({stroke}) => stroke),
+    }
+    const lineData = {
+      data: this.#lineData.map(({x1, x2, y1, y2}) => [x1, y1, x2, y2]),
+      stroke: this.#lineData.map(({stroke}) => stroke),
+      ...this.#style.line,
+    }
+    const rectData = {
+      data: [[this.#rectData.width, this.#rectData.height]],
+      position: [[this.#rectData.x, this.#rectData.y]],
+      fill: this.#rectData.fill,
+      ...this.#style.rect,
+    }
+    this.drawBasic('rect', [rectData])
+    this.drawBasic('line', [lineData])
+    this.drawBasic('polygon', [polygonData])
   }
 }

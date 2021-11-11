@@ -9,25 +9,7 @@ import {formatNumber} from '../utils/format'
 import Selector from '../utils/selector'
 import getTextWidth from '../utils/text-width'
 import ColorMatrix from '../utils/color-matrix'
-
-// text position attached to the point
-const positionType = {
-  CENTER: 'center',
-  TOP: 'top',
-  RIGHT: 'right',
-  BOTTOM: 'bottom',
-  LEFT: 'left',
-  LEFTTOP: 'left-top',
-  LEFTBOTTOM: 'left-bottom',
-  RIGHTTOP: 'right-top',
-  RIGHTBOTTOM: 'right-bottom',
-}
-
-// some constants
-export const lifeCycles = ['setData', 'setStyle', 'draw', 'destroy', 'drawBasic', 'playAnimation']
-export const scaleTypes = ['scaleX', 'scaleY', 'scaleXT', 'scaleYR', 'scaleAngle', 'scaleRadius']
-export const commonEvents = ['click', 'mouseover', 'mouseout', 'mousemove', 'mouseup', 'mousedown']
-export const tooltipEvents = ['mouseover', 'mouseout', 'mousemove']
+import {COMMON_EVENTS, LIFE_CYCLE, SCALE_TYPE, POSITION, TOOLTIP_EVENTS} from '../utils/constants'
 
 export default class LayerBase {
   #backupData = {}
@@ -65,7 +47,7 @@ export default class LayerBase {
       },
     }
     // basic mouse event
-    commonEvents.forEach(type => {
+    COMMON_EVENTS.forEach(type => {
       const events = {}
       this.#backupEvent.common[type] = events
       this.sublayers.forEach(sublayer => {
@@ -80,7 +62,7 @@ export default class LayerBase {
   }
 
   #createLifeCycles = () => {
-    lifeCycles.forEach(name => {
+    LIFE_CYCLE.forEach(name => {
       const instance = this
       const fn = instance[name] || (() => null)
       instance[name] = (...parameter) => {
@@ -188,7 +170,7 @@ export default class LayerBase {
     const nice = merge(defaultScale?.nice, currentScale?.nice, incomingScale?.nice)
     const scale = {nice}
     // the naming of the scale is fixed
-    scaleTypes.forEach(type => {
+    SCALE_TYPE.forEach(type => {
       // Due to the axis layer control all the scale which from different layer.
       // Scales which generate by layer itself has lowest priority.
       scale[type] = incomingScale[type] || currentScale[type] || defaultScale[type]
@@ -236,36 +218,36 @@ export default class LayerBase {
    * @param {Object} options schema
    * @returns text data
    */
-  createText({x, y, value, style, position = positionType.RIGHTTOP, offset = 0}) {
+  createText({x, y, value, style, position = POSITION.RIGHTTOP, offset = 0}) {
     let [positionX, positionY] = [x, y]
     const {fontSize = 12, writingMode, format} = style
     const formattedText = String(formatNumber(value, format))
     const textWidth = getTextWidth(formattedText, fontSize)
-    if (position === positionType.CENTER) {
+    if (position === POSITION.CENTER) {
       positionX -= textWidth / 2
       positionY += fontSize / 2
-    } else if (position === positionType.LEFT) {
+    } else if (position === POSITION.LEFT) {
       positionX -= textWidth + offset
       positionY += fontSize / 2
-    } else if (position === positionType.RIGHT) {
+    } else if (position === POSITION.RIGHT) {
       positionX += offset
       positionY += fontSize / 2
-    } else if (position === positionType.TOP) {
+    } else if (position === POSITION.TOP) {
       positionX -= textWidth / 2
       positionY -= offset
-    } else if (position === positionType.BOTTOM) {
+    } else if (position === POSITION.BOTTOM) {
       positionX -= textWidth / 2
       positionY += fontSize + offset
-    } else if (position === positionType.LEFTTOP) {
+    } else if (position === POSITION.LEFTTOP) {
       positionX -= textWidth + offset
       positionY -= offset
-    } else if (position === positionType.RIGHTTOP) {
+    } else if (position === POSITION.RIGHTTOP) {
       positionX += offset
       positionY -= offset
-    } else if (position === positionType.LEFTBOTTOM) {
+    } else if (position === POSITION.LEFTBOTTOM) {
       positionX -= textWidth + offset
       positionY += fontSize + offset
-    } else if (position === positionType.RIGHTBOTTOM) {
+    } else if (position === POSITION.RIGHTBOTTOM) {
       positionX += offset
       positionY += fontSize + offset
     }
@@ -306,10 +288,10 @@ export default class LayerBase {
     const {engine} = this.selector
     if (engine === 'svg') {
       const els = this.root.selectAll(`.wave-basic-${sublayer}`).style('cursor', 'pointer')
-      commonEvents.forEach(type => els.on(`${type}.common`, this.#backupEvent.common[type][sublayer]))
+      COMMON_EVENTS.forEach(type => els.on(`${type}.common`, this.#backupEvent.common[type][sublayer]))
     } else if (engine === 'canvas') {
       const els = this.root.getObjects().filter(({className}) => className === `wave-basic-${sublayer}`)
-      commonEvents.forEach(type => els.forEach(el => el.on(type, this.#backupEvent.common[type][sublayer])))
+      COMMON_EVENTS.forEach(type => els.forEach(el => el.on(type, this.#backupEvent.common[type][sublayer])))
     }
   }
 
@@ -319,10 +301,10 @@ export default class LayerBase {
     if (this.tooltipTargets.indexOf(sublayer) !== -1) {
       if (engine === 'svg') {
         const els = this.root.selectAll(`.wave-basic-${sublayer}`)
-        tooltipEvents.forEach(type => els.on(`${type}.tooltip`, this.#backupEvent.tooltip[type]))
+        TOOLTIP_EVENTS.forEach(type => els.on(`${type}.tooltip`, this.#backupEvent.tooltip[type]))
       } else if (engine === 'canvas') {
         const els = this.root.getObjects().filter(({className}) => className === `wave-basic-${sublayer}`)
-        tooltipEvents.forEach(type => els.forEach(el => el.on(type, this.#backupEvent.tooltip[type])))
+        TOOLTIP_EVENTS.forEach(type => els.forEach(el => el.on(type, this.#backupEvent.tooltip[type])))
       }
     }
   }

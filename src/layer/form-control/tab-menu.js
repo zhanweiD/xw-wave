@@ -1,16 +1,12 @@
 import * as d3 from 'd3'
 import {cloneDeep, max, merge} from 'lodash'
 import {addStyle, getAttr, range, transformAttr} from '../../utils/common'
+import {DIRECTION} from '../../utils/constants'
 import LayerBase from '../base'
-
-const directionType = {
-  HORIZONTAL: 'horizontal',
-  VERTICAL: 'vertical',
-}
 
 const defaultStyle = {
   adsorb: true,
-  direction: directionType.HORIZONTAL,
+  direction: DIRECTION.HORIZONTAL,
   active: {
     color: 'white',
     backgroundColor: 'rgb(0,119,255)',

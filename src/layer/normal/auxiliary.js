@@ -1,23 +1,12 @@
+import {DIRECTION, POSITION} from '../../utils/constants'
 import LayerBase from '../base'
 
-const directionType = {
-  HORIZONTAL: 'horizontal',
-  VERTICAL: 'vertical',
-}
-
-const labelPositionType = {
-  TOP: 'top',
-  RIGHT: 'right',
-  BOTTOM: 'bottom',
-  LEFT: 'left',
-}
-
 const defaultOptions = {
-  type: directionType.HORIZONTAL,
+  type: DIRECTION.HORIZONTAL,
 }
 
 const defaultStyle = {
-  labelPosition: labelPositionType.RIGHT,
+  labelPosition: POSITION.RIGHT,
   labelOffset: 5,
   line: {},
   text: {},
@@ -57,8 +46,8 @@ export default class AuxiliaryLayer extends LayerBase {
     this.#scale = this.createScale({}, this.#scale, scales)
     const {type, layout} = this.options
     const {left, top, width, height} = layout
-    const isHorizontal = type === directionType.HORIZONTAL
-    const isVertical = type === directionType.VERTICAL
+    const isHorizontal = type === DIRECTION.HORIZONTAL
+    const isVertical = type === DIRECTION.VERTICAL
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     // dismiss first call
     if ((isHorizontal && this.#scale.scaleX) || (isVertical && this.#scale.scaleY)) {
@@ -75,22 +64,18 @@ export default class AuxiliaryLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition = labelPositionType.RIGHT, labelOffset, line, text} = this.#style
-    const [isTop, isBottom, isLeft, isRight] = [
-      labelPosition === labelPositionType.TOP,
-      labelPosition === labelPositionType.BOTTOM,
-      labelPosition === labelPositionType.LEFT,
-      labelPosition === labelPositionType.RIGHT,
-    ]
+    const {labelPosition = POSITION.RIGHT, labelOffset, line, text} = this.#style
     // label number
-    this.#textData = this.#lineData.map(({value, x1, y1, x2, y2}) => this.createText({
-      value,
-      x: isLeft ? x1 : isRight ? x2 : (x1 + x2) / 2,
-      y: isTop ? y1 : isBottom ? y2 : (y1 + y2) / 2,
-      position: labelPosition,
-      offset: labelOffset,
-      style: text,
-    }))
+    this.#textData = this.#lineData.map(({value, x1, y1, x2, y2}) => {
+      return this.createText({
+        value,
+        x: labelPosition === POSITION.LEFT ? x1 : labelPosition === POSITION.RIGHT ? x2 : (x1 + x2) / 2,
+        y: labelPosition === POSITION.TOP ? y1 : labelPosition === POSITION.BOTTOM ? y2 : (y1 + y2) / 2,
+        position: labelPosition,
+        offset: labelOffset,
+        style: text,
+      })
+    })
     // legend data of auxiliary line layer
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const colorMatrix = this.getColorMatrix(pureTableList.length, 1, line.stroke)

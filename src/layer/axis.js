@@ -1,21 +1,11 @@
 import * as d3 from 'd3'
 import {merge} from 'lodash'
 import Scale from '../data/scale'
-import LayerBase, {scaleTypes} from './base'
-
-export const coordinateType = {
-  GEOGRAPHIC: 'geographic',
-  CARTESIAN: 'cartesian',
-  POLAR: 'polar',
-}
-
-const titlePositionType = {
-  UPPER: 'upper',
-  SIDE: 'side',
-}
+import {COORDINATE, POSITION, SCALE_TYPE} from '../utils/constants'
+import LayerBase from './base'
 
 const defaultOptions = {
-  type: coordinateType.CARTESIAN,
+  type: COORDINATE.CARTESIAN,
 }
 
 const defaultTickLine = {
@@ -45,7 +35,7 @@ const defaultTitle = {
 const defaultStyle = {
   circle: {},
   titleOffset: 5,
-  titlePosition: titlePositionType.SIDE,
+  titlePosition: POSITION.SIDE,
   lineAxisX: defaultAxisLine,
   lineAxisY: defaultAxisLine,
   lineTickX: defaultTickLine,
@@ -71,7 +61,7 @@ const defaultStyle = {
 const getPosition = (type, targetScale) => {
   const position = []
   if (targetScale?.type === 'band' || targetScale?.type === 'point') {
-    const needOffset = targetScale.type === 'band' && type === coordinateType.CARTESIAN
+    const needOffset = targetScale.type === 'band' && type === COORDINATE.CARTESIAN
     targetScale.domain().forEach(label => {
       position.push([label, targetScale(label) + (needOffset ? targetScale.bandwidth() / 2 : 0)])
     })
@@ -155,15 +145,15 @@ export default class AxisLayer extends LayerBase {
   #merge = scales => {
     const coordinate = this.options.type
     merge(this.#scale.nice, scales.nice)
-    scaleTypes.forEach(type => {
+    SCALE_TYPE.forEach(type => {
       // no define
       if (!scales[type]) return
       // new scale
-      if (!this.#scale[type] || coordinate === coordinateType.GEOGRAPHIC) {
+      if (!this.#scale[type] || coordinate === COORDINATE.GEOGRAPHIC) {
         this.#scale[type] = scales[type]
       }
       // merge scale
-      if (coordinate !== coordinateType.GEOGRAPHIC) {
+      if (coordinate !== COORDINATE.GEOGRAPHIC) {
         if (this.#scale[type].type === 'linear') {
           const [current, incoming] = [this.#scale[type].domain(), scales[type].domain()]
           if (current[0] > current[1] !== incoming[0] > incoming[1]) {
@@ -266,7 +256,7 @@ export default class AxisLayer extends LayerBase {
     // title of axis y
     if (this.#data.titleY) {
       this.#textData.titleY = []
-      if (titlePosition === titlePositionType.SIDE) {
+      if (titlePosition === POSITION.SIDE) {
         this.#textData.positionY.forEach(item => (item.x1 = titleY.fontSize + titleOffset))
         this.#textData.titleY.push({
           rotation: -90,
@@ -278,7 +268,7 @@ export default class AxisLayer extends LayerBase {
             position: 'center',
           }),
         })
-      } else if (titlePosition === titlePositionType.UPPER) {
+      } else if (titlePosition === POSITION.TOP) {
         this.#textData.titleY.push(
           this.createText({
             x: 0,
@@ -291,7 +281,7 @@ export default class AxisLayer extends LayerBase {
     }
     if (this.#data.titleYR) {
       this.#textData.titleYR = []
-      if (titlePosition === titlePositionType.SIDE) {
+      if (titlePosition === POSITION.SIDE) {
         this.#textData.positionY.forEach(item => (item.x2 = containerWidth - titleYR.fontSize - titleOffset))
         this.#textData.titleYR.push({
           rotation: 90,
@@ -303,7 +293,7 @@ export default class AxisLayer extends LayerBase {
             position: 'center',
           }),
         })
-      } else if (titlePosition === titlePositionType.UPPER) {
+      } else if (titlePosition === POSITION.TOP) {
         this.#textData.titleYR.push(
           this.createText({
             x: containerWidth,
@@ -368,7 +358,7 @@ export default class AxisLayer extends LayerBase {
         ...this.#style[key],
       },
     ]
-    if (type === coordinateType.CARTESIAN) {
+    if (type === COORDINATE.CARTESIAN) {
       if (scaleX?.type === 'linear') {
         lineAxisX.length && this.drawBasic('line', transformLineData('lineAxisX'), 'lineAxisX')
         lineTickX.length && this.drawBasic('line', transformLineData('lineTickX'), 'lineTickX')
@@ -383,7 +373,7 @@ export default class AxisLayer extends LayerBase {
       titleX.length && this.drawBasic('text', transformTextData('titleX'), 'titleX')
       titleY.length && this.drawBasic('text', transformTextData('titleY'), 'titleY')
       titleYR.length && this.drawBasic('text', transformTextData('titleYR'), 'titleYR')
-    } else if (type === coordinateType.POLAR) {
+    } else if (type === COORDINATE.POLAR) {
       lineAngle.length && this.drawBasic('line', transformLineData('lineAngle'), 'lineAngle')
       lineRadius.length && this.drawBasic('circle', transformRadiusData('lineRadius'), 'lineRadius')
       textAngle.length && this.drawBasic('text', transformTextData('textAngle'), 'textAngle')
