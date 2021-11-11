@@ -2,7 +2,7 @@ import LayerBase from '../base'
 import Scale from '../../data/scale'
 import {POSITION} from '../../utils/constants'
 
-const WAVE = {
+const CHART = {
   PIE: 'pie',
   NIGHTINGALEROSE: 'nightingaleRose',
 }
@@ -13,7 +13,7 @@ const MODE = {
 }
 
 const defaultOptions = {
-  type: WAVE.PIE,
+  type: CHART.PIE,
   mode: MODE.DEFAULT,
 }
 
@@ -48,17 +48,17 @@ export default class ArcLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['arc', 'text'])
+  constructor(layerOptions, CHARTOptions) {
+    super({...defaultOptions, ...layerOptions}, CHARTOptions, ['arc', 'text'])
     const {type, mode} = this.options
-    this.className = `wave-${mode}-${type}`
+    this.className = `CHART-${mode}-${type}`
     this.tooltipTargets = ['arc']
   }
 
   // filter number of columns
   #filter = data => {
     const {type, mode} = this.options
-    if (type === WAVE.PIE || mode === MODE.DEFAULT) {
+    if (type === CHART.PIE || mode === MODE.DEFAULT) {
       return data.select(data.data.map(({header}) => header).slice(0, 2))
     }
     return data
@@ -73,7 +73,7 @@ export default class ArcLayer extends LayerBase {
     const maxRadius = Math.min(width, height) / 2
     this.#scale.scaleAngle = null
     // initialize scales of pie
-    if (type === WAVE.PIE) {
+    if (type === CHART.PIE) {
       const percentages = this.#data.select(headers[1], {mode: 'percentage', target: 'column'})
       this.#scale = this.createScale(
         {
@@ -93,7 +93,7 @@ export default class ArcLayer extends LayerBase {
       )
     }
     // initialize scales of nightingaleRose
-    if (type === WAVE.NIGHTINGALEROSE) {
+    if (type === CHART.NIGHTINGALEROSE) {
       const percentages = this.#data.select(headers[1])
       percentages.data[0].list = percentages.data[0].list.map(() => 1 / percentages.data[0].list.length)
       this.#scale = this.createScale(
@@ -146,7 +146,7 @@ export default class ArcLayer extends LayerBase {
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const arcCenter = {x: left + width / 2, y: top + height / 2}
     // innerRadius affect the scale
-    if (type === WAVE.NIGHTINGALEROSE) {
+    if (type === CHART.NIGHTINGALEROSE) {
       scaleRadius.range([innerRadius, scaleRadius.range()[1]])
     }
     // basic data of arc

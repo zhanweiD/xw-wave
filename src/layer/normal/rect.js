@@ -4,13 +4,13 @@ import LayerBase from '../base'
 import Scale from '../../data/scale'
 import {MODE, POSITION} from '../../utils/constants'
 
-const WAVE = {
-  COLUMN: 'column', // histogram
-  BAR: 'bar', // bar
+const CHART = {
+  COLUMN: 'column',
+  BAR: 'bar',
 }
 
 const defaultOptions = {
-  type: WAVE.COLUMN,
+  type: CHART.COLUMN,
   mode: MODE.DEFAULT,
 }
 
@@ -53,10 +53,10 @@ export default class RectLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, waveOptions) {
-    super({...defaultOptions, ...layerOptions}, waveOptions, ['rect', 'background', 'text'])
+  constructor(layerOptions, CHARTOptions) {
+    super({...defaultOptions, ...layerOptions}, CHARTOptions, ['rect', 'background', 'text'])
     const {type, mode} = this.options
-    this.className = `wave-${mode}-${type}`
+    this.className = `CHART-${mode}-${type}`
     this.tooltipTargets = ['rect']
   }
 
@@ -79,9 +79,9 @@ export default class RectLayer extends LayerBase {
   setData(tableList, scales) {
     const {type} = this.options
     this.#data = this.createData('tableList', this.#data, tableList, this.#filter)
-    if (type === WAVE.COLUMN) {
+    if (type === CHART.COLUMN) {
       this.#setColumnData(scales)
-    } else if (type === WAVE.BAR) {
+    } else if (type === CHART.BAR) {
       this.#setBarData(scales)
     }
     // change data according mode type
@@ -192,10 +192,10 @@ export default class RectLayer extends LayerBase {
         const percentages = group.map(({value}) => value / total)
         group.forEach((item, i) => {
           item.percentage = formatNumber(percentages[i], {decimalPlace: 4})
-          if (type === WAVE.COLUMN) {
+          if (type === CHART.COLUMN) {
             item.y = item.y + item.height - layout.height * percentages[i]
             item.height = layout.height * percentages[i]
-          } else if (type === WAVE.BAR) {
+          } else if (type === CHART.BAR) {
             item.width = layout.width * percentages[i]
           }
         })
@@ -203,13 +203,13 @@ export default class RectLayer extends LayerBase {
     }
     // stacking algorithm
     if (mode === MODE.STACK || mode === MODE.PERCENTAGE) {
-      if (type === WAVE.COLUMN) {
+      if (type === CHART.COLUMN) {
         transformedData.forEach(group => {
           group.forEach((item, i) => {
             i !== 0 && (item.y = group[i - 1].y - item.height)
           })
         })
-      } else if (type === WAVE.BAR) {
+      } else if (type === CHART.BAR) {
         transformedData.forEach(group => {
           group.forEach((item, i) => {
             i !== 0 && (item.x = group[i - 1].x + group[i - 1].width)
@@ -220,14 +220,14 @@ export default class RectLayer extends LayerBase {
     // grouping algorithm
     if (mode === MODE.GROUP) {
       const columnNumber = transformedData[0].length
-      if (type === WAVE.COLUMN) {
+      if (type === CHART.COLUMN) {
         transformedData.forEach(group => {
           group.forEach((item, i) => {
             item.width /= columnNumber
             i !== 0 && (item.x = group[i - 1].x + group[i - 1].width)
           })
         })
-      } else if (type === WAVE.BAR) {
+      } else if (type === CHART.BAR) {
         transformedData.forEach(group => {
           group.forEach((item, i) => {
             item.height /= columnNumber
@@ -241,12 +241,12 @@ export default class RectLayer extends LayerBase {
       transformedData = transformedData.map(group => {
         const [data1, data2] = [group[0], group[1]]
         const [min, max] = [Math.min(data1.value, data2.value), Math.max(data1.value, data2.value)]
-        if (type === WAVE.COLUMN) {
+        if (type === CHART.COLUMN) {
           const y = Math.min(data1.y, data2.y)
           const height = Math.abs(data1.y - data2.y)
           return [{...data1, y, height, value: max - min, source: group.map(({source}) => source)}]
         }
-        if (type === WAVE.BAR) {
+        if (type === CHART.BAR) {
           const x = Math.min(data1.x + data1.width, data2.x + data2.width)
           const width = Math.abs(data1.x + data1.width - data2.x - data2.width)
           return [{...data1, x, width, value: max - min, source: group.map(({source}) => source)}]
@@ -256,7 +256,7 @@ export default class RectLayer extends LayerBase {
     }
     // interval algorithm
     if (mode === MODE.WATERFALL) {
-      if (type === WAVE.COLUMN) {
+      if (type === CHART.COLUMN) {
         transformedData.forEach((group, i) => {
           group.forEach(item => {
             i !== 0 && (item.y = transformedData[i - 1][0].y - item.height)
@@ -265,7 +265,7 @@ export default class RectLayer extends LayerBase {
         // the last column needs special treatment
         const {y, height} = transformedData[transformedData.length - 1][0]
         transformedData[transformedData.length - 1][0].y = y + height
-      } else if (type === WAVE.BAR) {
+      } else if (type === CHART.BAR) {
         transformedData.forEach((group, i) => {
           group.forEach(item => {
             i !== 0 && (item.x = transformedData[i - 1][0].x + transformedData[i - 1][0].width)
@@ -285,26 +285,26 @@ export default class RectLayer extends LayerBase {
     // reverse label when value is negative
     if (value < 0) {
       text.offset = [
-        type === WAVE.COLUMN ? text.offset[0] : -text.offset[0],
-        type === WAVE.BAR ? text.offset[1] : -text.offset[1],
+        type === CHART.COLUMN ? text.offset[0] : -text.offset[0],
+        type === CHART.BAR ? text.offset[1] : -text.offset[1],
       ]
     }
     // figure out label position data
     let [position, positionX, positionY] = [null, null, null]
     if (labelPosition === POSITION.LEFTOUTER || labelPosition === POSITION.LEFTINNER) {
-      [positionX, positionY] = [x, y + height / 2]
+      ;[positionX, positionY] = [x, y + height / 2]
       position = labelPosition === POSITION.LEFTOUTER ? 'left' : 'right'
     } else if (labelPosition === POSITION.RIGHTOUTER || labelPosition === POSITION.RIGHTINNER) {
-      [positionX, positionY] = [x + width, y + height / 2]
+      ;[positionX, positionY] = [x + width, y + height / 2]
       position = labelPosition === POSITION.RIGHTOUTER ? 'right' : 'left'
     } else if (labelPosition === POSITION.TOPOUTER || labelPosition === POSITION.TOPINNER) {
-      [positionX, positionY] = [x + width / 2, y]
+      ;[positionX, positionY] = [x + width / 2, y]
       position = labelPosition === POSITION.TOPOUTER ? 'top' : 'bottom'
     } else if (labelPosition === POSITION.BOTTOMOUTER || labelPosition === POSITION.BOTTOMINNER) {
-      [positionX, positionY] = [x + width / 2, y + height]
+      ;[positionX, positionY] = [x + width / 2, y + height]
       position = labelPosition === POSITION.BOTTOMOUTER ? 'bottom' : 'top'
     } else if (labelPosition === POSITION.CENTER) {
-      [positionX, positionY] = [x + width / 2, y + height / 2]
+      ;[positionX, positionY] = [x + width / 2, y + height / 2]
       position = 'center'
     }
     return this.createText({x: positionX, y: positionY, value, style: text, position, offset: 5})
@@ -326,12 +326,12 @@ export default class RectLayer extends LayerBase {
     // horizontal scaling ratio
     this.#rectData = this.#rectData.map(group => {
       return group.map(({x, y, width, height, ...other}) => {
-        const totalPadding = (1 - bandZoomFactor) * (type === WAVE.COLUMN ? width : height)
+        const totalPadding = (1 - bandZoomFactor) * (type === CHART.COLUMN ? width : height)
         return {
-          x: type === WAVE.COLUMN ? x + totalPadding / 2 : x,
-          y: type === WAVE.BAR ? y + totalPadding / 2 : y,
-          width: type === WAVE.COLUMN ? width - totalPadding : width,
-          height: type === WAVE.BAR ? height - totalPadding : height,
+          x: type === CHART.COLUMN ? x + totalPadding / 2 : x,
+          y: type === CHART.BAR ? y + totalPadding / 2 : y,
+          width: type === CHART.COLUMN ? width - totalPadding : width,
+          height: type === CHART.BAR ? height - totalPadding : height,
           ...other,
         }
       })
@@ -340,10 +340,10 @@ export default class RectLayer extends LayerBase {
     if (isNumber(fixedLength)) {
       this.#rectData.forEach(group => {
         group.forEach(item => {
-          if (type === WAVE.COLUMN) {
+          if (type === CHART.COLUMN) {
             if (item.value < 0) item.y += item.height - fixedLength
             item.height = fixedLength
-          } else if (type === WAVE.BAR) {
+          } else if (type === CHART.BAR) {
             if (item.value > 0) item.x = item.x + item.width - fixedLength
             item.width = fixedLength
           }
@@ -353,18 +353,18 @@ export default class RectLayer extends LayerBase {
     // move rect by anchor
     this.#rectData.forEach(group => {
       group.forEach(item => {
-        if (type === WAVE.COLUMN) {
+        if (type === CHART.COLUMN) {
           item.x += rectOffset
-        } else if (type === WAVE.BAR) {
+        } else if (type === CHART.BAR) {
           item.y += rectOffset
         }
       })
     })
     this.#backgroundData.forEach(group => {
       group.forEach(item => {
-        if (type === WAVE.COLUMN) {
+        if (type === CHART.COLUMN) {
           item.x += rectOffset
-        } else if (type === WAVE.BAR) {
+        } else if (type === CHART.BAR) {
           item.y += rectOffset
         }
       })
@@ -405,7 +405,7 @@ export default class RectLayer extends LayerBase {
       data: group.map(({width, height}) => [width, height]),
       source: group.map(item => item.source),
       position: group.map(({x, y}) => [x, y]),
-      transformOrigin: type === WAVE.COLUMN ? 'bottom' : 'left',
+      transformOrigin: type === CHART.COLUMN ? 'bottom' : 'left',
       ...this.#style.rect,
       fill: group.map(({color}) => color),
     }))
