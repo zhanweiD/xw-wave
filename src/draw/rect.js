@@ -18,7 +18,7 @@ export default function drawRect({
   mask = null,
   filter = null,
   source = [],
-  data = [], // [[width, height]]
+  data = [], // [[width, height, rx, ry]]
   position = [], // [[x, y]]
   container,
   className,
@@ -30,6 +30,8 @@ export default function drawRect({
       y: position[i][1],
       width: size[0],
       height: size[1],
+      rx: size[2],
+      ry: size[3],
       fill: getAttr(fill, i),
       stroke: getAttr(stroke, i),
       opacity: getAttr(opacity, i),
@@ -53,6 +55,8 @@ export default function drawRect({
       .delay(enableUpdateAnimation ? updateAnimationDelay : 0)
       .attr('x', d => d.x)
       .attr('y', d => d.y)
+      .attr('rx', d => d.rx)
+      .attr('ry', d => d.ry)
       .attr('width', d => d.width)
       .attr('height', d => d.height)
       .attr('fill', d => d.fill)
@@ -72,6 +76,8 @@ export default function drawRect({
         left: config.x,
         width: config.width,
         height: config.height,
+        rx: config.rx,
+        ry: config.ry,
         fill: mergeAlpha(config.fill, config.fillOpacity),
         stroke: mergeAlpha(config.stroke, config.strokeOpacity),
         strokeWidth: config.strokeWidth,
