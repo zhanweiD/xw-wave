@@ -48,8 +48,8 @@ export default class ArcLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, CHARTOptions) {
-    super({...defaultOptions, ...layerOptions}, CHARTOptions, ['arc', 'text'])
+  constructor(layerOptions, chartOptions) {
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['arc', 'text'])
     const {type, mode} = this.options
     this.className = `CHART-${mode}-${type}`
     this.tooltipTargets = ['arc']

@@ -116,9 +116,9 @@ export default class TableList extends DataBase {
   }
 
   /**
-   * remove rows from the list
+   * remove columns from the list
    * @param {String|Array<String>} headers
-   * @returns row that has been deleted
+   * @returns columns that has been deleted
    */
   remove(headers) {
     const removedList = []

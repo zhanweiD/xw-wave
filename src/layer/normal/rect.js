@@ -53,8 +53,8 @@ export default class RectLayer extends LayerBase {
     return this.#style
   }
 
-  constructor(layerOptions, CHARTOptions) {
-    super({...defaultOptions, ...layerOptions}, CHARTOptions, ['rect', 'background', 'text'])
+  constructor(layerOptions, chartOptions) {
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['rect', 'background', 'text'])
     const {type, mode} = this.options
     this.className = `CHART-${mode}-${type}`
     this.tooltipTargets = ['rect']
