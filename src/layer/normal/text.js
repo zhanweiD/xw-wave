@@ -32,7 +32,8 @@ export default class TextLayer extends LayerBase {
 
   // data is string
   setData(data) {
-    this.#data = this.createData('base', this.#data, data)
+    // this.#data = this.createData('base', this.#data, data)  // 此处走createData数据类型不一致回报错，回头在仔细研究下
+    this.#data = data || this.#data
   }
 
   setStyle(style) {
@@ -62,10 +63,11 @@ export default class TextLayer extends LayerBase {
 
   draw() {
     const textData = {
-      data: [this.#textData.value],
+      data: [this.#textData.value === 'undefined' ? this.#data : this.#textData.value], // v4text修改报错临时修改，需要仔细排查
       position: [[this.#textData.x, this.#textData.y]],
       ...this.#style.text,
     }
     this.drawBasic('text', [textData])
+    console.log(textData)
   }
 }
