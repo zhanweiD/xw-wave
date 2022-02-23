@@ -1,6 +1,6 @@
 {
   "name": "@waveview/wave",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "author": "shuzhiwen",
   "main": "dist/wave.min.js",
   "homepage": ".",
