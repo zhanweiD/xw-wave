@@ -58,16 +58,15 @@ export default class TextLayer extends LayerBase {
     } else if (verticalAlign === ALIGNMENT.END) {
       y = top + height
     }
-    this.#textData = this.createText({x, y, value: this.#data.data, style: text})
+    this.#textData = this.createText({x, y, value: this.#data.data || this.#data, style: text})
   }
 
   draw() {
     const textData = {
-      data: [this.#textData.value === 'undefined' ? this.#data : this.#textData.value], // v4text修改报错临时修改，需要仔细排查
+      data: [this.#textData.value],
       position: [[this.#textData.x, this.#textData.y]],
       ...this.#style.text,
     }
     this.drawBasic('text', [textData])
-    console.log(textData)
   }
 }
