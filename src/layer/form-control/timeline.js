@@ -14,10 +14,10 @@ const defaultStyle = {
     padding: '15px 15px 15px 30px',
   },
   timeline: {
-    circleSize: '10px',
+    circleSize: 10,
     circleColor: 'skyblue',
     lineColor: 'skyblue',
-    lineWidth: '1px',
+    lineWidth: 1,
   },
 }
 
@@ -121,8 +121,8 @@ export default class TimelineLayer extends LayerBase {
               .style('border', `solid ${lineColor} ${lineWidth}`)
             d3.select(els[i])
               .append('xhtml:div')
-              .style('width', circleSize)
-              .style('height', circleSize)
+              .style('width', `${circleSize}px`)
+              .style('height', `${circleSize}px`)
               .style('background', circleColor)
               .style('position', 'absolute')
               .style('border-radius', '100%')

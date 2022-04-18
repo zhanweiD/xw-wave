@@ -132,13 +132,13 @@ export default ({type, mode}) => `[
           mode: 'enlarge',
           direction: 'both',
         },
-        // loop: {
-        //   type: 'scan',
-        //   delay: 2000,
-        //   duration: 3000,
-        //   color: 'rgba(255,255,255,1)',
-        //   direction: type === 'bar' ? 'right' : 'top',
-        // },
+        loop: {
+          type: 'scan',
+          delay: 2000,
+          duration: 3000,
+          color: 'rgba(255,255,255,1)',
+        // direction: type === 'bar' ? 'right' : 'top',
+        },
       },
       text: {
         enter: {

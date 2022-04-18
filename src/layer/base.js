@@ -34,10 +34,10 @@ export default class LayerBase {
 
   // avoid repeated binding
   #initializeEvent = () => {
-    const {tooltip, engine} = this.options
+    const {tooltip, engine, tooltipOption = {visible: true}} = this.options
     this.#backupEvent = {
       common: {},
-      tooltip: {
+      tooltip: tooltipOption.visible && {
         mouseout: () => tooltip.hide(),
         mousemove: event => tooltip.move(engine === 'svg' ? event : event.e),
         mouseover: (event, data) => {
