@@ -16,6 +16,7 @@ const defaultStyle = {
   text: {
     hide: true,
   },
+  unit: {},
 }
 
 export default class RadarLayer extends LayerBase {
@@ -162,6 +163,15 @@ export default class RadarLayer extends LayerBase {
       position: group.map(({x, y}) => [x, y]),
       ...this.#style.text,
     }))
+    const {unit = {}} = this.#style
+    if (unit.showUnit) {
+      const unitData = {
+        ...unit,
+        data: [unit.data],
+        position: [unit.offset],
+      }
+      textData.push(unitData)
+    }
     this.drawBasic('polygon', polygonData)
     this.drawBasic('circle', circleData)
     this.drawBasic('text', textData)

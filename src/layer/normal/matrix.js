@@ -12,6 +12,7 @@ const defaultStyle = {
   circle: {},
   rect: {},
   text: {},
+  unit: {},
 }
 
 export default class MatrixLayer extends LayerBase {
@@ -176,6 +177,15 @@ export default class MatrixLayer extends LayerBase {
     }))
     shape === SHAPE.RECT && this.drawBasic('rect', rectData)
     shape === SHAPE.CIRCLE && this.drawBasic('circle', circleData)
+    const {unit = {}} = this.#style
+    if (unit.showUnit) {
+      const unitData = {
+        ...unit,
+        data: [unit.data],
+        position: [unit.offset],
+      }
+      textData.push(unitData)
+    }
     this.drawBasic('text', textData)
   }
 }

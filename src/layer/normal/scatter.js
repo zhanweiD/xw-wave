@@ -6,6 +6,9 @@ const defaultStyle = {
   pointSize: [5, 5],
   point: {},
   text: {},
+  unit: {
+    showUnit: false,
+  },
 }
 
 export default class ScatterLayer extends LayerBase {
@@ -137,6 +140,15 @@ export default class ScatterLayer extends LayerBase {
       data: group.map(({value}) => value),
       ...this.#style.text,
     }))
+    const {unit = {}} = this.#style
+    if (unit.showUnit) {
+      const unitData = {
+        ...unit,
+        data: [unit.data],
+        position: [unit.offset],
+      }
+      textData.push(unitData)
+    }
     this.drawBasic('circle', pointData, 'point')
     this.drawBasic('text', textData)
   }

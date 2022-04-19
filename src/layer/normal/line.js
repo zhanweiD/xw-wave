@@ -44,6 +44,9 @@ const defaultStyle = {
   area: {
     fillOpacity: 0,
   },
+  unit: {
+    showUnit: false,
+  },
 }
 
 export default class LineLayer extends LayerBase {
@@ -206,6 +209,16 @@ export default class LineLayer extends LayerBase {
       ...this.#style.point,
       stroke: group.map(({color}) => color),
     }))
+
+    const {unit = {}} = this.#style
+    if (unit.showUnit) {
+      const unitData = {
+        ...unit,
+        data: [unit.data],
+        position: [unit.offset],
+      }
+      textData.push(unitData)
+    }
     this.drawBasic('area', areaData)
     this.drawBasic('curve', curveData)
     this.drawBasic('circle', pointData, 'point')

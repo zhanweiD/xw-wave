@@ -26,6 +26,9 @@ const defaultStyle = {
   background: {
     fill: 'rgba(255,255,255,0.2)',
   },
+  unit: {
+    showUnit: false,
+  },
 }
 
 export default class RectLayer extends LayerBase {
@@ -90,6 +93,7 @@ export default class RectLayer extends LayerBase {
 
   #setColumnData = scales => {
     const {mode, layout} = this.options
+    const {rectWidth, rectInterval = 0} = this.#style
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     // initialize scales
@@ -119,24 +123,28 @@ export default class RectLayer extends LayerBase {
         value,
         x: layout.left + scaleX(dimension),
         y: layout.top + (value > 0 ? scaleY(value) : scaleY(0)),
-        width: scaleX.bandwidth(),
+        width: rectWidth || scaleX.bandwidth(),
         height: Math.abs(scaleY(value) - scaleY(0)),
         source: {dimension, category: headers[i + 1], value},
       }))
     })
     // rect background data
-    this.#backgroundData = pureTableList.map(([dimension]) => [
-      {
-        x: layout.left + scaleX(dimension),
-        y: layout.top,
-        width: scaleX.bandwidth(),
-        height: layout.height,
-      },
-    ])
+    this.#backgroundData = pureTableList.map(item => {
+      const [dimension] = item
+      return [
+        {
+          x: layout.left + scaleX(dimension),
+          y: layout.top,
+          width: (rectWidth || scaleX.bandwidth()) + rectInterval * (item.length - 2),
+          height: layout.height,
+        },
+      ]
+    })
   }
 
   #setBarData = scales => {
     const {mode, layout} = this.options
+    const {rectWidth, rectInterval = 0} = this.#style
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const headers = this.#data.data.map(({header}) => header)
     // initialize scales
@@ -167,19 +175,22 @@ export default class RectLayer extends LayerBase {
         y: layout.top + scaleY(dimension),
         x: layout.left + (value < 0 ? scaleX(value) : scaleX(0)),
         width: Math.abs(scaleX(value) - scaleX(0)),
-        height: scaleY.bandwidth(),
+        height: rectWidth || scaleY.bandwidth(),
         source: {dimension, category: headers[i + 1], value},
       }))
     })
     // rect background data
-    this.#backgroundData = pureTableList.map(([dimension]) => [
-      {
-        x: layout.left,
-        y: layout.top + scaleY(dimension),
-        width: layout.width,
-        height: scaleY.bandwidth(),
-      },
-    ])
+    this.#backgroundData = pureTableList.map(item => {
+      const [dimension] = item
+      return [
+        {
+          x: layout.left,
+          y: layout.top + scaleY(dimension),
+          width: layout.width,
+          height: (rectWidth || scaleY.bandwidth()) + rectInterval * (item.length - 2),
+        },
+      ]
+    })
   }
 
   #transform = () => {
@@ -401,6 +412,7 @@ export default class RectLayer extends LayerBase {
 
   draw() {
     const {type} = this.options
+    const {unit = {}, rectInterval} = this.#style
     const rectData = this.#rectData.map(group => ({
       data: group.map(({width, height}) => [width, height]),
       source: group.map(item => item.source),
@@ -408,6 +420,8 @@ export default class RectLayer extends LayerBase {
       transformOrigin: type === CHART.COLUMN ? 'bottom' : 'left',
       ...this.#style.rect,
       fill: group.map(({color}) => color),
+      rectInterval,
+      type,
     }))
     const background = this.#backgroundData.map(group => ({
       data: group.map(({width, height}) => [width, height]),
@@ -419,6 +433,14 @@ export default class RectLayer extends LayerBase {
       position: group.map(({x, y}) => [x, y]),
       ...this.#style.text,
     }))
+    if (unit.showUnit) {
+      const unitData = {
+        ...unit,
+        data: [unit.data],
+        position: [unit.offset],
+      }
+      textData.push(unitData)
+    }
     this.drawBasic('rect', background, 'background')
     this.drawBasic('rect', rectData)
     this.drawBasic('text', textData)

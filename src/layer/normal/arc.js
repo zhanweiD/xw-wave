@@ -23,6 +23,9 @@ const defaultStyle = {
   labelPosition: POSITION.INNER,
   arc: {},
   text: {},
+  unit: {
+    showUnit: false,
+  },
 }
 
 export default class ArcLayer extends LayerBase {
@@ -222,6 +225,15 @@ export default class ArcLayer extends LayerBase {
       position: group.map(({x, y}) => [x, y]),
       ...this.#style.text,
     }))
+    const {unit = {}} = this.#style
+    if (unit.showUnit) {
+      const unitData = {
+        ...unit,
+        data: [unit.data],
+        position: [unit.offset],
+      }
+      textData.push(unitData)
+    }
     this.drawBasic('arc', arcData)
     this.drawBasic('text', textData)
   }

@@ -22,12 +22,14 @@ export default function drawRect({
   position = [], // [[x, y]]
   container,
   className,
+  rectInterval = 0,
+  type,
 }) {
   const configuredData = data.map((size, i) => {
     return {
       className,
-      x: position[i][0],
-      y: position[i][1],
+      x: type === 'bar' ? position[i][0] : position[i][0] + rectInterval * i,
+      y: type === 'bar' ? position[i][1] + rectInterval * i : position[i][1],
       width: size[0],
       height: size[1],
       rx: size[2],
