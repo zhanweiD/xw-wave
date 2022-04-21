@@ -1,3 +1,4 @@
+import * as d3 from 'd3'
 import {isNumber} from 'lodash'
 import chroma from 'chroma-js'
 import LayerBase from '../base'
@@ -183,12 +184,46 @@ export default class LineLayer extends LayerBase {
     return null
   }
 
+  setGradient = gradientColors => {
+    // svg容器
+    const svgContainer = d3.select('body').append('svg')
+      .attr('width', '100%')
+      .attr('height', '100%')
+    const defs = svgContainer.append('defs')
+    const linerGradient = defs.append('linearGradient')
+      .attr('id', 'linearColor')
+      .attr('x1', '0%')
+      .attr('y1', '100%')
+      .attr('x2', '0%')
+      .attr('y2', '0%')
+    gradientColors.forEach((item, i) => {
+      const color = item[0]
+        .replace(/rgba\(/i, '')
+        .replace(/rgb\(/i, '')
+        .replace(')', '')
+        .split(',')
+      const inspectColor = item[0].search(/rgb/i) === 0 && color.length > 2
+        ? color.map(Number)
+        : [0, 0, 0, 1]
+      // 定义渐变色带，可以参考SVG的定义
+      const a = d3.rgb(inspectColor[0], inspectColor[1], inspectColor[2], inspectColor[3])
+      linerGradient.append('stop')
+        .attr('offset', `${(100 / (gradientColors.length - 1)) * i}%`)
+        .style('stop-color', a.toString())
+    })
+    return 'url(#linearColor)'
+  }
+
   draw() {
+    const {curve} = this.#style
+    // let gradientColor
+    // if (curve.colorType === 'gradientColor') {
+    //   gradientColor = this.setGradient(curve.gradientColor)
+    // }
     const curveData = this.#curveData[0].map(({color}, index) => {
       const data = this.#curveData.map(item => [item[index].x, isNumber(item[index].value) && item[index].y])
       return {data: this.#fallbackFilter(data), ...this.#style.curve, stroke: color}
     })
-    const {curve} = this.#style.curve
     const areaData = this.#areaData[0].map(({fill}, index) => {
       const data = this.#areaData.map(item => [
         item[index].x,
