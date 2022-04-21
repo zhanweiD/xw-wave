@@ -32,7 +32,8 @@ export default class TextLayer extends LayerBase {
 
   // data is string
   setData(data) {
-    this.#data = this.createData('base', this.#data, data)
+    // this.#data = this.createData('base', this.#data, data)  // 此处走createData数据类型不一致回报错，回头在仔细研究下
+    this.#data = data || this.#data
   }
 
   setStyle(style) {
@@ -57,7 +58,7 @@ export default class TextLayer extends LayerBase {
     } else if (verticalAlign === ALIGNMENT.END) {
       y = top + height
     }
-    this.#textData = this.createText({x, y, value: this.#data.data, style: text})
+    this.#textData = this.createText({x, y, value: this.#data.data || this.#data, style: text})
   }
 
   draw() {
