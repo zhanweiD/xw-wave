@@ -78,7 +78,7 @@ export default class LineLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super({...defaultOptions, ...layerOptions}, chartOptions, ['curve', 'point', 'area', 'text'])
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['curve', 'point', 'area', 'text', 'gradient'])
     const {mode} = this.options
     this.className = `chart-${mode}-curve`
     this.tooltipTargets = ['point']
@@ -216,13 +216,15 @@ export default class LineLayer extends LayerBase {
 
   draw() {
     const {curve} = this.#style
-    // let gradientColor
-    // if (curve.colorType === 'gradientColor') {
-    //   gradientColor = this.setGradient(curve.gradientColor)
-    // }
+    const {id} = this.options
+    let gradientColor
+    if (curve.colorType === 'gradientColor') {
+      this.drawBasic('gradient', [{...curve, noAnalysis: true, id}])
+      gradientColor = `url(#${id})`
+    }
     const curveData = this.#curveData[0].map(({color}, index) => {
       const data = this.#curveData.map(item => [item[index].x, isNumber(item[index].value) && item[index].y])
-      return {data: this.#fallbackFilter(data), ...this.#style.curve, stroke: color}
+      return {data: this.#fallbackFilter(data), ...this.#style.curve, stroke: gradientColor || color}
     })
     const areaData = this.#areaData[0].map(({fill}, index) => {
       const data = this.#areaData.map(item => [
@@ -230,7 +232,7 @@ export default class LineLayer extends LayerBase {
         isNumber(item[index].value) && item[index].y0,
         item[index].y1,
       ])
-      return {data: this.#fallbackFilter(data), ...this.#style.area, curve, fill}
+      return {data: this.#fallbackFilter(data), ...this.#style.area, curve, fill: gradientColor || fill}
     })
     const textData = this.#textData.map(group => ({
       data: group.map(({value}) => value),
@@ -242,7 +244,7 @@ export default class LineLayer extends LayerBase {
       position: group.map(({x, y}) => [x, y]),
       source: group.map(({source}) => source),
       ...this.#style.point,
-      stroke: group.map(({color}) => color),
+      stroke: group.map(({color}) => gradientColor || color),
     }))
 
     const {unit = {}} = this.#style

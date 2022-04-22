@@ -8,6 +8,7 @@ import text from './text'
 import area from './area'
 import path from './path'
 import image from './image'
+import gradient from './gradient'
 
 export default {
   arc,
@@ -20,4 +21,5 @@ export default {
   rect,
   text,
   path,
+  gradient,
 }
