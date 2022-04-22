@@ -215,11 +215,11 @@ export default class LineLayer extends LayerBase {
   }
 
   draw() {
-    const {curve} = this.#style
+    const {curve} = this.#style.curve
     const {id} = this.options
     let gradientColor
-    if (curve.colorType === 'gradientColor') {
-      this.drawBasic('gradient', [{...curve, noAnalysis: true, id}])
+    if (this.#style.curve.colorType === 'gradientColor') {
+      this.drawBasic('gradient', [{...this.#style.curve, noAnalysis: true, id}])
       gradientColor = `url(#${id})`
     }
     const curveData = this.#curveData[0].map(({color}, index) => {
