@@ -57,7 +57,7 @@ export default class RectLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super({...defaultOptions, ...layerOptions}, chartOptions, ['rect', 'background', 'text'])
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['rect', 'background', 'text', 'gradient'])
     const {type, mode} = this.options
     this.className = `CHART-${mode}-${type}`
     this.tooltipTargets = ['rect']
@@ -324,7 +324,7 @@ export default class RectLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {labelPosition, rectOffset, bandZoomFactor, fixedLength, rect} = this.#style
-    const {type, mode} = this.options
+    const {type, mode, id} = this.options
     // get colors
     let colorMatrix
     if (this.#rectData[0]?.length > 1) {
@@ -404,7 +404,8 @@ export default class RectLayer extends LayerBase {
         list: this.#data.data.slice(1).map(({header}, i) => ({
           shape: 'rect',
           label: header,
-          color: colorMatrix.get(0, i),
+          // color: colorMatrix.get(0, i),
+          color: rect.colorType === 'gradientColor' ? `url(#${id})` : colorMatrix.get(0, i),
         })),
       })
     }
@@ -412,14 +413,25 @@ export default class RectLayer extends LayerBase {
 
   draw() {
     const {type} = this.options
-    const {unit = {}, rectInterval} = this.#style
+    const {unit = {}, rectInterval, rect} = this.#style
+    const {id} = this.options
+    let gradientColor
+    if (rect.colorType === 'gradientColor') {
+      this.drawBasic('gradient', [{
+        ...rect, 
+        id, 
+        direction: type === CHART.COLUMN ? 'toY' : 'toX',
+      }])
+      gradientColor = `url(#${id})`
+    }
+
     const rectData = this.#rectData.map(group => ({
       data: group.map(({width, height}) => [width, height]),
       source: group.map(item => item.source),
       position: group.map(({x, y}) => [x, y]),
       transformOrigin: type === CHART.COLUMN ? 'bottom' : 'left',
       ...this.#style.rect,
-      fill: group.map(({color}) => color),
+      fill: group.map(({color}) => gradientColor || color),
       rectInterval,
       type,
     }))

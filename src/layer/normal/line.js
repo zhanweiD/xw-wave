@@ -129,7 +129,7 @@ export default class LineLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {layout, mode, createGradient} = this.options
+    const {layout, mode, createGradient, id} = this.options
     const {labelPosition, pointSize, text, curve} = this.#style
     const {top, height} = layout
     // get the color for each line
@@ -160,7 +160,8 @@ export default class LineLayer extends LayerBase {
       list: this.#data.data.slice(1).map(({header}, i) => ({
         label: header,
         shape: 'broken-line',
-        color: colorMatrix.get(0, i),
+        color: curve.colorType === 'gradientColor' ? `url(#${id})` : colorMatrix.get(0, i),
+        // color: colorMatrix.get(0, i),
       })),
     })
   }
@@ -184,42 +185,16 @@ export default class LineLayer extends LayerBase {
     return null
   }
 
-  setGradient = gradientColors => {
-    // svg容器
-    const svgContainer = d3.select('body').append('svg')
-      .attr('width', '100%')
-      .attr('height', '100%')
-    const defs = svgContainer.append('defs')
-    const linerGradient = defs.append('linearGradient')
-      .attr('id', 'linearColor')
-      .attr('x1', '0%')
-      .attr('y1', '100%')
-      .attr('x2', '0%')
-      .attr('y2', '0%')
-    gradientColors.forEach((item, i) => {
-      const color = item[0]
-        .replace(/rgba\(/i, '')
-        .replace(/rgb\(/i, '')
-        .replace(')', '')
-        .split(',')
-      const inspectColor = item[0].search(/rgb/i) === 0 && color.length > 2
-        ? color.map(Number)
-        : [0, 0, 0, 1]
-      // 定义渐变色带，可以参考SVG的定义
-      const a = d3.rgb(inspectColor[0], inspectColor[1], inspectColor[2], inspectColor[3])
-      linerGradient.append('stop')
-        .attr('offset', `${(100 / (gradientColors.length - 1)) * i}%`)
-        .style('stop-color', a.toString())
-    })
-    return 'url(#linearColor)'
-  }
-
   draw() {
     const {curve} = this.#style.curve
     const {id} = this.options
     let gradientColor
     if (this.#style.curve.colorType === 'gradientColor') {
-      this.drawBasic('gradient', [{...this.#style.curve, noAnalysis: true, id}])
+      this.drawBasic('gradient', [{
+        ...this.#style.curve, 
+        id,
+        direction: 'toX',
+      }])
       gradientColor = `url(#${id})`
     }
     const curveData = this.#curveData[0].map(({color}, index) => {

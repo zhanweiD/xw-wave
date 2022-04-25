@@ -4,13 +4,14 @@ export default function drawGradient({
   container,
   gradientColor,
   id,
+  direction,
 }) {
   const defs = container.append('defs')
   const linerGradient = defs.append('linearGradient')
     .attr('id', id)
     .attr('x1', '0%')
-    .attr('y1', '100%')
-    .attr('x2', '0%')
+    .attr('y1', direction === 'toY' ? '100%' : '0%')
+    .attr('x2', direction === 'toX' ? '100%' : '0%')
     .attr('y2', '0%')
   gradientColor.forEach((item, i) => {
     const color = item[0]
