@@ -323,15 +323,15 @@ export default class RectLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition, rectOffset, bandZoomFactor, fixedLength, rect} = this.#style
+    const {labelPosition, rectOffset, bandZoomFactor, fixedLength, rect, rangeColorList} = this.#style
     const {type, mode, id} = this.options
     // get colors
     let colorMatrix
     if (this.#rectData[0]?.length > 1) {
-      colorMatrix = this.getColorMatrix(1, this.#rectData[0]?.length, rect.fill)
+      colorMatrix = this.getColorMatrix(1, this.#rectData[0]?.length, rangeColorList || rect.fill)
       this.#rectData.forEach(group => group.forEach((item, i) => (item.color = colorMatrix.get(0, i))))
     } else if (this.#rectData[0]?.length === 1) {
-      colorMatrix = this.getColorMatrix(this.#rectData.length, 1, rect.fill)
+      colorMatrix = this.getColorMatrix(this.#rectData.length, 1, rangeColorList || rect.fill)
       this.#rectData.forEach((group, i) => (group[0].color = colorMatrix.get(i, 0)))
     }
     // horizontal scaling ratio

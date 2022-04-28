@@ -142,16 +142,27 @@ export default class LayerBase {
         .colors(rowNumber)
         .map(color => [color])
     } else {
-      const rowColors = chroma
-        .scale(originColors)
-        .mode('lch')
-        .colors(rowNumber + 1)
-      // unfold: 1 dimension => 2 dimensions
-      rowColors.reduce((prevColor, curColor, index) => {
-        const count = index === rowNumber ? columnNumber : columnNumber + 1
-        colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
-        return curColor
-      })
+      if (isArray(customColors)) {
+        // 多色配置，这里只取首位生成渐变，故去除原先生色逻辑
+        colorMatrix = [originColors, originColors]
+      } else {
+        const rowColors = chroma
+          .scale(originColors)
+          .mode('lch')
+          .colors(rowNumber + 1)
+        // unfold: 1 dimension => 2 dimensions
+        rowColors.reduce((prevColor, curColor, index) => {
+          const count = index === rowNumber ? columnNumber : columnNumber + 1
+          colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
+          return curColor
+        })
+        
+        rowColors.reduce((prevColor, curColor, index) => {
+          const count = index === rowNumber ? columnNumber : columnNumber + 1
+          colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
+          return curColor
+        })
+      }
     }
     // nice matrix automatically
     const matrix = new ColorMatrix(colorMatrix)

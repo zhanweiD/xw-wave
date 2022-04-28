@@ -115,18 +115,18 @@ export default class MatrixLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {shape} = this.options
     const [minValue, maxValue] = this.#data.range()
-    const {circleSize, rect, circle, text} = this.#style
+    const {circleSize, rect, circle, text, rangeColorList} = this.#style
     // color is related with value
     const colorNumber = Number(Number(maxValue - minValue + 1).toFixed(0))
     const scaleRectColor = new Scale({
       type: 'ordinal',
       domain: d3.range(0, maxValue - minValue, 1),
-      range: this.getColorMatrix(1, colorNumber, rect.fill, false).matrix[0],
+      range: this.getColorMatrix(1, colorNumber, rangeColorList || rect.fill, false).matrix[0],
     })
     const scaleCircleColor = new Scale({
       type: 'ordinal',
       domain: d3.range(0, maxValue - minValue, 1),
-      range: this.getColorMatrix(1, colorNumber, circle.fill, false).matrix[0],
+      range: this.getColorMatrix(1, colorNumber, rangeColorList || circle.fill, false).matrix[0],
     })
     this.#rectData.forEach(group => {
       group.forEach(item => (item.color = scaleRectColor(Math.round(item.value - minValue))))

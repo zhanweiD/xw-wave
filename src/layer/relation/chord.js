@@ -62,9 +62,9 @@ export default class ChordLayer extends LayerBase {
     const {left, top, width, height} = this.options.layout
     const maxRadius = Math.min(width, height) / 2
     const [centerX, centerY] = [left + width / 2, top + height / 2]
-    const {arcWidth, labelOffset, text, arc} = this.#style
+    const {arcWidth, labelOffset, text, arc, rangeColorList} = this.#style
     const radius = maxRadius - arcWidth
-    const colorMatrix = this.getColorMatrix(1, this.#arcData.length, arc.fill)
+    const colorMatrix = this.getColorMatrix(1, this.#arcData.length, rangeColorList || arc.fill)
     // extra arc data
     this.#arcData = this.#arcData.map((item, i) => ({
       ...item,

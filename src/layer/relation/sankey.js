@@ -109,7 +109,7 @@ export default class SankeyLayer extends LayerBase {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {links} = this.#data.data
     const {type, layout, createGradient} = this.options
-    const {labelOffset, nodeWidth, nodeGap, ribbonGap, align, text, rect} = this.#style
+    const {labelOffset, nodeWidth, nodeGap, ribbonGap, align, text, rect, rangeColorList} = this.#style
     const [levels, groups] = [this.#data.get('levels'), this.#data.get('groups')]
     // Calculate the theoretical maximum value including the gap
     const maxNumbers = levels.map((level, i) => {
@@ -127,7 +127,7 @@ export default class SankeyLayer extends LayerBase {
     const groupNodeWiths = range(0, groups.length - 1).map(i => getAttr(nodeWidth, i, 5))
     const groupNodeGap = (totalLength - sum(groupNodeWiths)) / (groups.length - 1)
     this.#rectData = groups.map((groupedNodes, i) => {
-      const colorMatrix = this.getColorMatrix(groupedNodes.length, 1, rect.fill)
+      const colorMatrix = this.getColorMatrix(groupedNodes.length, 1, rangeColorList || rect.fill)
       return groupedNodes.map((item, j) => ({
         y: layout.top,
         x: layout.left + groupNodeGap * i + sum(groupNodeWiths.slice(0, i)),

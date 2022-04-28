@@ -63,7 +63,7 @@ export default class PackLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {left, top} = this.options.layout
-    const {padding, circle, text} = this.#style
+    const {padding, circle, text, rangeColorList} = this.#style
     const pack = d3.pack().size(this.#data.get('view')).padding(padding)
     const nodes = pack(this.#data.get('treeData')).descendants()
     const [offsetX, offsetY] = this.#data.get('offset')
@@ -81,7 +81,7 @@ export default class PackLayer extends LayerBase {
       .map(value => this.#circleData.filter(({height}) => height === value))
       .reverse()
     // color is related to height
-    const colorMatrix = this.getColorMatrix(this.#circleData.length, 1, circle.fill)
+    const colorMatrix = this.getColorMatrix(this.#circleData.length, 1, rangeColorList || circle.fill)
     this.#circleData.forEach((group, i) => group.forEach(item => (item.color = colorMatrix.get(i, 0))))
     // label data
     this.#textData = this.#circleData.map(group => {

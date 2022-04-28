@@ -104,9 +104,9 @@ export default class RadarLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {circleSize, polygon} = this.#style
+    const {circleSize, polygon, rangeColorList} = this.#style
     // get colors
-    const colorMatrix = this.getColorMatrix(1, this.#polygonData[0].length, polygon.fill)
+    const colorMatrix = this.getColorMatrix(1, this.#polygonData[0].length, rangeColorList || polygon.fill)
     this.#polygonData.forEach(group => {
       group.forEach((item, i) => {
         item.fill = colorMatrix.get(0, i)

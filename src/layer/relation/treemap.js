@@ -75,9 +75,9 @@ export default class TreemapLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {rect, align, verticalAlign, labelGap, text} = this.#style
+    const {rect, align, verticalAlign, labelGap, text, rangeColorList} = this.#style
     // get colors
-    const colorMatrix = this.getColorMatrix(this.#rectData.length, 1, rect.fill)
+    const colorMatrix = this.getColorMatrix(this.#rectData.length, 1, rangeColorList || rect.fill)
     this.#rectData.forEach((item, i) => (item.color = colorMatrix.get(i, 0)))
     // basic text data including label and value
     this.#textData = this.#rectData.map(({x, y, width, height, value, name}) => {

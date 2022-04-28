@@ -89,9 +89,9 @@ export default class ScatterLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {pointSize, text, point} = this.#style
+    const {pointSize, text, point, rangeColorList} = this.#style
     // get colors
-    const colorMatrix = this.getColorMatrix(this.#pointData.length, 1, point.fill)
+    const colorMatrix = this.getColorMatrix(this.#pointData.length, 1, rangeColorList || point.fill)
     this.#pointData.forEach((group, i) => group.forEach(item => (item.color = colorMatrix.get(i, 0))))
     // inject point size data
     const valueIndex = this.#data.data.findIndex(({header}) => header === 'value')

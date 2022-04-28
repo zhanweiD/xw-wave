@@ -96,7 +96,7 @@ export default class TreeLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelOffset, labelPosition, circleSize, align, text, circle, curve} = this.#style
+    const {labelOffset, labelPosition, circleSize, align, text, circle, curve, rangeColorList} = this.#style
     const {type, layout} = this.options
     const {links} = this.#data.data
     const groups = this.#data.get('groups')
@@ -109,7 +109,7 @@ export default class TreeLayer extends LayerBase {
     this.#circleData = []
     for (let i = 0; i < groups.length; i++) {
       const groupedNodes = groups[groups.length - i - 1]
-      const colorMatrix = this.getColorMatrix(groupedNodes.length, 1, circle.fill)
+      const colorMatrix = this.getColorMatrix(groupedNodes.length, 1, rangeColorList || circle.fill)
       this.#circleData[i] = groupedNodes.map((item, j) => ({
         cx: layout.left + scaleX(item.level),
         cy: layout.top + (isNumber(item.order) ? scaleY(item.order) : item.cy),

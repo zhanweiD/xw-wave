@@ -144,7 +144,7 @@ export default class ArcLayer extends LayerBase {
     const {type, mode, layout} = this.options
     const {left, top, width, height} = layout
     const {scaleAngle, scaleRadius} = this.#scale
-    const {innerRadius, arc} = this.#style
+    const {innerRadius, arc, rangeColorList} = this.#style
     const headers = this.#data.data.map(({header}) => header)
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const arcCenter = {x: left + width / 2, y: top + height / 2}
@@ -177,7 +177,7 @@ export default class ArcLayer extends LayerBase {
     }
     // get colors
     if (this.#arcData[0]?.length > 1) {
-      const colorMatrix = this.getColorMatrix(1, this.#arcData[0].length, arc.fill)
+      const colorMatrix = this.getColorMatrix(1, this.#arcData[0].length, rangeColorList || arc.fill)
       this.#arcData.forEach(group => group.forEach((item, i) => (item.color = colorMatrix.get(0, i))))
       this.#data.set('legendData', {
         colorMatrix,
@@ -189,7 +189,7 @@ export default class ArcLayer extends LayerBase {
         })),
       })
     } else if (this.#arcData[0]?.length === 1) {
-      const colorMatrix = this.getColorMatrix(this.#arcData.length, 1, arc.fill)
+      const colorMatrix = this.getColorMatrix(this.#arcData.length, 1, rangeColorList || arc.fill)
       this.#arcData.forEach((group, i) => (group[0].color = colorMatrix.get(i, 0)))
       this.#data.set('legendData', {
         colorMatrix,

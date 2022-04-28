@@ -79,11 +79,11 @@ export default class DashboardLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {left, top, width, height} = this.options.layout
-    const {step, arcWidth, valueGap, startAngle, endAngle, tickSize, pointer} = this.#style
+    const {step, arcWidth, valueGap, startAngle, endAngle, tickSize, pointer, rangeColorList} = this.#style
     const {valueText, tickText, labelText, arc} = this.#style
     const {value, label, minValue, maxValue, fragments} = this.#data.data
     const maxRadius = Math.min(width, height) / 2
-    const colorMatrix = this.getColorMatrix(1, fragments.length, arc.fill)
+    const colorMatrix = this.getColorMatrix(1, fragments.length, rangeColorList || arc.fill)
     const arcCenter = {x: left + width / 2, y: top + height / 2}
     const scaleAngle = new Scale({
       type: 'linear',
