@@ -1,3 +1,4 @@
+// 绘制线性渐变
 import * as d3 from 'd3'
 
 export default function drawGradient({
@@ -7,6 +8,14 @@ export default function drawGradient({
   direction,
 }) {
   const defs = container.append('defs')
+  // 径向渐变
+  // const radialGradient = defs.append('radialGradient')
+  //   .attr('id', id)
+  //   .attr('cx', '50%')
+  //   .attr('cy', '50%')
+  //   .attr('r', '50%')
+  //   .attr('fx', '50%')
+  //   .attr('fx', '50%')
   const linerGradient = defs.append('linearGradient')
     .attr('id', id)
     .attr('x1', '0%')
