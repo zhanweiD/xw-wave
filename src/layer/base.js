@@ -202,6 +202,7 @@ export default class LayerBase {
    * @param {Function} filter data handler
    * @returns is the data correct or not
    */
+  // 创建数据
   createData(dataType, currentData, incomingData, filter) {
     if (!incomingData) {
       return currentData
@@ -209,6 +210,7 @@ export default class LayerBase {
     if (!(incomingData instanceof dataMapping[dataType])) {
       throw new Error('Require the right data processor')
     }
+   
     return filter ? filter(incomingData) : incomingData
   }
 

@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 // Do this as the first thing so that any code reading it knows the right env.
 process.env.BABEL_ENV = 'production'
 process.env.NODE_ENV = 'production'
@@ -85,6 +86,7 @@ checkBrowsers(paths.appPath, isInteractive)
         WARN_AFTER_CHUNK_GZIP_SIZE
       )
 
+      // eslint-disable-next-line import/no-dynamic-require
       const appPackage = require(paths.appPackageJson)
       const publicUrl = paths.publicUrlOrPath
       const {publicPath} = config.output
@@ -156,6 +158,7 @@ function build(previousFileSizes) {
       ) {
         console.log(
           chalk.yellow(
+            // eslint-disable-next-line no-useless-concat
             '\nTreating warnings as errors because process.env.CI = true.\n' + 'Most CI servers set it automatically.\n'
           )
         )

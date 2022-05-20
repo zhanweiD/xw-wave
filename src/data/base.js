@@ -10,7 +10,7 @@ export default class DataBase {
     this.options = merge({order: null}, options)
     this.log = createLog('src/data/base')
   }
-
+  
   set(key, value) {
     this.#storage[key] = value
   }
@@ -43,8 +43,8 @@ export default class DataBase {
     return true
   }
 
-  isRelation = (nodeTableList, linkTableList) => {
-    if (!this.isTableList(nodeTableList) || !this.isTableList(linkTableList)) {
+  isRelation = nodeTableList => {
+    if (!this.isTableList(nodeTableList)) {
       return false
     }
     return true
