@@ -1,4 +1,3 @@
-import {isArray} from 'lodash'
 import Chart from './chart'
 import DataBase from '../data/base'
 import TableList from '../data/table-list'
@@ -6,6 +5,9 @@ import Table from '../data/table'
 import Random from '../data/random'
 import Relation from '../data/relation'
 import createLog from '../utils/create-log'
+import conversionData from '../utils/conversion'
+import sanKeyData from '../utils/sankey'
+import chordData from '../utils/chordData'
 
 const isAxisLayer = layerType => layerType === 'axis'
 const isLegendLayer = layerType => layerType === 'legend'
@@ -17,21 +19,22 @@ const log = createLog('src/chart/create')
 const createLayer = (chart, config) => {
   const {type, options, data, scale, style, animation, event} = config
   const layer = chart.createLayer(type, {...options, layout: chart.layout[options.layout]})
-  // data structure judgement
   let dataSet = data
   if (type === 'legend') {
     dataSet = chart.layers.map(({instance}) => instance)
   } else if (dataBase.isTable(data) || data?.type === 'table') {
     dataSet = new Table(dataBase.isTable(data) ? data : Random.table(data))
-  } else if (isArray(data) && data.length === 2 && dataBase.isRelation(data[0], data[1])) {
-    if (type === 'chord') {
-      dataSet = new Table(dataBase.relationToTable(data[0], data[1]))
-    } else {
-      dataSet = new Relation(data[0], data[1])
-    }
   } else if (type !== 'indicator' && (dataBase.isTableList(data) || data?.type === 'tableList')) {
     if (type === 'matrix') {
       dataSet = new Table(dataBase.tableListToTable(data))
+    } else if (['edgeBundle', 'pack', 'tree', 'treemap', 'tabMenu'].indexOf(type) !== -1) {
+      const source = conversionData(data)
+      dataSet = new Relation(source[0], source[1])
+    } else if (type === 'sankey') {
+      const source = sanKeyData(data)
+      dataSet = new Relation(source[0], source[1])
+    } else if (type === 'chord') {
+      dataSet = new Table(chordData(data))
     } else {
       dataSet = new TableList(dataBase.isTableList(data) ? data : Random.tableList(data))
     }
