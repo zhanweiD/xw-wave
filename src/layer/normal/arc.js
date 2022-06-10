@@ -144,7 +144,7 @@ export default class ArcLayer extends LayerBase {
     const {type, mode, layout} = this.options
     const {left, top, width, height} = layout
     const {scaleAngle, scaleRadius} = this.#scale
-    const {innerRadius, arc, rangeColorList} = this.#style
+    const {innerRadius, arc, rangeColorList, shape} = this.#style
     const headers = this.#data.data.map(({header}) => header)
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const arcCenter = {x: left + width / 2, y: top + height / 2}
@@ -183,7 +183,7 @@ export default class ArcLayer extends LayerBase {
         colorMatrix,
         filter: 'column',
         list: this.#data.data.slice(1).map(({header}, i) => ({
-          shape: 'rect',
+          shape: shape || 'rect',
           label: header,
           color: colorMatrix.get(0, i),
         })),

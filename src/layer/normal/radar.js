@@ -104,7 +104,7 @@ export default class RadarLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {circleSize, polygon, rangeColorList} = this.#style
+    const {circleSize, polygon, rangeColorList, shape} = this.#style
     // get colors
     const colorMatrix = this.getColorMatrix(1, this.#polygonData[0].length, rangeColorList || polygon.fill)
     this.#polygonData.forEach(group => {
@@ -135,7 +135,7 @@ export default class RadarLayer extends LayerBase {
       filter: 'column',
       list: this.#data.data.slice(1).map(({header}, i) => ({
         label: header,
-        shape: 'broken-line',
+        shape: shape || 'broken-line',
         color: colorMatrix.get(0, i),
       })),
     })

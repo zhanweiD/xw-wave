@@ -322,9 +322,10 @@ export default class RectLayer extends LayerBase {
   }
 
   setStyle(style) {
+    this.#style = this.createStyle(defaultStyle, this.#style, style)
+    const {labelPosition, rectOffset, bandZoomFactor, fixedLength, shape, colorList} = this.#style
     const {type, mode, id} = this.options
     this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
-    const {labelPosition, rectOffset, bandZoomFactor, fixedLength, colorList} = this.#style
     // get colors
     let colorMatrix
     if (this.#rectData[0]?.length > 1) {
@@ -405,7 +406,7 @@ export default class RectLayer extends LayerBase {
         colorMatrix,
         filter: 'column',
         list: this.#data.data.slice(1).map(({header}, i) => ({
-          shape: 'rect',
+          shape: shape || 'rect',
           label: header,
           // color: rect.colorType === 'gradientColor' ? `url(#${id})` : colorMatrix.get(0, i),
           color: ((i < colorList?.length) || !colorList) ? colorMatrix.get(0, i) : colorList?.[colorList?.length - 1],

@@ -134,6 +134,7 @@ export default class LegendLayer extends LayerBase {
     this.#layers.forEach(layer => {
       if (layer.data instanceof DataBase && layer.data.get('legendData')) {
         const {list} = layer.data.get('legendData')
+        console.log(layer.data.get('legendData'))
         this.#data.shape.push(...list.map(({shape}) => shape))
         this.#data.text.push(...list.map(({label}) => label))
         this.#data.shapeColors.push(...list.map(({color}) => color))
@@ -214,6 +215,7 @@ export default class LegendLayer extends LayerBase {
   }
 
   setStyle(style) {
+    console.log(style)
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {align, verticalAlign, direction, shapeSize, offset, gap} = this.#style
     const {left, top, width, height} = this.options.layout
