@@ -322,10 +322,9 @@ export default class RectLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition, rectOffset, bandZoomFactor, fixedLength, shape, colorList} = this.#style
     const {type, mode, id} = this.options
     this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
+    const {labelPosition, rectOffset, bandZoomFactor, fixedLength, shape, colorList} = this.#style
     // get colors
     let colorMatrix
     if (this.#rectData[0]?.length > 1) {
