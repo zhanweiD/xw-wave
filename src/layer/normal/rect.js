@@ -322,16 +322,19 @@ export default class RectLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition, rectOffset, bandZoomFactor, fixedLength, rect, rangeColorList} = this.#style
     const {type, mode, id} = this.options
+    this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
+    const {labelPosition, rectOffset, bandZoomFactor, fixedLength, colorList} = this.#style
     // get colors
     let colorMatrix
     if (this.#rectData[0]?.length > 1) {
-      colorMatrix = this.getColorMatrix(1, this.#rectData[0]?.length, rangeColorList || rect.fill)
+      // colorMatrix = this.getColorMatrix(1, this.#rectData[0]?.length, rangeColors || rect.fill)
+      colorMatrix = this.getColorMatrix(1, this.#rectData[0]?.length, colorList)
       this.#rectData.forEach(group => group.forEach((item, i) => (item.color = colorMatrix.get(0, i))))
     } else if (this.#rectData[0]?.length === 1) {
-      colorMatrix = this.getColorMatrix(this.#rectData.length, 1, rangeColorList || rect.fill)
+      // colorMatrix = this.getColorMatrix(this.#rectData.length, 1, rangeColors || rect.fill)
+      // console.log(colorList)
+      colorMatrix = this.getColorMatrix(this.#rectData.length, 1, colorList)
       this.#rectData.forEach((group, i) => (group[0].color = colorMatrix.get(i, 0)))
     }
     // horizontal scaling ratio
@@ -404,8 +407,8 @@ export default class RectLayer extends LayerBase {
         list: this.#data.data.slice(1).map(({header}, i) => ({
           shape: 'rect',
           label: header,
-          // color: colorMatrix.get(0, i),
-          color: rect.colorType === 'gradientColor' ? `url(#${id})` : colorMatrix.get(0, i),
+          // color: rect.colorType === 'gradientColor' ? `url(#${id})` : colorMatrix.get(0, i),
+          color: ((i < colorList?.length) || !colorList) ? colorMatrix.get(0, i) : colorList?.[colorList?.length - 1],
         })),
       })
     }
@@ -413,25 +416,26 @@ export default class RectLayer extends LayerBase {
 
   draw() {
     const {type} = this.options
-    const {unit = {}, rectInterval, rect} = this.#style
-    const {id} = this.options
-    let gradientColor
-    if (rect.colorType === 'gradientColor') {
-      this.drawBasic('gradient', [{
-        ...rect, 
-        id, 
-        direction: type === CHART.COLUMN ? 'toY' : 'toX',
-      }])
-      gradientColor = `url(#${id})`
-    }
-
-    const rectData = this.#rectData.map(group => ({
+    const {unit = {}, rectInterval, colorList} = this.#style
+    // const {id} = this.options
+    // let gradientColor
+    // if (rect.colorType === 'gradientColor') {
+    //   this.drawBasic('gradient', [{
+    //     ...rect, 
+    //     id, 
+    //     direction: type === CHART.COLUMN ? 'toY' : 'toX',
+    //   }])
+    //   gradientColor = `url(#${id})`
+    // }
+    const rectData = this.#rectData.map((group, index) => ({
       data: group.map(({width, height}) => [width, height]),
       source: group.map(item => item.source),
       position: group.map(({x, y}) => [x, y]),
       transformOrigin: type === CHART.COLUMN ? 'bottom' : 'left',
       ...this.#style.rect,
-      fill: group.map(({color}) => gradientColor || color),
+      fill: colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color),
+      // fill: group.map(({color}) => color),
+      // fill: group.map(({color}) => gradientColor || color),
       rectInterval,
       type,
     }))

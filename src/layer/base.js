@@ -95,6 +95,21 @@ export default class LayerBase {
     this.draw()
   }
 
+  setFill(group, index, colorList) {
+    let fillColor
+    if (group.length === 1 || !isArray(group)) {
+      if (colorList.length === 1) [fillColor] = colorList
+      else if (index < colorList.length) fillColor = colorList[index]
+      else fillColor = colorList[colorList.length - 1]
+      if (!fillColor) fillColor = group[0].color
+    } else {
+      fillColor = group.map(({color}, i) => {
+        return (i < colorList.length ? colorList[i] : colorList[colorList.length - 1]) || color
+      })
+    }
+    return fillColor
+  }
+
   /**
    * color enhance function
    * @param {*} rowNumber
@@ -135,35 +150,36 @@ export default class LayerBase {
       return new ColorMatrix(colorMatrix)
     }
     // new color matrix
-    if (columnNumber === 1) {
-      colorMatrix = chroma
+    //if (columnNumber === 1) {
+    // colorMatrix = chroma
+    //   .scale(originColors)
+    //   .mode('lch')
+    //   .colors(rowNumber)
+    //   .map(color => [color])
+    //colorMatrix = [originColors, originColors]
+    //} else {
+    if (isArray(customColors)) {
+      // 多色配置，这里只取首位生成渐变，故去除原先生色逻辑
+      colorMatrix = [originColors, originColors]
+    } else {
+      const rowColors = chroma
         .scale(originColors)
         .mode('lch')
-        .colors(rowNumber)
-        .map(color => [color])
-    } else {
-      if (isArray(customColors)) {
-        // 多色配置，这里只取首位生成渐变，故去除原先生色逻辑
-        colorMatrix = [originColors, originColors]
-      } else {
-        const rowColors = chroma
-          .scale(originColors)
-          .mode('lch')
-          .colors(rowNumber + 1)
+        .colors(rowNumber + 1)
         // unfold: 1 dimension => 2 dimensions
-        rowColors.reduce((prevColor, curColor, index) => {
-          const count = index === rowNumber ? columnNumber : columnNumber + 1
-          colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
-          return curColor
-        })
+      rowColors.reduce((prevColor, curColor, index) => {
+        const count = index === rowNumber ? columnNumber : columnNumber + 1
+        colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
+        return curColor
+      })
         
-        rowColors.reduce((prevColor, curColor, index) => {
-          const count = index === rowNumber ? columnNumber : columnNumber + 1
-          colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
-          return curColor
-        })
-      }
+      rowColors.reduce((prevColor, curColor, index) => {
+        const count = index === rowNumber ? columnNumber : columnNumber + 1
+        colorMatrix.push(chroma.scale([prevColor, curColor]).mode('lch').colors(count))
+        return curColor
+      })
     }
+    // }
     // nice matrix automatically
     const matrix = new ColorMatrix(colorMatrix)
     nice && !customColors && matrix.nice()
@@ -219,9 +235,27 @@ export default class LayerBase {
    * @param {Object} defaultStyle
    * @param {Object} currentStyle
    * @param {Object} incomingStyle
+   * @param {String} id options中的图表id
+   * @param {String} type options中的图表type
    * @returns correct styles
    */
-  createStyle(defaultStyle, currentStyle, incomingStyle = {}) {
+  createStyle(defaultStyle, currentStyle, incomingStyle = {}, id, type) {
+    // 统一处理图表颜色
+    if (incomingStyle.colorList) {
+      incomingStyle.colorList = incomingStyle.colorList?.map((item, index) => {
+        // 如果是渐变创建色卡
+        if (item.length > 1) {
+          this.drawBasic('gradient', [{
+            gradientColor: item,
+            id: `${id}${index}`, 
+            direction: type === 'column' ? 'toY' : 'toX',
+          }])
+          return `url(#${id}${index})`
+        } 
+        // 不是渐变直接返回颜色
+        return item[0][0]
+      })
+    }
     const style = merge({}, defaultStyle, currentStyle, incomingStyle)
     return style
   }

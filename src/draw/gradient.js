@@ -1,4 +1,4 @@
-// 绘制线性渐变
+// 绘制线性渐变色板
 import * as d3 from 'd3'
 
 export default function drawGradient({
@@ -16,13 +16,14 @@ export default function drawGradient({
   //   .attr('r', '50%')
   //   .attr('fx', '50%')
   //   .attr('fx', '50%')
+  // 控制渐变方向，后续需要扩展支持自定义
   const linerGradient = defs.append('linearGradient')
     .attr('id', id)
     .attr('x1', '0%')
     .attr('y1', direction === 'toY' ? '100%' : '0%')
     .attr('x2', direction === 'toX' ? '100%' : '0%')
     .attr('y2', '0%')
-  gradientColor.forEach((item, i) => {
+  gradientColor.reverse().forEach(item => {
     const color = item[0]
       .replace(/rgba\(/i, '')
       .replace(/rgb\(/i, '')
@@ -34,7 +35,8 @@ export default function drawGradient({
     // 定义渐变色带，可以参考SVG的定义
     const a = d3.rgb(inspectColor[0], inspectColor[1], inspectColor[2], inspectColor[3])
     linerGradient.append('stop')
-      .attr('offset', `${(100 / (gradientColor.length - 1)) * i}%`)
+      // .attr('offset', `${(100 / (gradientColor.length - 1)) * i}%`)
+      .attr('offset', `${(1 - item[1]) * 100}%`)
       .style('stop-color', a.toString())
   })
 }

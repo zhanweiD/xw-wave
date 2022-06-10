@@ -128,12 +128,14 @@ export default class LineLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {layout, mode, createGradient, id} = this.options
-    const {labelPosition, pointSize, text, curve, rangeColorList} = this.#style
+    const {layout, mode, createGradient, id, type} = this.options
+    this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
+    // this.#style = this.createStyle(defaultStyle, this.#style, style)
+    const {labelPosition, pointSize, text, colorList} = this.#style
     const {top, height} = layout
     // get the color for each line
-    const colorMatrix = this.getColorMatrix(1, this.#curveData[0]?.length, rangeColorList || curve.stroke)
+    const colorMatrix = this.getColorMatrix(1, this.#curveData[0]?.length, colorList)
+    // const colorMatrix = this.getColorMatrix(1, this.#curveData[0]?.length, rangeColorList || curve.stroke)
     this.#curveData.forEach(group => group.forEach((item, i) => (item.color = colorMatrix.get(0, i))))
     // line label
     this.#textData = this.#curveData.map(group => {
@@ -142,14 +144,17 @@ export default class LineLayer extends LayerBase {
       })
     })
     // point data
-    this.#pointData = this.#curveData.map(group => group.map(item => ({...item, r: pointSize / 2})))
+    this.#pointData = this.#curveData.map(group => group.map((item, i) => ({
+      ...item, 
+      color: ((i < colorList?.length) || !colorList) ? colorMatrix.get(0, i) : colorList?.[colorList?.length - 1],
+      r: pointSize / 2})))
     // area data
     this.#areaData = this.#curveData.map((group, i) => {
       return group.map(({y, color, ...item}, j) => ({
         y0: y,
         y1: mode === MODE.STACK && j !== 0 ? this.#curveData[i][j - 1].y : height + top,
         // TODO: refresh gradient error
-        fill: !i && createGradient({type: 'linear', direction: 'vertical', colors: [color, chroma(color).alpha(0)]}),
+        fill: !i && createGradient({type: 'linear', direction: 'vertical', colors: [color, colorList?.[i] || chroma(color).alpha(0)]}),
         ...item,
       }))
     })
@@ -160,7 +165,8 @@ export default class LineLayer extends LayerBase {
       list: this.#data.data.slice(1).map(({header}, i) => ({
         label: header,
         shape: 'broken-line',
-        color: curve.colorType === 'gradientColor' ? `url(#${id})` : colorMatrix.get(0, i),
+        color: ((i < colorList?.length) || !colorList) ? colorMatrix.get(0, i) : colorList?.[colorList?.length - 1],
+        // color: curve.colorType === 'gradientColor' ? `url(#${id})` : colorMatrix.get(0, i),
         // color: colorMatrix.get(0, i),
       })),
     })
@@ -187,27 +193,37 @@ export default class LineLayer extends LayerBase {
 
   draw() {
     const {curve} = this.#style.curve
-    const {id} = this.options
-    let gradientColor
-    if (this.#style.curve.colorType === 'gradientColor') {
-      this.drawBasic('gradient', [{
-        ...this.#style.curve, 
-        id,
-        direction: 'toX',
-      }])
-      gradientColor = `url(#${id})`
-    }
-    const curveData = this.#curveData[0].map(({color}, index) => {
+    const {colorList} = this.#style
+    // const {id} = this.options
+    // let gradientColor
+    // if (this.#style.curve.colorType === 'gradientColor') {
+    //   this.drawBasic('gradient', [{
+    //     ...this.#style.curve, 
+    //     id,
+    //     direction: 'toX',
+    //   }])
+    //   gradientColor = `url(#${id})`
+    // }
+    const curveData = this.#curveData[0].map((group, index) => {
       const data = this.#curveData.map(item => [item[index].x, isNumber(item[index].value) && item[index].y])
-      return {data: this.#fallbackFilter(data), ...this.#style.curve, stroke: gradientColor || color}
+      return {
+        data: this.#fallbackFilter(data), 
+        ...this.#style.curve, 
+        stroke: colorList ? this.setFill(group, index, colorList) : group.color,
+      }
     })
-    const areaData = this.#areaData[0].map(({fill}, index) => {
+    const areaData = this.#areaData[0].map((group, index) => {
       const data = this.#areaData.map(item => [
         item[index].x,
         isNumber(item[index].value) && item[index].y0,
         item[index].y1,
       ])
-      return {data: this.#fallbackFilter(data), ...this.#style.area, curve, fill: gradientColor || fill}
+      return {
+        data: this.#fallbackFilter(data), 
+        ...this.#style.area, 
+        curve, 
+        fill: colorList ? this.setFill(group, index, colorList) : group.fill,
+      }
     })
     const textData = this.#textData.map(group => ({
       data: group.map(({value}) => value),
@@ -219,7 +235,9 @@ export default class LineLayer extends LayerBase {
       position: group.map(({x, y}) => [x, y]),
       source: group.map(({source}) => source),
       ...this.#style.point,
-      stroke: group.map(({color}) => gradientColor || color),
+      // stroke: colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color),
+      stroke: group.map(({color}) => color),
+      // stroke: group.map(({color}) => gradientColor || color),
     }))
 
     const {unit = {}} = this.#style
