@@ -22,6 +22,7 @@ const createLayer = (chart, config) => {
   let dataSet = data
   if (type === 'legend') {
     dataSet = chart.layers.map(({instance}) => instance)
+    // console.log(chart, 'dataSet.legend')
   } else if (dataBase.isTable(data) || data?.type === 'table') {
     dataSet = new Table(dataBase.isTable(data) ? data : Random.table(data))
   } else if (type !== 'indicator' && (dataBase.isTableList(data) || data?.type === 'tableList')) {
@@ -63,6 +64,7 @@ const createChart = (schema, existedChart) => {
   const axisLayerConfig = layers.find(({type}) => isAxisLayer(type))
   const legendLayerConfig = layers.find(({type}) => isLegendLayer(type))
   // layer instance
+  console.log(legendLayerConfig)
   normalLayerConfigs.map(layer => createLayer(chart, layer))
   axisLayerConfig && createLayer(chart, axisLayerConfig)
   // axis layer control all scales

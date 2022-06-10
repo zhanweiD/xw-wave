@@ -89,7 +89,7 @@ export default class ScatterLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {pointSize, text, point, rangeColorList} = this.#style
+    const {pointSize, text, point, rangeColorList, shape} = this.#style
     // get colors
     const colorMatrix = this.getColorMatrix(this.#pointData.length, 1, rangeColorList || point.fill)
     this.#pointData.forEach((group, i) => group.forEach(item => (item.color = colorMatrix.get(i, 0))))
@@ -120,7 +120,7 @@ export default class ScatterLayer extends LayerBase {
       colorMatrix,
       filter: 'row',
       list: this.#pointData.map((group, i) => ({
-        shape: 'circle',
+        shape: shape || 'circle',
         label: group[0].category,
         color: colorMatrix.get(i, 0),
       })),

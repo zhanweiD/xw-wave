@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import * as d3 from 'd3'
 import {isNumber} from 'lodash'
 import chroma from 'chroma-js'
@@ -130,7 +131,7 @@ export default class LineLayer extends LayerBase {
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {layout, mode, createGradient, id} = this.options
-    const {labelPosition, pointSize, text, curve, rangeColorList} = this.#style
+    const {labelPosition, pointSize, text, curve, rangeColorList, shape} = this.#style
     const {top, height} = layout
     // get the color for each line
     const colorMatrix = this.getColorMatrix(1, this.#curveData[0]?.length, rangeColorList || curve.stroke)
@@ -159,7 +160,7 @@ export default class LineLayer extends LayerBase {
       filter: 'column',
       list: this.#data.data.slice(1).map(({header}, i) => ({
         label: header,
-        shape: 'broken-line',
+        shape: shape || 'broken-line',
         color: curve.colorType === 'gradientColor' ? `url(#${id})` : colorMatrix.get(0, i),
         // color: colorMatrix.get(0, i),
       })),

@@ -64,7 +64,7 @@ export default class AuxiliaryLayer extends LayerBase {
 
   setStyle(style) {
     this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelPosition = POSITION.RIGHT, labelOffset, line, text} = this.#style
+    const {labelPosition = POSITION.RIGHT, labelOffset, line, text, shape} = this.#style
     // label number
     this.#textData = this.#lineData.map(({value, x1, y1, x2, y2}) => {
       return this.createText({
@@ -85,7 +85,7 @@ export default class AuxiliaryLayer extends LayerBase {
       filter: 'row',
       list: pureTableList.map(([label], i) => ({
         label,
-        shape: 'dotted-line',
+        shape: shape || 'dotted-line',
         color: colorMatrix.get(i, 0),
       })),
     })
