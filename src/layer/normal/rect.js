@@ -333,7 +333,6 @@ export default class RectLayer extends LayerBase {
       this.#rectData.forEach(group => group.forEach((item, i) => (item.color = colorMatrix.get(0, i))))
     } else if (this.#rectData[0]?.length === 1) {
       // colorMatrix = this.getColorMatrix(this.#rectData.length, 1, rangeColors || rect.fill)
-      // console.log(colorList)
       colorMatrix = this.getColorMatrix(this.#rectData.length, 1, colorList)
       this.#rectData.forEach((group, i) => (group[0].color = colorMatrix.get(i, 0)))
     }

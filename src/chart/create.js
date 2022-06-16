@@ -64,7 +64,6 @@ const createChart = (schema, existedChart) => {
   const axisLayerConfig = layers.find(({type}) => isAxisLayer(type))
   const legendLayerConfig = layers.find(({type}) => isLegendLayer(type))
   // layer instance
-  console.log(legendLayerConfig)
   normalLayerConfigs.map(layer => createLayer(chart, layer))
   axisLayerConfig && createLayer(chart, axisLayerConfig)
   // axis layer control all scales

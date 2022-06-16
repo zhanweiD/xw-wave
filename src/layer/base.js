@@ -95,6 +95,7 @@ export default class LayerBase {
     this.draw()
   }
 
+  // 设置图形填充色
   setFill(group, index, colorList) {
     let fillColor
     if (group.length === 1 || !isArray(group)) {

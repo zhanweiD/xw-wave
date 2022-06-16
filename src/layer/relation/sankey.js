@@ -58,7 +58,6 @@ export default class SankeyLayer extends LayerBase {
   }
 
   setData(relation, scales) {
-    console.log(relation)
     this.#data = this.createData('relation', this.#data, relation)
     const {nodes} = this.#data.data
     const {type, layout} = this.options

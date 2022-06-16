@@ -52,7 +52,7 @@ export default class ArcLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super({...defaultOptions, ...layerOptions}, chartOptions, ['arc', 'text'])
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['arc', 'text', 'gradient'])
     const {type, mode} = this.options
     this.className = `CHART-${mode}-${type}`
     this.tooltipTargets = ['arc']
@@ -140,11 +140,13 @@ export default class ArcLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {type, mode, layout} = this.options
+    const {type, mode, layout, id} = this.options
+    this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
+
     const {left, top, width, height} = layout
     const {scaleAngle, scaleRadius} = this.#scale
-    const {innerRadius, arc, rangeColorList, shape} = this.#style
+    const {innerRadius, colorList, shape} = this.#style
+
     const headers = this.#data.data.map(({header}) => header)
     const pureTableList = this.#data.transpose(this.#data.data.map(({list}) => list))
     const arcCenter = {x: left + width / 2, y: top + height / 2}
@@ -177,7 +179,7 @@ export default class ArcLayer extends LayerBase {
     }
     // get colors
     if (this.#arcData[0]?.length > 1) {
-      const colorMatrix = this.getColorMatrix(1, this.#arcData[0].length, rangeColorList || arc.fill)
+      const colorMatrix = this.getColorMatrix(1, this.#arcData[0].length, colorList)
       this.#arcData.forEach(group => group.forEach((item, i) => (item.color = colorMatrix.get(0, i))))
       this.#data.set('legendData', {
         colorMatrix,
@@ -185,11 +187,12 @@ export default class ArcLayer extends LayerBase {
         list: this.#data.data.slice(1).map(({header}, i) => ({
           shape: shape || 'rect',
           label: header,
-          color: colorMatrix.get(0, i),
+          // color: colorMatrix.get(0, i),
+          color: ((i < colorList?.length) || !colorList) ? colorMatrix.get(0, i) : colorList?.[colorList?.length - 1],
         })),
       })
     } else if (this.#arcData[0]?.length === 1) {
-      const colorMatrix = this.getColorMatrix(this.#arcData.length, 1, rangeColorList || arc.fill)
+      const colorMatrix = this.getColorMatrix(this.#arcData.length, 1, colorList)
       this.#arcData.forEach((group, i) => (group[0].color = colorMatrix.get(i, 0)))
       this.#data.set('legendData', {
         colorMatrix,
@@ -197,7 +200,8 @@ export default class ArcLayer extends LayerBase {
         list: pureTableList.map((item, i) => ({
           shape: 'rect',
           label: item[0],
-          color: colorMatrix.get(i, 0),
+          color: ((i < colorList?.length) || !colorList) ? colorMatrix.get(0, i) : colorList?.[colorList?.length - 1],
+          // color: colorMatrix.get(i, 0),
         })),
       })
     }
@@ -208,7 +212,8 @@ export default class ArcLayer extends LayerBase {
   }
 
   draw() {
-    const arcData = this.#arcData.map(group => ({
+    const {colorList} = this.#style
+    const arcData = this.#arcData.map((group, index) => ({
       data: group.map(({startAngle, endAngle, innerRadius, outerRadius}) => [
         startAngle,
         endAngle,
@@ -218,7 +223,9 @@ export default class ArcLayer extends LayerBase {
       source: group.map(({dimension, category, value}) => ({dimension, category, value})),
       position: group.map(({x, y}) => [x, y]),
       ...this.#style.arc,
-      fill: group.map(({color}) => color),
+      // fill: group.map(({color}) => color),
+      fill: colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color),
+
     }))
     const textData = this.#textData.map(group => ({
       data: group.map(({value}) => value),
