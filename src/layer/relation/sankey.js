@@ -51,7 +51,7 @@ export default class SankeyLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super({...defaultOptions, ...layerOptions}, chartOptions, ['rect', 'ribbon', 'text'])
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['rect', 'ribbon', 'text', 'gradient'])
     const {type} = this.options
     this.className = `chart-${type}-sankey`
     this.tooltipTargets = ['rect']
@@ -106,10 +106,11 @@ export default class SankeyLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {links} = this.#data.data
     const {type, layout, createGradient} = this.options
-    const {labelOffset, nodeWidth, nodeGap, ribbonGap, align, text, rect, rangeColorList} = this.#style
+    this.#style = this.createStyle(defaultStyle, this.#style, style, this.options.id, 'column')
+
+    const {links} = this.#data.data
+    const {labelOffset, nodeWidth, nodeGap, ribbonGap, align, text, colorList} = this.#style
     const [levels, groups] = [this.#data.get('levels'), this.#data.get('groups')]
     // Calculate the theoretical maximum value including the gap
     const maxNumbers = levels.map((level, i) => {
@@ -127,7 +128,7 @@ export default class SankeyLayer extends LayerBase {
     const groupNodeWiths = range(0, groups.length - 1).map(i => getAttr(nodeWidth, i, 5))
     const groupNodeGap = (totalLength - sum(groupNodeWiths)) / (groups.length - 1)
     this.#rectData = groups.map((groupedNodes, i) => {
-      const colorMatrix = this.getColorMatrix(groupedNodes.length, 1, rangeColorList || rect.fill)
+      const colorMatrix = this.getColorMatrix(groupedNodes.length, 1, colorList)
       return groupedNodes.map((item, j) => ({
         y: layout.top,
         x: layout.left + groupNodeGap * i + sum(groupNodeWiths.slice(0, i)),
@@ -233,19 +234,24 @@ export default class SankeyLayer extends LayerBase {
   }
 
   draw() {
-    const rectData = this.#rectData.map(group => ({
+    const {colorList} = this.#style
+    const rectData = this.#rectData.map((group, index) => ({
       data: group.map(({width, height}) => [width, height]),
       source: group.map(({dimension, name, value}) => ({dimension, category: name, value})),
       position: group.map(({x, y}) => [x, y]),
       transformOrigin: 'center',
       ...this.#style.rect,
-      fill: group.map(({color}) => color),
+      fill: colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color),
     }))
-    const ribbonData = this.#ribbonData.map(({x1, y1, x2, y2, x3, y3, x4, y4, color}) => ({
-      data: [this.#getPath([x1, y1, x3, y3, x4, y4, x2, y2])],
-      ...this.#style.ribbon,
-      fill: color,
-    }))
+    const ribbonData = this.#ribbonData.map((group, index) => {
+      const {x1, y1, x3, y3, x4, y4, x2, y2, color} = group
+      return {
+        data: [this.#getPath([x1, y1, x3, y3, x4, y4, x2, y2])],
+        ...this.#style.ribbon,
+        // fill: color,
+        fill: colorList ? this.setFill(group, index, colorList) : color,
+      }
+    })
     const textData = this.#textData.map(group => ({
       data: group.map(({value}) => value),
       position: group.map(({x, y}) => [x, y]),

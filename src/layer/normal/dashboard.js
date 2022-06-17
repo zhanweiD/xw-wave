@@ -1,3 +1,4 @@
+// 指标卡
 import {range} from 'd3'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
@@ -46,7 +47,7 @@ export default class DashboardLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    const subLayers = ['arc', 'pointer', 'pointerAnchor', 'tickLine', 'tickText', 'labelText', 'valueText']
+    const subLayers = ['arc', 'pointer', 'pointerAnchor', 'tickLine', 'tickText', 'labelText', 'valueText', 'gradient']
     super(layerOptions, chartOptions, subLayers)
     this.className = 'chart-dashboard'
   }
@@ -77,13 +78,15 @@ export default class DashboardLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
+    const {type, id} = this.options
+    this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
+
     const {left, top, width, height} = this.options.layout
-    const {step, arcWidth, valueGap, startAngle, endAngle, tickSize, pointer, rangeColorList} = this.#style
-    const {valueText, tickText, labelText, arc} = this.#style
+    const {step, arcWidth, valueGap, startAngle, endAngle, tickSize, pointer, colorList} = this.#style
+    const {valueText, tickText, labelText} = this.#style
     const {value, label, minValue, maxValue, fragments} = this.#data.data
     const maxRadius = Math.min(width, height) / 2
-    const colorMatrix = this.getColorMatrix(1, fragments.length, rangeColorList || arc.fill)
+    const colorMatrix = this.getColorMatrix(1, fragments.length, colorList)
     const arcCenter = {x: left + width / 2, y: top + height / 2}
     const scaleAngle = new Scale({
       type: 'linear',
@@ -159,11 +162,18 @@ export default class DashboardLayer extends LayerBase {
   }
 
   draw() {
-    const arcData = this.#arcData.map(item => {
+    const {colorList} = this.#style
+
+    const arcData = this.#arcData.map((item, index) => {
       const {x, y, startAngle, endAngle, innerRadius, outerRadius, color} = item
       const data = [[startAngle, endAngle, innerRadius, outerRadius]]
       const position = [[x, y]]
-      return {data, position, ...this.#style.arc, fill: color}
+      return {
+        data, 
+        position, 
+        ...this.#style.arc, 
+        fill: colorList ? this.setFill(item, index, colorList) : color,
+      }
     })
     const pointerData = {
       data: [[this.#pointerData.x1, this.#pointerData.y1, this.#pointerData.x2, this.#pointerData.y2]],

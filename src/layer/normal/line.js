@@ -131,7 +131,6 @@ export default class LineLayer extends LayerBase {
   setStyle(style) {
     const {layout, mode, createGradient, id, type} = this.options
     this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
-    // this.#style = this.createStyle(defaultStyle, this.#style, style)
     const {labelPosition, pointSize, text, colorList, shape} = this.#style
     const {top, height} = layout
     // get the color for each line

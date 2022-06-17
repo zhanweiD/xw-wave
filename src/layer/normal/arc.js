@@ -1,3 +1,4 @@
+// 饼图
 import LayerBase from '../base'
 import Scale from '../../data/scale'
 import {POSITION} from '../../utils/constants'

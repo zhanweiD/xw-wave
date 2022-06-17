@@ -45,7 +45,7 @@ export default class RadarLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super({...defaultOptions, ...layerOptions}, chartOptions, ['polygon', 'circle', 'text'])
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['polygon', 'circle', 'text', 'gradient'])
     const {mode} = this.options
     this.className = `chart-${mode}-radar`
     this.tooltipTargets = ['circle']
@@ -103,10 +103,12 @@ export default class RadarLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {circleSize, polygon, rangeColorList, shape} = this.#style
+    const {id, type} = this.options
+    this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
+
+    const {circleSize, colorList, shape} = this.#style
     // get colors
-    const colorMatrix = this.getColorMatrix(1, this.#polygonData[0].length, rangeColorList || polygon.fill)
+    const colorMatrix = this.getColorMatrix(1, this.#polygonData[0].length, colorList)
     this.#polygonData.forEach(group => {
       group.forEach((item, i) => {
         item.fill = colorMatrix.get(0, i)
@@ -136,27 +138,28 @@ export default class RadarLayer extends LayerBase {
       list: this.#data.data.slice(1).map(({header}, i) => ({
         label: header,
         shape: shape || 'broken-line',
-        color: colorMatrix.get(0, i),
+        color: ((i < colorList?.length) || !colorList) ? colorMatrix.get(0, i) : colorList?.[colorList?.length - 1],
       })),
     })
   }
 
   draw() {
+    const {colorList} = this.#style
     const polygonData = this.#polygonData[0]
-      .map(({fill, stroke, center}, index) => ({
-        position: [center.x, center.y],
+      .map((group, index) => ({
+        position: [group.center.x, group.center.y],
         data: [this.#polygonData.map(item => [item[index].x, item[index].y])],
         ...this.#style.polygon,
-        fill,
-        stroke,
+        fill: colorList ? this.setFill(group, index, colorList) : group.fill,
+        stroke: group.stroke,
       }))
       .reverse()
-    const circleData = this.#circleData.map(group => ({
+    const circleData = this.#circleData.map((group, index) => ({
       data: group.map(({r}) => [r, r]),
       position: group.map(({cx, cy}) => [cx, cy]),
       source: group.map(({dimension, category, value}) => ({dimension, category, value})),
       ...this.#style.circle,
-      fill: group.map(item => item.fill),
+      fill: colorList ? this.setFill(group, index, colorList) : group.map(item => item.fill),
     }))
     const textData = this.#textData.map(group => ({
       data: group.map(({value}) => value),

@@ -38,7 +38,7 @@ export default class ChordLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super(layerOptions, chartOptions, ['ribbon', 'arc', 'text'])
+    super(layerOptions, chartOptions, ['ribbon', 'arc', 'text', 'gradient'])
     this.className = 'chart-chord'
     this.tooltipTargets = ['arc']
   }
@@ -58,13 +58,15 @@ export default class ChordLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
+    const {id, type} = this.options
+    this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
+
     const {left, top, width, height} = this.options.layout
     const maxRadius = Math.min(width, height) / 2
     const [centerX, centerY] = [left + width / 2, top + height / 2]
-    const {arcWidth, labelOffset, text, arc, rangeColorList} = this.#style
+    const {arcWidth, labelOffset, text, colorList} = this.#style
     const radius = maxRadius - arcWidth
-    const colorMatrix = this.getColorMatrix(1, this.#arcData.length, rangeColorList || arc.fill)
+    const colorMatrix = this.getColorMatrix(1, this.#arcData.length, colorList)
     // extra arc data
     this.#arcData = this.#arcData.map((item, i) => ({
       ...item,
@@ -113,6 +115,7 @@ export default class ChordLayer extends LayerBase {
   }
 
   draw() {
+    const {colorList} = this.#style
     const arcData = {
       data: this.#arcData.map(({startAngle, endAngle, innerRadius, outerRadius}) => [
         startAngle,
@@ -123,13 +126,15 @@ export default class ChordLayer extends LayerBase {
       position: this.#arcData.map(({position}) => position),
       source: this.#arcData.map(({category, value}) => ({category, value})),
       ...this.#style.arc,
-      fill: this.#arcData.map(({color}) => color),
+      fill: this.#arcData.map((group, index) => {
+        return colorList ? this.setFill(group, index, colorList) : group.color
+      }),
     }
-    const ribbonData = this.#ribbonData.map(group => ({
+    const ribbonData = this.#ribbonData.map((group, index) => ({
       data: group.map(item => item.data),
       position: group.map(item => item.position),
       ...this.#style.ribbon,
-      fill: group.map(({color}) => color),
+      fill: colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color),
     }))
     const textData = {
       data: this.#textData.map(({value}) => value),

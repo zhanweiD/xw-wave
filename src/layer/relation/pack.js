@@ -29,7 +29,7 @@ export default class PackLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super({...defaultOptions, ...layerOptions}, chartOptions, ['circle', 'text'])
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['circle', 'text', 'gradient'])
     this.className = `chart${this.options.zoom ? '-zoom-' : '-'}pack`
     this.tooltipTargets = ['circle']
   }
@@ -61,9 +61,11 @@ export default class PackLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
+    const {id, type} = this.options
+    this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
+
     const {left, top} = this.options.layout
-    const {padding, circle, text, rangeColorList} = this.#style
+    const {padding, text, colorList} = this.#style
     const pack = d3.pack().size(this.#data.get('view')).padding(padding)
     const nodes = pack(this.#data.get('treeData')).descendants()
     const [offsetX, offsetY] = this.#data.get('offset')
@@ -81,7 +83,7 @@ export default class PackLayer extends LayerBase {
       .map(value => this.#circleData.filter(({height}) => height === value))
       .reverse()
     // color is related to height
-    const colorMatrix = this.getColorMatrix(this.#circleData.length, 1, rangeColorList || circle.fill)
+    const colorMatrix = this.getColorMatrix(this.#circleData.length, 1, colorList)
     this.#circleData.forEach((group, i) => group.forEach(item => (item.color = colorMatrix.get(i, 0))))
     // label data
     this.#textData = this.#circleData.map(group => {
@@ -98,12 +100,13 @@ export default class PackLayer extends LayerBase {
   }
 
   draw() {
-    const circleData = this.#circleData.map(group => ({
+    const {colorList} = this.#style
+    const circleData = this.#circleData.map((group, index) => ({
       data: group.map(({r}) => [r, r]),
       position: group.map(({cx, cy}) => [cx, cy]),
       source: group.map(({value}) => ({value})),
       ...this.#style.circle,
-      fill: group.map(({color}) => color),
+      fill: colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color),
     }))
     const textData = this.#textData.map(group => ({
       data: group.map(({value}) => value),

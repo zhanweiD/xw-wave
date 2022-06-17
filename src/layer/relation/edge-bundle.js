@@ -39,7 +39,7 @@ export default class EdgeBundleLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super(layerOptions, chartOptions, ['circle', 'curve', 'text'])
+    super(layerOptions, chartOptions, ['circle', 'curve', 'text', 'gradient'])
     this.className = 'chart-edge-bundle'
     this.tooltipTargets = ['circle']
   }
@@ -90,10 +90,12 @@ export default class EdgeBundleLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
+    const {id, type} = this.options
+    this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
+
     const {left, top, width, height} = this.options.layout
     const [centerX, centerY] = [left + width / 2, top + height / 2]
-    const {circleSize, labelOffset, text, circle, rangeColorList} = this.#style
+    const {circleSize, labelOffset, text, colorList} = this.#style
     const sizeScale = new Scale({
       type: 'linear',
       domain: [this.#data.get('minValue'), this.#data.get('maxValue')],
@@ -103,7 +105,7 @@ export default class EdgeBundleLayer extends LayerBase {
     this.#circleData.forEach(group => group.forEach(item => (item.r = sizeScale(item.source.value))))
     // colors for nodes and links
     const categorys = this.#data.get('categorys')
-    const colorMatrix = this.getColorMatrix(1, categorys.length, rangeColorList || circle.fill)
+    const colorMatrix = this.getColorMatrix(1, categorys.length, colorList)
     this.#circleData.forEach(group => {
       group.forEach(item => {
         item.color = colorMatrix.matrix[0][categorys.findIndex(value => value === item.source.category)]
@@ -130,23 +132,27 @@ export default class EdgeBundleLayer extends LayerBase {
   }
 
   draw() {
-    const curveData = this.#curveData.map(({x1, y1, x2, y2, curveX, curveY, color}) => ({
-      data: [
-        [
-          [x1, y1],
-          [curveX, curveY],
-          [x2, y2],
+    const {colorList} = this.#style
+    const curveData = this.#curveData.map((item, index) => {
+      const {x1, y1, x2, y2, curveX, curveY, color} = item
+      return {
+        data: [
+          [
+            [x1, y1],
+            [curveX, curveY],
+            [x2, y2],
+          ],
         ],
-      ],
-      ...this.#style.curve,
-      stroke: color,
-    }))
-    const circleData = this.#circleData.map(group => ({
+        ...this.#style.curve,
+        stroke: colorList ? this.setFill(item, index, colorList) : color,
+      }
+    })
+    const circleData = this.#circleData.map((group, index) => ({
       data: group.map(({r}) => [r, r]),
       position: group.map(({cx, cy}) => [cx, cy]),
       source: group.map(item => ({...item.source, dimension: item.source.name})),
       ...this.#style.circle,
-      fill: group.map(({color}) => color),
+      fill: colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color),
     }))
     const textData = this.#textData.map(group => ({
       data: group.map(({value}) => value),

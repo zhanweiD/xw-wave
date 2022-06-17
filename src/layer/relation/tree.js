@@ -46,7 +46,7 @@ export default class TreeLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super({...defaultOptions, ...layerOptions}, chartOptions, ['circle', 'curve', 'text'])
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['circle', 'curve', 'text', 'gradient'])
     const {type} = this.options
     this.className = `chart-${type}-tree`
     this.tooltipTargets = ['circle']
@@ -95,9 +95,10 @@ export default class TreeLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {labelOffset, labelPosition, circleSize, align, text, circle, curve, rangeColorList} = this.#style
     const {type, layout} = this.options
+    this.#style = this.createStyle(defaultStyle, this.#style, style, this.options.id, type)
+
+    const {labelOffset, labelPosition, circleSize, align, text, curve, colorList} = this.#style
     const {links} = this.#data.data
     const groups = this.#data.get('groups')
     // update scales
@@ -109,7 +110,7 @@ export default class TreeLayer extends LayerBase {
     this.#circleData = []
     for (let i = 0; i < groups.length; i++) {
       const groupedNodes = groups[groups.length - i - 1]
-      const colorMatrix = this.getColorMatrix(groupedNodes.length, 1, rangeColorList || circle.fill)
+      const colorMatrix = this.getColorMatrix(groupedNodes.length, 1, colorList)
       this.#circleData[i] = groupedNodes.map((item, j) => ({
         cx: layout.left + scaleX(item.level),
         cy: layout.top + (isNumber(item.order) ? scaleY(item.order) : item.cy),
@@ -217,21 +218,22 @@ export default class TreeLayer extends LayerBase {
   }
 
   draw() {
-    const circleData = this.#circleData.map(group => {
+    const {colorList} = this.#style
+    const circleData = this.#circleData.map((group, index) => {
       const source = group.map(({dimension, name, value}) => ({dimension, category: name, value}))
       const data = group.map(({r}) => [r, r])
       const position = group.map(({cx, cy}) => [cx, cy])
-      const fill = group.map(({color}) => color)
+      const fill = colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color)
       const transformOrigin = 'center'
       return {data, source, position, transformOrigin, fill, ...this.#style.rect}
     })
-    const curveData = this.#curveData.map(group => ({
+    const curveData = this.#curveData.map((group, index) => ({
       data: group.map(({x1, y1, x2, y2}) => [
         [x1, y1],
         [x2, y2],
       ]),
       ...this.#style.curve,
-      stroke: group.map(({color}) => color),
+      stroke: colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color),
     }))
     const textData = this.#textData.map(group => {
       const data = group.map(({value}) => value)

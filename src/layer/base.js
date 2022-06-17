@@ -244,7 +244,7 @@ export default class LayerBase {
     // 统一处理图表颜色
     if (incomingStyle.colorList) {
       incomingStyle.colorList = incomingStyle.colorList?.map((item, index) => {
-        // 如果是渐变创建色卡
+        // 如果是渐变创建色卡,并返回色卡id
         if (item.length > 1) {
           this.drawBasic('gradient', [{
             gradientColor: item,

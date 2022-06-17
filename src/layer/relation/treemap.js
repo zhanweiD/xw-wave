@@ -44,7 +44,7 @@ export default class TreemapLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super({...defaultOptions, ...layerOptions}, chartOptions, ['rect', 'text'])
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['rect', 'text', 'gradient'])
     const {mode} = this.options
     this.className = `chart-${mode}-treemap`
     this.tooltipTargets = ['rect']
@@ -74,10 +74,12 @@ export default class TreemapLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {rect, align, verticalAlign, labelGap, text, rangeColorList} = this.#style
+    const {type, id} = this.options
+    this.#style = this.createStyle(defaultStyle, this.#style, style, id, 'column')
+
+    const {align, verticalAlign, labelGap, text, colorList} = this.#style
     // get colors
-    const colorMatrix = this.getColorMatrix(this.#rectData.length, 1, rangeColorList || rect.fill)
+    const colorMatrix = this.getColorMatrix(this.#rectData.length, 1, colorList)
     this.#rectData.forEach((item, i) => (item.color = colorMatrix.get(i, 0)))
     // basic text data including label and value
     this.#textData = this.#rectData.map(({x, y, width, height, value, name}) => {
@@ -113,12 +115,15 @@ export default class TreemapLayer extends LayerBase {
   }
 
   draw() {
+    const {colorList} = this.#style
     const rectData = {
       data: this.#rectData.map(({width, height}) => [width, height]),
       source: this.#rectData.map(({dimension, name, value}) => ({dimension, category: name, value})),
       position: this.#rectData.map(({x, y}) => [x, y]),
       ...this.#style.rect,
-      fill: this.#rectData.map(({color}) => color),
+      fill: this.#rectData.map((group, index) => {
+        return colorList ? this.setFill(group, index, colorList) : group.color
+      }),
     }
     const textData = this.#textData.map(group => ({
       data: group.map(({value}) => value),

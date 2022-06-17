@@ -35,7 +35,7 @@ export default class ScatterLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super(layerOptions, chartOptions, ['point', 'text'])
+    super(layerOptions, chartOptions, ['point', 'text', 'gradient'])
     this.className = 'chart-scatter'
     this.tooltipTargets = ['point']
   }
@@ -88,10 +88,12 @@ export default class ScatterLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {pointSize, text, point, rangeColorList, shape} = this.#style
+    const {id, type} = this.options
+    this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
+
+    const {pointSize, text, colorList, shape} = this.#style
     // get colors
-    const colorMatrix = this.getColorMatrix(this.#pointData.length, 1, rangeColorList || point.fill)
+    const colorMatrix = this.getColorMatrix(this.#pointData.length, 1, colorList)
     this.#pointData.forEach((group, i) => group.forEach(item => (item.color = colorMatrix.get(i, 0))))
     // inject point size data
     const valueIndex = this.#data.data.findIndex(({header}) => header === 'value')
@@ -122,18 +124,19 @@ export default class ScatterLayer extends LayerBase {
       list: this.#pointData.map((group, i) => ({
         shape: shape || 'circle',
         label: group[0].category,
-        color: colorMatrix.get(i, 0),
+        color: ((i < colorList?.length) || !colorList) ? colorMatrix.get(0, i) : colorList?.[colorList?.length - 1],
       })),
     })
   }
 
   draw() {
-    const pointData = this.#pointData.map(group => ({
+    const {colorList} = this.#style
+    const pointData = this.#pointData.map((group, index) => ({
       data: group.map(({r}) => [r, r]),
       position: group.map(({cx, cy}) => [cx, cy]),
       source: group.map(item => item.source),
       ...this.#style.point,
-      fill: group.map(({color}) => color),
+      fill: colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color),
     }))
     const textData = this.#textData.map(group => ({
       position: group.map(({x, y}) => [x, y]),

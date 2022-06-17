@@ -1,3 +1,4 @@
+// 矩阵
 import * as d3 from 'd3'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
@@ -41,7 +42,7 @@ export default class MatrixLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super({...defaultOptions, ...layerOptions}, chartOptions, ['rect', 'circle', 'text'])
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['rect', 'circle', 'text', 'gradient'])
     const {shape} = this.options
     this.className = `chart-${shape}-matrix`
     this.tooltipTargets = ['rect', 'circle']
@@ -112,21 +113,22 @@ export default class MatrixLayer extends LayerBase {
   }
 
   setStyle(style) {
-    this.#style = this.createStyle(defaultStyle, this.#style, style)
-    const {shape} = this.options
+    const {shape, id} = this.options
+    this.#style = this.createStyle(defaultStyle, this.#style, style, id, 'column')
+
     const [minValue, maxValue] = this.#data.range()
-    const {circleSize, rect, circle, text, rangeColorList} = this.#style
+    const {circleSize, text, colorList} = this.#style
     // color is related with value
     const colorNumber = Number(Number(maxValue - minValue + 1).toFixed(0))
     const scaleRectColor = new Scale({
       type: 'ordinal',
       domain: d3.range(0, maxValue - minValue, 1),
-      range: this.getColorMatrix(1, colorNumber, rangeColorList || rect.fill, false).matrix[0],
+      range: this.getColorMatrix(1, colorNumber, colorList, false).matrix[0],
     })
     const scaleCircleColor = new Scale({
       type: 'ordinal',
       domain: d3.range(0, maxValue - minValue, 1),
-      range: this.getColorMatrix(1, colorNumber, rangeColorList || circle.fill, false).matrix[0],
+      range: this.getColorMatrix(1, colorNumber, colorList, false).matrix[0],
     })
     this.#rectData.forEach(group => {
       group.forEach(item => (item.color = scaleRectColor(Math.round(item.value - minValue))))
@@ -156,19 +158,20 @@ export default class MatrixLayer extends LayerBase {
 
   draw() {
     const {shape} = this.options
-    const rectData = this.#rectData.map(group => ({
+    const {colorList} = this.#style
+    const rectData = this.#rectData.map((group, index) => ({
       data: group.map(({width, height}) => [width, height]),
       source: group.map(({source}) => source),
       position: group.map(({x, y}) => [x, y]),
       ...this.#style.rect,
-      fill: group.map(({color}) => color),
+      fill: colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color),
     }))
-    const circleData = this.#circleData.map(group => ({
+    const circleData = this.#circleData.map((group, index) => ({
       data: group.map(({r}) => [r, r]),
       position: group.map(({cx, cy}) => [cx, cy]),
       source: group.map(({source}) => source),
       ...this.#style.circle,
-      fill: group.map(({color}) => color),
+      fill: colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color),
     }))
     const textData = this.#textData.map(group => ({
       data: group.map(({value}) => value),
