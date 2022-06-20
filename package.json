@@ -1,6 +1,6 @@
 {
   "name": "dtwave-chart",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "author": "shuzhiwen",
   "main": "dist/wave.min.js",
   "homepage": ".",
