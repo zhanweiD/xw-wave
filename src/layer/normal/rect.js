@@ -43,6 +43,8 @@ export default class RectLayer extends LayerBase {
   #backgroundData = []
 
   #textData = []
+  
+  #stepData = []
 
   get data() {
     return this.#data
@@ -169,6 +171,7 @@ export default class RectLayer extends LayerBase {
     )
     // origin data of bars
     const {scaleX, scaleY} = this.#scale
+
     this.#rectData = pureTableList.map(([dimension, ...values]) => {
       return values.map((value, i) => ({
         value,
@@ -324,7 +327,7 @@ export default class RectLayer extends LayerBase {
   setStyle(style) {
     const {type, mode, id} = this.options
     this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
-    const {labelPosition, rectOffset, bandZoomFactor, fixedLength, shape, colorList} = this.#style
+    const {labelPosition, rectOffset, bandZoomFactor, fixedLength, shape, colorList, rectStep} = this.#style
     // get colors
     let colorMatrix
     if (this.#rectData[0]?.length > 1) {
@@ -337,7 +340,7 @@ export default class RectLayer extends LayerBase {
       this.#rectData.forEach((group, i) => (group[0].color = colorMatrix.get(i, 0)))
     }
     // horizontal scaling ratio
-    this.#rectData = this.#rectData.map(group => {
+    const rectList = this.#rectData.map(group => {
       return group.map(({x, y, width, height, ...other}) => {
         const totalPadding = (1 - bandZoomFactor) * (type === CHART.COLUMN ? width : height)
         return {
@@ -349,6 +352,48 @@ export default class RectLayer extends LayerBase {
         }
       })
     })
+    // getStepData
+    const range = (start, stop, step) => {
+      const value = Math.ceil(stop / step)
+      const array = [0]
+      let num = start
+      for (let i = 0; i < value; i++) {
+        num += start + step
+        array.push(num)
+      }
+      // array[array.length - 1] = stop
+      if (type === CHART.COLUMN) {
+        array.slice(1, array.length)
+      }
+      return array
+    }
+    const {scaleX, scaleY} = this.#scale
+    const {layout} = this.options
+    this.#rectData = rectList
+    const source = []
+    rectList.forEach(group => {
+      const list = []
+      group.forEach(({x, y, width, height, value, ...other}) => {
+        const v = rectStep.value
+        const totalPadding = (1 - bandZoomFactor) * (type === CHART.COLUMN ? width : height)
+        const l = range(v, value, v)
+        l.forEach(o => {
+          const resetWidth = type === CHART.COLUMN ? width : v / 10
+          const resetHeight = type === CHART.BAR ? height : v / 10
+          list.push({
+            width: resetWidth,
+            height: resetHeight,
+            x: type === CHART.COLUMN ? x + totalPadding / 2 : layout.left + (o === 0 ? scaleX(0) : scaleX(o)),
+            y: type === CHART.BAR ? y + totalPadding / 2 : layout.bottom + (o === 0 ? scaleY(0) : scaleY(o - v * 2) / 2) - layout.height / 2,
+            value: o,
+            ...other,
+          })
+        })
+      })
+      source.push(list)
+    })
+    // rect step data
+    this.#stepData = source
     // fixed rect length usually be used as mark
     if (isNumber(fixedLength)) {
       this.#rectData.forEach(group => {
@@ -415,7 +460,7 @@ export default class RectLayer extends LayerBase {
 
   draw() {
     const {type} = this.options
-    const {unit = {}, rectInterval, colorList} = this.#style
+    const {unit = {}, rectInterval, colorList, rectRadius, rectStep} = this.#style
     // const {id} = this.options
     // let gradientColor
     // if (rect.colorType === 'gradientColor') {
@@ -426,8 +471,9 @@ export default class RectLayer extends LayerBase {
     //   }])
     //   gradientColor = `url(#${id})`
     // }
-    const rectData = this.#rectData.map((group, index) => ({
-      data: group.map(({width, height}) => [width, height]),
+    const source = rectStep && rectStep.show ? this.#stepData : this.#rectData
+    const rectData = source.map((group, index) => ({
+      data: group.map(({width, height}) => [width, height, rectRadius, rectRadius]),
       source: group.map(item => item.source),
       position: group.map(({x, y}) => [x, y]),
       transformOrigin: type === CHART.COLUMN ? 'bottom' : 'left',

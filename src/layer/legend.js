@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-unresolved
 import {sum, max, range} from 'd3'
 import {cloneDeep} from 'lodash'
 import LayerBase from './base'
