@@ -137,7 +137,7 @@ export default class RectLayer extends LayerBase {
         {
           x: layout.left + scaleX(dimension),
           y: layout.top,
-          width: (rectWidth || scaleX.bandwidth()) + rectInterval * (item.length - 2),
+          width: (rectWidth || scaleX.bandwidth()) + (mode === 'group' ? rectInterval : 0) * (item.length - 2),
           height: layout.height,
         },
       ]
@@ -190,7 +190,7 @@ export default class RectLayer extends LayerBase {
           x: layout.left,
           y: layout.top + scaleY(dimension),
           width: layout.width,
-          height: (rectWidth || scaleY.bandwidth()) + rectInterval * (item.length - 2),
+          height: (rectWidth || scaleY.bandwidth()) + (mode === 'group' ? rectInterval : 0) * (item.length - 2),
         },
       ]
     })
@@ -484,7 +484,7 @@ export default class RectLayer extends LayerBase {
   }
 
   draw() {
-    const {type} = this.options
+    const {type, mode} = this.options
     const {unit = {}, rectInterval, colorList, rectRadius, rectStep} = this.#style
     const source = rectStep && rectStep.show ? this.#stepData : this.#rectData
     const rectData = source.map((group, index) => ({
@@ -496,7 +496,7 @@ export default class RectLayer extends LayerBase {
       fill: colorList ? this.setFill(group, index, colorList) : group.map(({color}) => color),
       // fill: group.map(({color}) => color),
       // fill: group.map(({color}) => gradientColor || color),
-      rectInterval,
+      rectInterval: mode === 'group' ? rectInterval : 0,
       type,
     }))
     const background = this.#backgroundData.map(group => ({

@@ -35,7 +35,7 @@ export default class Tooltip {
       .append('div')
       .attr('class', 'chart-tooltip')
       .style('border-radius', '2px')
-      .style('position', 'fixed')
+      .style('position', 'absolute')
       .style('overflow', 'hidden')
       .style('display', 'none')
       .style('z-index', 999)
@@ -126,7 +126,7 @@ export default class Tooltip {
         .style('flex-direction', 'row')
         .style('justify-content', 'space-between')
         .style('align-items', 'center')
-        .style('width', '100%')
+        .style('width', '160px')
       // point and text in row
       const pointWidthLabel = rows
         .append('div')
@@ -158,22 +158,22 @@ export default class Tooltip {
     return this
   }
 
-  move({pageX, pageY}) {
+  move({offsetX, offsetY}) {
     const drift = 10
     const rect = this.instance.nodes()[0].getBoundingClientRect()
     // boundary judgement
-    if (pageX + rect.width > document.body.clientWidth) {
-      pageX -= rect.width + drift
+    if (offsetX + rect.width > document.body.clientWidth) {
+      offsetX -= rect.width + drift
     } else {
-      pageX += drift
+      offsetX += drift
     }
-    if (pageY + rect.height > document.body.clientHeight) {
-      pageY -= rect.height + drift
+    if (offsetY + rect.height > document.body.clientHeight) {
+      offsetY -= rect.height + drift
     } else {
-      pageY += drift
+      offsetY += drift
     }
-    this.instance.style('left', `${pageX}px`).style('top', `${pageY}px`)
-    this.lastPosition = {x: pageX, y: pageY}
+    this.instance.style('left', `${offsetX}px`).style('top', `${offsetY}px`)
+    this.lastPosition = {x: offsetX, y: offsetY}
     return this
   }
 
