@@ -124,30 +124,6 @@ export default ({type, mode}) => `[
       },
     },
     animation: {
-      rect: {
-        enter: {
-          type: 'zoom',
-          delay: 0,
-          duration: 2000,
-          mode: 'enlarge',
-          direction: 'both',
-        },
-        loop: {
-          type: 'scan',
-          delay: 2000,
-          duration: 3000,
-          color: 'rgba(255,255,255,1)',
-        // direction: type === 'bar' ? 'right' : 'top',
-        },
-      },
-      text: {
-        enter: {
-          type: 'fade',
-          delay: 2000,
-          duration: 1000,
-          mode: 'fadeIn',
-        },
-      },
     },
     event: {
       'click-rect': d => console.log(d),
