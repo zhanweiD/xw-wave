@@ -4,6 +4,8 @@ import {isNumber} from 'lodash'
 import chroma from 'chroma-js'
 import LayerBase from '../base'
 import Scale from '../../data/scale'
+import {SHAPE} from '../../utils/constants'
+import {createStar} from '../../utils/shape'
 
 const MODE = {
   DEFAULT: 'default', // cover
@@ -79,7 +81,7 @@ export default class LineLayer extends LayerBase {
   }
 
   constructor(layerOptions, chartOptions) {
-    super({...defaultOptions, ...layerOptions}, chartOptions, ['curve', 'point', 'area', 'text', 'gradient'])
+    super({...defaultOptions, ...layerOptions}, chartOptions, ['curve', 'point', 'area', 'text', 'gradient', 'polygon'])
     const {mode} = this.options
     this.className = `chart-${mode}-curve`
     this.tooltipTargets = ['point']
@@ -191,6 +193,70 @@ export default class LineLayer extends LayerBase {
     return null
   }
 
+  #createShape = ({shape, x, y, size, color}) => {
+    const array = []
+    if (shape === SHAPE.RECT) {
+      array.push({
+        x: x - size * 2,
+        y: y - size / 2,
+        width: size * 2,
+        height: size,
+        fill: color,
+      })
+    } else if (shape === SHAPE.CIRCLE) {
+      array.push({
+        cx: x - size / 2,
+        cy: y,
+        r: size / 2,
+        fill: color,
+      })
+    } else if (shape === SHAPE.BROKEN_LINE) {
+      array.push(
+        {
+          x1: x - size * 2,
+          x2: x - (size / 2) * 3,
+          y1: y,
+          y2: y,
+          strokeWidth: size / 5,
+          stroke: color,
+        },
+        {
+          x1: x - size / 2,
+          x2: x,
+          y1: y,
+          y2: y,
+          strokeWidth: size / 5,
+          stroke: color,
+        }
+      )
+      this.#data.circleData.push({
+        cx: x - size,
+        cy: y,
+        r: size / 3,
+        strokeWidth: size / 5,
+        stroke: color,
+        fillOpacity: 0,
+      })
+    } else if (shape === SHAPE.DOTTED_LINE) {
+      array.push({
+        x1: x - size * 2,
+        x2: x,
+        y1: y,
+        y2: y,
+        stroke: color,
+        strokeWidth: size / 5,
+        dasharray: `${size / 4} ${size / 4}`,
+      })
+    } else if (shape === SHAPE.STAR) {
+      array.push({
+        points: createStar(x - size, y - size / 2, size, size),
+        position: [x, y],
+        fill: color,
+      })
+    }
+    return array
+  }
+
   draw() {
     const {curve} = this.#style.curve
     const {colorList} = this.#style
@@ -249,8 +315,29 @@ export default class LineLayer extends LayerBase {
       }
       textData.push(unitData)
     }
+    const polygonData = []
+    pointData.forEach(i => {
+      i.data.forEach((s, sdx) => {
+        const res = this.#createShape({
+          shape: 'star',
+          size: 10,
+          x: i.position[sdx][0] + 5,
+          y: i.position[sdx][1],
+          color: i.stroke[sdx],
+        })
+        polygonData.push(res[0])
+      })
+    })
+    const haveNew = {
+      data: polygonData.map(({points}) => points),
+      position: polygonData.map(({position}) => position),
+      fill: polygonData.map(({fill}) => fill),
+    }
+    console.log(haveNew, 'pointData')
     this.drawBasic('area', areaData)
     this.drawBasic('curve', curveData)
+    // this.drawBasic('polygon', [haveNew])
+
     this.drawBasic('circle', pointData, 'point')
     this.drawBasic('text', textData)
   }

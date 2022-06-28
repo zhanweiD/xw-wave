@@ -325,7 +325,7 @@ export default class RectLayer extends LayerBase {
   }
 
   setStyle(style) {
-    const {type, mode, id} = this.options
+    const {type, mode, id, layout} = this.options
     this.#style = this.createStyle(defaultStyle, this.#style, style, id, type)
     const {labelPosition, rectOffset, bandZoomFactor, fixedLength, shape, colorList, rectStep} = this.#style
     // get colors
@@ -352,48 +352,7 @@ export default class RectLayer extends LayerBase {
         }
       })
     })
-    // getStepData
-    const range = (start, stop, step) => {
-      const value = Math.ceil(stop / step)
-      const array = [0]
-      let num = start
-      for (let i = 0; i < value; i++) {
-        num += start + step
-        array.push(num)
-      }
-      // array[array.length - 1] = stop
-      if (type === CHART.COLUMN) {
-        array.slice(1, array.length)
-      }
-      return array
-    }
-    const {scaleX, scaleY} = this.#scale
-    const {layout} = this.options
-    this.#rectData = rectList
-    const source = []
-    rectList.forEach(group => {
-      const list = []
-      group.forEach(({x, y, width, height, value, ...other}) => {
-        const v = rectStep.value
-        const totalPadding = (1 - bandZoomFactor) * (type === CHART.COLUMN ? width : height)
-        const l = range(v, value, v)
-        l.forEach(o => {
-          const resetWidth = type === CHART.COLUMN ? width : v / 10
-          const resetHeight = type === CHART.BAR ? height : v / 10
-          list.push({
-            width: resetWidth,
-            height: resetHeight,
-            x: type === CHART.COLUMN ? x + totalPadding / 2 : layout.left + (o === 0 ? scaleX(0) : scaleX(o)),
-            y: type === CHART.BAR ? y + totalPadding / 2 : layout.bottom + (o === 0 ? scaleY(0) : scaleY(o - v * 2) / 2) - layout.height / 2,
-            value: o,
-            ...other,
-          })
-        })
-      })
-      source.push(list)
-    })
-    // rect step data
-    this.#stepData = source
+
     // fixed rect length usually be used as mark
     if (isNumber(fixedLength)) {
       this.#rectData.forEach(group => {
@@ -456,21 +415,77 @@ export default class RectLayer extends LayerBase {
         })),
       })
     }
+    if (rectStep && rectStep.show) {
+      // getStepData
+      const range = (step, value, percent, gap) => {
+        const stepLengths = Math.floor(percent / step)
+        const restValue = percent - (gap * (stepLengths))
+        const lengths = Math.floor(restValue / step)
+        const array = new Array(lengths).fill().map(() => step)
+        restValue / step > lengths && array.push(Math.floor((restValue % step)))
+        return array
+      }
+      this.#rectData = rectList
+      // 取第一个总高值做参考
+      const {width: overallWidth, height: overallHeight, y: sourceY, x: sourceX} = this.#backgroundData[0][0]
+      // 取值做算百分薄
+      const {width: itemWidth, height: itemHeight, y: itemY} = rectList[0][0] 
+      // 取高度算轴百分比
+      const getH = itemHeight / overallHeight
+      const heightPercent = getH * 100
+
+      // 取宽度算轴百分比
+      const getW = itemWidth / overallWidth
+      const widthPercent = getW * 100
+
+      // y轴的百分比
+      const YPercent = ((itemY - sourceY) / (100 - heightPercent))
+      // Y轴的起始位置
+      const startY = sourceY + YPercent * 100
+
+      // x轴的百分比
+      // const XPercent = ((itemX - sourceX) / (100 - widthPercent))
+      // X轴的起始位置
+      const startX = sourceX
+      // console.log(overallWidth, itemWidth, widthPercent)
+      const source = []
+      rectList.forEach(group => {
+        const list = []
+        group.forEach(({x, y, width, height, value, ...other}) => {
+          let resetY = startY
+          let resetX = startX
+
+          const b = value / (type === CHART.COLUMN ? widthPercent : heightPercent)
+          const totalPadding = (1 - bandZoomFactor) * (type === CHART.COLUMN ? width : height)
+          const rangeHeightList = range(rectStep.percentage, height, (height / overallHeight) * 100, rectStep.gap)
+          const rangeWidthList = range(rectStep.percentage, width, (width / overallWidth) * 100, rectStep.gap)
+          const resetList = type === CHART.COLUMN ? rangeHeightList : rangeWidthList
+          resetList.forEach((o, odx) => {
+            const resetWidth = type === CHART.COLUMN ? width : (overallWidth / 100) * o 
+            const resetHeight = type === CHART.BAR ? height : (overallHeight / 100) * o 
+            resetY -= odx === 0 ? YPercent * (o) : YPercent * (o + (rectStep.gap * 2))
+            // resetX += odx === 0 ? XPercent * (o) : XPercent * (o + (rectStep.gap * 2))
+            resetX += odx === 0 ? 0 : ((layout.right - layout.left) / 100) * (o + (rectStep.gap))
+            list.push({
+              width: resetWidth,
+              height: resetHeight,
+              x: type === CHART.COLUMN ? x + totalPadding / 2 : resetX,
+              y: type === CHART.BAR ? y + totalPadding / 2 : resetY,
+              value: b * o,
+              ...other,
+            })
+          })
+        })
+        source.push(list)
+      })
+      // rect step data
+      this.#stepData = source
+    }
   }
 
   draw() {
     const {type} = this.options
     const {unit = {}, rectInterval, colorList, rectRadius, rectStep} = this.#style
-    // const {id} = this.options
-    // let gradientColor
-    // if (rect.colorType === 'gradientColor') {
-    //   this.drawBasic('gradient', [{
-    //     ...rect, 
-    //     id, 
-    //     direction: type === CHART.COLUMN ? 'toY' : 'toX',
-    //   }])
-    //   gradientColor = `url(#${id})`
-    // }
     const source = rectStep && rectStep.show ? this.#stepData : this.#rectData
     const rectData = source.map((group, index) => ({
       data: group.map(({width, height}) => [width, height, rectRadius, rectRadius]),
